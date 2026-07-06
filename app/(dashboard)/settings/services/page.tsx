@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useToast } from '@/components/ToastProvider'
+import { useTranslation } from '@/lib/i18n'
 
 interface Service {
   _id: string
@@ -12,6 +13,9 @@ interface Service {
   closeTime: string
   slotDuration: number
   capacity: number
+  price?: number
+  isFree?: boolean
+  details?: string
   color: string
   isActive: boolean
 }
@@ -26,10 +30,12 @@ const EMPTY_FORM = {
   name: '', description: '', location: '',
   openTime: '08:00', closeTime: '20:00',
   slotDuration: 60, capacity: 1, color: '#6366f1',
+  price: 0, isFree: false, details: ''
 }
 
 export default function ServicesPage() {
   const { showToast } = useToast()
+  const { t } = useTranslation()
   const [services, setServices] = useState<Service[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -64,6 +70,9 @@ export default function ServicesPage() {
       closeTime: svc.closeTime,
       slotDuration: svc.slotDuration,
       capacity: svc.capacity,
+      price: svc.price || 0,
+      isFree: svc.isFree || false,
+      details: svc.details || '',
       color: svc.color,
     })
     setShowForm(true)
@@ -105,7 +114,7 @@ export default function ServicesPage() {
       body: JSON.stringify({ isActive: !svc.isActive }),
     })
     if (res.ok) {
-      showToast(svc.isActive ? 'Service deactivated' : 'Service activated', 'info')
+      showToast(svc.isActive ? `${t('services')} deactivated` : `${t('services')} activated`, 'info')
       load()
     }
   }
@@ -125,12 +134,11 @@ export default function ServicesPage() {
     <div>
       <div className="page-header" style={{ marginBottom: '1.25rem' }}>
         <div>
-          <h2>Services</h2>
-          <p style={{ marginTop: 2 }}>Manage bookable hotel services and their schedules</p>
+          <h2>{t('services')}</h2>
         </div>
         <button id="add-service-btn" className="btn btn-primary" onClick={openAddForm}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14"/></svg>
-          Add Service
+          {t('addService')}
         </button>
       </div>
 
@@ -147,9 +155,8 @@ export default function ServicesPage() {
                 <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
               </svg>
             </div>
-            <h3>No services yet</h3>
-            <p>Add your first service to start taking bookings</p>
-            <button className="btn btn-primary" onClick={openAddForm}>Add Service</button>
+            <h3>No {t('services').toLowerCase()} yet</h3>
+            <button className="btn btn-primary" onClick={openAddForm}>{t('addService')}</button>
           </div>
         </div>
       ) : (
@@ -157,7 +164,6 @@ export default function ServicesPage() {
           {services.map(svc => (
             <div key={svc._id} className="card" style={{ padding: '1rem 1.25rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                {/* Color dot */}
                 <div style={{
                   width: 40, height: 40, borderRadius: 10,
                   background: `${svc.color}25`,
@@ -173,14 +179,23 @@ export default function ServicesPage() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <strong style={{ color: 'var(--gray-800)', fontSize: '0.9375rem' }}>{svc.name}</strong>
                     <span className={`badge ${svc.isActive ? 'badge-success' : 'badge-gray'}`}>
-                      {svc.isActive ? 'Active' : 'Inactive'}
+                      {svc.isActive ? t('active') : t('inactive')}
                     </span>
+                    {svc.isFree ? (
+                      <span className="badge badge-blue">{t('isFree')}</span>
+                    ) : (
+                      svc.price && svc.price > 0 ? <strong style={{ color: 'var(--brand-600)', fontSize: '0.85rem' }}>uzs {svc.price.toLocaleString()}</strong> : null
+                    )}
                   </div>
-                  {svc.description && <p style={{ fontSize: '0.8125rem', marginTop: 1, color: 'var(--gray-500)' }}>{svc.description}</p>}
+                  {(svc.description || svc.details) && (
+                    <p style={{ fontSize: '0.8125rem', marginTop: 1, color: 'var(--gray-500)' }}>
+                      {svc.description} {svc.details ? `— [${t('details')}: ${svc.details}]` : ''}
+                    </p>
+                  )}
                   <div style={{ display: 'flex', gap: '1rem', marginTop: 4, fontSize: '0.75rem', color: 'var(--gray-400)' }}>
                     <span>🕐 {svc.openTime} – {svc.closeTime}</span>
-                    <span>⏱ {svc.slotDuration}min slots</span>
-                    <span>👥 Capacity: {svc.capacity}</span>
+                    <span>⏱ {svc.slotDuration}min</span>
+                    <span>👥 {t('capacity')}: {svc.capacity}</span>
                     {svc.location && <span>📍 {svc.location}</span>}
                   </div>
                 </div>
@@ -190,14 +205,14 @@ export default function ServicesPage() {
                   <button
                     className="btn btn-secondary btn-sm"
                     onClick={() => toggleActive(svc)}
-                    title={svc.isActive ? 'Deactivate' : 'Activate'}
+                    title={svc.isActive ? t('inactive') : t('active')}
                   >
-                    {svc.isActive ? 'Deactivate' : 'Activate'}
+                    {svc.isActive ? t('inactive') : t('active')}
                   </button>
                   <button
                     className="btn btn-secondary btn-sm btn-icon"
                     onClick={() => openEditForm(svc)}
-                    title="Edit"
+                    title={t('edit')}
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -206,14 +221,14 @@ export default function ServicesPage() {
                   </button>
                   {deleteConfirm === svc._id ? (
                     <>
-                      <button className="btn btn-danger btn-sm" onClick={() => handleDelete(svc._id)}>Delete</button>
-                      <button className="btn btn-ghost btn-sm" onClick={() => setDeleteConfirm(null)}>Cancel</button>
+                       <button className="btn btn-danger btn-sm" onClick={() => handleDelete(svc._id)}>{t('delete')}</button>
+                      <button className="btn btn-ghost btn-sm" onClick={() => setDeleteConfirm(null)}>{t('cancel')}</button>
                     </>
                   ) : (
                     <button
                       className="btn btn-ghost btn-sm btn-icon"
                       onClick={() => setDeleteConfirm(svc._id)}
-                      title="Delete"
+                      title={t('delete')}
                       style={{ color: 'var(--danger)' }}
                     >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -231,9 +246,9 @@ export default function ServicesPage() {
       {/* Modal Form */}
       {showForm && (
         <div className="modal-overlay" onClick={closeForm}>
-          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 560 }}>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 620 }}>
             <div className="modal-header">
-              <h2>{editService ? 'Edit Service' : 'Add New Service'}</h2>
+              <h2>{editService ? t('edit') : t('addService')}</h2>
               <button className="btn btn-ghost btn-icon" onClick={closeForm}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               </button>
@@ -241,39 +256,77 @@ export default function ServicesPage() {
 
             <form onSubmit={handleSubmit}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <div className="form-group">
-                  <label className="form-label">Service Name *</label>
-                  <input
-                    id="service-name"
-                    type="text"
-                    className="form-input"
-                    placeholder="e.g. Conference Hall A"
-                    value={form.name}
-                    onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                    required
-                  />
+                
+                {/* Advanced Row 1 */}
+                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1rem' }}>
+                  <div className="form-group">
+                    <label className="form-label">Name *</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={form.name}
+                      onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">{t('location')}</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={form.location}
+                      onChange={e => setForm(f => ({ ...f, location: e.target.value }))}
+                    />
+                  </div>
                 </div>
 
                 <div className="form-group">
                   <label className="form-label">Description</label>
                   <textarea
                     className="form-textarea"
-                    placeholder="Brief description of the service…"
                     value={form.description}
                     onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
                   />
                 </div>
 
+                {/* Advanced Row 2: Pricing */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', background: 'var(--brand-50)', padding: 12, borderRadius: 8 }}>
+                  <div className="form-group">
+                    <label className="form-label" style={{ color: 'var(--brand-700)' }}>{t('price')} (UZS)</label>
+                    <input
+                      type="number"
+                      className="form-input"
+                      value={form.price}
+                      onChange={e => setForm(f => ({ ...f, price: Number(e.target.value) }))}
+                      disabled={form.isFree}
+                    />
+                  </div>
+                  <div className="form-group" style={{ justifyContent: 'center' }}>
+                    <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+                      <input 
+                        type="checkbox" 
+                        checked={form.isFree}
+                        onChange={e => setForm(f => ({ ...f, isFree: e.target.checked, price: e.target.checked ? 0 : f.price }))}
+                        style={{ width: 16, height: 16 }}
+                      />
+                      {t('isFree')}
+                    </label>
+                  </div>
+                </div>
+
+                {/* Advanced Row 3: Equipment */}
                 <div className="form-group">
-                  <label className="form-label">Location</label>
+                  <label className="form-label">{t('details')}</label>
                   <input
                     type="text"
                     className="form-input"
-                    placeholder="e.g. Floor 2, East Wing"
-                    value={form.location}
-                    onChange={e => setForm(f => ({ ...f, location: e.target.value }))}
+                    placeholder="e.g. Toyota Hiace"
+                    value={form.details}
+                    onChange={e => setForm(f => ({ ...f, details: e.target.value }))}
                   />
                 </div>
+                
+                <div className="divider" style={{ margin: '0.25rem 0' }} />
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <div className="form-group">
@@ -306,13 +359,13 @@ export default function ServicesPage() {
                       value={form.slotDuration}
                       onChange={e => setForm(f => ({ ...f, slotDuration: Number(e.target.value) }))}
                     >
-                      {[15, 30, 45, 60, 90, 120, 180, 240].map(m => (
+                      {[15, 30, 45, 60, 90, 120, 180, 240, 1440].map(m => (
                         <option key={m} value={m}>{m} min{m >= 60 ? ` (${m/60}h)` : ''}</option>
                       ))}
                     </select>
                   </div>
                   <div className="form-group">
-                    <label className="form-label">Capacity (concurrent)</label>
+                    <label className="form-label">{t('capacity')}</label>
                     <input
                       type="number"
                       className="form-input"
@@ -343,7 +396,7 @@ export default function ServicesPage() {
               <div className="divider" />
 
               <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
-                <button type="button" className="btn btn-secondary" onClick={closeForm}>Cancel</button>
+                <button type="button" className="btn btn-secondary" onClick={closeForm}>{t('cancel')}</button>
                 <button
                   id="save-service-btn"
                   type="submit"
@@ -351,7 +404,7 @@ export default function ServicesPage() {
                   disabled={saving}
                 >
                   {saving ? <span className="spinner" /> : null}
-                  {saving ? 'Saving…' : editService ? 'Save Changes' : 'Create Service'}
+                  {saving ? 'Saving…' : t('save')}
                 </button>
               </div>
             </form>

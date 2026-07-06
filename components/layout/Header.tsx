@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { useTranslation, LanguageCode } from '@/lib/i18n'
 
 interface Props {
   userName: string
@@ -11,6 +12,7 @@ interface Props {
 export default function Header({ userName, userEmail }: Props) {
   const router = useRouter()
   const [loggingOut, setLoggingOut] = useState(false)
+  const { lang, setLang, t } = useTranslation()
 
   async function handleLogout() {
     setLoggingOut(true)
@@ -53,12 +55,32 @@ export default function Header({ userName, userEmail }: Props) {
           <div style={{ fontSize: '0.7rem', color: 'var(--gray-400)' }}>{userEmail}</div>
         </div>
 
+        <select
+          value={lang}
+          onChange={e => setLang(e.target.value as LanguageCode)}
+          style={{
+            marginLeft: 8,
+            padding: '4px 6px',
+            borderRadius: 6,
+            border: '1px solid var(--gray-200)',
+            fontSize: '0.75rem',
+            background: 'var(--surface-bg)',
+            color: 'var(--gray-700)',
+            outline: 'none',
+            cursor: 'pointer'
+          }}
+        >
+          <option value="uz">O'Z</option>
+          <option value="ru">RU</option>
+          <option value="en">EN</option>
+        </select>
+
         <button
           id="logout-btn"
           onClick={handleLogout}
           disabled={loggingOut}
           className="btn btn-ghost btn-sm"
-          title="Sign out"
+          title={t('signOut')}
           style={{ marginLeft: 4 }}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
