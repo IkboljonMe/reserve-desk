@@ -5,8 +5,14 @@ import { useToast } from '@/components/ToastProvider'
 
 interface Room {
   _id: string
+  hotelId: string
   number: string
   floor: number
+}
+
+interface Hotel {
+  _id: string
+  shortName: string
 }
 
 interface Client {
@@ -24,6 +30,7 @@ export default function ClientsPage() {
   const { showToast } = useToast()
   const [clients, setClients] = useState<Client[]>([])
   const [rooms, setRooms] = useState<Room[]>([])
+  const [hotels, setHotels] = useState<Hotel[]>([])
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [modalOpen, setModalOpen] = useState(false)
@@ -35,13 +42,15 @@ export default function ClientsPage() {
   const loadData = useCallback(async () => {
     setLoading(true)
     try {
-      const [cr, rr] = await Promise.all([
+      const [cr, rr, hr] = await Promise.all([
         fetch(`/api/clients${search ? `?search=${encodeURIComponent(search)}` : ''}`),
         fetch('/api/rooms'),
+        fetch('/api/hotels'),
       ])
-      const [c, r] = await Promise.all([cr.json(), rr.json()])
+      const [c, r, h] = await Promise.all([cr.json(), rr.json(), hr.json()])
       setClients(Array.isArray(c) ? c : [])
       setRooms(Array.isArray(r) ? r : [])
+      setHotels(Array.isArray(h) ? h : [])
     } catch {
       showToast('Failed to load clients', 'error')
     } finally {
@@ -69,9 +78,15 @@ export default function ClientsPage() {
     setForm(EMPTY_FORM)
   }
 
-  // Auto-fill floor when room number is picked
+  // Room display name uses the hotel's compact code, e.g. "FG-202".
+  function roomLabel(r: Room) {
+    const sn = hotels.find(h => h._id === r.hotelId)?.shortName || '??'
+    return `${sn}-${r.number}`
+  }
+
+  // Auto-fill floor when a room is picked. The stored value is the full label.
   function handleRoomChange(roomNumber: string) {
-    const room = rooms.find(r => r.number === roomNumber)
+    const room = rooms.find(r => roomLabel(r) === roomNumber)
     setForm(f => ({ ...f, roomNumber, floor: room ? room.floor : f.floor }))
   }
 
@@ -219,7 +234,7 @@ export default function ClientsPage() {
                   </td>
                   <td style={{ padding: '12px 16px' }}>
                     <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-                      <button className="btn btn-ghost btn-sm btn-icon" onClick={() => openEdit(c)} title="Edit">
+                      <button className="btn btn-ghost btn-sm btn-icon" onClick={() => openEdit(c)} title="Edit" aria-label="Edit client">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                           <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
@@ -231,7 +246,7 @@ export default function ClientsPage() {
                           <button className="btn btn-ghost btn-sm" onClick={() => setDeleteConfirm(null)}>Cancel</button>
                         </div>
                       ) : (
-                        <button className="btn btn-ghost btn-sm btn-icon" onClick={() => setDeleteConfirm(c._id)} title="Delete">
+                        <button className="btn btn-ghost btn-sm btn-icon" onClick={() => setDeleteConfirm(c._id)} title="Delete" aria-label="Delete client">
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
                           </svg>
@@ -252,7 +267,7 @@ export default function ClientsPage() {
           <div className="modal" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <h2>{editClient ? 'Edit Client' : 'Add Client'}</h2>
-              <button className="btn btn-ghost btn-icon" onClick={closeModal}>
+              <button className="btn btn-ghost btn-icon" onClick={closeModal} aria-label="Close">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               </button>
             </div>
@@ -276,7 +291,7 @@ export default function ClientsPage() {
                       {floorGroups.map(floor => (
                         <optgroup key={floor} label={`Floor ${floor}`}>
                           {rooms.filter(r => r.floor === floor).map(r => (
-                            <option key={r._id} value={r.number}>Room {r.number}</option>
+                            <option key={r._id} value={roomLabel(r)}>{roomLabel(r)}</option>
                           ))}
                         </optgroup>
                       ))}

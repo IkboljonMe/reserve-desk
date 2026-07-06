@@ -2,6 +2,7 @@ import { requireAuth } from '@/lib/session'
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
 import { ToastProvider } from '@/components/ToastProvider'
+import { DraftProvider } from '@/components/DraftProvider'
 import { LanguageProvider } from '@/lib/i18n'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -10,7 +11,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <LanguageProvider>
       <ToastProvider>
-        <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+       <DraftProvider>
+        <div style={{ display: 'flex', height: '100dvh', overflow: 'hidden' }}>
           <Sidebar />
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <Header userName={session.name} userEmail={session.email} />
@@ -19,6 +21,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             </main>
           </div>
         </div>
+       </DraftProvider>
       </ToastProvider>
     </LanguageProvider>
   )

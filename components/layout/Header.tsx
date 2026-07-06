@@ -23,7 +23,7 @@ export default function Header({ userName, userEmail }: Props) {
 
   return (
     <header style={{
-      height: 56,
+      height: 60,
       background: 'var(--header-bg)',
       backdropFilter: 'blur(20px)',
       WebkitBackdropFilter: 'blur(20px)',
@@ -37,37 +37,21 @@ export default function Header({ userName, userEmail }: Props) {
       <div />
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-        {/* Avatar */}
-        <div style={{
-          width: 32, height: 32,
-          borderRadius: '50%',
-          background: 'linear-gradient(135deg, #4f6ef7, #7c3aed)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color: '#fff',
-          fontWeight: 700,
-          fontSize: '0.8125rem',
-        }}>
-          {userName.charAt(0).toUpperCase()}
-        </div>
-
-        <div style={{ lineHeight: 1.3 }}>
-          <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--gray-800)' }}>{userName}</div>
-          <div style={{ fontSize: '0.7rem', color: 'var(--gray-400)' }}>{userEmail}</div>
-        </div>
-
         <select
           value={lang}
           onChange={e => setLang(e.target.value as LanguageCode)}
+          aria-label="Language"
           style={{
-            marginLeft: 8,
-            padding: '4px 6px',
-            borderRadius: 6,
+            padding: '6px 10px',
+            borderRadius: 8,
             border: '1px solid var(--gray-200)',
             fontSize: '0.75rem',
-            background: 'var(--surface-bg)',
+            fontWeight: 600,
+            background: 'var(--surface-card)',
             color: 'var(--gray-700)',
             outline: 'none',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            boxShadow: 'var(--shadow-xs)',
           }}
         >
           <option value="uz">O'Z</option>
@@ -75,13 +59,42 @@ export default function Header({ userName, userEmail }: Props) {
           <option value="en">EN</option>
         </select>
 
+        <div style={{ width: 1, height: 24, background: 'var(--surface-border)' }} />
+
+        {/* User chip */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 10,
+          padding: '4px 6px 4px 4px',
+          borderRadius: 999,
+        }}>
+          <div style={{
+            width: 34, height: 34,
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg, #4f6ef7, #7c3aed)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: '#fff',
+            fontWeight: 700,
+            fontSize: '0.85rem',
+            boxShadow: '0 3px 8px rgba(79,110,247,0.35)',
+            flexShrink: 0,
+          }}>
+            {userName.charAt(0).toUpperCase()}
+          </div>
+
+          <div style={{ lineHeight: 1.3 }}>
+            <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--gray-800)' }}>{userName}</div>
+            <div style={{ fontSize: '0.7rem', color: 'var(--gray-400)' }}>{userEmail}</div>
+          </div>
+        </div>
+
         <button
           id="logout-btn"
           onClick={handleLogout}
           disabled={loggingOut}
-          className="btn btn-ghost btn-sm"
+          className="btn btn-ghost btn-sm btn-icon"
           title={t('signOut')}
-          style={{ marginLeft: 4 }}
+          aria-label={t('signOut')}
+          style={{ marginLeft: 2 }}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>

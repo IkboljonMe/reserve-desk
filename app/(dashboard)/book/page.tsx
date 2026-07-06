@@ -28,8 +28,14 @@ interface Service {
 
 interface Room {
   _id: string
+  hotelId: string
   number: string
   floor: number
+}
+
+interface Hotel {
+  _id: string
+  shortName: string
 }
 
 interface Client {
@@ -74,6 +80,7 @@ export default function BookPage() {
 
   const [services, setServices] = useState<Service[]>([])
   const [rooms, setRooms] = useState<Room[]>([])
+  const [hotels, setHotels] = useState<Hotel[]>([])
   const [selectedService, setSelectedService] = useState<Service | null>(null)
   const [selectedPlan, setSelectedPlan] = useState<PricingPlan | null>(null)
   const [date, setDate] = useState(searchParams.get('date') || new Date().toISOString().split('T')[0])
@@ -100,10 +107,12 @@ export default function BookPage() {
     Promise.all([
       fetch('/api/services').then(r => r.json()),
       fetch('/api/rooms').then(r => r.json()),
-    ]).then(([svcs, rms]) => {
+      fetch('/api/hotels').then(r => r.json()),
+    ]).then(([svcs, rms, htls]) => {
       const active = Array.isArray(svcs) ? svcs.filter((s: Service) => s.isActive) : []
       setServices(active)
       setRooms(Array.isArray(rms) ? rms : [])
+      setHotels(Array.isArray(htls) ? htls : [])
       if (preServiceId) {
         const found = active.find((s: Service) => s._id === preServiceId)
         if (found) {
@@ -222,6 +231,9 @@ export default function BookPage() {
 
   // Group rooms by floor
   const floorGroups = Array.from(new Set(rooms.map(r => r.floor))).sort((a, b) => a - b)
+
+  // Room display name uses the hotel's compact code, e.g. "FG-202".
+  const roomLabel = (r: Room) => `${hotels.find(h => h._id === r.hotelId)?.shortName || '??'}-${r.number}`
 
   return (
     <div style={{ maxWidth: 720, margin: '0 auto' }}>
@@ -567,7 +579,7 @@ export default function BookPage() {
                   {floorGroups.map(floor => (
                     <optgroup key={floor} label={`Floor ${floor}`}>
                       {rooms.filter(r => r.floor === floor).map(r => (
-                        <option key={r._id} value={r.number}>🏨 Room {r.number}</option>
+                        <option key={r._id} value={roomLabel(r)}>🏨 {roomLabel(r)}</option>
                       ))}
                     </optgroup>
                   ))}

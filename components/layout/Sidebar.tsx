@@ -65,8 +65,7 @@ export default function Sidebar() {
       ),
       children: [
         { label: t('services'), href: '/settings/services' },
-        { label: 'Rooms', href: '/settings/rooms' },
-        { label: 'Hotels', href: '/settings/hotels' },
+        { label: 'Hotels & Rooms', href: '/settings/hotels' },
         { label: t('general'), href: '/settings' },
       ],
     },
@@ -74,11 +73,9 @@ export default function Sidebar() {
 
   return (
     <aside style={{
-      width: 220,
-      minWidth: 220,
+      width: 232,
+      minWidth: 232,
       background: 'var(--sidebar-bg)',
-      backdropFilter: 'blur(24px)',
-      WebkitBackdropFilter: 'blur(24px)',
       borderRight: '1px solid rgba(255,255,255,0.05)',
       display: 'flex',
       flexDirection: 'column',
@@ -86,31 +83,42 @@ export default function Sidebar() {
     }}>
       {/* Brand */}
       <div style={{
-        padding: '1.25rem 1.25rem 1rem',
+        padding: '1.35rem 1.25rem 1.1rem',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
           <div style={{
-            width: 34, height: 34,
+            width: 38, height: 38,
             background: 'linear-gradient(135deg, #4f6ef7, #7c3aed)',
-            borderRadius: 10,
+            borderRadius: 12,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             flexShrink: 0,
+            boxShadow: '0 6px 16px rgba(79,110,247,0.4)',
           }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <rect x="2" y="3" width="20" height="14" rx="2"/>
               <path d="M8 21h8M12 17v4"/>
             </svg>
           </div>
           <div>
-            <div style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 700, lineHeight: 1.2 }}>ReserveDesk</div>
-            <div style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.7rem' }}>Hotel Admin</div>
+            <div style={{ color: '#fff', fontSize: '0.95rem', fontWeight: 700, lineHeight: 1.2, letterSpacing: '-0.01em' }}>ReserveDesk</div>
+            <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.7rem', letterSpacing: '0.02em' }}>Hotel Admin</div>
           </div>
         </div>
       </div>
 
       {/* Nav */}
-      <nav style={{ flex: 1, padding: '0.75rem 0.75rem', display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <nav style={{ flex: 1, padding: '1rem 0.75rem', display: 'flex', flexDirection: 'column', gap: 3 }}>
+        <div style={{
+          padding: '0 10px 8px',
+          fontSize: '0.65rem',
+          fontWeight: 700,
+          letterSpacing: '0.12em',
+          textTransform: 'uppercase',
+          color: 'rgba(255,255,255,0.28)',
+        }}>
+          Menu
+        </div>
         {NAV_ITEMS.map((item) => {
           const isActive = item.href === '/settings'
             ? pathname.startsWith('/settings')
@@ -121,29 +129,37 @@ export default function Sidebar() {
               <Link
                 href={item.href}
                 style={{
+                  position: 'relative',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 10,
-                  padding: '8px 10px',
-                  borderRadius: 8,
+                  gap: 11,
+                  padding: '9px 11px',
+                  borderRadius: 10,
                   textDecoration: 'none',
                   color: isActive ? '#fff' : 'var(--sidebar-text)',
-                  background: isActive ? 'rgba(79,110,247,0.25)' : 'transparent',
+                  background: isActive ? 'linear-gradient(135deg, rgba(79,110,247,0.28), rgba(124,58,237,0.22))' : 'transparent',
+                  boxShadow: isActive ? 'inset 0 0 0 1px rgba(124,146,255,0.25)' : 'none',
                   transition: 'all 0.15s ease',
                   fontSize: '0.875rem',
-                  fontWeight: isActive ? 600 : 400,
+                  fontWeight: isActive ? 600 : 500,
                 }}
                 onMouseEnter={e => {
-                  if (!isActive) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)'
+                  if (!isActive) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.06)'
                 }}
                 onMouseLeave={e => {
                   if (!isActive) (e.currentTarget as HTMLElement).style.background = 'transparent'
                 }}
               >
-                <span style={{ color: isActive ? 'var(--sidebar-active)' : 'var(--sidebar-text)' }}>{item.icon}</span>
+                {isActive && (
+                  <span style={{
+                    position: 'absolute', left: -7, top: '50%', transform: 'translateY(-50%)',
+                    width: 3, height: 18, borderRadius: 4, background: 'var(--sidebar-active)',
+                  }} />
+                )}
+                <span style={{ display: 'inline-flex', color: isActive ? '#fff' : 'var(--sidebar-text)' }}>{item.icon}</span>
                 {item.label}
                 {isActive && item.href === '/settings' && (
-                  <span style={{ marginLeft: 'auto', color: 'rgba(255,255,255,0.3)' }}>
+                  <span style={{ marginLeft: 'auto', color: 'rgba(255,255,255,0.5)' }}>
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <polyline points="6 9 12 15 18 9"/>
                     </svg>

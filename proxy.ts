@@ -3,7 +3,7 @@ import { decrypt } from '@/lib/session'
 
 const PUBLIC_ROUTES = ['/login']
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   const isPublicRoute = PUBLIC_ROUTES.some((route) => pathname.startsWith(route))

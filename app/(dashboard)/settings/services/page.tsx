@@ -2,8 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import { useToast } from '@/components/ToastProvider'
+import { useDraft } from '@/components/DraftProvider'
 import { useTranslation } from '@/lib/i18n'
-import { availableIcons } from '@/lib/serviceIcons'
+import { ServiceIcon } from '@/lib/serviceIcons'
+import IconPicker from '@/components/IconPicker'
+import Select from '@/components/Select'
+import { Building2 } from 'lucide-react'
 
 interface Hotel {
   _id: string
@@ -41,16 +45,50 @@ const PRESET_COLORS = [
   '#64748b','#a16207',
 ]
 
+const DRAFT_KEY = 'add-service'
+
 const EMPTY_FORM = {
-  name: '', description: '', hotelId: '', icon: 'pool',
+  name: '', description: '', hotelId: '', icon: 'Waves',
   openTime: '08:00', closeTime: '20:00',
   slotDuration: 60, capacity: 1, color: '#6366f1',
   price: 0, isFree: false, details: '',
   bufferTimeBefore: 0, bufferTimeAfter: 0, pricingPlans: [] as PricingPlan[]
 }
 
+// Durations must be booked on a 15-minute grid (15, 30, 45, 60 …).
+const DURATION_STEP = 15
+
+// True when a duration has been entered but is not a positive multiple of 15.
+// Empty values are left for the `required` attribute to handle.
+function durationError(v: number | string): boolean {
+  if (v === '' || v === null || v === undefined) return false
+  const n = Number(v)
+  return !Number.isInteger(n) || n <= 0 || n % DURATION_STEP !== 0
+}
+
+// Like durationError, but 0 is allowed (0 = no buffer).
+function bufferError(v: number | string): boolean {
+  if (v === '' || v === null || v === undefined) return false
+  const n = Number(v)
+  return !Number.isInteger(n) || n < 0 || n % DURATION_STEP !== 0
+}
+
+// Select the whole value on focus so a click replaces the number instead of
+// dropping a caret at the end.
+function selectAllOnFocus(e: React.FocusEvent<HTMLInputElement>) {
+  e.currentTarget.select()
+}
+
+// Format a price with a space every 3 digits from the right: 1000000 -> "1 000 000".
+function formatPrice(v: number | string): string {
+  const digits = String(v ?? '').replace(/\D/g, '')
+  if (digits === '') return ''
+  return String(Number(digits)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+}
+
 export default function ServicesPage() {
   const { showToast } = useToast()
+  const { getDraft, saveDraft, clearDraft } = useDraft()
   const { t } = useTranslation()
   const [services, setServices] = useState<Service[]>([])
   const [hotels, setHotels] = useState<Hotel[]>([])
@@ -78,15 +116,36 @@ export default function ServicesPage() {
 
   function openAddForm() {
     setEditService(null)
-    setForm({ ...EMPTY_FORM })
+    const draft = getDraft<typeof EMPTY_FORM>(DRAFT_KEY)
+    if (draft) {
+      setForm({ ...EMPTY_FORM, ...draft })
+      showToast('Restored your unsaved draft', 'info')
+    } else {
+      setForm({ ...EMPTY_FORM })
+    }
     setShowForm(true)
+  }
+
+  // Auto-save the add-service draft so accidentally closing the modal doesn't
+  // lose the user's input (kept for 1h by DraftProvider). Editing existing
+  // services is not drafted.
+  useEffect(() => {
+    if (showForm && !editService) {
+      saveDraft(DRAFT_KEY, form)
+    }
+  }, [form, showForm, editService, saveDraft])
+
+  function discardDraft() {
+    clearDraft(DRAFT_KEY)
+    setForm({ ...EMPTY_FORM })
+    showToast('Draft cleared', 'info')
   }
 
   function openEditForm(svc: Service) {
     setEditService(svc)
     setForm({
       name: svc.name,
-      icon: svc.icon || 'pool',
+      icon: svc.icon || 'Waves',
       description: svc.description,
       hotelId: svc.hotelId,
       openTime: svc.openTime,
@@ -130,17 +189,47 @@ export default function ServicesPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+
+    // Hotel is required (the custom Select can't use the native `required`).
+    if (!form.hotelId) {
+      showToast('Please select a hotel', 'error')
+      return
+    }
+
+    // Block save if any pricing plan has a duration that isn't a multiple of 15.
+    if (!form.isFree && form.pricingPlans.length > 0) {
+      const hasBadDuration = form.pricingPlans.some(p => p.duration === '' || durationError(p.duration))
+      if (hasBadDuration) {
+        showToast('Each plan duration must be a multiple of 15 minutes (e.g. 15, 30, 45, 60)', 'error')
+        return
+      }
+    }
+
+    // Buffers must also sit on the 15-minute grid (0 allowed = no buffer).
+    if (bufferError(form.bufferTimeBefore) || bufferError(form.bufferTimeAfter)) {
+      showToast('Buffer times must be a multiple of 15 minutes (e.g. 0, 15, 30, 45)', 'error')
+      return
+    }
+
     setSaving(true)
     try {
       const url = editService ? `/api/services/${editService._id}` : '/api/services'
       const method = editService ? 'PUT' : 'POST'
+      const payload = {
+        ...form,
+        pricingPlans: form.pricingPlans.map(p => ({
+          duration: Number(p.duration) || 0,
+          price: Number(p.price) || 0,
+        })),
+      }
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       })
       if (res.ok) {
         showToast(editService ? 'Service updated!' : 'Service created!', 'success')
+        if (!editService) clearDraft(DRAFT_KEY)
         closeForm()
         load()
       } else {
@@ -186,6 +275,15 @@ export default function ServicesPage() {
         .hide-arrows[type=number] {
           -moz-appearance: textfield;
         }
+        .price-input {
+          font-variant-numeric: tabular-nums;
+          letter-spacing: 2px;
+          font-weight: 500;
+        }
+        .price-input::placeholder {
+          letter-spacing: normal;
+          font-weight: 400;
+        }
       `}</style>
       <div className="page-header" style={{ marginBottom: '1.25rem' }}>
         <div>
@@ -226,8 +324,9 @@ export default function ServicesPage() {
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   flexShrink: 0,
                   marginTop: 4,
+                  color: svc.color,
                 }}>
-                  <div style={{ width: 16, height: 16, borderRadius: '50%', background: svc.color }} />
+                  <ServiceIcon name={svc.icon} serviceName={svc.name} size={20} />
                 </div>
 
                 {/* Info */}
@@ -286,6 +385,7 @@ export default function ServicesPage() {
                     className="btn btn-secondary btn-sm btn-icon"
                     onClick={() => openEditForm(svc)}
                     title={t('edit')}
+                    aria-label={t('edit')}
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -302,6 +402,7 @@ export default function ServicesPage() {
                       className="btn btn-ghost btn-sm btn-icon"
                       onClick={() => setDeleteConfirm(svc._id)}
                       title={t('delete')}
+                      aria-label={t('delete')}
                       style={{ color: 'var(--danger)' }}
                     >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -322,7 +423,7 @@ export default function ServicesPage() {
           <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 660 }}>
             <div className="modal-header">
               <h2>{editService ? t('edit') : t('addService')}</h2>
-              <button className="btn btn-ghost btn-icon" onClick={closeForm}>
+              <button className="btn btn-ghost btn-icon" onClick={closeForm} aria-label="Close">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               </button>
             </div>
@@ -330,47 +431,42 @@ export default function ServicesPage() {
             <form onSubmit={handleSubmit}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 
-                {/* Advanced Row 1 */}
-                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1rem' }}>
-                  <div className="form-group">
-                    <label className="form-label">Name *</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={form.name}
-                      onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                      required
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Icon *</label>
-                    <select
-                      className="form-select"
-                      value={form.icon}
-                      onChange={e => setForm(f => ({ ...f, icon: e.target.value }))}
-                      required
-                    >
-                      <option value="pool">pool</option>
-                      {availableIcons.map(ic => (
-                        <option key={ic.keywords[0]} value={ic.keywords[0]}>{ic.keywords[0]}</option>
-                      ))}
-                    </select>
-                  </div>
+                <div className="form-group">
+                  <label className="form-label">Name *</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={form.name}
+                    onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    Icon *
+                    <span style={{
+                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                      width: 26, height: 26, borderRadius: 7,
+                      background: `${form.color}20`, border: `1.5px solid ${form.color}`,
+                      color: form.color,
+                    }}>
+                      <ServiceIcon name={form.icon} size={15} />
+                    </span>
+                  </label>
+                  <IconPicker value={form.icon} onChange={name => setForm(f => ({ ...f, icon: name }))} />
                 </div>
 
                 <div className="form-group">
                   <label className="form-label">Select Hotel *</label>
-                  <select
-                    className="form-select"
+                  <Select
+                    ariaLabel="Select hotel"
+                    placeholder="Select hotel"
+                    icon={<Building2 size={16} />}
                     value={form.hotelId}
-                    onChange={e => setForm(f => ({ ...f, hotelId: e.target.value }))}
-                    required
-                  >
-                    <option value="">Select hotel</option>
-                    {hotels.map(h => (
-                      <option key={h._id} value={h._id}>{h.name}</option>
-                    ))}
-                  </select>
+                    onChange={v => setForm(f => ({ ...f, hotelId: v }))}
+                    options={hotels.map(h => ({ value: h._id, label: h.name }))}
+                  />
                 </div>
 
                 <div className="form-group">
@@ -423,19 +519,42 @@ export default function ServicesPage() {
                                 <input
                                   type="number" className="form-input hide-arrows" value={plan.duration}
                                   onChange={e => updatePricingPlan(index, 'duration', e.target.value)}
+                                  onFocus={selectAllOnFocus}
                                   min={15} step={15} required
+                                  aria-invalid={durationError(plan.duration)}
+                                  style={durationError(plan.duration)
+                                    ? { borderColor: 'var(--danger)', boxShadow: '0 0 0 3px rgba(239,68,68,0.12)' }
+                                    : undefined}
                                 />
-                                <small style={{ color: 'var(--gray-400)', fontSize: '0.7rem', display: 'block', marginTop: 4 }}>15 min interval</small>
+                                {durationError(plan.duration) ? (
+                                  <small className="form-error" style={{ display: 'block', marginTop: 4 }}>
+                                    Must be a multiple of 15 — e.g. 15, 30, 45, 60, 75, 90…
+                                  </small>
+                                ) : (
+                                  <small style={{ color: 'var(--gray-400)', fontSize: '0.7rem', display: 'block', marginTop: 4 }}>15 min interval</small>
+                                )}
                               </div>
                               <div className="form-group" style={{ flex: 1 }}>
                                 <label className="form-label" style={{ marginBottom: 4 }}>{t('price')} (UZS)</label>
                                 <input
-                                  type="number" className="form-input hide-arrows" value={plan.price}
-                                  onChange={e => updatePricingPlan(index, 'price', e.target.value)}
-                                  min={0} required
+                                  type="text"
+                                  inputMode="numeric"
+                                  className="form-input price-input"
+                                  value={formatPrice(plan.price)}
+                                  onChange={e => {
+                                    const digits = e.target.value.replace(/\D/g, '')
+                                    updatePricingPlan(index, 'price', digits === '' ? '' : String(Number(digits)))
+                                  }}
+                                  onFocus={e => {
+                                    if (Number(plan.price) === 0) updatePricingPlan(index, 'price', '')
+                                    else e.currentTarget.select()
+                                  }}
+                                  onBlur={() => { if (plan.price === '') updatePricingPlan(index, 'price', '0') }}
+                                  placeholder="0"
+                                  required
                                 />
                               </div>
-                              <button type="button" className="btn btn-danger" style={{ padding: '0 0.75rem', height: '42px', marginTop: '22px' }} onClick={() => removePricingPlan(index)}>✕</button>
+                              <button type="button" className="btn btn-danger" style={{ padding: '0 0.75rem', height: '42px', marginTop: '22px' }} onClick={() => removePricingPlan(index)} aria-label={`Remove pricing plan ${index + 1}`}>✕</button>
                             </div>
                           ))}
                         </div>
@@ -489,36 +608,48 @@ export default function ServicesPage() {
                     <label className="form-label">🧹 Buffer Before (min)</label>
                     <input
                       type="number"
-                      className="form-input"
+                      className="form-input hide-arrows"
                       min={0} max={120} step={15}
                       placeholder="e.g. 15"
                       value={form.bufferTimeBefore}
+                      onFocus={selectAllOnFocus}
                       onChange={e => setForm(f => ({ ...f, bufferTimeBefore: Number(e.target.value) }))}
+                      aria-invalid={bufferError(form.bufferTimeBefore)}
+                      style={bufferError(form.bufferTimeBefore)
+                        ? { borderColor: 'var(--danger)', boxShadow: '0 0 0 3px rgba(239,68,68,0.12)' }
+                        : undefined}
                     />
-                    <small style={{ color: 'var(--gray-400)', fontSize: '0.7rem', display: 'block', marginTop: 4 }}>Up to 2 hr</small>
+                    {bufferError(form.bufferTimeBefore) ? (
+                      <small className="form-error" style={{ display: 'block', marginTop: 4 }}>
+                        Must be a multiple of 15 — e.g. 0, 15, 30, 45…
+                      </small>
+                    ) : (
+                      <small style={{ color: 'var(--gray-400)', fontSize: '0.7rem', display: 'block', marginTop: 4 }}>15 min interval</small>
+                    )}
                   </div>
                   <div className="form-group">
                     <label className="form-label">🧹 Buffer After (min)</label>
                     <input
                       type="number"
-                      className="form-input"
+                      className="form-input hide-arrows"
                       min={0} max={120} step={15}
+                      placeholder="e.g. 15"
                       value={form.bufferTimeAfter}
+                      onFocus={selectAllOnFocus}
                       onChange={e => setForm(f => ({ ...f, bufferTimeAfter: Number(e.target.value) }))}
+                      aria-invalid={bufferError(form.bufferTimeAfter)}
+                      style={bufferError(form.bufferTimeAfter)
+                        ? { borderColor: 'var(--danger)', boxShadow: '0 0 0 3px rgba(239,68,68,0.12)' }
+                        : undefined}
                     />
-                    <small style={{ color: 'var(--gray-400)', fontSize: '0.7rem', display: 'block', marginTop: 4 }}>Up to 2 hr</small>
+                    {bufferError(form.bufferTimeAfter) ? (
+                      <small className="form-error" style={{ display: 'block', marginTop: 4 }}>
+                        Must be a multiple of 15 — e.g. 0, 15, 30, 45…
+                      </small>
+                    ) : (
+                      <small style={{ color: 'var(--gray-400)', fontSize: '0.7rem', display: 'block', marginTop: 4 }}>15 min interval</small>
+                    )}
                   </div>
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">{t('capacity')}</label>
-                  <input
-                    type="number"
-                    className="form-input"
-                    min={1} max={100}
-                    value={form.capacity}
-                    onChange={e => setForm(f => ({ ...f, capacity: Number(e.target.value) }))}
-                  />
                 </div>
 
                 <div className="form-group">
@@ -532,6 +663,8 @@ export default function ServicesPage() {
                         style={{ background: c }}
                         onClick={() => setForm(f => ({ ...f, color: c }))}
                         title={c}
+                        aria-label={`Calendar color ${c}`}
+                        aria-pressed={form.color === c}
                       />
                     ))}
                   </div>
@@ -540,7 +673,13 @@ export default function ServicesPage() {
 
               <div className="divider" />
 
-              <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+              <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'space-between', alignItems: 'center' }}>
+                {!editService ? (
+                  <button type="button" className="btn btn-ghost btn-sm" onClick={discardDraft} style={{ color: 'var(--gray-500)' }}>
+                    Discard draft
+                  </button>
+                ) : <span />}
+                <div style={{ display: 'flex', gap: '0.75rem' }}>
                 <button type="button" className="btn btn-secondary" onClick={closeForm}>{t('cancel')}</button>
                 <button
                   id="save-service-btn"
@@ -551,6 +690,7 @@ export default function ServicesPage() {
                   {saving ? <span className="spinner" /> : null}
                   {saving ? 'Saving…' : t('save')}
                 </button>
+                </div>
               </div>
             </form>
           </div>
