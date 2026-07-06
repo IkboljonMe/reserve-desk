@@ -28,6 +28,11 @@ const DICTIONARY = {
     status: "Status",
     timeSlots: "Time Slots",
     guestInfo: "Guest Information",
+    bufferTime: "Buffer / Cleaning Time (min)",
+    pricingPlans: "Pricing Plans",
+    addPlan: "Add Pricing Plan",
+    durationMin: "Duration (min)",
+    remove: "Remove",
   },
   uz: {
     services: "Xizmatlar",
@@ -52,6 +57,11 @@ const DICTIONARY = {
     status: "Holat",
     timeSlots: "Vaqt oraliqlari",
     guestInfo: "Mehmon ma'lumotlari",
+    bufferTime: "Tozalash / Tanaffus (min)",
+    pricingPlans: "Narx rejalari",
+    addPlan: "Narx rejasini qo'shish",
+    durationMin: "Davomiylik (min)",
+    remove: "Olib tashlash",
   },
   ru: {
     services: "Услуги",
@@ -76,6 +86,11 @@ const DICTIONARY = {
     status: "Статус",
     timeSlots: "Временные интервалы",
     guestInfo: "Информация о госте",
+    bufferTime: "Время на уборку (мин)",
+    pricingPlans: "Тарифные планы",
+    addPlan: "Добавить план",
+    durationMin: "Длительность (мин)",
+    remove: "Удалить",
   }
 }
 

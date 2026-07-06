@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Service } from '@/models/Service'
+import '@/models/Hotel'
 import { getSession } from '@/lib/session'
 
 export async function GET() {
@@ -8,7 +9,7 @@ export async function GET() {
   if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   await connectDB()
-  const services = await Service.find().sort({ createdAt: -1 }).lean()
+  const services = await Service.find().populate('hotelId').sort({ createdAt: -1 }).lean()
   return Response.json(services)
 }
 
@@ -18,7 +19,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json()
-    const { name, description, location, openTime, closeTime, slotDuration, capacity, color, price, isFree, details } = body
+    const { name, icon, description, hotelId, openTime, closeTime, slotDuration, capacity, color, price, isFree, details, bufferTimeBefore, bufferTimeAfter, pricingPlans } = body
 
     if (!name || !openTime || !closeTime) {
       return Response.json({ error: 'Name, open time, and close time are required' }, { status: 400 })
@@ -26,12 +27,17 @@ export async function POST(req: NextRequest) {
 
     await connectDB()
     const service = await Service.create({
-      name, description, location, openTime, closeTime,
+      name, icon, description,
+      hotelId: hotelId || null,
+      openTime, closeTime,
       slotDuration: Number(slotDuration) || 60,
       capacity: Number(capacity) || 1,
       price: Number(price) || 0,
       isFree: Boolean(isFree),
       details: details || '',
+      bufferTimeBefore: Number(bufferTimeBefore) || 0,
+      bufferTimeAfter: Number(bufferTimeAfter) || 0,
+      pricingPlans: Array.isArray(pricingPlans) ? pricingPlans : [],
       color: color || '#6366f1',
     })
 

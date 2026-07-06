@@ -1,8 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useToast } from '@/components/ToastProvider'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useTranslation } from '@/lib/i18n'
+import { getServiceIcon } from '@/lib/serviceIcons'
+
+interface PricingPlan { duration: number; price: number }
 
 interface Service {
   _id: string
@@ -13,8 +17,27 @@ interface Service {
   closeTime: string
   slotDuration: number
   capacity: number
+  price?: number
+  isFree?: boolean
+  details?: string
+  bufferTime?: number
+  pricingPlans?: PricingPlan[]
   color: string
   isActive: boolean
+}
+
+interface Room {
+  _id: string
+  number: string
+  floor: number
+}
+
+interface Client {
+  _id: string
+  name: string
+  phone: string
+  roomNumber: string
+  floor: number
 }
 
 const STATUS_OPTIONS = [
@@ -22,15 +45,14 @@ const STATUS_OPTIONS = [
   { value: 'pending', label: '⏳ Pending' },
 ]
 
-const SERVICE_COLORS = ['#6366f1','#8b5cf6','#ec4899','#ef4444','#f59e0b','#10b981','#06b6d4','#3b82f6','#f97316','#84cc16']
-
-function generateTimeSlots(openTime: string, closeTime: string, slotDuration: number): string[] {
+function generateTimeSlots(openTime: string, closeTime: string, activeDuration: number): string[] {
+  if (!activeDuration) return []
   const [openH, openM] = openTime.split(':').map(Number)
   const [closeH, closeM] = closeTime.split(':').map(Number)
   const start = openH * 60 + openM
   const end = closeH * 60 + closeM
   const slots: string[] = []
-  for (let t = start; t + slotDuration <= end; t += slotDuration) {
+  for (let t = start; t + activeDuration <= end; t += activeDuration) {
     const h = Math.floor(t / 60).toString().padStart(2, '0')
     const m = (t % 60).toString().padStart(2, '0')
     slots.push(`${h}:${m}`)
@@ -38,9 +60,9 @@ function generateTimeSlots(openTime: string, closeTime: string, slotDuration: nu
   return slots
 }
 
-function slotEnd(startTime: string, slotDuration: number): string {
+function slotEnd(startTime: string, duration: number): string {
   const [h, m] = startTime.split(':').map(Number)
-  const total = h * 60 + m + slotDuration
+  const total = h * 60 + m + duration
   return `${Math.floor(total / 60).toString().padStart(2, '0')}:${(total % 60).toString().padStart(2, '0')}`
 }
 
@@ -48,62 +70,125 @@ export default function BookPage() {
   const { showToast } = useToast()
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { t } = useTranslation()
 
   const [services, setServices] = useState<Service[]>([])
+  const [rooms, setRooms] = useState<Room[]>([])
   const [selectedService, setSelectedService] = useState<Service | null>(null)
+  const [selectedPlan, setSelectedPlan] = useState<PricingPlan | null>(null)
   const [date, setDate] = useState(searchParams.get('date') || new Date().toISOString().split('T')[0])
   const [selectedSlot, setSelectedSlot] = useState(searchParams.get('time') || '')
   const [customerName, setCustomerName] = useState('')
   const [customerPhone, setCustomerPhone] = useState('')
+  const [roomNumber, setRoomNumber] = useState('')
   const [notes, setNotes] = useState('')
   const [status, setStatus] = useState<'confirmed' | 'pending'>('confirmed')
   const [loading, setLoading] = useState(false)
-  const [bookedSlots, setBookedSlots] = useState<string[]>([])
+  const [dayBookings, setDayBookings] = useState<Array<{ startTime: string; bufferedEndTime?: string; endTime: string; status: string }>>([])
   const [step, setStep] = useState(1)
+  const [selectedClientId, setSelectedClientId] = useState<string | null>(null)
 
-  // Pre-select service from query
+  // Client search
+  const [clientSearch, setClientSearch] = useState('')
+  const [clientResults, setClientResults] = useState<Client[]>([])
+  const [clientSearchOpen, setClientSearchOpen] = useState(false)
+  const clientSearchRef = useRef<HTMLDivElement>(null)
+
   const preServiceId = searchParams.get('serviceId')
 
   useEffect(() => {
-    fetch('/api/services')
-      .then(r => r.json())
-      .then((data: Service[]) => {
-        const active = data.filter(s => s.isActive)
-        setServices(active)
-        if (preServiceId) {
-          const found = active.find(s => s._id === preServiceId)
-          if (found) { setSelectedService(found); setStep(2) }
+    Promise.all([
+      fetch('/api/services').then(r => r.json()),
+      fetch('/api/rooms').then(r => r.json()),
+    ]).then(([svcs, rms]) => {
+      const active = Array.isArray(svcs) ? svcs.filter((s: Service) => s.isActive) : []
+      setServices(active)
+      setRooms(Array.isArray(rms) ? rms : [])
+      if (preServiceId) {
+        const found = active.find((s: Service) => s._id === preServiceId)
+        if (found) {
+          setSelectedService(found)
+          if (!found.pricingPlans || found.pricingPlans.length === 0) {
+            setSelectedPlan({ duration: found.slotDuration, price: found.isFree ? 0 : (found.price || 0) })
+          }
+          setStep(2)
         }
-      })
+      }
+    })
   }, [preServiceId])
 
-  // Load booked slots when service+date change
+  // Search clients
+  useEffect(() => {
+    if (!clientSearch.trim()) {
+      setClientResults([])
+      return
+    }
+    const timer = setTimeout(async () => {
+      const res = await fetch(`/api/clients?search=${encodeURIComponent(clientSearch)}`)
+      const data = await res.json()
+      setClientResults(Array.isArray(data) ? data.slice(0, 6) : [])
+    }, 250)
+    return () => clearTimeout(timer)
+  }, [clientSearch])
+
+  // Close client dropdown on outside click
+  useEffect(() => {
+    function handle(e: MouseEvent) {
+      if (clientSearchRef.current && !clientSearchRef.current.contains(e.target as Node)) {
+        setClientSearchOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handle)
+    return () => document.removeEventListener('mousedown', handle)
+  }, [])
+
   useEffect(() => {
     if (!selectedService || !date) return
     fetch(`/api/bookings?dateFrom=${date}&dateTo=${date}&serviceId=${selectedService._id}`)
       .then(r => r.json())
-      .then((bookings: Array<{ startTime: string; status: string }>) => {
-        setBookedSlots(bookings.filter(b => b.status !== 'cancelled').map(b => b.startTime))
-      })
+      .then(data => setDayBookings(Array.isArray(data) ? data.filter((b: { status: string }) => b.status !== 'cancelled') : []))
   }, [selectedService, date])
+
+  function handleSelectClient(c: Client) {
+    setSelectedClientId(c._id)
+    setCustomerName(c.name)
+    setCustomerPhone(c.phone)
+    setRoomNumber(c.roomNumber || '')
+    setClientSearch(`${c.name}${c.roomNumber ? ` · Room ${c.roomNumber}` : ''}`)
+    setClientSearchOpen(false)
+    setClientResults([])
+  }
+
+  function clearClient() {
+    setSelectedClientId(null)
+    setClientSearch('')
+    setCustomerName('')
+    setCustomerPhone('')
+    setRoomNumber('')
+    setClientResults([])
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!selectedService || !selectedSlot || !customerName || !date) return
+    if (!selectedService || !selectedSlot || !customerName || !date || !selectedPlan) return
 
     setLoading(true)
     try {
-      const endTime = slotEnd(selectedSlot, selectedService.slotDuration)
+      const endTime = slotEnd(selectedSlot, selectedPlan.duration)
       const res = await fetch('/api/bookings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           serviceId: selectedService._id,
+          clientId: selectedClientId,
           customerName: customerName.trim(),
           customerPhone: customerPhone.trim(),
+          roomNumber: roomNumber.trim(),
           date,
           startTime: selectedSlot,
           endTime,
+          duration: selectedPlan.duration,
+          totalPrice: selectedPlan.price,
           notes: notes.trim(),
           status,
         }),
@@ -120,16 +205,30 @@ export default function BookPage() {
     }
   }
 
-  const timeSlots = selectedService
-    ? generateTimeSlots(selectedService.openTime, selectedService.closeTime, selectedService.slotDuration)
+  const handleSelectService = (svc: Service) => {
+    setSelectedService(svc)
+    setSelectedSlot('')
+    if (svc.pricingPlans && svc.pricingPlans.length > 0) {
+      setSelectedPlan(null)
+    } else {
+      setSelectedPlan({ duration: svc.slotDuration || 60, price: svc.isFree ? 0 : (svc.price || 0) })
+    }
+    setStep(2)
+  }
+
+  const timeSlots = selectedService && selectedPlan
+    ? generateTimeSlots(selectedService.openTime, selectedService.closeTime, selectedPlan.duration)
     : []
+
+  // Group rooms by floor
+  const floorGroups = Array.from(new Set(rooms.map(r => r.floor))).sort((a, b) => a - b)
 
   return (
     <div style={{ maxWidth: 720, margin: '0 auto' }}>
       <div className="page-header">
         <div>
-          <h1>New Booking</h1>
-          <p style={{ marginTop: 4 }}>Reserve a service for a customer</p>
+          <h1>{t('newBooking')}</h1>
+          <p style={{ marginTop: 4 }}>Reserve a service for a guest</p>
         </div>
       </div>
 
@@ -138,7 +237,7 @@ export default function BookPage() {
         {[
           { n: 1, label: 'Select Service' },
           { n: 2, label: 'Date & Time' },
-          { n: 3, label: 'Customer Info' },
+          { n: 3, label: 'Guest Info' },
         ].map(({ n, label }) => (
           <div key={n} style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1 }}>
             <div style={{
@@ -173,7 +272,6 @@ export default function BookPage() {
                   </svg>
                 </div>
                 <h3>No active services</h3>
-                <p>Create services in Settings first</p>
               </div>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.75rem' }}>
@@ -181,7 +279,7 @@ export default function BookPage() {
                   <button
                     key={svc._id}
                     type="button"
-                    onClick={() => { setSelectedService(svc); setSelectedSlot(''); setStep(2) }}
+                    onClick={() => handleSelectService(svc)}
                     style={{
                       border: `2px solid ${selectedService?._id === svc._id ? svc.color : 'var(--gray-200)'}`,
                       borderRadius: 12,
@@ -192,15 +290,24 @@ export default function BookPage() {
                       transition: 'all 0.15s ease',
                     }}
                   >
+                    {/* Icon */}
                     <div style={{
-                      width: 10, height: 10, borderRadius: '50%',
-                      background: svc.color, marginBottom: 8,
-                    }} />
-                    <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--gray-800)', marginBottom: 2 }}>{svc.name}</div>
-                    {svc.location && <div style={{ fontSize: '0.75rem', color: 'var(--gray-500)' }}>📍 {svc.location}</div>}
-                    <div style={{ fontSize: '0.75rem', color: 'var(--gray-400)', marginTop: 4 }}>
-                      {svc.openTime} – {svc.closeTime} · {svc.slotDuration}min slots
+                      width: 40, height: 40, borderRadius: 10, marginBottom: 10,
+                      background: `${svc.color}18`,
+                      color: svc.color,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      {getServiceIcon(svc.name)}
                     </div>
+                    <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--gray-800)', marginBottom: 2 }}>{svc.name}</div>
+                    {svc.isFree ? (
+                      <span style={{ fontSize: '0.75rem', color: 'var(--success)', fontWeight: 600 }}>{t('isFree')}</span>
+                    ) : svc.pricingPlans && svc.pricingPlans.length > 0 ? (
+                      <span style={{ fontSize: '0.75rem', color: 'var(--brand-600)', fontWeight: 600 }}>{svc.pricingPlans.length} {t('pricingPlans')}</span>
+                    ) : svc.price && svc.price > 0 ? (
+                      <span style={{ fontSize: '0.75rem', color: 'var(--brand-600)', fontWeight: 600 }}>UZS {svc.price.toLocaleString()}</span>
+                    ) : null}
+                    {svc.location && <div style={{ fontSize: '0.75rem', color: 'var(--gray-500)', marginTop: 4 }}>📍 {svc.location}</div>}
                   </button>
                 ))}
               </div>
@@ -213,54 +320,111 @@ export default function BookPage() {
           <div className="card" style={{ animation: 'slideInRight 0.3s ease-out' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: '1.25rem' }}>
               <button type="button" className="btn btn-ghost btn-sm" onClick={() => setStep(1)}>← Back</button>
-              <div style={{ width: 10, height: 10, borderRadius: '50%', background: selectedService.color }} />
+              <div style={{
+                width: 32, height: 32, borderRadius: 8,
+                background: `${selectedService.color}18`,
+                color: selectedService.color,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flexShrink: 0,
+              }}>
+                {getServiceIcon(selectedService.name)}
+              </div>
               <h2>{selectedService.name}</h2>
             </div>
 
-            <div className="form-group" style={{ marginBottom: '1.25rem', maxWidth: 240 }}>
-              <label className="form-label">Date</label>
-              <input
-                type="date"
-                className="form-input"
-                value={date}
-                min={new Date().toISOString().split('T')[0]}
-                onChange={e => { setDate(e.target.value); setSelectedSlot('') }}
-                required
-              />
-            </div>
-
-            <label className="form-label" style={{ marginBottom: '0.5rem', display: 'block' }}>Available Time Slots</label>
-            {timeSlots.length === 0 ? (
-              <p style={{ color: 'var(--gray-400)', fontSize: '0.875rem' }}>No slots available for this configuration.</p>
-            ) : (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                {timeSlots.map(slot => {
-                  const booked = bookedSlots.includes(slot)
-                  const selected = selectedSlot === slot
-                  return (
-                    <button
-                      key={slot}
-                      type="button"
-                      disabled={booked}
-                      onClick={() => setSelectedSlot(slot)}
-                      style={{
-                        padding: '6px 14px',
-                        borderRadius: 8,
-                        border: `1.5px solid ${selected ? selectedService.color : booked ? 'var(--gray-200)' : 'var(--gray-200)'}`,
-                        background: selected ? selectedService.color : booked ? 'var(--gray-100)' : '#fff',
-                        color: selected ? '#fff' : booked ? 'var(--gray-300)' : 'var(--gray-700)',
-                        fontSize: '0.8125rem',
-                        fontWeight: selected ? 600 : 400,
-                        cursor: booked ? 'not-allowed' : 'pointer',
-                        transition: 'all 0.12s',
-                        textDecoration: booked ? 'line-through' : 'none',
-                      }}
-                    >
-                      {slot}
-                    </button>
-                  )
-                })}
+            {/* Pricing Plans */}
+            {selectedService.pricingPlans && selectedService.pricingPlans.length > 0 && (
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label className="form-label" style={{ marginBottom: '0.5rem', display: 'block' }}>
+                  Choose Duration / Price
+                </label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  {selectedService.pricingPlans.map((plan, i) => {
+                    const isSelected = selectedPlan?.duration === plan.duration && selectedPlan?.price === plan.price
+                    return (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => { setSelectedPlan(plan); setSelectedSlot('') }}
+                        style={{
+                          padding: '10px 16px',
+                          borderRadius: 8,
+                          border: `2px solid ${isSelected ? selectedService.color : 'var(--gray-200)'}`,
+                          background: isSelected ? `${selectedService.color}15` : '#fff',
+                          textAlign: 'left',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <div style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--gray-800)' }}>
+                          {plan.duration >= 60 ? `${plan.duration / 60}h` : `${plan.duration}m`}
+                        </div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--brand-600)' }}>
+                          {plan.price > 0 ? `UZS ${plan.price.toLocaleString()}` : t('isFree')}
+                        </div>
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
+            )}
+
+            {selectedPlan && (
+              <>
+                <div className="form-group" style={{ marginBottom: '1.25rem', maxWidth: 240 }}>
+                  <label className="form-label">Date</label>
+                  <input
+                    type="date"
+                    className="form-input"
+                    value={date}
+                    min={new Date().toISOString().split('T')[0]}
+                    onChange={e => { setDate(e.target.value); setSelectedSlot('') }}
+                    required
+                  />
+                </div>
+
+                <label className="form-label" style={{ marginBottom: '0.5rem', display: 'block' }}>
+                  Available Time Slots ({selectedPlan.duration}m)
+                </label>
+                {timeSlots.length === 0 ? (
+                  <p style={{ color: 'var(--gray-400)', fontSize: '0.875rem' }}>No slots available.</p>
+                ) : (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                    {timeSlots.map(slot => {
+                      const slotEndTime = slotEnd(slot, selectedPlan.duration)
+                      const buffer = selectedService.bufferTime || 0
+                      const [h, m] = slotEndTime.split(':').map(Number)
+                      const totalM = h * 60 + m + buffer
+                      const slotBufferedEndTime = `${Math.floor(totalM / 60).toString().padStart(2, '0')}:${(totalM % 60).toString().padStart(2, '0')}`
+                      const booked = dayBookings.some(b => {
+                        const existingBufferedEnd = b.bufferedEndTime || b.endTime
+                        return b.startTime < slotBufferedEndTime && existingBufferedEnd > slot
+                      })
+                      const selected = selectedSlot === slot
+                      return (
+                        <button
+                          key={slot}
+                          type="button"
+                          disabled={booked}
+                          onClick={() => setSelectedSlot(slot)}
+                          style={{
+                            padding: '6px 14px',
+                            borderRadius: 8,
+                            border: `1.5px solid ${selected ? selectedService.color : 'var(--gray-200)'}`,
+                            background: selected ? selectedService.color : booked ? 'var(--gray-100)' : '#fff',
+                            color: selected ? '#fff' : booked ? 'var(--gray-300)' : 'var(--gray-700)',
+                            fontSize: '0.8125rem',
+                            fontWeight: selected ? 600 : 400,
+                            cursor: booked ? 'not-allowed' : 'pointer',
+                            textDecoration: booked ? 'line-through' : 'none',
+                          }}
+                        >
+                          {slot}
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
+              </>
             )}
 
             {selectedSlot && (
@@ -273,19 +437,100 @@ export default function BookPage() {
           </div>
         )}
 
-        {/* Step 3: Customer info */}
-        {step === 3 && selectedService && selectedSlot && (
+        {/* Step 3: Guest Info */}
+        {step === 3 && selectedService && selectedSlot && selectedPlan && (
           <div className="card" style={{ animation: 'slideInRight 0.3s ease-out' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: '1.25rem' }}>
               <button type="button" className="btn btn-ghost btn-sm" onClick={() => setStep(2)}>← Back</button>
               <span style={{ fontSize: '0.875rem', color: 'var(--gray-500)' }}>
-                {selectedService.name} · {date} · {selectedSlot} – {slotEnd(selectedSlot, selectedService.slotDuration)}
+                {selectedService.name} · {date} · {selectedSlot} – {slotEnd(selectedSlot, selectedPlan.duration)}
               </span>
+            </div>
+
+            {/* Client Search */}
+            <div className="form-group" style={{ marginBottom: '1.25rem', position: 'relative' }} ref={clientSearchRef}>
+              <label className="form-label">Search Saved Guest</label>
+              <div style={{ position: 'relative' }}>
+                <svg
+                  width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gray-400)"
+                  strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                  style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
+                >
+                  <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                </svg>
+                <input
+                  className="form-input"
+                  style={{ paddingLeft: 34, paddingRight: selectedClientId ? 34 : 12 }}
+                  placeholder="Type name or room number…"
+                  value={clientSearch}
+                  onChange={e => {
+                    setClientSearch(e.target.value)
+                    setClientSearchOpen(true)
+                    if (!e.target.value) clearClient()
+                  }}
+                  onFocus={() => clientSearch && setClientSearchOpen(true)}
+                />
+                {selectedClientId && (
+                  <button
+                    type="button"
+                    onClick={clearClient}
+                    style={{
+                      position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)',
+                      background: 'none', border: 'none', cursor: 'pointer',
+                      color: 'var(--gray-400)', padding: 2,
+                    }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                )}
+              </div>
+
+              {/* Dropdown results */}
+              {clientSearchOpen && clientResults.length > 0 && (
+                <div style={{
+                  position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50,
+                  background: '#fff', border: '1px solid var(--gray-200)', borderRadius: 10,
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.12)', marginTop: 4, overflow: 'hidden',
+                }}>
+                  {clientResults.map(c => (
+                    <div
+                      key={c._id}
+                      onClick={() => handleSelectClient(c)}
+                      style={{
+                        padding: '10px 14px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10,
+                        borderBottom: '1px solid var(--gray-100)',
+                        transition: 'background 0.1s',
+                      }}
+                      onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'var(--gray-50)'}
+                      onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = '#fff'}
+                    >
+                      <div style={{
+                        width: 30, height: 30, borderRadius: '50%',
+                        background: 'var(--brand-100)', color: 'var(--brand-600)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontWeight: 700, fontSize: '0.8rem', flexShrink: 0,
+                      }}>
+                        {c.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: 600, color: 'var(--gray-800)', fontSize: '0.875rem' }}>{c.name}</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--gray-400)' }}>
+                          {c.roomNumber ? `🏨 Room ${c.roomNumber}` : ''}{c.phone ? ` · ${c.phone}` : ''}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
               <div className="form-group">
-                <label className="form-label">Customer Name *</label>
+                <label className="form-label">{t('guestInfo')} *</label>
                 <input
                   id="customerName"
                   type="text"
@@ -297,7 +542,7 @@ export default function BookPage() {
                 />
               </div>
               <div className="form-group">
-                <label className="form-label">Phone (optional)</label>
+                <label className="form-label">Phone</label>
                 <input
                   id="customerPhone"
                   type="tel"
@@ -307,6 +552,34 @@ export default function BookPage() {
                   onChange={e => setCustomerPhone(e.target.value)}
                 />
               </div>
+            </div>
+
+            {/* Room Number */}
+            <div className="form-group" style={{ marginBottom: '1rem' }}>
+              <label className="form-label">Room Number</label>
+              {rooms.length > 0 ? (
+                <select
+                  className="form-select"
+                  value={roomNumber}
+                  onChange={e => setRoomNumber(e.target.value)}
+                >
+                  <option value="">No room / Walk-in</option>
+                  {floorGroups.map(floor => (
+                    <optgroup key={floor} label={`Floor ${floor}`}>
+                      {rooms.filter(r => r.floor === floor).map(r => (
+                        <option key={r._id} value={r.number}>🏨 Room {r.number}</option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  className="form-input"
+                  placeholder="e.g. 101"
+                  value={roomNumber}
+                  onChange={e => setRoomNumber(e.target.value)}
+                />
+              )}
             </div>
 
             <div className="form-group" style={{ marginBottom: '1rem' }}>
@@ -321,7 +594,7 @@ export default function BookPage() {
             </div>
 
             <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-              <label className="form-label">Status</label>
+              <label className="form-label">{t('status')}</label>
               <select
                 id="bookingStatus"
                 className="form-select"
@@ -337,26 +610,29 @@ export default function BookPage() {
 
             {/* Summary */}
             <div style={{
-              background: 'var(--gray-50)',
-              border: '1px solid var(--gray-200)',
-              borderRadius: 10,
-              padding: '1rem',
-              marginBottom: '1.25rem',
-              fontSize: '0.875rem',
-              display: 'grid',
-              gridTemplateColumns: 'auto 1fr',
-              gap: '0.4rem 1rem',
-              color: 'var(--gray-600)',
+              background: 'var(--gray-50)', border: '1px solid var(--gray-200)',
+              borderRadius: 10, padding: '1rem', marginBottom: '1.25rem',
+              fontSize: '0.875rem', display: 'grid', gridTemplateColumns: 'auto 1fr',
+              gap: '0.4rem 1rem', color: 'var(--gray-600)',
             }}>
-              <strong style={{ color: 'var(--gray-800)' }}>Service</strong> <span>{selectedService.name}</span>
+              <strong style={{ color: 'var(--gray-800)' }}>Service</strong>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ color: selectedService.color }}>{getServiceIcon(selectedService.name)}</span>
+                {selectedService.name}
+              </span>
               <strong style={{ color: 'var(--gray-800)' }}>Date</strong> <span>{date}</span>
-              <strong style={{ color: 'var(--gray-800)' }}>Time</strong> <span>{selectedSlot} – {slotEnd(selectedSlot, selectedService.slotDuration)}</span>
+              <strong style={{ color: 'var(--gray-800)' }}>Time</strong> <span>{selectedSlot} – {slotEnd(selectedSlot, selectedPlan.duration)} ({selectedPlan.duration}m)</span>
+              <strong style={{ color: 'var(--gray-800)' }}>Total Price</strong>
+              <span style={{ color: 'var(--brand-700)', fontWeight: 600 }}>
+                {selectedPlan.price === 0 ? t('isFree') : `UZS ${selectedPlan.price.toLocaleString()}`}
+              </span>
               <strong style={{ color: 'var(--gray-800)' }}>Guest</strong> <span>{customerName || '—'}</span>
+              {roomNumber && <><strong style={{ color: 'var(--gray-800)' }}>Room</strong> <span>🏨 {roomNumber}</span></>}
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
               <button type="button" className="btn btn-secondary" onClick={() => router.push('/calendar')}>
-                Cancel
+                {t('cancel')}
               </button>
               <button
                 id="confirm-booking-btn"

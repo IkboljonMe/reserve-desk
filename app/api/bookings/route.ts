@@ -11,6 +11,8 @@ export async function GET(req: NextRequest) {
   const dateFrom = searchParams.get('dateFrom')
   const dateTo = searchParams.get('dateTo')
   const serviceId = searchParams.get('serviceId')
+  const status = searchParams.get('status')
+  const limit = searchParams.get('limit')
 
   const filter: Record<string, unknown> = {}
   if (dateFrom && dateTo) {
@@ -19,13 +21,16 @@ export async function GET(req: NextRequest) {
     filter.date = dateFrom
   }
   if (serviceId) filter.serviceId = serviceId
+  if (status) filter.status = status
 
   await connectDB()
-  const bookings = await Booking.find(filter)
+  let query = Booking.find(filter)
     .populate('serviceId', 'name color')
     .sort({ date: 1, startTime: 1 })
-    .lean()
 
+  if (limit) query = query.limit(parseInt(limit))
+
+  const bookings = await query.lean()
   return Response.json(bookings)
 }
 
@@ -35,21 +40,34 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json()
-    const { serviceId, customerName, customerPhone, date, startTime, endTime, notes, status } = body
+    const { serviceId, clientId, customerName, customerPhone, roomNumber, date, startTime, endTime, notes, status } = body
 
     if (!serviceId || !customerName || !date || !startTime || !endTime) {
       return Response.json({ error: 'serviceId, customerName, date, startTime, endTime are required' }, { status: 400 })
     }
 
     await connectDB()
+    const { Service } = await import('@/models/Service')
+    const service = await Service.findById(serviceId).lean()
+    if (!service) return Response.json({ error: 'Service not found' }, { status: 404 })
 
-    // Check for overlapping bookings (same service, same date, overlapping times)
+    const [h, m] = endTime.split(':').map(Number)
+    const totalM = h * 60 + m + (service.bufferTimeAfter || 0)
+    const bufferedEndTime = `${Math.floor(totalM / 60).toString().padStart(2, '0')}:${(totalM % 60).toString().padStart(2, '0')}`
+
+    const [sh, sm] = startTime.split(':').map(Number)
+    const totalSM = sh * 60 + sm - (service.bufferTimeBefore || 0)
+    const startH = Math.max(0, Math.floor(totalSM / 60))
+    const startMin = Math.max(0, totalSM % 60)
+    const bufferedStartTime = `${startH.toString().padStart(2, '0')}:${startMin.toString().padStart(2, '0')}`
+
+    // Check for overlapping bookings (same service, same date, overlapping buffered times)
     const overlapping = await Booking.findOne({
       serviceId,
       date,
       status: { $ne: 'cancelled' },
       $or: [
-        { startTime: { $lt: endTime }, endTime: { $gt: startTime } },
+        { startTime: { $lt: bufferedEndTime }, endTime: { $gt: bufferedStartTime } },
       ],
     })
 
@@ -58,7 +76,17 @@ export async function POST(req: NextRequest) {
     }
 
     const booking = await Booking.create({
-      serviceId, customerName, customerPhone, date, startTime, endTime,
+      serviceId,
+      clientId: clientId || null,
+      customerName,
+      customerPhone: customerPhone || '',
+      roomNumber: roomNumber || '',
+      date,
+      startTime,
+      endTime,
+      bufferedEndTime,
+      duration: body.duration || 60,
+      totalPrice: body.totalPrice || 0,
       notes: notes || '',
       status: status || 'confirmed',
       createdBy: session.userId,

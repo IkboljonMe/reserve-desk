@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Service } from '@/models/Service'
+import '@/models/Hotel'
 import { getSession } from '@/lib/session'
 
 export async function GET(_req: NextRequest, ctx: RouteContext<'/api/services/[id]'>) {
@@ -9,7 +10,7 @@ export async function GET(_req: NextRequest, ctx: RouteContext<'/api/services/[i
 
   const { id } = await ctx.params
   await connectDB()
-  const service = await Service.findById(id).lean()
+  const service = await Service.findById(id).populate('hotelId').lean()
   if (!service) return Response.json({ error: 'Not found' }, { status: 404 })
   return Response.json(service)
 }
@@ -29,6 +30,10 @@ export async function PUT(req: NextRequest, ctx: RouteContext<'/api/services/[id
     ...(body.capacity !== undefined && { capacity: Number(body.capacity) }),
     ...(body.price !== undefined && { price: Number(body.price) }),
     ...(body.isFree !== undefined && { isFree: Boolean(body.isFree) }),
+    ...(body.bufferTimeBefore !== undefined && { bufferTimeBefore: Number(body.bufferTimeBefore) }),
+    ...(body.bufferTimeAfter !== undefined && { bufferTimeAfter: Number(body.bufferTimeAfter) }),
+    ...(body.hotelId === '' && { hotelId: null }),
+    ...(Array.isArray(body.pricingPlans) && { pricingPlans: body.pricingPlans }),
   }
 
   const service = await Service.findByIdAndUpdate(

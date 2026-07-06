@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { format, startOfWeek, addDays, addWeeks, subWeeks, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSameMonth, addMonths, subMonths, parseISO } from 'date-fns'
 import { useToast } from '@/components/ToastProvider'
+import { getServiceIcon } from '@/lib/serviceIcons'
 
 interface Service { _id: string; name: string; color: string; isActive: boolean }
 interface Booking {
@@ -11,11 +12,13 @@ interface Booking {
   serviceId: { _id: string; name: string; color: string }
   customerName: string
   customerPhone: string
+  roomNumber: string
   date: string
   startTime: string
   endTime: string
   notes: string
   status: string
+  totalPrice: number
 }
 
 type ViewMode = 'day' | 'week' | 'month'
@@ -232,12 +235,16 @@ export default function CalendarPage() {
                     style={{ display: 'none' }}
                   />
                   <div style={{
-                    width: 14, height: 14, borderRadius: 4,
-                    background: checked ? svc.color : 'transparent',
-                    border: `2px solid ${svc.color}`,
+                    width: 28, height: 28, borderRadius: 8,
+                    background: checked ? `${svc.color}18` : 'var(--gray-100)',
+                    color: checked ? svc.color : 'var(--gray-300)',
+                    border: `1.5px solid ${checked ? svc.color : 'transparent'}`,
                     transition: 'all 0.12s',
                     flexShrink: 0,
-                  }} />
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    {getServiceIcon(svc.name)}
+                  </div>
                   <span style={{ fontSize: '0.8125rem', color: checked ? 'var(--gray-800)' : 'var(--gray-400)' }}>{svc.name}</span>
                 </label>
               )
@@ -282,6 +289,10 @@ export default function CalendarPage() {
               <div style={{ display: 'grid', gridTemplateColumns: '100px 1fr', gap: '0.4rem', color: 'var(--gray-600)' }}>
                 <span style={{ fontWeight: 500, color: 'var(--gray-700)' }}>Guest</span>
                 <span>{selectedBooking.customerName}</span>
+                {selectedBooking.roomNumber && <>
+                  <span style={{ fontWeight: 500, color: 'var(--gray-700)' }}>Room</span>
+                  <span style={{ fontWeight: 600, color: 'var(--brand-600)' }}>🏨 {selectedBooking.roomNumber}</span>
+                </>}
                 {selectedBooking.customerPhone && <>
                   <span style={{ fontWeight: 500, color: 'var(--gray-700)' }}>Phone</span>
                   <span>{selectedBooking.customerPhone}</span>
@@ -290,6 +301,10 @@ export default function CalendarPage() {
                 <span>{selectedBooking.date}</span>
                 <span style={{ fontWeight: 500, color: 'var(--gray-700)' }}>Time</span>
                 <span>{selectedBooking.startTime} – {selectedBooking.endTime}</span>
+                {selectedBooking.totalPrice > 0 && <>
+                  <span style={{ fontWeight: 500, color: 'var(--gray-700)' }}>Price</span>
+                  <span style={{ fontWeight: 600, color: 'var(--success)' }}>{selectedBooking.totalPrice.toLocaleString()} UZS</span>
+                </>}
                 {selectedBooking.notes && <>
                   <span style={{ fontWeight: 500, color: 'var(--gray-700)' }}>Notes</span>
                   <span>{selectedBooking.notes}</span>
@@ -546,6 +561,7 @@ function DayView({ currentDate, getBookingsForDay, onSlotClick, onBookingClick }
 
 function BookingChip({ booking, onClick, expanded = false }: { booking: Booking; onClick: (b: Booking) => void; expanded?: boolean }) {
   const color = booking.serviceId?.color || '#6366f1'
+  const label = booking.roomNumber ? `Room ${booking.roomNumber}` : booking.customerName
   return (
     <div
       onClick={e => { e.stopPropagation(); onClick(booking) }}
@@ -565,8 +581,12 @@ function BookingChip({ booking, onClick, expanded = false }: { booking: Booking;
       onMouseEnter={e => (e.currentTarget as HTMLElement).style.opacity = '0.75'}
       onMouseLeave={e => (e.currentTarget as HTMLElement).style.opacity = '1'}
     >
-      <div style={{ fontWeight: 600, fontSize: '0.8rem' }}>{booking.customerName}</div>
-      {expanded && <div style={{ color: 'var(--gray-500)', fontSize: '0.7rem' }}>{booking.serviceId?.name} · {booking.startTime}–{booking.endTime}</div>}
+      <div style={{ fontWeight: 600, fontSize: '0.8rem' }}>{label}</div>
+      {expanded && (
+        <div style={{ color: 'var(--gray-500)', fontSize: '0.7rem' }}>
+          {booking.customerName} · {booking.serviceId?.name} · {booking.startTime}–{booking.endTime}
+        </div>
+      )}
     </div>
   )
 }
