@@ -5,6 +5,7 @@ export interface IHotel extends Document {
   name: string        // Full name, e.g. "Fergana Grand Hotel"
   shortName: string   // Compact unique code, e.g. "FG"
   location: string    // e.g. "Fergana, Uzbekistan"
+  roomTypes: string[] // e.g. ["Standard", "Middle", "Lux"]
   createdAt: Date
   updatedAt: Date
 }
@@ -20,6 +21,7 @@ const HotelSchema = new Schema<IHotel>(
       unique: true,
     },
     location: { type: String, default: '', trim: true },
+    roomTypes: { type: [String], default: [] },
   },
   { timestamps: true }
 )

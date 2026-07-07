@@ -13,6 +13,7 @@ interface Hotel {
   name: string
   shortName: string
   location: string
+  roomTypes: string[]
 }
 
 interface Room {
@@ -20,7 +21,7 @@ interface Room {
   hotelId: string
   number: string
   floor: number
-  description: string
+  type: string
 }
 
 const SHORT_NAME_RE = /^[A-Z0-9]{2,6}$/
@@ -55,7 +56,7 @@ export default function HotelsRoomsPage() {
   // Hotel modal
   const [hotelOpen, setHotelOpen] = useState(false)
   const [editHotelId, setEditHotelId] = useState<string | null>(null)
-  const [hotelForm, setHotelForm] = useState({ name: '', shortName: '', location: '' })
+  const [hotelForm, setHotelForm] = useState({ name: '', shortName: '', location: '', roomTypes: [] as string[] })
   const [shortNameTouched, setShortNameTouched] = useState(false)
   const [savingHotel, setSavingHotel] = useState(false)
   const [hotelDeleteConfirm, setHotelDeleteConfirm] = useState<string | null>(null)
@@ -63,7 +64,7 @@ export default function HotelsRoomsPage() {
   // Room modal
   const [roomOpen, setRoomOpen] = useState(false)
   const [editRoomId, setEditRoomId] = useState<string | null>(null)
-  const [roomForm, setRoomForm] = useState({ hotelId: '', number: '', floor: 1, description: '' })
+  const [roomForm, setRoomForm] = useState({ hotelId: '', number: '', floor: 1, type: '' })
   const [savingRoom, setSavingRoom] = useState(false)
   const [roomDeleteConfirm, setRoomDeleteConfirm] = useState<string | null>(null)
 
@@ -99,14 +100,14 @@ export default function HotelsRoomsPage() {
 
   function openHotelModal() {
     setEditHotelId(null)
-    setHotelForm({ name: '', shortName: '', location: '' })
+    setHotelForm({ name: '', shortName: '', location: '', roomTypes: [] })
     setShortNameTouched(false)
     setHotelOpen(true)
   }
 
   function openEditHotel(hotel: Hotel) {
     setEditHotelId(hotel._id)
-    setHotelForm({ name: hotel.name, shortName: displayCode(hotel), location: hotel.location || '' })
+    setHotelForm({ name: hotel.name, shortName: displayCode(hotel), location: hotel.location || '', roomTypes: hotel.roomTypes || [] })
     setShortNameTouched(true) // don't auto-overwrite an existing code from the name
     setHotelOpen(true)
   }
@@ -139,6 +140,10 @@ export default function HotelsRoomsPage() {
   async function handleSubmitHotel(e: React.FormEvent) {
     e.preventDefault()
     if (!hotelForm.name.trim() || !hotelForm.shortName.trim() || shortNameError) return
+    if (hotelForm.roomTypes.length === 0) {
+      showToast('Please add at least one room category', 'error')
+      return
+    }
     setSavingHotel(true)
     try {
       const res = await fetch(editHotelId ? `/api/hotels/${editHotelId}` : '/api/hotels', {
@@ -178,14 +183,15 @@ export default function HotelsRoomsPage() {
       showToast('Add a hotel first', 'info')
       return
     }
+    const h = hotels[0]
     setEditRoomId(null)
-    setRoomForm({ hotelId: hotels[0]._id, number: '', floor: 1, description: '' })
+    setRoomForm({ hotelId: h._id, number: '', floor: 1, type: h.roomTypes?.[0] || '' })
     setRoomOpen(true)
   }
 
   function openEditRoom(room: Room) {
     setEditRoomId(room._id)
-    setRoomForm({ hotelId: room.hotelId, number: room.number, floor: room.floor, description: room.description || '' })
+    setRoomForm({ hotelId: room.hotelId, number: room.number, floor: room.floor, type: room.type || '' })
     setRoomOpen(true)
   }
 
@@ -379,6 +385,12 @@ export default function HotelsRoomsPage() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.75rem', color: 'var(--gray-500)', paddingTop: 10, borderTop: '1px solid var(--surface-border)' }}>
                     <BedDouble size={13} />
                     <span className="tabular-nums">{roomCount}</span> {roomCount === 1 ? 'room' : 'rooms'}
+                    {hotel.roomTypes && hotel.roomTypes.length > 0 && (
+                      <div style={{ marginLeft: 'auto', display: 'flex', gap: 4, alignItems: 'center' }}>
+                        {hotel.roomTypes.slice(0, 3).map(rt => <span key={rt} style={{ background: 'var(--brand-50)', color: 'var(--brand-600)', padding: '2px 6px', borderRadius: 6, fontWeight: 600, fontSize: '0.68rem' }}>{rt}</span>)}
+                        {hotel.roomTypes.length > 3 && <span>+{hotel.roomTypes.length - 3}</span>}
+                      </div>
+                    )}
                   </div>
                 </div>
               )
@@ -528,10 +540,12 @@ export default function HotelsRoomsPage() {
                               <div style={{ minWidth: 0 }}>
                                 <div style={{ fontWeight: 700, color: 'var(--gray-800)', fontSize: '0.9375rem' }} className="tabular-nums">
                                   {displayCode(hotel)}-{room.number}
+                                  {room.type && (
+                                    <span style={{ marginLeft: 8, fontSize: '0.7rem', fontWeight: 600, color: 'var(--brand-600)', background: 'var(--brand-50)', padding: '2px 6px', borderRadius: 6, verticalAlign: 'middle' }}>
+                                      {room.type}
+                                    </span>
+                                  )}
                                 </div>
-                                {room.description && (
-                                  <div style={{ fontSize: '0.72rem', color: 'var(--gray-400)', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{room.description}</div>
-                                )}
                               </div>
                             </div>
                             {roomDeleteConfirm === room._id ? (
@@ -628,6 +642,39 @@ export default function HotelsRoomsPage() {
                     placeholder="e.g. Fergana, Uzbekistan"
                   />
                 </div>
+
+                <div className="form-group">
+                  <label className="form-label">Room Categories</label>
+                  {hotelForm.roomTypes.length > 0 && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
+                      {hotelForm.roomTypes.map((rt, i) => (
+                        <span key={i} style={{ background: 'var(--brand-100)', color: 'var(--brand-700)', padding: '2px 8px', borderRadius: 12, fontSize: '0.8125rem', display: 'flex', alignItems: 'center', gap: 4 }}>
+                          {rt}
+                          <button type="button" onClick={() => setHotelForm(f => ({ ...f, roomTypes: f.roomTypes.filter((_, idx) => idx !== i) }))} style={{ background: 'none', border: 'none', color: 'var(--danger)', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center' }}>
+                            <X size={14} />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  <input
+                    className="form-input"
+                    placeholder="Type category (e.g. Standard) and press Enter"
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault() // prevent submitting the whole hotel form
+                        const val = e.currentTarget.value.trim()
+                        if (val && !hotelForm.roomTypes.includes(val)) {
+                          setHotelForm(f => ({ ...f, roomTypes: [...f.roomTypes, val] }))
+                          e.currentTarget.value = ''
+                        }
+                      }
+                    }}
+                  />
+                  <small style={{ color: 'var(--gray-400)', fontSize: '0.72rem', display: 'block', marginTop: 4 }}>
+                    Optional. Define categories to classify rooms (e.g., Standard, Lux). Keep alphabetical order or edit as needed.
+                  </small>
+                </div>
               </div>
               <div className="divider" />
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
@@ -661,7 +708,10 @@ export default function HotelsRoomsPage() {
                     placeholder="Select hotel"
                     icon={<Building2 size={16} />}
                     value={roomForm.hotelId}
-                    onChange={v => setRoomForm(f => ({ ...f, hotelId: v }))}
+                    onChange={v => {
+                      const h = hotelById.get(v)
+                      setRoomForm(f => ({ ...f, hotelId: v, type: h?.roomTypes?.[0] || '' }))
+                    }}
                     options={hotels.map(h => ({ value: h._id, label: `${displayCode(h)} · ${h.name}` }))}
                   />
                 </div>
@@ -691,6 +741,19 @@ export default function HotelsRoomsPage() {
                   </div>
                 </div>
 
+                {roomHotel && roomHotel.roomTypes && roomHotel.roomTypes.length > 0 && (
+                  <div className="form-group">
+                    <label className="form-label">Category</label>
+                    <Select
+                      ariaLabel="Room Category"
+                      placeholder="Select category"
+                      value={roomForm.type}
+                      onChange={v => setRoomForm(f => ({ ...f, type: v }))}
+                      options={roomHotel.roomTypes.map(t => ({ value: t, label: t }))}
+                    />
+                  </div>
+                )}
+
                 {/* Live preview of the generated room name */}
                 <div style={{
                   background: 'var(--brand-50)',
@@ -705,16 +768,6 @@ export default function HotelsRoomsPage() {
                   <strong style={{ fontSize: '0.9375rem', fontVariantNumeric: 'tabular-nums' }}>
                     {roomShort}-{roomForm.number || '###'}
                   </strong>
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Description (optional)</label>
-                  <input
-                    className="form-input"
-                    value={roomForm.description}
-                    onChange={e => setRoomForm(f => ({ ...f, description: e.target.value }))}
-                    placeholder="Deluxe suite, sea view…"
-                  />
                 </div>
               </div>
               <div className="divider" />

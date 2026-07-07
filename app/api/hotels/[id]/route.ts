@@ -10,6 +10,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   const name = typeof body.name === 'string' ? body.name.trim() : ''
   const shortName = typeof body.shortName === 'string' ? body.shortName.trim().toUpperCase() : ''
   const location = typeof body.location === 'string' ? body.location.trim() : ''
+  const roomTypes = Array.isArray(body.roomTypes) ? body.roomTypes.map((t: any) => String(t).trim()).filter(Boolean) : []
 
   if (!name) return NextResponse.json({ error: 'Hotel name is required' }, { status: 400 })
   if (!shortName) return NextResponse.json({ error: 'Short name is required' }, { status: 400 })
@@ -29,7 +30,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   try {
     const hotel = await Hotel.findByIdAndUpdate(
       id,
-      { name, shortName, location },
+      { name, shortName, location, roomTypes },
       { new: true, runValidators: true }
     )
     if (!hotel) return NextResponse.json({ error: 'Not found' }, { status: 404 })

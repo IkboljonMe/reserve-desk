@@ -95,7 +95,7 @@ export default function CalendarPage() {
   }
 
   const filteredBookings = bookings.filter(b =>
-    selectedServices.has(typeof b.serviceId === 'string' ? b.serviceId : b.serviceId._id)
+    b.serviceId && selectedServices.has(typeof b.serviceId === 'string' ? b.serviceId : b.serviceId._id)
   )
 
   const getBookingsForDay = (dateStr: string) =>

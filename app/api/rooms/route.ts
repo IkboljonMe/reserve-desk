@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json()
-    const { hotelId, number, floor, description } = body
+    const { hotelId, number, floor, type, description } = body
 
     if (!hotelId) {
       return Response.json({ error: 'Hotel is required' }, { status: 400 })
@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
       return Response.json({ error: 'Hotel not found' }, { status: 404 })
     }
 
-    const room = await Room.create({ hotelId, number: String(number).trim(), floor, description })
+    const room = await Room.create({ hotelId, number: String(number).trim(), floor, type: String(type || '').trim(), description })
     return Response.json(room, { status: 201 })
   } catch (err: unknown) {
     if ((err as { code?: number }).code === 11000) {

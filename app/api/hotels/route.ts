@@ -15,6 +15,7 @@ export async function POST(req: Request) {
   const name = typeof body.name === 'string' ? body.name.trim() : ''
   const shortName = typeof body.shortName === 'string' ? body.shortName.trim().toUpperCase() : ''
   const location = typeof body.location === 'string' ? body.location.trim() : ''
+  const roomTypes = Array.isArray(body.roomTypes) ? body.roomTypes.map((t: any) => String(t).trim()).filter(Boolean) : []
 
   if (!name) return NextResponse.json({ error: 'Hotel name is required' }, { status: 400 })
   if (!shortName) return NextResponse.json({ error: 'Short name is required' }, { status: 400 })
@@ -32,7 +33,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const hotel = await Hotel.create({ name, shortName, location })
+    const hotel = await Hotel.create({ name, shortName, location, roomTypes })
     return NextResponse.json(hotel, { status: 201 })
   } catch (err: unknown) {
     if ((err as { code?: number }).code === 11000) {

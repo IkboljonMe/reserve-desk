@@ -15,6 +15,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     if (typeof body.hotelId === 'string' && body.hotelId) update.hotelId = body.hotelId
     if (typeof body.number === 'string') update.number = body.number.trim()
     if (body.floor !== undefined) update.floor = Number(body.floor)
+    if (typeof body.type === 'string') update.type = body.type.trim()
     if (typeof body.description === 'string') update.description = body.description
 
     await connectDB()
