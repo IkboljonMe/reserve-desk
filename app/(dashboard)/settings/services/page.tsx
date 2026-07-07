@@ -1,17 +1,23 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useToast } from '@/components/ToastProvider'
 import { useDraft } from '@/components/DraftProvider'
 import { useTranslation } from '@/lib/i18n'
 import { ServiceIcon } from '@/lib/serviceIcons'
 import IconPicker from '@/components/IconPicker'
 import Select from '@/components/Select'
-import { Building2 } from 'lucide-react'
+import {
+  Building2, Search, Filter, Clock, Users, Plus, Pencil, Trash2,
+  Check, X, Zap, ChevronRight, ToggleLeft, ToggleRight,
+} from 'lucide-react'
+
+type TranslateFn = ReturnType<typeof useTranslation>['t']
 
 interface Hotel {
   _id: string
   name: string
+  shortName: string
 }
 
 interface PricingPlan {
@@ -24,7 +30,7 @@ interface Service {
   name: string
   icon: string
   description: string
-  hotelId: string
+  hotelId: string | { _id: string; name: string; shortName?: string }
   openTime: string
   closeTime: string
   slotDuration: number
@@ -37,6 +43,14 @@ interface Service {
   pricingPlans?: PricingPlan[]
   color: string
   isActive: boolean
+}
+
+// Safely extract a plain-string hotel ID regardless of whether hotelId was
+// populated (object) or left as a raw ObjectId string.
+function extractHotelId(hotelId: Service['hotelId']): string {
+  if (!hotelId) return ''
+  if (typeof hotelId === 'string') return hotelId
+  return hotelId._id ?? ''
 }
 
 const PRESET_COLORS = [
@@ -55,44 +69,260 @@ const EMPTY_FORM = {
   bufferTimeBefore: 0, bufferTimeAfter: 0, pricingPlans: [] as PricingPlan[]
 }
 
-// Durations must be booked on a 15-minute grid (15, 30, 45, 60 …).
 const DURATION_STEP = 15
 
-// True when a duration has been entered but is not a positive multiple of 15.
-// Empty values are left for the `required` attribute to handle.
 function durationError(v: number | string): boolean {
   if (v === '' || v === null || v === undefined) return false
   const n = Number(v)
   return !Number.isInteger(n) || n <= 0 || n % DURATION_STEP !== 0
 }
 
-// Like durationError, but 0 is allowed (0 = no buffer).
 function bufferError(v: number | string): boolean {
   if (v === '' || v === null || v === undefined) return false
   const n = Number(v)
   return !Number.isInteger(n) || n < 0 || n % DURATION_STEP !== 0
 }
 
-// Select the whole value on focus so a click replaces the number instead of
-// dropping a caret at the end.
 function selectAllOnFocus(e: React.FocusEvent<HTMLInputElement>) {
   e.currentTarget.select()
 }
 
-// Format a price with a space every 3 digits from the right: 1000000 -> "1 000 000".
 function formatPrice(v: number | string): string {
   const digits = String(v ?? '').replace(/\D/g, '')
   if (digits === '') return ''
   return String(Number(digits)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
 }
 
+// ── Service Card ──────────────────────────────────────────────────────────────
+
+function ServiceCard({
+  svc,
+  hotelName,
+  onEdit,
+  onToggleActive,
+  onDeleteRequest,
+  onDeleteConfirm,
+  onDeleteCancel,
+  deleteConfirm,
+  t,
+}: {
+  svc: Service
+  hotelName: string | undefined
+  onEdit: () => void
+  onToggleActive: () => void
+  onDeleteRequest: () => void
+  onDeleteConfirm: () => void
+  onDeleteCancel: () => void
+  deleteConfirm: boolean
+  t: TranslateFn
+}) {
+  const hasPlans = svc.pricingPlans && svc.pricingPlans.length > 0
+  const hasBuffer = (svc.bufferTimeBefore ?? 0) > 0 || (svc.bufferTimeAfter ?? 0) > 0
+
+  return (
+    <div
+      className="card"
+      style={{
+        padding: 0,
+        overflow: 'hidden',
+        transition: 'box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease',
+        display: 'flex',
+        flexDirection: 'column',
+        borderTop: `3px solid ${svc.color}`,
+      }}
+      onMouseEnter={e => {
+        const el = e.currentTarget as HTMLDivElement
+        el.style.boxShadow = 'var(--shadow-md)'
+        el.style.transform = 'translateY(-2px)'
+        el.style.borderColor = svc.color
+      }}
+      onMouseLeave={e => {
+        const el = e.currentTarget as HTMLDivElement
+        el.style.boxShadow = 'var(--shadow-sm)'
+        el.style.transform = 'translateY(0)'
+        el.style.borderColor = 'var(--surface-border)'
+        el.style.borderTopColor = svc.color
+      }}
+    >
+      {/* Card Header */}
+      <div style={{ padding: '1.125rem 1.25rem 0.875rem', display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+        {/* Icon */}
+        <div style={{
+          width: 44, height: 44, borderRadius: 12, flexShrink: 0,
+          background: `${svc.color}18`,
+          border: `1.5px solid ${svc.color}40`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          color: svc.color,
+        }}>
+          <ServiceIcon name={svc.icon} serviceName={svc.name} size={22} strokeWidth={1.75} />
+        </div>
+
+        {/* Name + badges */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 4 }}>
+            <span style={{
+              fontWeight: 700, fontSize: '0.9375rem',
+              color: 'var(--gray-800)', letterSpacing: '-0.01em',
+              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+            }}>
+              {svc.name}
+            </span>
+            {/* Status dot */}
+            <span style={{
+              display: 'inline-flex', alignItems: 'center', gap: 4,
+              padding: '2px 8px', borderRadius: 20,
+              fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.02em',
+              background: svc.isActive ? '#ecfdf5' : 'var(--gray-100)',
+              color: svc.isActive ? '#047857' : 'var(--gray-500)',
+              border: `1px solid ${svc.isActive ? '#a7f3d0' : 'var(--gray-200)'}`,
+            }}>
+              <span style={{
+                width: 5, height: 5, borderRadius: '50%',
+                background: svc.isActive ? '#10b981' : 'var(--gray-400)',
+                flexShrink: 0,
+              }} />
+              {svc.isActive ? t('active') : t('inactive')}
+            </span>
+          </div>
+
+          {/* Hotel tag */}
+          {hotelName && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.72rem', color: 'var(--gray-400)' }}>
+              <Building2 size={11} />
+              <span>{hotelName}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Quick toggle */}
+        <button
+          onClick={onToggleActive}
+          title={svc.isActive ? 'Deactivate' : 'Activate'}
+          aria-label={svc.isActive ? 'Deactivate service' : 'Activate service'}
+          style={{
+            background: 'none', border: 'none', cursor: 'pointer', padding: 4,
+            color: svc.isActive ? '#10b981' : 'var(--gray-300)',
+            transition: 'color 0.15s ease',
+            flexShrink: 0,
+          }}
+        >
+          {svc.isActive ? <ToggleRight size={24} /> : <ToggleLeft size={24} />}
+        </button>
+      </div>
+
+      {/* Description */}
+      {svc.description && (
+        <div style={{ padding: '0 1.25rem 0.75rem', fontSize: '0.775rem', color: 'var(--gray-500)', lineHeight: 1.5 }}>
+          {svc.description}
+        </div>
+      )}
+
+      {/* Pricing chips */}
+      {hasPlans && (
+        <div style={{ padding: '0 1.25rem 0.875rem', display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          {svc.pricingPlans!.map((plan, i) => (
+            <span key={i} style={{
+              background: `${svc.color}12`, color: svc.color,
+              border: `1px solid ${svc.color}30`,
+              padding: '3px 9px', borderRadius: 20, fontSize: '0.72rem', fontWeight: 600,
+            }}>
+              {plan.duration}m · {Number(plan.price).toLocaleString()} uzs
+            </span>
+          ))}
+        </div>
+      )}
+      {svc.isFree && !hasPlans && (
+        <div style={{ padding: '0 1.25rem 0.875rem' }}>
+          <span className="badge badge-blue">Free Service</span>
+        </div>
+      )}
+
+      {/* Footer meta */}
+      <div style={{
+        marginTop: 'auto',
+        borderTop: '1px solid var(--surface-border)',
+        padding: '0.625rem 1.25rem',
+        display: 'flex', alignItems: 'center', gap: 12,
+        background: 'var(--gray-50)',
+      }}>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.72rem', color: 'var(--gray-400)' }}>
+          <Clock size={11} />
+          {svc.openTime}–{svc.closeTime}
+        </span>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.72rem', color: 'var(--gray-400)' }}>
+          <Users size={11} />
+          {svc.capacity}
+        </span>
+        {hasBuffer && (
+          <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: '0.72rem', color: 'var(--warning)' }}>
+            <Zap size={10} />
+            {svc.bufferTimeBefore || 0}+{svc.bufferTimeAfter || 0}m
+          </span>
+        )}
+
+        {/* Action buttons pushed right */}
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: 2 }}>
+          {deleteConfirm ? (
+            <>
+              <button
+                className="btn btn-danger btn-sm btn-icon"
+                onClick={onDeleteConfirm}
+                aria-label="Confirm delete"
+              >
+                <Check size={13} />
+              </button>
+              <button
+                className="btn btn-ghost btn-sm btn-icon"
+                onClick={onDeleteCancel}
+                aria-label="Cancel delete"
+              >
+                <X size={13} />
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                className="btn btn-ghost btn-sm btn-icon"
+                onClick={onEdit}
+                title={t('edit')}
+                aria-label={`Edit ${svc.name}`}
+              >
+                <Pencil size={14} />
+              </button>
+              <button
+                className="btn btn-ghost btn-sm btn-icon"
+                onClick={onDeleteRequest}
+                title={t('delete')}
+                aria-label={`Delete ${svc.name}`}
+                style={{ color: 'var(--danger)' }}
+              >
+                <Trash2 size={14} />
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Main Page ─────────────────────────────────────────────────────────────────
+
 export default function ServicesPage() {
   const { showToast } = useToast()
   const { getDraft, saveDraft, clearDraft } = useDraft()
   const { t } = useTranslation()
+
   const [services, setServices] = useState<Service[]>([])
   const [hotels, setHotels] = useState<Hotel[]>([])
   const [loading, setLoading] = useState(true)
+
+  // Filters
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filterHotel, setFilterHotel] = useState('') // '' = all
+  const [filterStatus, setFilterStatus] = useState('') // '' | 'active' | 'inactive'
+
+  // Form / modal
   const [showForm, setShowForm] = useState(false)
   const [editService, setEditService] = useState<Service | null>(null)
   const [form, setForm] = useState({ ...EMPTY_FORM })
@@ -101,18 +331,44 @@ export default function ServicesPage() {
 
   async function load() {
     setLoading(true)
-    const [res, hRes] = await Promise.all([
-      fetch('/api/services'),
-      fetch('/api/hotels'),
-    ])
+    const [res, hRes] = await Promise.all([fetch('/api/services'), fetch('/api/hotels')])
     const data = await res.json()
     const hData = await hRes.json()
-    setServices(data)
+    setServices(Array.isArray(data) ? data : [])
     setHotels(Array.isArray(hData) ? hData : [])
     setLoading(false)
   }
 
   useEffect(() => { load() }, [])
+
+  // Draft auto-save for new service form
+  useEffect(() => {
+    if (showForm && !editService) saveDraft(DRAFT_KEY, form)
+  }, [form, showForm, editService, saveDraft])
+
+  // Derived: hotel lookup map
+  const hotelMap = useMemo(() => {
+    const m = new Map<string, Hotel>()
+    hotels.forEach(h => m.set(h._id, h))
+    return m
+  }, [hotels])
+
+  // Filtered services
+  const filtered = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase()
+    return services.filter(svc => {
+      const hid = extractHotelId(svc.hotelId)
+      if (q && !svc.name.toLowerCase().includes(q) && !svc.description?.toLowerCase().includes(q)) return false
+      if (filterHotel && hid !== filterHotel) return false
+      if (filterStatus === 'active' && !svc.isActive) return false
+      if (filterStatus === 'inactive' && svc.isActive) return false
+      return true
+    })
+  }, [services, searchQuery, filterHotel, filterStatus])
+
+  const activeCount = services.filter(s => s.isActive).length
+
+  // ── Form helpers ────────────────────────────────────────────────────────────
 
   function openAddForm() {
     setEditService(null)
@@ -126,28 +382,13 @@ export default function ServicesPage() {
     setShowForm(true)
   }
 
-  // Auto-save the add-service draft so accidentally closing the modal doesn't
-  // lose the user's input (kept for 1h by DraftProvider). Editing existing
-  // services is not drafted.
-  useEffect(() => {
-    if (showForm && !editService) {
-      saveDraft(DRAFT_KEY, form)
-    }
-  }, [form, showForm, editService, saveDraft])
-
-  function discardDraft() {
-    clearDraft(DRAFT_KEY)
-    setForm({ ...EMPTY_FORM })
-    showToast('Draft cleared', 'info')
-  }
-
   function openEditForm(svc: Service) {
     setEditService(svc)
     setForm({
       name: svc.name,
       icon: svc.icon || 'Waves',
       description: svc.description,
-      hotelId: svc.hotelId,
+      hotelId: extractHotelId(svc.hotelId),
       openTime: svc.openTime,
       closeTime: svc.closeTime,
       slotDuration: svc.slotDuration,
@@ -168,11 +409,14 @@ export default function ServicesPage() {
     setEditService(null)
   }
 
+  function discardDraft() {
+    clearDraft(DRAFT_KEY)
+    setForm({ ...EMPTY_FORM })
+    showToast('Draft cleared', 'info')
+  }
+
   function addPricingPlan() {
-    setForm(f => ({
-      ...f,
-      pricingPlans: [...f.pricingPlans, { duration: 60, price: 0 }]
-    }))
+    setForm(f => ({ ...f, pricingPlans: [...f.pricingPlans, { duration: 60, price: 0 }] }))
   }
 
   function updatePricingPlan(index: number, key: keyof PricingPlan, value: string) {
@@ -189,116 +433,184 @@ export default function ServicesPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-
-    // Hotel is required (the custom Select can't use the native `required`).
-    if (!form.hotelId) {
-      showToast('Please select a hotel', 'error')
-      return
-    }
-
-    // Block save if any pricing plan has a duration that isn't a multiple of 15.
+    if (!form.hotelId) { showToast('Please select a hotel', 'error'); return }
     if (!form.isFree && form.pricingPlans.length > 0) {
-      const hasBadDuration = form.pricingPlans.some(p => p.duration === '' || durationError(p.duration))
-      if (hasBadDuration) {
-        showToast('Each plan duration must be a multiple of 15 minutes (e.g. 15, 30, 45, 60)', 'error')
-        return
+      if (form.pricingPlans.some(p => p.duration === '' || durationError(p.duration))) {
+        showToast('Each plan duration must be a multiple of 15 minutes', 'error'); return
       }
     }
-
-    // Buffers must also sit on the 15-minute grid (0 allowed = no buffer).
     if (bufferError(form.bufferTimeBefore) || bufferError(form.bufferTimeAfter)) {
-      showToast('Buffer times must be a multiple of 15 minutes (e.g. 0, 15, 30, 45)', 'error')
-      return
+      showToast('Buffer times must be a multiple of 15 minutes (e.g. 0, 15, 30)', 'error'); return
     }
-
     setSaving(true)
     try {
       const url = editService ? `/api/services/${editService._id}` : '/api/services'
       const method = editService ? 'PUT' : 'POST'
       const payload = {
         ...form,
-        pricingPlans: form.pricingPlans.map(p => ({
-          duration: Number(p.duration) || 0,
-          price: Number(p.price) || 0,
-        })),
+        pricingPlans: form.pricingPlans.map(p => ({ duration: Number(p.duration) || 0, price: Number(p.price) || 0 })),
       }
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      })
+      const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
       if (res.ok) {
         showToast(editService ? 'Service updated!' : 'Service created!', 'success')
         if (!editService) clearDraft(DRAFT_KEY)
-        closeForm()
-        load()
+        closeForm(); load()
       } else {
         const d = await res.json()
         showToast(d.error || 'Failed to save', 'error')
       }
-    } finally {
-      setSaving(false)
-    }
+    } finally { setSaving(false) }
   }
 
   async function toggleActive(svc: Service) {
     const res = await fetch(`/api/services/${svc._id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ isActive: !svc.isActive }),
     })
-    if (res.ok) {
-      showToast(svc.isActive ? `${t('services')} deactivated` : `${t('services')} activated`, 'info')
-      load()
-    }
+    if (res.ok) { showToast(svc.isActive ? 'Service deactivated' : 'Service activated', 'info'); load() }
   }
 
   async function handleDelete(id: string) {
     const res = await fetch(`/api/services/${id}`, { method: 'DELETE' })
-    if (res.ok) {
-      showToast('Service deleted', 'success')
-      setDeleteConfirm(null)
-      load()
-    } else {
-      showToast('Failed to delete', 'error')
-    }
+    if (res.ok) { showToast('Service deleted', 'success'); setDeleteConfirm(null); load() }
+    else showToast('Failed to delete', 'error')
   }
+
+  const hasActiveFilters = searchQuery || filterHotel || filterStatus
+
+  // ── Render ──────────────────────────────────────────────────────────────────
 
   return (
     <div>
       <style>{`
         .hide-arrows::-webkit-outer-spin-button,
-        .hide-arrows::-webkit-inner-spin-button {
-          -webkit-appearance: none;
-          margin: 0;
+        .hide-arrows::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .hide-arrows[type=number] { -moz-appearance: textfield; }
+        .price-input { font-variant-numeric: tabular-nums; letter-spacing: 2px; font-weight: 500; }
+        .price-input::placeholder { letter-spacing: normal; font-weight: 400; }
+        .svc-filter-pill {
+          display: inline-flex; align-items: center; gap: 5px;
+          padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;
+          cursor: pointer; border: 1.5px solid var(--gray-200); background: var(--surface-card);
+          color: var(--gray-600); transition: all 0.15s ease; white-space: nowrap;
+          font-family: inherit;
         }
-        .hide-arrows[type=number] {
-          -moz-appearance: textfield;
-        }
-        .price-input {
-          font-variant-numeric: tabular-nums;
-          letter-spacing: 2px;
-          font-weight: 500;
-        }
-        .price-input::placeholder {
-          letter-spacing: normal;
-          font-weight: 400;
+        .svc-filter-pill:hover { border-color: var(--brand-500); color: var(--brand-700); background: var(--brand-50); }
+        .svc-filter-pill.active { background: var(--brand-gradient); color: #fff; border-color: transparent; box-shadow: var(--shadow-brand); }
+        .services-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+          gap: 1rem;
         }
       `}</style>
+
+      {/* ── Page Header ── */}
       <div className="page-header" style={{ marginBottom: '1.25rem' }}>
         <div>
-          <h2>{t('services')}</h2>
+          <h2 style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            {t('services')}
+            {!loading && (
+              <span style={{
+                display: 'inline-flex', alignItems: 'center',
+                padding: '1px 9px', borderRadius: 20, fontSize: '0.7rem', fontWeight: 700,
+                background: 'var(--brand-50)', color: 'var(--brand-700)', border: '1px solid var(--brand-100)',
+                marginLeft: 4,
+              }}>
+                {activeCount} active
+              </span>
+            )}
+          </h2>
+          <p style={{ fontSize: '0.8125rem', color: 'var(--gray-500)', marginTop: 2 }}>
+            Manage bookable services and their availability across your hotels.
+          </p>
         </div>
         <button id="add-service-btn" className="btn btn-primary" onClick={openAddForm}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14"/></svg>
+          <Plus size={15} strokeWidth={2.5} />
           {t('addService')}
         </button>
       </div>
 
-      {/* Service List */}
+      {/* ── Filter Bar ── */}
+      {!loading && services.length > 0 && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap',
+          marginBottom: '1.25rem',
+          padding: '0.75rem 1rem',
+          background: 'var(--surface-card)',
+          border: '1px solid var(--surface-border)',
+          borderRadius: 'var(--radius)',
+          boxShadow: 'var(--shadow-xs)',
+        }}>
+          {/* Search */}
+          <div style={{ position: 'relative', flex: '1 1 180px', minWidth: 140 }}>
+            <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--gray-400)', pointerEvents: 'none' }} />
+            <input
+              className="form-input"
+              style={{ paddingLeft: 32, paddingTop: 7, paddingBottom: 7, fontSize: '0.8125rem' }}
+              placeholder="Search services…"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              aria-label="Search services"
+            />
+          </div>
+
+          <div style={{ width: 1, height: 24, background: 'var(--gray-200)', flexShrink: 0 }} />
+
+          {/* Hotel filter pills */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.75rem', color: 'var(--gray-400)', fontWeight: 600 }}>
+              <Filter size={12} /> Hotel
+            </span>
+            <button
+              className={`svc-filter-pill ${filterHotel === '' ? 'active' : ''}`}
+              onClick={() => setFilterHotel('')}
+            >
+              All
+            </button>
+            {hotels.map(h => (
+              <button
+                key={h._id}
+                className={`svc-filter-pill ${filterHotel === h._id ? 'active' : ''}`}
+                onClick={() => setFilterHotel(filterHotel === h._id ? '' : h._id)}
+              >
+                {h.shortName || h.name}
+              </button>
+            ))}
+          </div>
+
+          <div style={{ width: 1, height: 24, background: 'var(--gray-200)', flexShrink: 0 }} />
+
+          {/* Status filter */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontSize: '0.75rem', color: 'var(--gray-400)', fontWeight: 600 }}>Status</span>
+            {(['', 'active', 'inactive'] as const).map(val => (
+              <button
+                key={val || 'all'}
+                className={`svc-filter-pill ${filterStatus === val ? 'active' : ''}`}
+                onClick={() => setFilterStatus(val)}
+              >
+                {val === '' ? 'All' : val.charAt(0).toUpperCase() + val.slice(1)}
+              </button>
+            ))}
+          </div>
+
+          {/* Clear filters */}
+          {hasActiveFilters && (
+            <button
+              className="btn btn-ghost btn-sm"
+              onClick={() => { setSearchQuery(''); setFilterHotel(''); setFilterStatus('') }}
+              style={{ marginLeft: 'auto', color: 'var(--gray-400)', fontSize: '0.75rem' }}
+            >
+              <X size={13} /> Clear
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* ── Content ── */}
       {loading ? (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem' }}>
-          <span className="spinner spinner-dark" style={{ width: 24, height: 24 }} />
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
+          <span className="spinner spinner-dark" style={{ width: 28, height: 28 }} />
         </div>
       ) : services.length === 0 ? (
         <div className="card">
@@ -309,159 +621,166 @@ export default function ServicesPage() {
               </svg>
             </div>
             <h3>No {t('services').toLowerCase()} yet</h3>
-            <button className="btn btn-primary" onClick={openAddForm}>{t('addService')}</button>
+            <p>Add your first service to start taking bookings.</p>
+            <button className="btn btn-primary" style={{ marginTop: 8 }} onClick={openAddForm}>
+              <Plus size={15} /> {t('addService')}
+            </button>
+          </div>
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="card">
+          <div className="empty-state">
+            <div className="empty-state-icon">
+              <Search size={26} />
+            </div>
+            <h3>No results</h3>
+            <p>No services match your current filters.</p>
+            <button className="btn btn-secondary btn-sm" style={{ marginTop: 8 }} onClick={() => { setSearchQuery(''); setFilterHotel(''); setFilterStatus('') }}>
+              Clear filters
+            </button>
           </div>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          {services.map(svc => (
-            <div key={svc._id} className="card" style={{ padding: '1rem 1.25rem' }}>
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
-                <div style={{
-                  width: 40, height: 40, borderRadius: 10,
-                  background: `${svc.color}25`,
-                  border: `2px solid ${svc.color}`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  flexShrink: 0,
-                  marginTop: 4,
-                  color: svc.color,
-                }}>
-                  <ServiceIcon name={svc.icon} serviceName={svc.name} size={20} />
-                </div>
-
-                {/* Info */}
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                    <strong style={{ color: 'var(--gray-800)', fontSize: '1rem' }}>{svc.name}</strong>
-                    <span className={`badge ${svc.isActive ? 'badge-success' : 'badge-gray'}`}>
-                      {svc.isActive ? t('active') : t('inactive')}
-                    </span>
-                    {svc.isFree ? (
-                      <span className="badge badge-blue">{t('isFree')}</span>
-                    ) : (
-                      svc.pricingPlans && svc.pricingPlans.length > 0 ? (
-                        <span className="badge badge-blue">{svc.pricingPlans.length} {t('pricingPlans')}</span>
-                      ) : (
-                         svc.price && svc.price > 0 ? <span className="badge badge-gray"> uzs {svc.price.toLocaleString()}</span> : null
-                      )
-                    )}
-                    {(svc.bufferTimeBefore && svc.bufferTimeBefore > 0) || (svc.bufferTimeAfter && svc.bufferTimeAfter > 0) ? (
-                       <span className="badge badge-warning">🧹 {svc.bufferTimeBefore || 0}m / {svc.bufferTimeAfter || 0}m {t('bufferTime')}</span>
-                    ) : null}
-                  </div>
-                  
-                  {svc.pricingPlans && svc.pricingPlans.length > 0 && (
-                    <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
-                      {svc.pricingPlans.map((plan, i) => (
-                         <div key={i} style={{ background: 'var(--brand-50)', color: 'var(--brand-700)', padding: '2px 8px', borderRadius: 4, fontSize: '0.75rem', fontWeight: 500 }}>
-                           {plan.duration}m = {plan.price.toLocaleString()} uzs
-                         </div>
+        <>
+          {/* Group by hotel when filtering all hotels */}
+          {filterHotel ? (
+            <div className="services-grid">
+              {filtered.map(svc => (
+                <ServiceCard
+                  key={svc._id}
+                  svc={svc}
+                  hotelName={hotelMap.get(extractHotelId(svc.hotelId))?.name}
+                  onEdit={() => openEditForm(svc)}
+                  onToggleActive={() => toggleActive(svc)}
+                  onDeleteRequest={() => setDeleteConfirm(svc._id)}
+                  onDeleteConfirm={() => handleDelete(svc._id)}
+                  onDeleteCancel={() => setDeleteConfirm(null)}
+                  deleteConfirm={deleteConfirm === svc._id}
+                  t={t}
+                />
+              ))}
+            </div>
+          ) : (
+            // Group by hotel
+            hotels
+              .filter(h => filtered.some(s => extractHotelId(s.hotelId) === h._id))
+              .map(hotel => {
+                const hotelServices = filtered.filter(s => extractHotelId(s.hotelId) === hotel._id)
+                const unassigned = filtered.filter(s => { const hid = extractHotelId(s.hotelId); return !hid || !hotelMap.has(hid) })
+                return (
+                  <div key={hotel._id} style={{ marginBottom: '2rem' }}>
+                    {/* Hotel group header */}
+                    <div style={{
+                      display: 'flex', alignItems: 'center', gap: 10, marginBottom: '0.875rem',
+                    }}>
+                      <span style={{
+                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                        minWidth: 38, height: 28, padding: '0 8px', borderRadius: 8,
+                        background: 'var(--brand-500)', color: '#fff', fontWeight: 700, fontSize: '0.75rem', letterSpacing: '0.04em',
+                      }}>
+                        {hotel.shortName || hotel.name.slice(0, 2).toUpperCase()}
+                      </span>
+                      <span style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--gray-700)' }}>
+                        {hotel.name}
+                      </span>
+                      <ChevronRight size={14} style={{ color: 'var(--gray-300)' }} />
+                      <span style={{ fontSize: '0.75rem', color: 'var(--gray-400)' }} className="tabular-nums">
+                        {hotelServices.length} {hotelServices.length === 1 ? 'service' : 'services'}
+                      </span>
+                    </div>
+                    <div className="services-grid">
+                      {hotelServices.map(svc => (
+                        <ServiceCard
+                          key={svc._id}
+                          svc={svc}
+                          hotelName={undefined}
+                          onEdit={() => openEditForm(svc)}
+                          onToggleActive={() => toggleActive(svc)}
+                          onDeleteRequest={() => setDeleteConfirm(svc._id)}
+                          onDeleteConfirm={() => handleDelete(svc._id)}
+                          onDeleteCancel={() => setDeleteConfirm(null)}
+                          deleteConfirm={deleteConfirm === svc._id}
+                          t={t}
+                        />
                       ))}
                     </div>
-                  )}
-
-                  {(svc.description || svc.details) && (
-                    <p style={{ fontSize: '0.8125rem', marginTop: 4, color: 'var(--gray-500)' }}>
-                      {svc.description} {svc.details ? `— [${t('details')}: ${svc.details}]` : ''}
-                    </p>
-                  )}
-                  <div style={{ display: 'flex', gap: '1rem', marginTop: 6, fontSize: '0.75rem', color: 'var(--gray-400)' }}>
-                    <span>🕐 {svc.openTime} – {svc.closeTime}</span>
-                    <span>👥 {t('capacity')}: {svc.capacity}</span>
-                    {svc.hotelId && <span>🏢 {hotels.find(h => h._id === svc.hotelId)?.name}</span>}
+                    {/* Show unassigned only once, after last hotel group */}
+                    {hotel._id === hotels[hotels.length - 1]._id && unassigned.length > 0 && (
+                      <div style={{ marginTop: '1.5rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: '0.875rem' }}>
+                          <span style={{ fontWeight: 700, fontSize: '0.8125rem', color: 'var(--warning)' }}>Unassigned</span>
+                        </div>
+                        <div className="services-grid">
+                          {unassigned.map(svc => (
+                            <ServiceCard
+                              key={svc._id}
+                              svc={svc}
+                              hotelName={undefined}
+                              onEdit={() => openEditForm(svc)}
+                              onToggleActive={() => toggleActive(svc)}
+                              onDeleteRequest={() => setDeleteConfirm(svc._id)}
+                              onDeleteConfirm={() => handleDelete(svc._id)}
+                              onDeleteCancel={() => setDeleteConfirm(null)}
+                              deleteConfirm={deleteConfirm === svc._id}
+                              t={t}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                </div>
-
-                {/* Actions */}
-                <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
-                  <button
-                    className="btn btn-secondary btn-sm"
-                    onClick={() => toggleActive(svc)}
-                    title={svc.isActive ? t('inactive') : t('active')}
-                  >
-                    {svc.isActive ? t('inactive') : t('active')}
-                  </button>
-                  <button
-                    className="btn btn-secondary btn-sm btn-icon"
-                    onClick={() => openEditForm(svc)}
-                    title={t('edit')}
-                    aria-label={t('edit')}
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                    </svg>
-                  </button>
-                  {deleteConfirm === svc._id ? (
-                    <>
-                       <button className="btn btn-danger btn-sm" onClick={() => handleDelete(svc._id)}>{t('delete')}</button>
-                      <button className="btn btn-ghost btn-sm" onClick={() => setDeleteConfirm(null)}>{t('cancel')}</button>
-                    </>
-                  ) : (
-                    <button
-                      className="btn btn-ghost btn-sm btn-icon"
-                      onClick={() => setDeleteConfirm(svc._id)}
-                      title={t('delete')}
-                      aria-label={t('delete')}
-                      style={{ color: 'var(--danger)' }}
-                    >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
-                      </svg>
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+                )
+              })
+          )}
+        </>
       )}
 
-      {/* Modal Form */}
+      {/* ── Modal Form ── */}
       {showForm && (
         <div className="modal-overlay" onClick={closeForm}>
           <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 660 }}>
             <div className="modal-header">
-              <h2>{editService ? t('edit') : t('addService')}</h2>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                {/* Preview icon in title */}
+                <span style={{
+                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                  width: 34, height: 34, borderRadius: 10,
+                  background: `${form.color}18`, border: `1.5px solid ${form.color}40`,
+                  color: form.color, flexShrink: 0,
+                }}>
+                  <ServiceIcon name={form.icon} size={18} />
+                </span>
+                <h2 style={{ margin: 0 }}>{editService ? `Edit: ${editService.name}` : t('addService')}</h2>
+              </div>
               <button className="btn btn-ghost btn-icon" onClick={closeForm} aria-label="Close">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                <X size={18} />
               </button>
             </div>
 
             <form onSubmit={handleSubmit}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                
-                <div className="form-group">
-                  <label className="form-label">Name *</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    value={form.name}
-                    onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                    required
-                  />
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '1rem', alignItems: 'start' }}>
+                  <div className="form-group">
+                    <label className="form-label">Name *</label>
+                    <input
+                      type="text" className="form-input"
+                      value={form.name}
+                      onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                      required autoFocus
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Icon *</label>
+                    <IconPicker value={form.icon} onChange={name => setForm(f => ({ ...f, icon: name }))} />
+                  </div>
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    Icon *
-                    <span style={{
-                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                      width: 26, height: 26, borderRadius: 7,
-                      background: `${form.color}20`, border: `1.5px solid ${form.color}`,
-                      color: form.color,
-                    }}>
-                      <ServiceIcon name={form.icon} size={15} />
-                    </span>
-                  </label>
-                  <IconPicker value={form.icon} onChange={name => setForm(f => ({ ...f, icon: name }))} />
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Select Hotel *</label>
+                  <label className="form-label">Hotel *</label>
                   <Select
                     ariaLabel="Select hotel"
-                    placeholder="Select hotel"
+                    placeholder="Select hotel…"
                     icon={<Building2 size={16} />}
                     value={form.hotelId}
                     onChange={v => setForm(f => ({ ...f, hotelId: v }))}
@@ -472,25 +791,22 @@ export default function ServicesPage() {
                 <div className="form-group">
                   <label className="form-label">Description</label>
                   <textarea
-                    className="form-textarea"
-                    style={{ minHeight: 60 }}
+                    className="form-textarea" style={{ minHeight: 60 }}
                     value={form.description}
                     onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
                   />
                 </div>
 
-                {/* Advanced Row 2: Pricing */}
-                <div style={{ border: '1px solid var(--brand-100)', borderRadius: 8, padding: 16, background: '#fcfdff' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                    <h3 style={{ fontSize: '0.9375rem', color: 'var(--brand-700)', display: 'flex', alignItems: 'center', gap: 6 }}>
-                      {t('pricingPlans')}
-                    </h3>
-                    <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', margin: 0 }}>
-                      <input 
-                        type="checkbox" 
+                {/* Pricing */}
+                <div style={{ border: '1px solid var(--brand-100)', borderRadius: 10, padding: 16, background: '#fcfdff' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.875rem' }}>
+                    <h3 style={{ fontSize: '0.9rem', color: 'var(--brand-700)', margin: 0 }}>{t('pricingPlans')}</h3>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontSize: '0.8125rem', fontWeight: 600, color: 'var(--gray-600)' }}>
+                      <input
+                        type="checkbox"
                         checked={form.isFree}
                         onChange={e => setForm(f => ({ ...f, isFree: e.target.checked, price: e.target.checked ? 0 : f.price, pricingPlans: [] }))}
-                        style={{ width: 16, height: 16 }}
+                        style={{ width: 15, height: 15 }}
                       />
                       {t('isFree')}
                     </label>
@@ -499,19 +815,12 @@ export default function ServicesPage() {
                   {!form.isFree && (
                     <>
                       {form.pricingPlans.length === 0 ? (
-                        <div style={{ marginBottom: 12 }}>
-                          <div className="form-group">
-                            <label className="form-label" style={{ color: 'var(--gray-600)' }}>Flat {t('price')} (Legacy)</label>
-                            <input
-                              type="number"
-                              className="form-input"
-                              value={form.price}
-                              onChange={e => setForm(f => ({ ...f, price: Number(e.target.value) }))}
-                            />
-                          </div>
+                        <div className="form-group" style={{ marginBottom: 12 }}>
+                          <label className="form-label" style={{ color: 'var(--gray-500)' }}>Flat {t('price')} (Legacy)</label>
+                          <input type="number" className="form-input" value={form.price} onChange={e => setForm(f => ({ ...f, price: Number(e.target.value) }))} />
                         </div>
                       ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
                           {form.pricingPlans.map((plan, index) => (
                             <div key={index} style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
                               <div className="form-group" style={{ flex: 1 }}>
@@ -519,49 +828,40 @@ export default function ServicesPage() {
                                 <input
                                   type="number" className="form-input hide-arrows" value={plan.duration}
                                   onChange={e => updatePricingPlan(index, 'duration', e.target.value)}
-                                  onFocus={selectAllOnFocus}
-                                  min={15} step={15} required
+                                  onFocus={selectAllOnFocus} min={15} step={15} required
                                   aria-invalid={durationError(plan.duration)}
-                                  style={durationError(plan.duration)
-                                    ? { borderColor: 'var(--danger)', boxShadow: '0 0 0 3px rgba(239,68,68,0.12)' }
-                                    : undefined}
+                                  style={durationError(plan.duration) ? { borderColor: 'var(--danger)', boxShadow: '0 0 0 3px rgba(239,68,68,0.12)' } : undefined}
                                 />
                                 {durationError(plan.duration) ? (
-                                  <small className="form-error" style={{ display: 'block', marginTop: 4 }}>
-                                    Must be a multiple of 15 — e.g. 15, 30, 45, 60, 75, 90…
-                                  </small>
+                                  <small className="form-error" style={{ display: 'block', marginTop: 4 }}>Must be a multiple of 15</small>
                                 ) : (
-                                  <small style={{ color: 'var(--gray-400)', fontSize: '0.7rem', display: 'block', marginTop: 4 }}>15 min interval</small>
+                                  <small style={{ color: 'var(--gray-400)', fontSize: '0.7rem', display: 'block', marginTop: 4 }}>15 min intervals</small>
                                 )}
                               </div>
                               <div className="form-group" style={{ flex: 1 }}>
                                 <label className="form-label" style={{ marginBottom: 4 }}>{t('price')} (UZS)</label>
                                 <input
-                                  type="text"
-                                  inputMode="numeric"
+                                  type="text" inputMode="numeric"
                                   className="form-input price-input"
                                   value={formatPrice(plan.price)}
                                   onChange={e => {
                                     const digits = e.target.value.replace(/\D/g, '')
                                     updatePricingPlan(index, 'price', digits === '' ? '' : String(Number(digits)))
                                   }}
-                                  onFocus={e => {
-                                    if (Number(plan.price) === 0) updatePricingPlan(index, 'price', '')
-                                    else e.currentTarget.select()
-                                  }}
+                                  onFocus={e => { if (Number(plan.price) === 0) updatePricingPlan(index, 'price', ''); else e.currentTarget.select() }}
                                   onBlur={() => { if (plan.price === '') updatePricingPlan(index, 'price', '0') }}
-                                  placeholder="0"
-                                  required
+                                  placeholder="0" required
                                 />
                               </div>
-                              <button type="button" className="btn btn-danger" style={{ padding: '0 0.75rem', height: '42px', marginTop: '22px' }} onClick={() => removePricingPlan(index)} aria-label={`Remove pricing plan ${index + 1}`}>✕</button>
+                              <button type="button" className="btn btn-ghost btn-sm btn-icon" style={{ marginTop: 22, color: 'var(--danger)' }} onClick={() => removePricingPlan(index)} aria-label={`Remove plan ${index + 1}`}>
+                                <Trash2 size={14} />
+                              </button>
                             </div>
                           ))}
                         </div>
                       )}
-
                       <button type="button" className="btn btn-secondary btn-sm" onClick={addPricingPlan}>
-                        + {t('addPlan')}
+                        <Plus size={13} /> {t('addPlan')}
                       </button>
                     </>
                   )}
@@ -569,86 +869,50 @@ export default function ServicesPage() {
 
                 <div className="form-group">
                   <label className="form-label">{t('details')}</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    placeholder="e.g. Toyota Hiace, 45 kishilik..."
-                    value={form.details}
-                    onChange={e => setForm(f => ({ ...f, details: e.target.value }))}
-                  />
+                  <input type="text" className="form-input" placeholder="e.g. Toyota Hiace, 45 capacity…" value={form.details} onChange={e => setForm(f => ({ ...f, details: e.target.value }))} />
                 </div>
-                
-                <div className="divider" style={{ margin: '0.25rem 0' }} />
+
+                <div className="divider" style={{ margin: '0.1rem 0' }} />
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <div className="form-group">
                     <label className="form-label">Opens at *</label>
-                    <input
-                      type="time"
-                      className="form-input"
-                      value={form.openTime}
-                      onChange={e => setForm(f => ({ ...f, openTime: e.target.value }))}
-                      required
-                    />
+                    <input type="time" className="form-input" value={form.openTime} onChange={e => setForm(f => ({ ...f, openTime: e.target.value }))} required />
                   </div>
                   <div className="form-group">
                     <label className="form-label">Closes at *</label>
-                    <input
-                      type="time"
-                      className="form-input"
-                      value={form.closeTime}
-                      onChange={e => setForm(f => ({ ...f, closeTime: e.target.value }))}
-                      required
-                    />
+                    <input type="time" className="form-input" value={form.closeTime} onChange={e => setForm(f => ({ ...f, closeTime: e.target.value }))} required />
                   </div>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <div className="form-group">
-                    <label className="form-label">🧹 Buffer Before (min)</label>
+                    <label className="form-label">⏪ Buffer Before (min)</label>
                     <input
-                      type="number"
-                      className="form-input hide-arrows"
-                      min={0} max={120} step={15}
-                      placeholder="e.g. 15"
-                      value={form.bufferTimeBefore}
-                      onFocus={selectAllOnFocus}
+                      type="number" className="form-input hide-arrows"
+                      min={0} max={120} step={15} placeholder="e.g. 15"
+                      value={form.bufferTimeBefore} onFocus={selectAllOnFocus}
                       onChange={e => setForm(f => ({ ...f, bufferTimeBefore: Number(e.target.value) }))}
                       aria-invalid={bufferError(form.bufferTimeBefore)}
-                      style={bufferError(form.bufferTimeBefore)
-                        ? { borderColor: 'var(--danger)', boxShadow: '0 0 0 3px rgba(239,68,68,0.12)' }
-                        : undefined}
+                      style={bufferError(form.bufferTimeBefore) ? { borderColor: 'var(--danger)', boxShadow: '0 0 0 3px rgba(239,68,68,0.12)' } : undefined}
                     />
-                    {bufferError(form.bufferTimeBefore) ? (
-                      <small className="form-error" style={{ display: 'block', marginTop: 4 }}>
-                        Must be a multiple of 15 — e.g. 0, 15, 30, 45…
-                      </small>
-                    ) : (
-                      <small style={{ color: 'var(--gray-400)', fontSize: '0.7rem', display: 'block', marginTop: 4 }}>15 min interval</small>
-                    )}
+                    {bufferError(form.bufferTimeBefore)
+                      ? <small className="form-error" style={{ display: 'block', marginTop: 4 }}>Must be 0, 15, 30, 45…</small>
+                      : <small style={{ color: 'var(--gray-400)', fontSize: '0.7rem', display: 'block', marginTop: 4 }}>15 min intervals</small>}
                   </div>
                   <div className="form-group">
-                    <label className="form-label">🧹 Buffer After (min)</label>
+                    <label className="form-label">⏩ Buffer After (min)</label>
                     <input
-                      type="number"
-                      className="form-input hide-arrows"
-                      min={0} max={120} step={15}
-                      placeholder="e.g. 15"
-                      value={form.bufferTimeAfter}
-                      onFocus={selectAllOnFocus}
+                      type="number" className="form-input hide-arrows"
+                      min={0} max={120} step={15} placeholder="e.g. 15"
+                      value={form.bufferTimeAfter} onFocus={selectAllOnFocus}
                       onChange={e => setForm(f => ({ ...f, bufferTimeAfter: Number(e.target.value) }))}
                       aria-invalid={bufferError(form.bufferTimeAfter)}
-                      style={bufferError(form.bufferTimeAfter)
-                        ? { borderColor: 'var(--danger)', boxShadow: '0 0 0 3px rgba(239,68,68,0.12)' }
-                        : undefined}
+                      style={bufferError(form.bufferTimeAfter) ? { borderColor: 'var(--danger)', boxShadow: '0 0 0 3px rgba(239,68,68,0.12)' } : undefined}
                     />
-                    {bufferError(form.bufferTimeAfter) ? (
-                      <small className="form-error" style={{ display: 'block', marginTop: 4 }}>
-                        Must be a multiple of 15 — e.g. 0, 15, 30, 45…
-                      </small>
-                    ) : (
-                      <small style={{ color: 'var(--gray-400)', fontSize: '0.7rem', display: 'block', marginTop: 4 }}>15 min interval</small>
-                    )}
+                    {bufferError(form.bufferTimeAfter)
+                      ? <small className="form-error" style={{ display: 'block', marginTop: 4 }}>Must be 0, 15, 30, 45…</small>
+                      : <small style={{ color: 'var(--gray-400)', fontSize: '0.7rem', display: 'block', marginTop: 4 }}>15 min intervals</small>}
                   </div>
                 </div>
 
@@ -657,14 +921,11 @@ export default function ServicesPage() {
                   <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 4 }}>
                     {PRESET_COLORS.map(c => (
                       <button
-                        key={c}
-                        type="button"
+                        key={c} type="button"
                         className={`color-swatch ${form.color === c ? 'selected' : ''}`}
                         style={{ background: c }}
                         onClick={() => setForm(f => ({ ...f, color: c }))}
-                        title={c}
-                        aria-label={`Calendar color ${c}`}
-                        aria-pressed={form.color === c}
+                        title={c} aria-label={`Calendar color ${c}`} aria-pressed={form.color === c}
                       />
                     ))}
                   </div>
@@ -672,24 +933,18 @@ export default function ServicesPage() {
               </div>
 
               <div className="divider" />
-
               <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'space-between', alignItems: 'center' }}>
                 {!editService ? (
-                  <button type="button" className="btn btn-ghost btn-sm" onClick={discardDraft} style={{ color: 'var(--gray-500)' }}>
+                  <button type="button" className="btn btn-ghost btn-sm" onClick={discardDraft} style={{ color: 'var(--gray-400)' }}>
                     Discard draft
                   </button>
                 ) : <span />}
                 <div style={{ display: 'flex', gap: '0.75rem' }}>
-                <button type="button" className="btn btn-secondary" onClick={closeForm}>{t('cancel')}</button>
-                <button
-                  id="save-service-btn"
-                  type="submit"
-                  className="btn btn-primary"
-                  disabled={saving}
-                >
-                  {saving ? <span className="spinner" /> : null}
-                  {saving ? 'Saving…' : t('save')}
-                </button>
+                  <button type="button" className="btn btn-secondary" onClick={closeForm}>{t('cancel')}</button>
+                  <button id="save-service-btn" type="submit" className="btn btn-primary" disabled={saving}>
+                    {saving ? <span className="spinner" /> : null}
+                    {saving ? 'Saving…' : (editService ? 'Save Changes' : t('save'))}
+                  </button>
                 </div>
               </div>
             </form>

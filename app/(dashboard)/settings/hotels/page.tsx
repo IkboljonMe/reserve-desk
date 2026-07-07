@@ -54,6 +54,7 @@ export default function HotelsRoomsPage() {
 
   // Hotel modal
   const [hotelOpen, setHotelOpen] = useState(false)
+  const [editHotelId, setEditHotelId] = useState<string | null>(null)
   const [hotelForm, setHotelForm] = useState({ name: '', shortName: '', location: '' })
   const [shortNameTouched, setShortNameTouched] = useState(false)
   const [savingHotel, setSavingHotel] = useState(false)
@@ -97,8 +98,16 @@ export default function HotelsRoomsPage() {
   // ---- Hotel form -----------------------------------------------------------
 
   function openHotelModal() {
+    setEditHotelId(null)
     setHotelForm({ name: '', shortName: '', location: '' })
     setShortNameTouched(false)
+    setHotelOpen(true)
+  }
+
+  function openEditHotel(hotel: Hotel) {
+    setEditHotelId(hotel._id)
+    setHotelForm({ name: hotel.name, shortName: displayCode(hotel), location: hotel.location || '' })
+    setShortNameTouched(true) // don't auto-overwrite an existing code from the name
     setHotelOpen(true)
   }
 
@@ -121,29 +130,30 @@ export default function HotelsRoomsPage() {
     const sn = hotelForm.shortName.trim().toUpperCase()
     if (!sn) return null // handled by `required`
     if (!SHORT_NAME_RE.test(sn)) return 'Use 2–6 letters or digits (e.g. FG, FGH1)'
-    if (hotels.some(h => h.shortName?.toUpperCase() === sn)) {
+    if (hotels.some(h => h._id !== editHotelId && h.shortName?.toUpperCase() === sn)) {
       return `"${sn}" is already used by another hotel`
     }
     return null
-  }, [hotelForm.shortName, hotels])
+  }, [hotelForm.shortName, hotels, editHotelId])
 
-  async function handleAddHotel(e: React.FormEvent) {
+  async function handleSubmitHotel(e: React.FormEvent) {
     e.preventDefault()
     if (!hotelForm.name.trim() || !hotelForm.shortName.trim() || shortNameError) return
     setSavingHotel(true)
     try {
-      const res = await fetch('/api/hotels', {
-        method: 'POST',
+      const res = await fetch(editHotelId ? `/api/hotels/${editHotelId}` : '/api/hotels', {
+        method: editHotelId ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(hotelForm),
       })
       const data = await res.json()
       if (res.ok) {
-        showToast('Hotel added', 'success')
+        showToast(editHotelId ? 'Hotel updated' : 'Hotel added', 'success')
         setHotelOpen(false)
+        setEditHotelId(null)
         load()
       } else {
-        showToast(data.error || 'Failed to add hotel', 'error')
+        showToast(data.error || 'Failed to save hotel', 'error')
       }
     } finally {
       setSavingHotel(false)
@@ -356,9 +366,14 @@ export default function HotelsRoomsPage() {
                         <button className="btn btn-ghost btn-sm btn-icon" onClick={() => setHotelDeleteConfirm(null)} aria-label="Cancel delete"><X size={14} /></button>
                       </div>
                     ) : (
-                      <button className="btn btn-ghost btn-sm btn-icon" style={{ flexShrink: 0, color: 'var(--danger)' }} onClick={() => setHotelDeleteConfirm(hotel._id)} title="Delete hotel" aria-label="Delete hotel">
-                        <Trash2 size={15} />
-                      </button>
+                      <div style={{ display: 'flex', gap: 2, flexShrink: 0 }}>
+                        <button className="btn btn-ghost btn-sm btn-icon" onClick={() => openEditHotel(hotel)} title="Edit hotel" aria-label="Edit hotel">
+                          <Pencil size={15} />
+                        </button>
+                        <button className="btn btn-ghost btn-sm btn-icon" style={{ color: 'var(--danger)' }} onClick={() => setHotelDeleteConfirm(hotel._id)} title="Delete hotel" aria-label="Delete hotel">
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
                     )}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.75rem', color: 'var(--gray-500)', paddingTop: 10, borderTop: '1px solid var(--surface-border)' }}>
@@ -559,12 +574,12 @@ export default function HotelsRoomsPage() {
         <div className="modal-overlay" onClick={() => setHotelOpen(false)}>
           <div className="modal" style={{ maxWidth: 440 }} onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>Add Hotel</h2>
+              <h2>{editHotelId ? 'Edit Hotel' : 'Add Hotel'}</h2>
               <button className="btn btn-ghost btn-icon" onClick={() => setHotelOpen(false)} aria-label="Close">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               </button>
             </div>
-            <form onSubmit={handleAddHotel}>
+            <form onSubmit={handleSubmitHotel}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.125rem' }}>
                 <div className="form-group">
                   <label className="form-label">Full Hotel Name *</label>
@@ -619,7 +634,7 @@ export default function HotelsRoomsPage() {
                 <button type="button" className="btn btn-secondary" onClick={() => setHotelOpen(false)}>Cancel</button>
                 <button type="submit" className="btn btn-primary" disabled={savingHotel || !!shortNameError}>
                   {savingHotel ? <span className="spinner" /> : null}
-                  {savingHotel ? 'Adding…' : 'Add Hotel'}
+                  {savingHotel ? (editHotelId ? 'Saving…' : 'Adding…') : (editHotelId ? 'Save Changes' : 'Add Hotel')}
                 </button>
               </div>
             </form>
