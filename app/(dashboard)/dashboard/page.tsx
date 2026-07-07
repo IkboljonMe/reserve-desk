@@ -9,6 +9,7 @@ import {
 import { nowUZ } from '@/lib/timezone'
 import { getServiceIcon } from '@/lib/serviceIcons'
 import { useToast } from '@/components/ToastProvider'
+import { useTranslation, DictionaryKeys } from '@/lib/i18n'
 import {
   Search, X, Check, Wallet, Building2, Users, BedDouble, SlidersHorizontal,
   Plus, Pencil, Trash2, RotateCcw, Clock, CalendarDays, Phone, User, ArrowUpDown, ExternalLink,
@@ -54,22 +55,23 @@ type PeriodKey = 'week' | 'month' | '7d' | '30d' | 'custom'
 const svcId = (b: Booking) => (typeof b.serviceId === 'string' ? b.serviceId : b.serviceId?._id)
 const extractHotelId = (h?: string | HotelRef) => (!h ? '' : typeof h === 'string' ? h : h._id || '')
 const money = (v: number) => Math.round(v).toLocaleString('en-US').replace(/,/g, ' ')
-const actorName = (a?: Actor | string) => (!a || typeof a === 'string' ? 'Admin' : a.name || a.email || 'Admin')
+const actorName = (a: Actor | string | undefined, adminLabel: string) =>
+  (!a || typeof a === 'string' ? adminLabel : a.name || a.email || adminLabel)
 
 const INK_COLLECTED = '#059669'   // darker green for ink/stroke (contrast relief)
 const FILL_COLLECTED = '#10b981'  // green fill
 const EXPECTED = '#6366f1'        // indigo (brand)
 
-function bookingState(b: Booking): { key: 'finished' | 'free' | 'paid' | 'unpaid'; label: string; color: string; bg: string } {
-  if (b.finished) return { key: 'finished', label: 'Finished', color: '#4f46e5', bg: '#eef2ff' }
-  if ((b.totalPrice || 0) === 0) return { key: 'free', label: 'Free', color: '#2563eb', bg: '#eff6ff' }
-  if (b.paid) return { key: 'paid', label: 'Paid', color: INK_COLLECTED, bg: '#ecfdf5' }
-  return { key: 'unpaid', label: 'Unpaid', color: '#b45309', bg: '#fffbeb' }
+function bookingState(b: Booking): { key: 'finished' | 'free' | 'paid' | 'unpaid'; labelKey: DictionaryKeys; color: string; bg: string } {
+  if (b.finished) return { key: 'finished', labelKey: 'finished', color: '#4f46e5', bg: '#eef2ff' }
+  if ((b.totalPrice || 0) === 0) return { key: 'free', labelKey: 'free', color: '#2563eb', bg: '#eff6ff' }
+  if (b.paid) return { key: 'paid', labelKey: 'paid', color: INK_COLLECTED, bg: '#ecfdf5' }
+  return { key: 'unpaid', labelKey: 'unpaid', color: '#b45309', bg: '#fffbeb' }
 }
-const TYPE_META: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
-  client: { label: 'Client', icon: <Users size={12} />, color: '#3b82f6' },
-  room: { label: 'Room', icon: <BedDouble size={12} />, color: '#10b981' },
-  custom: { label: 'Custom', icon: <SlidersHorizontal size={12} />, color: '#f59e0b' },
+const TYPE_META: Record<string, { labelKey: DictionaryKeys; icon: React.ReactNode; color: string }> = {
+  client: { labelKey: 'typeClient', icon: <Users size={12} />, color: '#3b82f6' },
+  room: { labelKey: 'typeRoom', icon: <BedDouble size={12} />, color: '#10b981' },
+  custom: { labelKey: 'typeCustom', icon: <SlidersHorizontal size={12} />, color: '#f59e0b' },
 }
 
 // Animated count-up for headline figures.
@@ -110,6 +112,7 @@ function periodRange(key: PeriodKey, customFrom: string, customTo: string): { fr
 export default function DashboardPage() {
   const router = useRouter()
   const { showToast } = useToast()
+  const { t } = useTranslation()
 
   const [services, setServices] = useState<Service[]>([])
   const [hotels, setHotels] = useState<Hotel[]>([])
@@ -153,11 +156,11 @@ export default function DashboardPage() {
       setHotels(Array.isArray(ht) ? ht : [])
       setBookings(Array.isArray(bk) ? bk.filter((b: Booking) => b.status !== 'cancelled') : [])
     } catch {
-      showToast('Failed to load dashboard', 'error')
+      showToast(t('loadDashboardFailed'), 'error')
     } finally {
       setLoading(false)
     }
-  }, [range.from, range.to, showToast])
+  }, [range.from, range.to, showToast, t])
 
   useEffect(() => { load() }, [load])
 
@@ -260,12 +263,12 @@ export default function DashboardPage() {
       {/* Header + period */}
       <div className="page-header" style={{ marginBottom: 0 }}>
         <div>
-          <h1>Dashboard</h1>
+          <h1>{t('dashboard')}</h1>
           <p style={{ marginTop: 4 }}>{format(nowUZ(), 'EEEE, MMMM d, yyyy')}</p>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
           <div className="dash-seg">
-            {([['week', 'Week'], ['month', 'Month'], ['7d', '7d'], ['30d', '30d'], ['custom', 'Custom']] as [PeriodKey, string][]).map(([k, l]) => (
+            {([['week', t('periodWeek')], ['month', t('periodMonth')], ['7d', '7d'], ['30d', '30d'], ['custom', t('periodCustom')]] as [PeriodKey, string][]).map(([k, l]) => (
               <button key={k} className={period === k ? 'active' : ''} onClick={() => setPeriod(k)}>{l}</button>
             ))}
           </div>
@@ -277,7 +280,7 @@ export default function DashboardPage() {
             </div>
           )}
           <button className="btn btn-primary btn-sm" onClick={() => router.push(`/book?date=${format(nowUZ(), 'yyyy-MM-dd')}`)}>
-            <Plus size={14} strokeWidth={2.5} /> New Booking
+            <Plus size={14} strokeWidth={2.5} /> {t('newBooking')}
           </button>
         </div>
       </div>
@@ -292,21 +295,21 @@ export default function DashboardPage() {
         {/* Filter toolbar */}
         <div style={{ padding: '0.9rem 1.1rem', borderBottom: '1px solid var(--surface-border)', display: 'flex', flexDirection: 'column', gap: 10 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-            <h3 style={{ fontSize: '0.95rem', margin: 0, marginRight: 4 }}>Bookings</h3>
-            <span style={{ fontSize: '0.75rem', color: 'var(--gray-400)', fontWeight: 600 }}>{rows.length} in range</span>
+            <h3 style={{ fontSize: '0.95rem', margin: 0, marginRight: 4 }}>{t('bookings')}</h3>
+            <span style={{ fontSize: '0.75rem', color: 'var(--gray-400)', fontWeight: 600 }}>{rows.length} {t('inRange')}</span>
             <div style={{ position: 'relative', marginLeft: 'auto', flex: '1 1 220px', maxWidth: 320 }}>
               <Search size={14} style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)', color: 'var(--gray-400)', pointerEvents: 'none' }} />
               <input className="form-input" style={{ paddingLeft: 32, paddingTop: 6, paddingBottom: 6, fontSize: '0.82rem' }}
-                placeholder="Search guest, room or phone…" value={search} onChange={e => setSearch(e.target.value)} />
-              {search && <button onClick={() => setSearch('')} style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--gray-400)' }} aria-label="Clear"><X size={14} /></button>}
+                placeholder={t('searchGuestRoomPhone')} value={search} onChange={e => setSearch(e.target.value)} />
+              {search && <button onClick={() => setSearch('')} style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--gray-400)' }} aria-label={t('clear')}><X size={14} /></button>}
             </div>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
             {/* Hotels */}
             {hotels.length > 1 && (
-              <FilterGroup icon={<Building2 size={12} />} label="Hotel">
-                <button className={`dash-pill ${allHotelsOn ? 'active' : ''}`} onClick={() => setFHotels(new Set())}>All</button>
+              <FilterGroup icon={<Building2 size={12} />} label={t('hotel')}>
+                <button className={`dash-pill ${allHotelsOn ? 'active' : ''}`} onClick={() => setFHotels(new Set())}>{t('all')}</button>
                 {hotels.map(h => (
                   <button key={h._id} className={`dash-pill ${fHotels.has(h._id) ? 'active' : ''}`}
                     onClick={() => setFHotels(prev => { const n = new Set(prev); if (n.has(h._id)) n.delete(h._id); else n.add(h._id); return n })}>{h.shortName}</button>
@@ -314,27 +317,27 @@ export default function DashboardPage() {
               </FilterGroup>
             )}
             {/* Payment */}
-            <FilterGroup icon={<Wallet size={12} />} label="Payment">
+            <FilterGroup icon={<Wallet size={12} />} label={t('payment')}>
               {(['all', 'paid', 'unpaid', 'free'] as PaymentFilter[]).map(p => (
-                <button key={p} className={`dash-pill ${fPayment === p ? 'active' : ''}`} onClick={() => setFPayment(p)}>{p === 'all' ? 'All' : p[0].toUpperCase() + p.slice(1)}</button>
+                <button key={p} className={`dash-pill ${fPayment === p ? 'active' : ''}`} onClick={() => setFPayment(p)}>{p === 'all' ? t('all') : t(p as DictionaryKeys)}</button>
               ))}
             </FilterGroup>
             {/* Type */}
-            <FilterGroup label="Type">
+            <FilterGroup label={t('type')}>
               {(['all', 'client', 'room', 'custom'] as TypeFilter[]).map(tp => (
-                <button key={tp} className={`dash-pill ${fType === tp ? 'active' : ''}`} onClick={() => setFType(tp)}>{tp === 'all' ? 'All' : TYPE_META[tp].label}</button>
+                <button key={tp} className={`dash-pill ${fType === tp ? 'active' : ''}`} onClick={() => setFType(tp)}>{tp === 'all' ? t('all') : t(TYPE_META[tp].labelKey)}</button>
               ))}
             </FilterGroup>
             {/* State */}
-            <FilterGroup label="State">
+            <FilterGroup label={t('stateLabel')}>
               {(['all', 'active', 'finished'] as StateFilter[]).map(s => (
-                <button key={s} className={`dash-pill ${fState === s ? 'active' : ''}`} onClick={() => setFState(s)}>{s === 'all' ? 'All' : s[0].toUpperCase() + s.slice(1)}</button>
+                <button key={s} className={`dash-pill ${fState === s ? 'active' : ''}`} onClick={() => setFState(s)}>{s === 'all' ? t('all') : t(s as DictionaryKeys)}</button>
               ))}
             </FilterGroup>
             {activeFilterCount > 0 && (
               <button className="btn btn-ghost btn-sm" style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}
                 onClick={() => { setFHotels(new Set()); setFServices(new Set()); setFPayment('all'); setFType('all'); setFState('all'); setSearch('') }}>
-                <X size={13} /> Clear
+                <X size={13} /> {t('clear')}
               </button>
             )}
           </div>
@@ -342,7 +345,7 @@ export default function DashboardPage() {
           {/* Service chips */}
           {services.length > 1 && (
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-              <button className={`dash-pill ${allServicesOn ? 'active' : ''}`} onClick={() => setFServices(new Set())}>All services</button>
+              <button className={`dash-pill ${allServicesOn ? 'active' : ''}`} onClick={() => setFServices(new Set())}>{t('allServices')}</button>
               {services.map(s => (
                 <button key={s._id} className="dash-pill" style={fServices.has(s._id) ? { background: s.color, color: '#fff', borderColor: 'transparent' } : {}}
                   onClick={() => setFServices(prev => { const n = new Set(prev); if (n.has(s._id)) n.delete(s._id); else n.add(s._id); return n })}>
@@ -359,21 +362,21 @@ export default function DashboardPage() {
         ) : rows.length === 0 ? (
           <div className="empty-state" style={{ padding: '3rem' }}>
             <div className="empty-state-icon"><CalendarDays size={22} /></div>
-            <p style={{ fontSize: '0.875rem' }}>No bookings match these filters</p>
+            <p style={{ fontSize: '0.875rem' }}>{t('noBookingsMatch')}</p>
           </div>
         ) : (
           <div style={{ overflow: 'auto', maxHeight: 560 }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8125rem' }}>
               <thead>
                 <tr style={{ position: 'sticky', top: 0, background: 'var(--gray-50)', zIndex: 1, borderBottom: '1px solid var(--gray-200)' }}>
-                  <th className="dash-th" style={{ cursor: 'pointer' }} onClick={() => toggleSort('date')}>Date / Time <ArrowUpDown size={11} style={{ opacity: sortKey === 'date' ? 1 : 0.3 }} /></th>
-                  <th className="dash-th">Service</th>
-                  <th className="dash-th">Hotel</th>
-                  <th className="dash-th">Guest</th>
-                  <th className="dash-th">Room / Type</th>
-                  <th className="dash-th" style={{ cursor: 'pointer' }} onClick={() => toggleSort('price')}>Price <ArrowUpDown size={11} style={{ opacity: sortKey === 'price' ? 1 : 0.3 }} /></th>
-                  <th className="dash-th">Status</th>
-                  <th className="dash-th" style={{ cursor: 'pointer' }} onClick={() => toggleSort('created')}>Created <ArrowUpDown size={11} style={{ opacity: sortKey === 'created' ? 1 : 0.3 }} /></th>
+                  <th className="dash-th" style={{ cursor: 'pointer' }} onClick={() => toggleSort('date')}>{t('colDateTime')} <ArrowUpDown size={11} style={{ opacity: sortKey === 'date' ? 1 : 0.3 }} /></th>
+                  <th className="dash-th">{t('service')}</th>
+                  <th className="dash-th">{t('hotel')}</th>
+                  <th className="dash-th">{t('guest')}</th>
+                  <th className="dash-th">{t('roomType')}</th>
+                  <th className="dash-th" style={{ cursor: 'pointer' }} onClick={() => toggleSort('price')}>{t('price')} <ArrowUpDown size={11} style={{ opacity: sortKey === 'price' ? 1 : 0.3 }} /></th>
+                  <th className="dash-th">{t('status')}</th>
+                  <th className="dash-th" style={{ cursor: 'pointer' }} onClick={() => toggleSort('created')}>{t('created')} <ArrowUpDown size={11} style={{ opacity: sortKey === 'created' ? 1 : 0.3 }} /></th>
                 </tr>
               </thead>
               <tbody>
@@ -400,16 +403,16 @@ export default function DashboardPage() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                           {b.roomNumber ? <span style={{ color: 'var(--gray-600)' }}>🏨 {b.roomNumber}</span> : <span style={{ color: 'var(--gray-300)' }}>—</span>}
                           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, padding: '1px 6px', borderRadius: 6, background: `${TYPE_META[type].color}14`, color: TYPE_META[type].color, fontSize: '0.66rem', fontWeight: 700 }}>
-                            {TYPE_META[type].icon}{TYPE_META[type].label}
+                            {TYPE_META[type].icon}{t(TYPE_META[type].labelKey)}
                           </span>
                         </div>
                       </td>
                       <td style={{ padding: '9px 12px', color: 'var(--gray-700)', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
-                        {b.totalPrice > 0 ? `${money(b.totalPrice)}` : <span style={{ color: 'var(--gray-400)' }}>Free</span>}
+                        {b.totalPrice > 0 ? `${money(b.totalPrice)}` : <span style={{ color: 'var(--gray-400)' }}>{t('free')}</span>}
                       </td>
                       <td style={{ padding: '9px 12px' }}>
                         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 20, fontSize: '0.7rem', fontWeight: 700, background: st.bg, color: st.color }}>
-                          {st.key === 'finished' && <Check size={11} />}{st.label}
+                          {st.key === 'finished' && <Check size={11} />}{t(st.labelKey)}
                         </span>
                       </td>
                       <td style={{ padding: '9px 12px', color: 'var(--gray-400)', fontSize: '0.72rem', whiteSpace: 'nowrap' }}>
@@ -456,6 +459,7 @@ function IncomeAnalytics({ analytics, loading, perService }: {
   loading: boolean
   perService: { svc: Service; total: number }[]
 }) {
+  const { t } = useTranslation()
   const total = useCountUp(analytics.total)
   const collected = useCountUp(analytics.collected)
   const due = useCountUp(analytics.due)
@@ -466,10 +470,10 @@ function IncomeAnalytics({ analytics, loading, perService }: {
       <div style={{ minWidth: 0 }}>
         {/* KPI strip */}
         <div style={{ display: 'flex', gap: 22, flexWrap: 'wrap', marginBottom: '1.1rem' }}>
-          <Kpi label="Total income" value={`${money(total)}`} unit="UZS" color="var(--gray-900)" />
-          <Kpi label="Collected" value={`${money(collected)}`} unit="UZS" color={INK_COLLECTED} dot={FILL_COLLECTED} />
-          <Kpi label="Outstanding" value={`${money(due)}`} unit="UZS" color="#b45309" dot="#f59e0b" />
-          <Kpi label="Bookings" value={`${Math.round(count)}`} color={EXPECTED} />
+          <Kpi label={t('totalIncome')} value={`${money(total)}`} unit={t('sum')} color="var(--gray-900)" />
+          <Kpi label={t('collected')} value={`${money(collected)}`} unit={t('sum')} color={INK_COLLECTED} dot={FILL_COLLECTED} />
+          <Kpi label={t('outstanding')} value={`${money(due)}`} unit={t('sum')} color="#b45309" dot="#f59e0b" />
+          <Kpi label={t('bookings')} value={`${Math.round(count)}`} color={EXPECTED} />
         </div>
         {/* Chart */}
         {loading ? (
@@ -479,16 +483,16 @@ function IncomeAnalytics({ analytics, loading, perService }: {
         )}
         {/* Legend */}
         <div style={{ display: 'flex', gap: 16, marginTop: 12, fontSize: '0.72rem', color: 'var(--gray-500)' }}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><span style={{ width: 12, height: 12, borderRadius: 3, background: FILL_COLLECTED }} /> Collected</span>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><span style={{ width: 12, height: 12, borderRadius: 3, background: `${EXPECTED}33`, border: `1.5px solid ${EXPECTED}` }} /> Expected (booked)</span>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><span style={{ width: 12, height: 12, borderRadius: 3, background: FILL_COLLECTED }} /> {t('collected')}</span>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><span style={{ width: 12, height: 12, borderRadius: 3, background: `${EXPECTED}33`, border: `1.5px solid ${EXPECTED}` }} /> {t('expectedBooked')}</span>
         </div>
       </div>
 
       {/* Income by service */}
       <div style={{ borderLeft: '1px solid var(--surface-border)', paddingLeft: '1.4rem' }}>
-        <h3 style={{ fontSize: '0.8rem', margin: '0 0 0.9rem' }}>Income by service</h3>
+        <h3 style={{ fontSize: '0.8rem', margin: '0 0 0.9rem' }}>{t('incomeByService')}</h3>
         {perService.length === 0 ? (
-          <p style={{ fontSize: '0.78rem', color: 'var(--gray-400)' }}>No income in this period</p>
+          <p style={{ fontSize: '0.78rem', color: 'var(--gray-400)' }}>{t('noIncomeInPeriod')}</p>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {perService.slice(0, 6).map(({ svc, total: t }) => {
@@ -530,6 +534,7 @@ function Kpi({ label, value, unit, color, dot }: { label: string; value: string;
 
 // Animated bar chart: expected (indigo outline) with collected (green) overlaid.
 function IncomeChart({ data }: { data: { label: string; expected: number; collected: number; count: number }[] }) {
+  const { t } = useTranslation()
   const [ready, setReady] = useState(false)
   const [hover, setHover] = useState<{ i: number; x: number } | null>(null)
   useEffect(() => { const id = requestAnimationFrame(() => setReady(true)); return () => cancelAnimationFrame(id) }, [])
@@ -596,9 +601,9 @@ function IncomeChart({ data }: { data: { label: string; expected: number; collec
             background: 'var(--gray-900, #111827)', color: '#fff', padding: '7px 10px', borderRadius: 8, fontSize: '0.7rem',
             pointerEvents: 'none', whiteSpace: 'nowrap', zIndex: 5, boxShadow: '0 6px 20px rgba(0,0,0,0.25)',
           }}>
-            <div style={{ fontWeight: 700, marginBottom: 3 }}>{data[hover.i].label} · {data[hover.i].count} booking{data[hover.i].count === 1 ? '' : 's'}</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 8, height: 8, borderRadius: '50%', background: FILL_COLLECTED }} /> Collected {money(data[hover.i].collected)}</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 5, opacity: 0.85 }}><span style={{ width: 8, height: 8, borderRadius: '50%', background: EXPECTED }} /> Expected {money(data[hover.i].expected)}</div>
+            <div style={{ fontWeight: 700, marginBottom: 3 }}>{data[hover.i].label} · {data[hover.i].count} {data[hover.i].count === 1 ? t('bookingOne') : t('bookingsLower')}</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 8, height: 8, borderRadius: '50%', background: FILL_COLLECTED }} /> {t('collected')} {money(data[hover.i].collected)}</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5, opacity: 0.85 }}><span style={{ width: 8, height: 8, borderRadius: '50%', background: EXPECTED }} /> {t('expected')} {money(data[hover.i].expected)}</div>
           </div>
         )}
       </div>
@@ -607,12 +612,12 @@ function IncomeChart({ data }: { data: { label: string; expected: number; collec
 }
 
 // ── Detail drawer + timeline ──────────────────────────────────────────────────
-const EVENT_META: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
-  created: { label: 'Created', icon: <Plus size={13} />, color: '#6366f1' },
-  paid: { label: 'Marked paid', icon: <Wallet size={13} />, color: '#059669' },
-  finished: { label: 'Completed', icon: <Check size={13} />, color: '#059669' },
-  notes_updated: { label: 'Notes updated', icon: <Pencil size={13} />, color: '#64748b' },
-  reopened: { label: 'Reopened', icon: <RotateCcw size={13} />, color: '#d97706' },
+const EVENT_META: Record<string, { labelKey: DictionaryKeys; icon: React.ReactNode; color: string }> = {
+  created: { labelKey: 'evCreated', icon: <Plus size={13} />, color: '#6366f1' },
+  paid: { labelKey: 'evPaid', icon: <Wallet size={13} />, color: '#059669' },
+  finished: { labelKey: 'evFinished', icon: <Check size={13} />, color: '#059669' },
+  notes_updated: { labelKey: 'evNotesUpdated', icon: <Pencil size={13} />, color: '#64748b' },
+  reopened: { labelKey: 'evReopened', icon: <RotateCcw size={13} />, color: '#d97706' },
 }
 
 function BookingDrawer({ id, hotels, serviceHotel, onClose, onChanged, onDeleted, router, showToast }: {
@@ -625,6 +630,7 @@ function BookingDrawer({ id, hotels, serviceHotel, onClose, onChanged, onDeleted
   router: ReturnType<typeof useRouter>
   showToast: (m: string, t: 'success' | 'error' | 'info') => void
 }) {
+  const { t } = useTranslation()
   const [b, setB] = useState<Booking | null>(null)
   const [loading, setLoading] = useState(true)
   const [payConfirm, setPayConfirm] = useState(false)
@@ -650,13 +656,13 @@ function BookingDrawer({ id, hotels, serviceHotel, onClose, onChanged, onDeleted
       setB(data); setNotesDraft(data.notes || '')
       onChanged(id, changes)
       showToast(msg, 'success')
-    } else showToast('Update failed', 'error')
+    } else showToast(t('updateFailed'), 'error')
   }
 
   async function del() {
     const res = await fetch(`/api/bookings/${id}`, { method: 'DELETE' })
-    if (res.ok) { showToast('Booking deleted', 'success'); onDeleted(id) }
-    else showToast('Delete failed', 'error')
+    if (res.ok) { showToast(t('bookingDeleted'), 'success'); onDeleted(id) }
+    else showToast(t('deleteFailed'), 'error')
   }
 
   const st = b ? bookingState(b) : null
@@ -665,16 +671,17 @@ function BookingDrawer({ id, hotels, serviceHotel, onClose, onChanged, onDeleted
   // Build timeline from history (fallback to derived timestamps for legacy rows).
   const timeline = useMemo(() => {
     if (!b) return []
+    const admin = t('admin')
     if (b.history && b.history.length) {
       return [...b.history].sort((a, c) => new Date(a.at).getTime() - new Date(c.at).getTime())
-        .map(e => ({ action: e.action, at: e.at, by: actorName(e.by) }))
+        .map(e => ({ action: e.action, at: e.at, by: actorName(e.by, admin) }))
     }
     const evs: { action: string; at: string; by: string }[] = []
-    if (b.createdAt) evs.push({ action: 'created', at: b.createdAt, by: actorName(b.createdBy) })
-    if (b.paidAt) evs.push({ action: 'paid', at: b.paidAt, by: actorName(b.createdBy) })
-    if (b.finishedAt) evs.push({ action: 'finished', at: b.finishedAt, by: actorName(b.createdBy) })
+    if (b.createdAt) evs.push({ action: 'created', at: b.createdAt, by: actorName(b.createdBy, admin) })
+    if (b.paidAt) evs.push({ action: 'paid', at: b.paidAt, by: actorName(b.createdBy, admin) })
+    if (b.finishedAt) evs.push({ action: 'finished', at: b.finishedAt, by: actorName(b.createdBy, admin) })
     return evs
-  }, [b])
+  }, [b, t])
 
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 1200, display: 'flex', justifyContent: 'flex-end' }}>
@@ -696,61 +703,61 @@ function BookingDrawer({ id, hotels, serviceHotel, onClose, onChanged, onDeleted
                 <div style={{ fontWeight: 800, fontSize: '1.05rem', color: 'var(--gray-900)' }}>{b.customerName}</div>
                 <div style={{ fontSize: '0.78rem', color: 'var(--gray-500)' }}>{b.serviceId?.name}{hotel ? ` · ${hotel.shortName}` : ''}</div>
               </div>
-              <button className="btn btn-ghost btn-icon" onClick={onClose} aria-label="Close"><X size={18} /></button>
+              <button className="btn btn-ghost btn-icon" onClick={onClose} aria-label={t('close')}><X size={18} /></button>
             </div>
 
             {/* Status + price banner */}
             <div style={{ display: 'flex', gap: 10, marginBottom: '1.1rem' }}>
               <div style={{ flex: 1, padding: '0.7rem 0.85rem', borderRadius: 10, background: st.bg }}>
-                <div style={{ fontSize: '0.66rem', fontWeight: 700, color: st.color, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Status</div>
+                <div style={{ fontSize: '0.66rem', fontWeight: 700, color: st.color, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{t('status')}</div>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontWeight: 800, fontSize: '0.95rem', color: st.color, marginTop: 2 }}>
-                  {st.key === 'finished' && <Check size={14} />}{st.label}
+                  {st.key === 'finished' && <Check size={14} />}{t(st.labelKey)}
                 </div>
               </div>
               <div style={{ flex: 1, padding: '0.7rem 0.85rem', borderRadius: 10, background: 'var(--gray-50)' }}>
-                <div style={{ fontSize: '0.66rem', fontWeight: 700, color: 'var(--gray-400)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Price</div>
-                <div style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--gray-800)', marginTop: 2, fontVariantNumeric: 'tabular-nums' }}>{b.totalPrice > 0 ? `${money(b.totalPrice)} UZS` : 'Free'}</div>
+                <div style={{ fontSize: '0.66rem', fontWeight: 700, color: 'var(--gray-400)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{t('price')}</div>
+                <div style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--gray-800)', marginTop: 2, fontVariantNumeric: 'tabular-nums' }}>{b.totalPrice > 0 ? `${money(b.totalPrice)} ${t('sum')}` : t('free')}</div>
               </div>
             </div>
 
             {/* Actions */}
             <div style={{ display: 'flex', gap: 8, marginBottom: '1.25rem' }}>
               {!b.finished && st.key === 'unpaid' && (
-                <button className="btn btn-primary btn-sm" style={{ flex: 1 }} disabled={busy} onClick={() => setPayConfirm(true)}><Wallet size={14} /> Mark as Paid</button>
+                <button className="btn btn-primary btn-sm" style={{ flex: 1 }} disabled={busy} onClick={() => setPayConfirm(true)}><Wallet size={14} /> {t('markAsPaid')}</button>
               )}
               {!b.finished && st.key !== 'unpaid' && (
-                <button className="btn btn-sm" style={{ flex: 1, background: FILL_COLLECTED, color: '#fff', border: 'none' }} disabled={busy} onClick={() => mutate({ finished: true }, 'Booking completed')}><Check size={15} strokeWidth={2.5} /> Mark as Finished</button>
+                <button className="btn btn-sm" style={{ flex: 1, background: FILL_COLLECTED, color: '#fff', border: 'none' }} disabled={busy} onClick={() => mutate({ finished: true }, t('bookingCompleted'))}><Check size={15} strokeWidth={2.5} /> {t('markAsFinished')}</button>
               )}
-              <button className="btn btn-secondary btn-sm" onClick={() => router.push(`/calendar?date=${b.date}`)} title="Open in calendar"><ExternalLink size={14} /></button>
+              <button className="btn btn-secondary btn-sm" onClick={() => router.push(`/calendar?date=${b.date}`)} title={t('openInCalendar')}><ExternalLink size={14} /></button>
             </div>
 
             {/* Details grid */}
-            <Section title="Details">
-              <Field icon={<CalendarDays size={14} />} label="Date" value={format(parseISO(b.date), 'EEEE, MMM d, yyyy')} />
-              <Field icon={<Clock size={14} />} label="Time" value={`${b.startTime} – ${b.endTime} (${b.duration} min)`} />
-              {b.customerPhone && <Field icon={<Phone size={14} />} label="Phone" value={b.customerPhone} />}
-              {b.roomNumber && <Field icon={<BedDouble size={14} />} label="Room" value={b.roomNumber} />}
-              {b.bookingType && <Field icon={TYPE_META[b.bookingType].icon} label="Type" value={TYPE_META[b.bookingType].label} />}
-              <Field icon={<User size={14} />} label="Booked by" value={actorName(b.createdBy)} />
+            <Section title={t('detailsTitle')}>
+              <Field icon={<CalendarDays size={14} />} label={t('date')} value={format(parseISO(b.date), 'EEEE, MMM d, yyyy')} />
+              <Field icon={<Clock size={14} />} label={t('time')} value={`${b.startTime} – ${b.endTime} (${b.duration} min)`} />
+              {b.customerPhone && <Field icon={<Phone size={14} />} label={t('phone')} value={b.customerPhone} />}
+              {b.roomNumber && <Field icon={<BedDouble size={14} />} label={t('room')} value={b.roomNumber} />}
+              {b.bookingType && <Field icon={TYPE_META[b.bookingType].icon} label={t('type')} value={t(TYPE_META[b.bookingType].labelKey)} />}
+              <Field icon={<User size={14} />} label={t('bookedBy')} value={actorName(b.createdBy, t('admin'))} />
             </Section>
 
             {/* Notes */}
-            <Section title="Notes" action={!editingNotes ? <button className="btn btn-ghost btn-sm" style={{ padding: '2px 6px' }} onClick={() => setEditingNotes(true)}><Pencil size={12} /> Edit</button> : undefined}>
+            <Section title={t('notes')} action={!editingNotes ? <button className="btn btn-ghost btn-sm" style={{ padding: '2px 6px' }} onClick={() => setEditingNotes(true)}><Pencil size={12} /> {t('edit')}</button> : undefined}>
               {editingNotes ? (
                 <div>
-                  <textarea className="form-textarea" value={notesDraft} onChange={e => setNotesDraft(e.target.value)} style={{ minHeight: 70, fontSize: '0.82rem' }} placeholder="Add notes…" />
+                  <textarea className="form-textarea" value={notesDraft} onChange={e => setNotesDraft(e.target.value)} style={{ minHeight: 70, fontSize: '0.82rem' }} placeholder={t('addNotesPlaceholder')} />
                   <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', marginTop: 6 }}>
-                    <button className="btn btn-secondary btn-sm" onClick={() => { setEditingNotes(false); setNotesDraft(b.notes || '') }}>Cancel</button>
-                    <button className="btn btn-primary btn-sm" disabled={busy} onClick={async () => { await mutate({ notes: notesDraft }, 'Notes saved'); setEditingNotes(false) }}>Save</button>
+                    <button className="btn btn-secondary btn-sm" onClick={() => { setEditingNotes(false); setNotesDraft(b.notes || '') }}>{t('cancel')}</button>
+                    <button className="btn btn-primary btn-sm" disabled={busy} onClick={async () => { await mutate({ notes: notesDraft }, t('notesSaved')); setEditingNotes(false) }}>{t('saveShort')}</button>
                   </div>
                 </div>
               ) : (
-                <p style={{ fontSize: '0.82rem', color: b.notes ? 'var(--gray-700)' : 'var(--gray-400)', margin: 0, whiteSpace: 'pre-wrap' }}>{b.notes || 'No notes.'}</p>
+                <p style={{ fontSize: '0.82rem', color: b.notes ? 'var(--gray-700)' : 'var(--gray-400)', margin: 0, whiteSpace: 'pre-wrap' }}>{b.notes || t('noNotes')}</p>
               )}
             </Section>
 
             {/* Timeline */}
-            <Section title="Activity">
+            <Section title={t('activity')}>
               <div style={{ position: 'relative', paddingLeft: 8 }}>
                 {timeline.map((e, i) => {
                   const meta = EVENT_META[e.action] || EVENT_META.notes_updated
@@ -760,7 +767,7 @@ function BookingDrawer({ id, hotels, serviceHotel, onClose, onChanged, onDeleted
                       {!last && <div style={{ position: 'absolute', left: 11, top: 24, bottom: 0, width: 2, background: 'var(--gray-200)' }} />}
                       <span style={{ width: 24, height: 24, borderRadius: '50%', flexShrink: 0, background: `${meta.color}18`, color: meta.color, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1 }}>{meta.icon}</span>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--gray-800)' }}>{meta.label}</div>
+                        <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--gray-800)' }}>{t(meta.labelKey)}</div>
                         <div style={{ fontSize: '0.72rem', color: 'var(--gray-400)' }}>
                           {format(parseISO(e.at), 'MMM d, yyyy · HH:mm')} · {formatDistanceToNow(parseISO(e.at), { addSuffix: true })}
                           <span style={{ color: 'var(--gray-300)' }}> · {e.by}</span>
@@ -771,7 +778,7 @@ function BookingDrawer({ id, hotels, serviceHotel, onClose, onChanged, onDeleted
                 })}
                 {b.updatedAt && b.createdAt && new Date(b.updatedAt).getTime() - new Date(b.createdAt).getTime() > 1000 && (
                   <div style={{ fontSize: '0.7rem', color: 'var(--gray-400)', marginTop: 10, paddingLeft: 36 }}>
-                    Last edited {formatDistanceToNow(parseISO(b.updatedAt), { addSuffix: true })}
+                    {t('lastEdited', { time: formatDistanceToNow(parseISO(b.updatedAt), { addSuffix: true }) })}
                   </div>
                 )}
               </div>
@@ -781,12 +788,12 @@ function BookingDrawer({ id, hotels, serviceHotel, onClose, onChanged, onDeleted
             <div style={{ borderTop: '1px solid var(--surface-border)', paddingTop: 14, marginTop: 6 }}>
               {deleteConfirm ? (
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--danger)', marginRight: 'auto' }}>Delete this booking?</span>
-                  <button className="btn btn-danger btn-sm" onClick={del}>Delete</button>
-                  <button className="btn btn-ghost btn-sm" onClick={() => setDeleteConfirm(false)}>Cancel</button>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--danger)', marginRight: 'auto' }}>{t('deleteThisBooking')}</span>
+                  <button className="btn btn-danger btn-sm" onClick={del}>{t('delete')}</button>
+                  <button className="btn btn-ghost btn-sm" onClick={() => setDeleteConfirm(false)}>{t('cancel')}</button>
                 </div>
               ) : (
-                <button className="btn btn-ghost btn-sm" style={{ color: 'var(--danger)' }} onClick={() => setDeleteConfirm(true)}><Trash2 size={13} /> Delete booking</button>
+                <button className="btn btn-ghost btn-sm" style={{ color: 'var(--danger)' }} onClick={() => setDeleteConfirm(true)}><Trash2 size={13} /> {t('deleteBooking')}</button>
               )}
             </div>
           </div>
@@ -799,15 +806,15 @@ function BookingDrawer({ id, hotels, serviceHotel, onClose, onChanged, onDeleted
           <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 384 }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.75rem' }}>
               <span style={{ width: 52, height: 52, borderRadius: '50%', background: '#10b98118', color: INK_COLLECTED, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Wallet size={24} /></span>
-              <h2 style={{ margin: 0, fontSize: '1.1rem' }}>Confirm payment</h2>
+              <h2 style={{ margin: 0, fontSize: '1.1rem' }}>{t('confirmPayment')}</h2>
               <p style={{ margin: 0, color: 'var(--gray-600)', fontSize: '0.9rem', lineHeight: 1.5 }}>
-                Did you receive <strong style={{ color: 'var(--gray-900)' }}>{money(b.totalPrice)} UZS</strong> from <strong style={{ color: 'var(--gray-900)' }}>{b.customerName}</strong>?
+                {t('didYouReceive', { amount: `${money(b.totalPrice)} ${t('sum')}`, name: b.customerName })}
               </p>
             </div>
             <div className="divider" />
             <div style={{ display: 'flex', gap: 10 }}>
-              <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setPayConfirm(false)}>Back</button>
-              <button className="btn btn-primary" style={{ flex: 1 }} disabled={busy} onClick={async () => { await mutate({ paid: true }, 'Marked as paid'); setPayConfirm(false) }}><Check size={15} strokeWidth={2.5} /> Yes, received</button>
+              <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setPayConfirm(false)}>{t('back')}</button>
+              <button className="btn btn-primary" style={{ flex: 1 }} disabled={busy} onClick={async () => { await mutate({ paid: true }, t('markedAsPaid')); setPayConfirm(false) }}><Check size={15} strokeWidth={2.5} /> {t('yesReceived')}</button>
             </div>
           </div>
         </div>

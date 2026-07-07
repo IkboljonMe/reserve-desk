@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useToast } from '@/components/ToastProvider'
+import { useTranslation } from '@/lib/i18n'
 
 interface Room {
   _id: string
@@ -42,6 +43,7 @@ function extractGroupId(groupId: Client['groupId']): string {
 
 export default function ClientsPage() {
   const { showToast } = useToast()
+  const { t } = useTranslation()
   const [clients, setClients] = useState<Client[]>([])
   const [rooms, setRooms] = useState<Room[]>([])
   const [hotels, setHotels] = useState<Hotel[]>([])
@@ -74,11 +76,11 @@ export default function ClientsPage() {
       setHotels(Array.isArray(h) ? h : [])
       setGroups(Array.isArray(g) ? g : [])
     } catch {
-      showToast('Failed to load clients', 'error')
+      showToast(t('loadClientsFailed'), 'error')
     } finally {
       setLoading(false)
     }
-  }, [search, groupFilter, showToast])
+  }, [search, groupFilter, showToast, t])
 
   useEffect(() => { loadData() }, [loadData])
 
@@ -125,11 +127,11 @@ export default function ClientsPage() {
         body: JSON.stringify(form),
       })
       if (!res.ok) throw new Error()
-      showToast(editClient ? 'Client updated' : 'Client added', 'success')
+      showToast(editClient ? t('clientUpdated') : t('clientAdded'), 'success')
       closeModal()
       loadData()
     } catch {
-      showToast('Failed to save client', 'error')
+      showToast(t('saveClientFailed'), 'error')
     } finally {
       setSaving(false)
     }
@@ -138,11 +140,11 @@ export default function ClientsPage() {
   async function handleDelete(id: string) {
     const res = await fetch(`/api/clients/${id}`, { method: 'DELETE' })
     if (res.ok) {
-      showToast('Client deleted', 'success')
+      showToast(t('clientDeleted'), 'success')
       setDeleteConfirm(null)
       loadData()
     } else {
-      showToast('Failed to delete', 'error')
+      showToast(t('deleteFailed'), 'error')
     }
   }
 
@@ -161,12 +163,12 @@ export default function ClientsPage() {
     <div>
       <div className="page-header">
         <div>
-          <h1>Clients</h1>
-          <p style={{ marginTop: 4 }}>Manage frequent guests and their room assignments</p>
+          <h1>{t('clients')}</h1>
+          <p style={{ marginTop: 4 }}>{t('manageClients')}</p>
         </div>
         <button className="btn btn-primary" onClick={openAdd}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14"/></svg>
-          Add Client
+          {t('addClient')}
         </button>
       </div>
 
@@ -181,7 +183,7 @@ export default function ClientsPage() {
             <input
               className="form-input"
               style={{ border: 'none', padding: '0 4px', boxShadow: 'none' }}
-              placeholder="Search by name, room number, or phone…"
+              placeholder={t('searchClientsPlaceholder')}
               value={search}
               onChange={e => setSearch(e.target.value)}
             />
@@ -191,11 +193,11 @@ export default function ClientsPage() {
             style={{ width: 'auto', minWidth: 160 }}
             value={groupFilter}
             onChange={e => setGroupFilter(e.target.value)}
-            aria-label="Filter by group"
+            aria-label={t('filterByGroup')}
           >
-            <option value="">All groups</option>
+            <option value="">{t('allGroups')}</option>
             {groups.map(g => <option key={g._id} value={g._id}>{g.name}</option>)}
-            <option value="none">Ungrouped</option>
+            <option value="none">{t('ungrouped')}</option>
           </select>
         </div>
       </div>
@@ -216,16 +218,16 @@ export default function ClientsPage() {
                 <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
               </svg>
             </div>
-            <h3>No clients yet</h3>
-            <p>Add your frequent guests to quickly select them during booking.</p>
-            <button className="btn btn-primary" style={{ marginTop: 8 }} onClick={openAdd}>Add First Client</button>
+            <h3>{t('noClientsYet')}</h3>
+            <p>{t('noClientsDesc')}</p>
+            <button className="btn btn-primary" style={{ marginTop: 8 }} onClick={openAdd}>{t('addFirstClient')}</button>
           </div>
         ) : (
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--gray-200)', background: 'var(--gray-50)' }}>
-                {['Guest', 'Group', 'Room', 'Floor', 'Phone', 'Notes', ''].map(col => (
-                  <th key={col} style={{ padding: '10px 16px', textAlign: 'left', fontWeight: 600, color: 'var(--gray-500)', fontSize: '0.75rem' }}>
+                {[['guest', t('guest')], ['group', t('group')], ['room', t('room')], ['floor', t('floor')], ['phone', t('phone')], ['notes', t('notes')], ['actions', '']].map(([key, col]) => (
+                  <th key={key} style={{ padding: '10px 16px', textAlign: 'left', fontWeight: 600, color: 'var(--gray-500)', fontSize: '0.75rem' }}>
                     {col}
                   </th>
                 ))}
@@ -283,7 +285,7 @@ export default function ClientsPage() {
                     ) : <span style={{ color: 'var(--gray-300)' }}>—</span>}
                   </td>
                   <td style={{ padding: '12px 16px', color: 'var(--gray-600)' }}>
-                    {c.floor > 0 ? `Floor ${c.floor}` : '—'}
+                    {c.floor > 0 ? `${t('floor')} ${c.floor}` : '—'}
                   </td>
                   <td style={{ padding: '12px 16px', color: 'var(--gray-600)' }}>
                     {c.phone || <span style={{ color: 'var(--gray-300)' }}>—</span>}
@@ -293,7 +295,7 @@ export default function ClientsPage() {
                   </td>
                   <td style={{ padding: '12px 16px' }}>
                     <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-                      <button className="btn btn-ghost btn-sm btn-icon" onClick={() => openEdit(c)} title="Edit" aria-label="Edit client">
+                      <button className="btn btn-ghost btn-sm btn-icon" onClick={() => openEdit(c)} title={t('edit')} aria-label={t('editClientAria')}>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                           <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
@@ -301,11 +303,11 @@ export default function ClientsPage() {
                       </button>
                       {deleteConfirm === c._id ? (
                         <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-                          <button className="btn btn-danger btn-sm" onClick={() => handleDelete(c._id)}>Delete</button>
-                          <button className="btn btn-ghost btn-sm" onClick={() => setDeleteConfirm(null)}>Cancel</button>
+                          <button className="btn btn-danger btn-sm" onClick={() => handleDelete(c._id)}>{t('delete')}</button>
+                          <button className="btn btn-ghost btn-sm" onClick={() => setDeleteConfirm(null)}>{t('cancel')}</button>
                         </div>
                       ) : (
-                        <button className="btn btn-ghost btn-sm btn-icon" onClick={() => setDeleteConfirm(c._id)} title="Delete" aria-label="Delete client">
+                        <button className="btn btn-ghost btn-sm btn-icon" onClick={() => setDeleteConfirm(c._id)} title={t('delete')} aria-label={t('deleteClientAria')}>
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
                           </svg>
@@ -325,8 +327,8 @@ export default function ClientsPage() {
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>{editClient ? 'Edit Client' : 'Add Client'}</h2>
-              <button className="btn btn-ghost btn-icon" onClick={closeModal} aria-label="Close">
+              <h2>{editClient ? t('editClientTitle') : t('addClient')}</h2>
+              <button className="btn btn-ghost btn-icon" onClick={closeModal} aria-label={t('close')}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               </button>
             </div>
@@ -334,38 +336,38 @@ export default function ClientsPage() {
             <form onSubmit={handleSave}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <div className="form-group">
-                  <label className="form-label">Full Name *</label>
-                  <input className="form-input" required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="John Doe" />
+                  <label className="form-label">{t('fullName')} *</label>
+                  <input className="form-input" required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder={t('fullNamePlaceholder')} />
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Group</label>
+                  <label className="form-label">{t('group')}</label>
                   <select
                     className="form-select"
                     value={form.groupId}
                     onChange={e => setForm(f => ({ ...f, groupId: e.target.value }))}
                   >
-                    <option value="">No group</option>
+                    <option value="">{t('noGroup')}</option>
                     {groups.map(g => <option key={g._id} value={g._id}>{g.name}</option>)}
                   </select>
                   {groups.length === 0 && (
                     <p style={{ marginTop: 6, fontSize: '0.75rem', color: 'var(--gray-500)' }}>
-                      No groups yet — create them in Settings → Client Groups.
+                      {t('noGroupsYet')}
                     </p>
                   )}
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <div className="form-group">
-                    <label className="form-label">Room Number</label>
+                    <label className="form-label">{t('roomNumberField')}</label>
                     <select
                       className="form-select"
                       value={form.roomNumber}
                       onChange={e => handleRoomChange(e.target.value)}
                     >
-                      <option value="">No room</option>
+                      <option value="">{t('noRoom')}</option>
                       {floorGroups.map(floor => (
-                        <optgroup key={floor} label={`Floor ${floor}`}>
+                        <optgroup key={floor} label={`${t('floor')} ${floor}`}>
                           {rooms.filter(r => r.floor === floor).map(r => (
                             <option key={r._id} value={roomLabel(r)}>{roomLabel(r)}</option>
                           ))}
@@ -374,7 +376,7 @@ export default function ClientsPage() {
                     </select>
                   </div>
                   <div className="form-group">
-                    <label className="form-label">Floor</label>
+                    <label className="form-label">{t('floor')}</label>
                     <input
                       className="form-input"
                       type="number"
@@ -387,22 +389,22 @@ export default function ClientsPage() {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Phone</label>
+                  <label className="form-label">{t('phone')}</label>
                   <input className="form-input" type="tel" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+1 234 567 8900" />
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Notes</label>
-                  <textarea className="form-textarea" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} placeholder="Preferences, allergies, VIP status…" style={{ minHeight: 72 }} />
+                  <label className="form-label">{t('notes')}</label>
+                  <textarea className="form-textarea" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} placeholder={t('notesClientPlaceholder')} style={{ minHeight: 72 }} />
                 </div>
               </div>
 
               <div className="divider" />
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-                <button type="button" className="btn btn-secondary" onClick={closeModal}>Cancel</button>
+                <button type="button" className="btn btn-secondary" onClick={closeModal}>{t('cancel')}</button>
                 <button type="submit" className="btn btn-primary" disabled={saving}>
                   {saving ? <span className="spinner" /> : null}
-                  {saving ? 'Saving…' : editClient ? 'Save Changes' : 'Add Client'}
+                  {saving ? t('saving') : editClient ? t('save') : t('addClient')}
                 </button>
               </div>
             </form>

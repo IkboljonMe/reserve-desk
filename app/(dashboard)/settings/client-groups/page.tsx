@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useToast } from '@/components/ToastProvider'
+import { useTranslation } from '@/lib/i18n'
 import { Plus, Pencil, Trash2, Check, X, Users } from 'lucide-react'
 
 interface ClientGroup {
@@ -21,6 +22,7 @@ const EMPTY_FORM = { name: '', color: PRESET_COLORS[0] }
 
 export default function ClientGroupsPage() {
   const { showToast } = useToast()
+  const { t } = useTranslation()
   const [groups, setGroups] = useState<ClientGroup[]>([])
   const [loading, setLoading] = useState(true)
   const [modalOpen, setModalOpen] = useState(false)
@@ -36,11 +38,11 @@ export default function ClientGroupsPage() {
       const data = await res.json()
       setGroups(Array.isArray(data) ? data : [])
     } catch {
-      showToast('Failed to load groups', 'error')
+      showToast(t('loadGroupsFailed'), 'error')
     } finally {
       setLoading(false)
     }
-  }, [showToast])
+  }, [showToast, t])
 
   useEffect(() => { loadData() }, [loadData])
 
@@ -76,13 +78,13 @@ export default function ClientGroupsPage() {
       })
       if (!res.ok) {
         const err = await res.json().catch(() => ({}))
-        throw new Error(err.error || 'Failed')
+        throw new Error(err.error || t('failed'))
       }
-      showToast(editGroup ? 'Group updated' : 'Group added', 'success')
+      showToast(editGroup ? t('groupUpdated') : t('groupAdded'), 'success')
       closeModal()
       loadData()
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Failed to save group', 'error')
+      showToast(err instanceof Error ? err.message : t('saveGroupFailed'), 'error')
     } finally {
       setSaving(false)
     }
@@ -91,11 +93,11 @@ export default function ClientGroupsPage() {
   async function handleDelete(id: string) {
     const res = await fetch(`/api/client-groups/${id}`, { method: 'DELETE' })
     if (res.ok) {
-      showToast('Group deleted', 'success')
+      showToast(t('groupDeleted'), 'success')
       setDeleteConfirm(null)
       loadData()
     } else {
-      showToast('Failed to delete', 'error')
+      showToast(t('deleteFailed'), 'error')
     }
   }
 
@@ -103,14 +105,14 @@ export default function ClientGroupsPage() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
         <div>
-          <h2 style={{ fontSize: '1.125rem', fontWeight: 700 }}>Client Groups</h2>
+          <h2 style={{ fontSize: '1.125rem', fontWeight: 700 }}>{t('clientGroups')}</h2>
           <p style={{ marginTop: 2, color: 'var(--gray-500)', fontSize: '0.875rem' }}>
-            Custom categories to organize your clients (e.g. Private, Friends, Contractors).
+            {t('clientGroupsSubtitle')}
           </p>
         </div>
         <button className="btn btn-primary" onClick={openAdd}>
           <Plus size={14} strokeWidth={2.5} />
-          Add Group
+          {t('addGroup')}
         </button>
       </div>
 
@@ -124,9 +126,9 @@ export default function ClientGroupsPage() {
             <div className="empty-state-icon">
               <Users size={24} strokeWidth={1.75} />
             </div>
-            <h3>No groups yet</h3>
-            <p>Create groups to categorize your clients however you like.</p>
-            <button className="btn btn-primary" style={{ marginTop: 8 }} onClick={openAdd}>Add First Group</button>
+            <h3>{t('noGroupsTitle')}</h3>
+            <p>{t('noGroupsDesc')}</p>
+            <button className="btn btn-primary" style={{ marginTop: 8 }} onClick={openAdd}>{t('addFirstGroup')}</button>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -145,16 +147,16 @@ export default function ClientGroupsPage() {
                 }} />
                 <span style={{ fontWeight: 600, color: 'var(--gray-800)', flex: 1 }}>{g.name}</span>
                 <div style={{ display: 'flex', gap: 6 }}>
-                  <button className="btn btn-ghost btn-sm btn-icon" onClick={() => openEdit(g)} title="Edit" aria-label="Edit group">
+                  <button className="btn btn-ghost btn-sm btn-icon" onClick={() => openEdit(g)} title={t('edit')} aria-label={t('editGroupAria')}>
                     <Pencil size={14} />
                   </button>
                   {deleteConfirm === g._id ? (
                     <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-                      <button className="btn btn-danger btn-sm" onClick={() => handleDelete(g._id)}>Delete</button>
-                      <button className="btn btn-ghost btn-sm" onClick={() => setDeleteConfirm(null)}>Cancel</button>
+                      <button className="btn btn-danger btn-sm" onClick={() => handleDelete(g._id)}>{t('delete')}</button>
+                      <button className="btn btn-ghost btn-sm" onClick={() => setDeleteConfirm(null)}>{t('cancel')}</button>
                     </div>
                   ) : (
-                    <button className="btn btn-ghost btn-sm btn-icon" onClick={() => setDeleteConfirm(g._id)} title="Delete" aria-label="Delete group">
+                    <button className="btn btn-ghost btn-sm btn-icon" onClick={() => setDeleteConfirm(g._id)} title={t('delete')} aria-label={t('deleteGroupAria')}>
                       <Trash2 size={14} color="var(--danger)" />
                     </button>
                   )}
@@ -169,8 +171,8 @@ export default function ClientGroupsPage() {
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 420 }}>
             <div className="modal-header">
-              <h2>{editGroup ? 'Edit Group' : 'Add Group'}</h2>
-              <button className="btn btn-ghost btn-icon" onClick={closeModal} aria-label="Close">
+              <h2>{editGroup ? t('editGroup') : t('addGroup')}</h2>
+              <button className="btn btn-ghost btn-icon" onClick={closeModal} aria-label={t('close')}>
                 <X size={18} />
               </button>
             </div>
@@ -178,19 +180,19 @@ export default function ClientGroupsPage() {
             <form onSubmit={handleSave}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <div className="form-group">
-                  <label className="form-label">Group Name *</label>
-                  <input className="form-input" required autoFocus value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g. Contractors" />
+                  <label className="form-label">{t('groupName')} *</label>
+                  <input className="form-input" required autoFocus value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder={t('groupNamePlaceholder')} />
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Color</label>
+                  <label className="form-label">{t('color')}</label>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                     {PRESET_COLORS.map(c => (
                       <button
                         key={c}
                         type="button"
                         onClick={() => setForm(f => ({ ...f, color: c }))}
-                        aria-label={`Select color ${c}`}
+                        aria-label={t('selectColor', { color: c })}
                         style={{
                           width: 28, height: 28, borderRadius: '50%',
                           background: c, cursor: 'pointer',
@@ -209,10 +211,10 @@ export default function ClientGroupsPage() {
 
               <div className="divider" />
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-                <button type="button" className="btn btn-secondary" onClick={closeModal}>Cancel</button>
+                <button type="button" className="btn btn-secondary" onClick={closeModal}>{t('cancel')}</button>
                 <button type="submit" className="btn btn-primary" disabled={saving}>
                   {saving ? <span className="spinner" /> : null}
-                  {saving ? 'Saving…' : editGroup ? 'Save Changes' : 'Add Group'}
+                  {saving ? t('saving') : editGroup ? t('save') : t('addGroup')}
                 </button>
               </div>
             </form>

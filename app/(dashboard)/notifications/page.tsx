@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { useToast } from '@/components/ToastProvider'
 import { formatUZ } from '@/lib/timezone'
+import { useTranslation, DictionaryKeys } from '@/lib/i18n'
 
 type NotificationTier = 'expired' | 'urgent' | 'warning'
 
@@ -19,23 +20,23 @@ interface ContractNotification {
   message: string
 }
 
-const TIER_META: Record<NotificationTier, { label: string; color: string; bg: string; border: string; icon: React.ReactNode }> = {
+const TIER_META: Record<NotificationTier, { labelKey: DictionaryKeys; color: string; bg: string; border: string; icon: React.ReactNode }> = {
   expired: {
-    label: 'Expired',
+    labelKey: 'tierExpired',
     color: 'var(--danger)',
     bg: 'rgba(239,68,68,0.09)',
     border: 'rgba(239,68,68,0.28)',
     icon: <><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></>,
   },
   urgent: {
-    label: 'Urgent · ≤ 7 days',
+    labelKey: 'tierUrgent',
     color: '#c2410c',
     bg: 'rgba(234,88,12,0.08)',
     border: 'rgba(234,88,12,0.26)',
     icon: <><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></>,
   },
   warning: {
-    label: 'Upcoming · ≤ 30 days',
+    labelKey: 'tierUpcoming',
     color: '#b7791f',
     bg: 'rgba(245,158,11,0.08)',
     border: 'rgba(245,158,11,0.28)',
@@ -52,6 +53,7 @@ function fmtDate(d: string | null): string {
 
 export default function NotificationsPage() {
   const { showToast } = useToast()
+  const { t } = useTranslation()
   const [items, setItems] = useState<ContractNotification[]>([])
   const [loading, setLoading] = useState(true)
   const [dismissing, setDismissing] = useState<string | null>(null)
@@ -63,11 +65,11 @@ export default function NotificationsPage() {
       const data = await res.json()
       setItems(Array.isArray(data.notifications) ? data.notifications : [])
     } catch {
-      showToast('Failed to load notifications', 'error')
+      showToast(t('loadNotificationsFailed'), 'error')
     } finally {
       setLoading(false)
     }
-  }, [showToast])
+  }, [showToast, t])
 
   useEffect(() => { load() }, [load])
 
@@ -83,9 +85,9 @@ export default function NotificationsPage() {
       setItems(prev => prev.filter(x => !(x.contractId === n.contractId && x.threshold === n.threshold)))
       // Let the sidebar badge refresh.
       window.dispatchEvent(new Event('notifications-updated'))
-      showToast('Reminder dismissed', 'success')
+      showToast(t('reminderDismissed'), 'success')
     } catch {
-      showToast('Failed to dismiss', 'error')
+      showToast(t('dismissFailed'), 'error')
     } finally {
       setDismissing(null)
     }
@@ -99,12 +101,12 @@ export default function NotificationsPage() {
     <div>
       <div className="page-header">
         <div>
-          <h1>Notifications</h1>
-          <p style={{ marginTop: 4 }}>Renewal reminders for contracts nearing their finish date</p>
+          <h1>{t('notifications')}</h1>
+          <p style={{ marginTop: 4 }}>{t('notificationsSubtitle')}</p>
         </div>
         <button className="btn btn-secondary" onClick={load} disabled={loading}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-          Refresh
+          {t('refresh')}
         </button>
       </div>
 
@@ -118,9 +120,9 @@ export default function NotificationsPage() {
             <div className="empty-state-icon" style={{ color: 'var(--success)' }}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             </div>
-            <h3>You&apos;re all caught up</h3>
-            <p>No contracts are expiring soon. Reminders appear here 30 and 7 days before a contract&apos;s finish date.</p>
-            <Link href="/contracts" className="btn btn-secondary" style={{ marginTop: 8 }}>Go to Contracts</Link>
+            <h3>{t('allCaughtUp')}</h3>
+            <p>{t('noNotificationsDesc')}</p>
+            <Link href="/contracts" className="btn btn-secondary" style={{ marginTop: 8 }}>{t('goToContracts')}</Link>
           </div>
         </div>
       ) : (
@@ -133,7 +135,7 @@ export default function NotificationsPage() {
                   <span style={{ display: 'inline-flex', width: 22, height: 22, alignItems: 'center', justifyContent: 'center', color: meta.color }}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{meta.icon}</svg>
                   </span>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: meta.color }}>{meta.label}</span>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: meta.color }}>{t(meta.labelKey)}</span>
                   <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--gray-400)', background: 'var(--gray-100)', borderRadius: 20, padding: '1px 8px' }}>{list.length}</span>
                 </div>
 
@@ -151,14 +153,14 @@ export default function NotificationsPage() {
                           <div style={{ color: 'var(--gray-600)', fontSize: '0.83rem', marginTop: 2 }}>{n.message}</div>
                           <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 12, marginTop: 8, fontSize: '0.75rem', color: 'var(--gray-500)' }}>
                             {n.contractNumber && <span style={{ fontWeight: 600, color: 'var(--gray-600)' }}>№ {n.contractNumber}</span>}
-                            <span>Finish: {fmtDate(n.finishDate)}</span>
+                            <span>{t('finishColon', { date: fmtDate(n.finishDate) })}</span>
                           </div>
                         </div>
 
                         <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
-                          <Link href="/contracts" className="btn btn-secondary btn-sm">View</Link>
+                          <Link href="/contracts" className="btn btn-secondary btn-sm">{t('view')}</Link>
                           <button className="btn btn-ghost btn-sm" onClick={() => dismiss(n)} disabled={dismissing === key}>
-                            {dismissing === key ? <span className="spinner spinner-dark" /> : 'Dismiss'}
+                            {dismissing === key ? <span className="spinner spinner-dark" /> : t('dismiss')}
                           </button>
                         </div>
                       </div>

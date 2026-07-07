@@ -3,6 +3,7 @@
 import { useMemo, useState, useRef, useEffect, useCallback } from 'react'
 import { Search } from 'lucide-react'
 import { iconRegistry, ServiceIcon } from '@/lib/serviceIcons'
+import { useTranslation } from '@/lib/i18n'
 
 // ── Floating icon grid popover ─────────────────────────────────────────────
 // Renders as a fixed-position floating panel so it never pushes the parent
@@ -15,6 +16,7 @@ export default function IconPicker({
   value: string
   onChange: (name: string) => void
 }) {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [filter, setFilter] = useState('')
   const triggerRef = useRef<HTMLButtonElement>(null)
@@ -117,12 +119,12 @@ export default function IconPicker({
 
         {/* Icon name */}
         <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--gray-800)', flex: 1, textAlign: 'left' }}>
-          {value || 'Choose an icon'}
+          {value || t('chooseAnIcon')}
         </span>
 
         {/* Hint */}
         <span style={{ fontSize: '0.75rem', color: 'var(--gray-400)', fontWeight: 400, whiteSpace: 'nowrap' }}>
-          hover to change
+          {t('hoverToChange')}
         </span>
       </button>
 
@@ -161,10 +163,10 @@ export default function IconPicker({
             <input
               type="text"
               className="form-input"
-              placeholder="Search icons…"
+              placeholder={t('searchIcons')}
               value={filter}
               onChange={e => setFilter(e.target.value)}
-              aria-label="Filter icons"
+              aria-label={t('filterIcons')}
               autoFocus
               style={{ paddingLeft: 32, paddingTop: 7, paddingBottom: 7, fontSize: '0.8rem' }}
             />
@@ -173,9 +175,9 @@ export default function IconPicker({
           {/* Icon grid */}
           {results.length === 0 ? (
             <div style={{ padding: '1.25rem', textAlign: 'center', fontSize: '0.8rem', color: 'var(--gray-400)' }}>
-              No icons match &ldquo;{filter}&rdquo;.{' '}
+              {t('noIconsMatch', { query: filter })}{' '}
               <button type="button" onClick={() => setFilter('')} style={{ background: 'none', border: 'none', color: 'var(--brand-600)', cursor: 'pointer', fontWeight: 600, fontSize: '0.8rem' }}>
-                Clear
+                {t('clear')}
               </button>
             </div>
           ) : (
@@ -222,7 +224,7 @@ export default function IconPicker({
             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
             fontSize: '0.7rem', color: 'var(--gray-400)',
           }}>
-            <span className="tabular-nums">{results.length} icons</span>
+            <span className="tabular-nums">{t('iconsCount', { count: results.length })}</span>
             {value && <span style={{ color: 'var(--brand-600)', fontWeight: 600 }}>{value}</span>}
           </div>
         </div>

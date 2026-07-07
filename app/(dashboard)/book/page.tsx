@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useToast } from '@/components/ToastProvider'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useTranslation } from '@/lib/i18n'
+import { useTranslation, DictionaryKeys } from '@/lib/i18n'
 import { getServiceIcon } from '@/lib/serviceIcons'
 import { nowUZ } from '@/lib/timezone'
 import { Users, BedDouble, SlidersHorizontal, ArrowLeft, Check, Search, Clock } from 'lucide-react'
@@ -63,10 +63,10 @@ interface Client {
 type BookingType = 'client' | 'room' | 'custom'
 
 
-const TYPE_META: Record<BookingType, { label: string; desc: string; color: string; icon: React.ReactNode }> = {
-  client: { label: 'Clients', desc: 'Book under a client group', color: '#3b82f6', icon: <Users size={22} /> },
-  room: { label: 'Rooms', desc: 'Book under a room category', color: '#10b981', icon: <BedDouble size={22} /> },
-  custom: { label: 'Custom', desc: 'One-off — set your own time & price', color: '#f59e0b', icon: <SlidersHorizontal size={22} /> },
+const TYPE_META: Record<BookingType, { labelKey: DictionaryKeys; descKey: DictionaryKeys; color: string; icon: React.ReactNode }> = {
+  client: { labelKey: 'clients', descKey: 'bookClientDesc', color: '#3b82f6', icon: <Users size={22} /> },
+  room: { labelKey: 'rooms', descKey: 'bookRoomDesc', color: '#10b981', icon: <BedDouble size={22} /> },
+  custom: { labelKey: 'typeCustom', descKey: 'bookCustomDesc', color: '#f59e0b', icon: <SlidersHorizontal size={22} /> },
 }
 
 function generateTimeSlots(openTime: string, closeTime: string, activeDuration: number): string[] {
@@ -208,7 +208,7 @@ export default function BookPage() {
   function resolveGroupMeta(g: PricingGroup): { label: string; color: string } {
     if (g.target === 'client') {
       const cg = clientGroups.find(c => c._id === g.category)
-      return { label: cg?.name ?? 'Unknown group', color: cg?.color ?? 'var(--gray-500)' }
+      return { label: cg?.name ?? t('unknownGroup'), color: cg?.color ?? 'var(--gray-500)' }
     }
     return { label: g.category, color: selectedService?.color ?? 'var(--brand-500)' }
   }
@@ -337,9 +337,9 @@ export default function BookPage() {
       })
       const data = await res.json()
       if (!res.ok) {
-        showToast(data.error || 'Failed to create booking', 'error')
+        showToast(data.error || t('createBookingFailed'), 'error')
       } else {
-        showToast('Booking created successfully!', 'success')
+        showToast(t('bookingCreated'), 'success')
         router.push(`/calendar?date=${date}`)
       }
     } finally {
@@ -351,7 +351,7 @@ export default function BookPage() {
 
   const backBtn = (to: number) => (
     <button type="button" className="btn btn-ghost btn-sm" onClick={() => setStep(to)} style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-      <ArrowLeft size={14} /> Back
+      <ArrowLeft size={14} /> {t('back')}
     </button>
   )
 
@@ -359,14 +359,14 @@ export default function BookPage() {
   const contextBar = selectedService && (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: '1.25rem' }}>
       <span style={chipStyle('var(--gray-100)', 'var(--gray-600)')}>
-        {hotels.find(h => h._id === selectedHotelId)?.shortName || 'Hotel'}
+        {hotels.find(h => h._id === selectedHotelId)?.shortName || t('hotel')}
       </span>
       <span style={chipStyle(`${selectedService.color}18`, selectedService.color)}>
         <span style={{ display: 'inline-flex' }}>{getServiceIcon(selectedService.name)}</span> {selectedService.name}
       </span>
       {bookingType && (
         <span style={chipStyle(`${TYPE_META[bookingType].color}18`, TYPE_META[bookingType].color)}>
-          {TYPE_META[bookingType].label}
+          {t(TYPE_META[bookingType].labelKey)}
         </span>
       )}
       {categoryMeta && (
@@ -376,7 +376,7 @@ export default function BookPage() {
       )}
       {activePlan && (bookingType === 'custom' || selectedPlan) && (
         <span style={chipStyle('var(--brand-50)', 'var(--brand-700)')}>
-          {formatDuration(activePlan.duration)} · {activePlan.price > 0 ? `${formatUZS(activePlan.price)} UZS` : t('isFree')}
+          {formatDuration(activePlan.duration)} · {activePlan.price > 0 ? `${formatUZS(activePlan.price)} ${t('sum')}` : t('isFree')}
         </span>
       )}
     </div>
@@ -387,18 +387,18 @@ export default function BookPage() {
       <div className="page-header">
         <div>
           <h1>{t('newBooking')}</h1>
-          <p style={{ marginTop: 4 }}>Reserve a service for a guest</p>
+          <p style={{ marginTop: 4 }}>{t('reserveForGuest')}</p>
         </div>
       </div>
 
       {/* Step indicator */}
       <div style={{ display: 'flex', gap: 8, marginBottom: '1.75rem' }}>
         {[
-          { n: 1, label: 'Hotel' },
-          { n: 2, label: 'Service' },
-          { n: 3, label: 'Plan' },
-          { n: 4, label: 'Date & Time' },
-          { n: 5, label: 'Confirm' },
+          { n: 1, label: t('hotel') },
+          { n: 2, label: t('service') },
+          { n: 3, label: t('stepPlan') },
+          { n: 4, label: t('stepDateTime') },
+          { n: 5, label: t('stepConfirm') },
         ].map(({ n, label }) => (
           <div key={n} style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1 }}>
             <div style={{
@@ -423,11 +423,11 @@ export default function BookPage() {
         {/* ── Step 1: Hotel ── */}
         {step === 1 && (
           <div className="card" style={{ animation: 'slideInRight 0.3s ease-out' }}>
-            <h2 style={{ marginBottom: '1rem' }}>Choose a Hotel</h2>
+            <h2 style={{ marginBottom: '1rem' }}>{t('chooseHotel')}</h2>
             {hotels.length === 0 ? (
               <div className="empty-state">
                 <div className="empty-state-icon"><BedDouble size={24} /></div>
-                <h3>No hotels found</h3>
+                <h3>{t('noHotelsFound')}</h3>
               </div>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.75rem' }}>
@@ -452,14 +452,14 @@ export default function BookPage() {
           <div className="card" style={{ animation: 'slideInRight 0.3s ease-out' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: '1rem' }}>
               {backBtn(1)}
-              <h2 style={{ margin: 0 }}>Choose a Service</h2>
+              <h2 style={{ margin: 0 }}>{t('chooseService')}</h2>
             </div>
             {hotelServices.length === 0 ? (
               <div className="empty-state">
                 <div className="empty-state-icon">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2" /></svg>
                 </div>
-                <h3>No active services for this hotel</h3>
+                <h3>{t('noActiveServicesHotel')}</h3>
               </div>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.75rem' }}>
@@ -480,8 +480,10 @@ export default function BookPage() {
                     <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--gray-800)', marginBottom: 2 }}>{svc.name}</div>
                     <div style={{ fontSize: '0.72rem', color: 'var(--gray-400)' }}>
                       {(svc.pricingGroups?.length ?? 0) > 0
-                        ? `${svc.pricingGroups!.length} categor${svc.pricingGroups!.length === 1 ? 'y' : 'ies'} priced`
-                        : svc.isFree ? t('isFree') : 'Custom pricing'}
+                        ? (svc.pricingGroups!.length === 1
+                          ? t('categoryPriced', { count: svc.pricingGroups!.length })
+                          : t('categoriesPriced', { count: svc.pricingGroups!.length }))
+                        : svc.isFree ? t('isFree') : t('customPricing')}
                     </div>
                   </button>
                 ))}
@@ -495,12 +497,12 @@ export default function BookPage() {
           <div className="card" style={{ animation: 'slideInRight 0.3s ease-out' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: '1.25rem' }}>
               {backBtn(2)}
-              <h2 style={{ margin: 0 }}>Choose a Plan</h2>
+              <h2 style={{ margin: 0 }}>{t('choosePlan')}</h2>
             </div>
             {contextBar}
 
             {/* Type selector */}
-            <label className="form-label" style={{ display: 'block', marginBottom: 8 }}>Who is this booking for?</label>
+            <label className="form-label" style={{ display: 'block', marginBottom: 8 }}>{t('whoIsThisFor')}</label>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem', marginBottom: planReady || bookingType ? '1.5rem' : 0 }}>
               {(Object.keys(TYPE_META) as BookingType[]).map(type => {
                 const meta = TYPE_META[type]
@@ -511,7 +513,7 @@ export default function BookPage() {
                     type="button"
                     disabled={disabled}
                     onClick={() => chooseType(type)}
-                    title={disabled ? `No ${meta.label.toLowerCase()} pricing set for this service` : undefined}
+                    title={disabled ? t('noPricingSetFor', { label: t(meta.labelKey).toLowerCase() }) : undefined}
                     style={{
                       ...optionCardStyle(bookingType === type, meta.color),
                       opacity: disabled ? 0.45 : 1,
@@ -523,9 +525,9 @@ export default function BookPage() {
                       background: `${meta.color}18`, color: meta.color,
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                     }}>{meta.icon}</div>
-                    <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--gray-800)' }}>{meta.label}</div>
+                    <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--gray-800)' }}>{t(meta.labelKey)}</div>
                     <div style={{ fontSize: '0.72rem', color: 'var(--gray-500)', marginTop: 2 }}>
-                      {disabled ? 'Not configured' : meta.desc}
+                      {disabled ? t('notConfigured') : t(meta.descKey)}
                     </div>
                   </button>
                 )
@@ -536,7 +538,7 @@ export default function BookPage() {
             {(bookingType === 'client' || bookingType === 'room') && (
               <>
                 <label className="form-label" style={{ display: 'block', marginBottom: 8 }}>
-                  Choose {bookingType === 'client' ? 'client group' : 'room category'}
+                  {bookingType === 'client' ? t('chooseClientGroup') : t('chooseRoomCategory')}
                 </label>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: selectedCategory ? '1.5rem' : 0 }}>
                   {(bookingType === 'client' ? clientCats : roomCats).map(g => {
@@ -565,7 +567,7 @@ export default function BookPage() {
 
                 {selectedCategory && (
                   <>
-                    <label className="form-label" style={{ display: 'block', marginBottom: 8 }}>Choose duration / price</label>
+                    <label className="form-label" style={{ display: 'block', marginBottom: 8 }}>{t('chooseDurationPrice')}</label>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                       {planRows.map((plan, i) => {
                         const active = selectedPlan?.duration === plan.duration && selectedPlan?.price === plan.price
@@ -584,7 +586,7 @@ export default function BookPage() {
                           >
                             <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--gray-800)' }}>{formatDuration(plan.duration)}</div>
                             <div style={{ fontSize: '0.78rem', color: accent, fontWeight: 600 }}>
-                              {plan.price > 0 ? `${formatUZS(plan.price)} UZS` : t('isFree')}
+                              {plan.price > 0 ? `${formatUZS(plan.price)} ${t('sum')}` : t('isFree')}
                             </div>
                           </button>
                         )
@@ -599,7 +601,7 @@ export default function BookPage() {
             {bookingType === 'custom' && (
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', maxWidth: 420 }}>
                 <div className="form-group">
-                  <label className="form-label">Duration (min)</label>
+                  <label className="form-label">{t('durationMin')}</label>
                   <input
                     type="number" className="form-input" min={15} step={15}
                     value={customDuration}
@@ -609,11 +611,11 @@ export default function BookPage() {
                     style={!customValid ? { borderColor: 'var(--danger)', boxShadow: '0 0 0 3px rgba(239,68,68,0.12)' } : undefined}
                   />
                   <small style={{ color: customValid ? 'var(--gray-400)' : 'var(--danger)', fontSize: '0.7rem', display: 'block', marginTop: 4 }}>
-                    {customValid ? '15-minute intervals' : 'Must be a multiple of 15'}
+                    {customValid ? t('minute15Intervals') : t('multipleOf15')}
                   </small>
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Price (UZS)</label>
+                  <label className="form-label">{t('priceUzs')}</label>
                   <input
                     type="text" inputMode="numeric" className="form-input"
                     value={customPrice ? formatUZS(customPrice) : ''}
@@ -621,14 +623,14 @@ export default function BookPage() {
                     onFocus={e => e.currentTarget.select()}
                     placeholder="0"
                   />
-                  <small style={{ color: 'var(--gray-400)', fontSize: '0.7rem', display: 'block', marginTop: 4 }}>Set the one-off price</small>
+                  <small style={{ color: 'var(--gray-400)', fontSize: '0.7rem', display: 'block', marginTop: 4 }}>{t('setOneOffPrice')}</small>
                 </div>
               </div>
             )}
 
             {planReady && (
               <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
-                <button type="button" className="btn btn-primary" onClick={() => setStep(4)}>Continue →</button>
+                <button type="button" className="btn btn-primary" onClick={() => setStep(4)}>{t('continueBtn')}</button>
               </div>
             )}
           </div>
@@ -639,12 +641,12 @@ export default function BookPage() {
           <div className="card" style={{ animation: 'slideInRight 0.3s ease-out' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: '1.25rem' }}>
               {backBtn(3)}
-              <h2 style={{ margin: 0 }}>Pick Date & Time</h2>
+              <h2 style={{ margin: 0 }}>{t('pickDateTime')}</h2>
             </div>
             {contextBar}
 
             <div className="form-group" style={{ marginBottom: '1.25rem', maxWidth: 240 }}>
-              <label className="form-label">Date</label>
+              <label className="form-label">{t('date')}</label>
               <input
                 type="date" className="form-input"
                 value={date}
@@ -655,10 +657,10 @@ export default function BookPage() {
             </div>
 
             <label className="form-label" style={{ marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Clock size={14} /> Available slots ({formatDuration(activePlan.duration)})
+              <Clock size={14} /> {t('availableSlots', { duration: formatDuration(activePlan.duration) })}
             </label>
             {timeSlots.length === 0 ? (
-              <p style={{ color: 'var(--gray-400)', fontSize: '0.875rem' }}>No slots available for this duration.</p>
+              <p style={{ color: 'var(--gray-400)', fontSize: '0.875rem' }}>{t('noSlotsForDuration')}</p>
             ) : (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                 {timeSlots.map(slot => {
@@ -711,20 +713,20 @@ export default function BookPage() {
           <div className="card" style={{ animation: 'slideInRight 0.3s ease-out' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: '1.25rem' }}>
               {backBtn(4)}
-              <h2 style={{ margin: 0 }}>Confirm Booking</h2>
+              <h2 style={{ margin: 0 }}>{t('confirmBooking')}</h2>
             </div>
             {contextBar}
 
             {/* CLIENT: search saved clients in group, or type a new guest */}
             {bookingType === 'client' && (
               <div className="form-group" style={{ marginBottom: '1.25rem' }}>
-                <label className="form-label">Guests in {categoryMeta?.label}</label>
+                <label className="form-label">{t('guestsIn', { group: categoryMeta?.label ?? '' })}</label>
                 <div style={{ position: 'relative', marginBottom: 8 }}>
                   <Search size={15} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--gray-400)', pointerEvents: 'none' }} />
                   <input
                     className="form-input"
                     style={{ paddingLeft: 34 }}
-                    placeholder="Search this group…"
+                    placeholder={t('searchThisGroup')}
                     value={clientSearch}
                     onChange={e => setClientSearch(e.target.value)}
                   />
@@ -764,7 +766,7 @@ export default function BookPage() {
                   </div>
                 ) : (
                   <p style={{ fontSize: '0.8rem', color: 'var(--gray-400)', margin: 0 }}>
-                    No saved guests in this group{clientSearch ? ' match your search' : ''}. Enter a new guest below.
+                    {clientSearch ? t('noSavedGuestsMatch') : t('noSavedGuests')}
                   </p>
                 )}
               </div>
@@ -773,10 +775,10 @@ export default function BookPage() {
             {/* ROOM: pick a room of the chosen category */}
             {bookingType === 'room' && (
               <div className="form-group" style={{ marginBottom: '1.25rem' }}>
-                <label className="form-label">Room ({categoryMeta?.label})</label>
+                <label className="form-label">{t('room')} ({categoryMeta?.label})</label>
                 {categoryRooms.length === 0 ? (
                   <p style={{ fontSize: '0.8rem', color: 'var(--gray-400)', margin: 0 }}>
-                    No rooms of this category in this hotel. Add them in Settings → Hotels &amp; Rooms.
+                    {t('noRoomsCategory')}
                   </p>
                 ) : (
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
@@ -797,7 +799,7 @@ export default function BookPage() {
                           }}
                         >
                           <BedDouble size={14} /> {roomLabel(r)}
-                          <span style={{ fontSize: '0.7rem', color: 'var(--gray-400)', fontWeight: 400 }}>· Fl {r.floor}</span>
+                          <span style={{ fontSize: '0.7rem', color: 'var(--gray-400)', fontWeight: 400 }}>· {t('floorShort')} {r.floor}</span>
                         </button>
                       )
                     })}
@@ -809,16 +811,16 @@ export default function BookPage() {
             {/* Guest name + phone (all types) */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
               <div className="form-group">
-                <label className="form-label">{t('guestInfo')} *</label>
+                <label className="form-label">{t('guestName')} *</label>
                 <input
-                  type="text" className="form-input" placeholder="John Doe"
+                  type="text" className="form-input" placeholder={t('fullNamePlaceholder')}
                   value={customerName}
                   onChange={e => { setCustomerName(e.target.value); if (selectedClientId) setSelectedClientId(null) }}
                   required
                 />
               </div>
               <div className="form-group">
-                <label className="form-label">Phone</label>
+                <label className="form-label">{t('phone')}</label>
                 <input
                   type="tel" className="form-input" placeholder="+998 90 123 4567"
                   value={customerPhone}
@@ -830,9 +832,9 @@ export default function BookPage() {
             {/* Room number field for client/custom types (room type already set above) */}
             {bookingType !== 'room' && (
               <div className="form-group" style={{ marginBottom: '1rem' }}>
-                <label className="form-label">Room Number</label>
+                <label className="form-label">{t('roomNumberField')}</label>
                 <input
-                  className="form-input" placeholder="e.g. FG-101 (optional)"
+                  className="form-input" placeholder={t('roomNumberPlaceholder')}
                   value={roomNumber}
                   onChange={e => setRoomNumber(e.target.value)}
                 />
@@ -840,26 +842,26 @@ export default function BookPage() {
             )}
 
             <div className="form-group" style={{ marginBottom: '1rem' }}>
-              <label className="form-label">Notes (optional)</label>
+              <label className="form-label">{t('notesOptional')}</label>
               <textarea
-                className="form-textarea" placeholder="Any special requirements…"
+                className="form-textarea" placeholder={t('specialRequirements')}
                 value={notes}
                 onChange={e => setNotes(e.target.value)}
               />
             </div>
 
             <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-              <label className="form-label">Payment</label>
+              <label className="form-label">{t('payment')}</label>
               {activePlan.price === 0 ? (
-                <div style={{ ...chipStyle('#3b82f618', '#2563eb'), padding: '8px 12px' }}>Free — no payment needed</div>
+                <div style={{ ...chipStyle('#3b82f618', '#2563eb'), padding: '8px 12px' }}>{t('freeNoPayment')}</div>
               ) : (
                 <select
                   className="form-select" style={{ maxWidth: 200 }}
                   value={paid ? 'paid' : 'unpaid'}
                   onChange={e => setPaid(e.target.value === 'paid')}
                 >
-                  <option value="unpaid">🔴 Unpaid</option>
-                  <option value="paid">✓ Paid</option>
+                  <option value="unpaid">🔴 {t('unpaid')}</option>
+                  <option value="paid">✓ {t('paid')}</option>
                 </select>
               )}
             </div>
@@ -870,13 +872,13 @@ export default function BookPage() {
               padding: '1rem', marginBottom: '1.25rem', fontSize: '0.875rem',
               display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '0.45rem 1rem', color: 'var(--gray-600)',
             }}>
-              <strong style={{ color: 'var(--gray-800)' }}>Service</strong>
+              <strong style={{ color: 'var(--gray-800)' }}>{t('service')}</strong>
               <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span style={{ color: selectedService.color, display: 'inline-flex' }}>{getServiceIcon(selectedService.name)}</span>
                 {selectedService.name}
               </span>
 
-              <strong style={{ color: 'var(--gray-800)' }}>To whom</strong>
+              <strong style={{ color: 'var(--gray-800)' }}>{t('toWhom')}</strong>
               <span style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                 {customerName || <span style={{ color: 'var(--gray-300)' }}>—</span>}
                 {categoryMeta && (
@@ -885,19 +887,19 @@ export default function BookPage() {
                 {bookingType === 'room' && roomNumber && (
                   <span style={chipStyle('var(--gray-100)', 'var(--gray-600)')}>🏨 {roomNumber}</span>
                 )}
-                {bookingType === 'custom' && <span style={chipStyle('#f59e0b18', '#b45309')}>Custom</span>}
+                {bookingType === 'custom' && <span style={chipStyle('#f59e0b18', '#b45309')}>{t('typeCustom')}</span>}
               </span>
 
-              <strong style={{ color: 'var(--gray-800)' }}>When</strong>
+              <strong style={{ color: 'var(--gray-800)' }}>{t('whenLabel')}</strong>
               <span>{date} · {selectedSlot} – {slotEnd(selectedSlot, activePlan.duration)} ({formatDuration(activePlan.duration)})</span>
 
-              <strong style={{ color: 'var(--gray-800)' }}>How much</strong>
+              <strong style={{ color: 'var(--gray-800)' }}>{t('howMuch')}</strong>
               <span style={{ color: 'var(--brand-700)', fontWeight: 700 }}>
-                {activePlan.price === 0 ? t('isFree') : `${formatUZS(activePlan.price)} UZS`}
+                {activePlan.price === 0 ? t('isFree') : `${formatUZS(activePlan.price)} ${t('sum')}`}
               </span>
 
-              <strong style={{ color: 'var(--gray-800)' }}>Payment</strong>
-              <span>{activePlan.price === 0 ? 'Free' : paid ? '✓ Paid' : '🔴 Unpaid'}</span>
+              <strong style={{ color: 'var(--gray-800)' }}>{t('payment')}</strong>
+              <span>{activePlan.price === 0 ? t('free') : paid ? `✓ ${t('paid')}` : `🔴 ${t('unpaid')}`}</span>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
@@ -909,7 +911,7 @@ export default function BookPage() {
                 disabled={loading || !customerName.trim()}
               >
                 {loading ? <span className="spinner" /> : null}
-                {loading ? 'Creating…' : 'Confirm Booking'}
+                {loading ? t('creating') : t('confirmBooking')}
               </button>
             </div>
           </div>

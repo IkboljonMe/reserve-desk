@@ -216,8 +216,8 @@ function ServiceCard({
         {/* Quick toggle */}
         <button
           onClick={onToggleActive}
-          title={svc.isActive ? 'Deactivate' : 'Activate'}
-          aria-label={svc.isActive ? 'Deactivate service' : 'Activate service'}
+          title={svc.isActive ? t('deactivate') : t('activate')}
+          aria-label={svc.isActive ? t('deactivateService') : t('activateService')}
           style={{
             background: 'none', border: 'none', cursor: 'pointer', padding: 4,
             color: svc.isActive ? '#10b981' : 'var(--gray-300)',
@@ -245,14 +245,14 @@ function ServiceCard({
               border: `1px solid ${svc.color}30`,
               padding: '3px 9px', borderRadius: 20, fontSize: '0.72rem', fontWeight: 600,
             }}>
-              {plan.duration}m · {Number(plan.price).toLocaleString()} uzs
+              {plan.duration}m · {Number(plan.price).toLocaleString()} {t('sum')}
             </span>
           ))}
         </div>
       )}
       {svc.isFree && !hasPlans && (
         <div style={{ padding: '0 1.25rem 0.875rem' }}>
-          <span className="badge badge-blue">Free Service</span>
+          <span className="badge badge-blue">{t('isFree')}</span>
         </div>
       )}
 
@@ -314,14 +314,14 @@ function ServiceCard({
               <button
                 className="btn btn-danger btn-sm btn-icon"
                 onClick={onDeleteConfirm}
-                aria-label="Confirm delete"
+                aria-label={t('confirmDelete')}
               >
                 <Check size={13} />
               </button>
               <button
                 className="btn btn-ghost btn-sm btn-icon"
                 onClick={onDeleteCancel}
-                aria-label="Cancel delete"
+                aria-label={t('cancelDelete')}
               >
                 <X size={13} />
               </button>
@@ -332,7 +332,7 @@ function ServiceCard({
                 className="btn btn-ghost btn-sm btn-icon"
                 onClick={onEdit}
                 title={t('edit')}
-                aria-label={`Edit ${svc.name}`}
+                aria-label={t('editNamed', { name: svc.name })}
               >
                 <Pencil size={14} />
               </button>
@@ -340,7 +340,7 @@ function ServiceCard({
                 className="btn btn-ghost btn-sm btn-icon"
                 onClick={onDeleteRequest}
                 title={t('delete')}
-                aria-label={`Delete ${svc.name}`}
+                aria-label={t('deleteNamed', { name: svc.name })}
                 style={{ color: 'var(--danger)' }}
               >
                 <Trash2 size={14} />
@@ -421,10 +421,10 @@ export default function ServicesPage() {
   const resolveGroupMeta = useMemo(() => (pg: PricingGroup): { label: string; color: string } => {
     if (pg.target === 'client') {
       const g = clientGroupMap.get(pg.category)
-      return { label: g?.name ?? 'Unknown group', color: g?.color ?? 'var(--gray-500)' }
+      return { label: g?.name ?? t('unknownGroup'), color: g?.color ?? 'var(--gray-500)' }
     }
     return { label: pg.category, color: 'var(--brand-500)' }
-  }, [clientGroupMap])
+  }, [clientGroupMap, t])
 
   // Filtered services
   const filtered = useMemo(() => {
@@ -451,7 +451,7 @@ export default function ServicesPage() {
     const draft = getDraft<typeof EMPTY_FORM>(DRAFT_KEY)
     if (draft) {
       setForm({ ...EMPTY_FORM, ...draft })
-      showToast('Restored your unsaved draft', 'info')
+      showToast(t('draftRestored'), 'info')
     } else {
       setForm({ ...EMPTY_FORM })
     }
@@ -492,7 +492,7 @@ export default function ServicesPage() {
   function discardDraft() {
     clearDraft(DRAFT_KEY)
     setForm({ ...EMPTY_FORM })
-    showToast('Draft cleared', 'info')
+    showToast(t('draftCleared'), 'info')
   }
 
   function updatePricingPlan(index: number, key: keyof PricingPlan, value: string) {
@@ -516,7 +516,7 @@ export default function ServicesPage() {
     const existing = form.pricingGroups.findIndex(g => g.target === target && g.category === pickerCategory)
     if (existing !== -1) {
       setCollapsedGroups(prev => { const n = new Set(prev); n.delete(existing); return n })
-      showToast('That category already has a pricing group', 'info')
+      showToast(t('categoryHasGroup'), 'info')
     } else {
       setForm(f => ({
         ...f,
@@ -592,24 +592,24 @@ export default function ServicesPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!form.hotelId) { showToast('Please select a hotel', 'error'); return }
+    if (!form.hotelId) { showToast(t('selectHotelError'), 'error'); return }
     if (!form.isFree && form.pricingPlans.length > 0) {
       if (form.pricingPlans.some(p => p.duration === '' || durationError(p.duration))) {
-        showToast('Each plan duration must be a multiple of 15 minutes', 'error'); return
+        showToast(t('planDurationError'), 'error'); return
       }
     }
     if (!form.isFree && form.pricingGroups.length > 0) {
       const emptyGroup = form.pricingGroups.find(g => g.rows.length === 0)
       if (emptyGroup) {
         const meta = resolveGroupMeta(emptyGroup)
-        showToast(`Add at least one price row to "${meta.label}" or remove it`, 'error'); return
+        showToast(t('addPriceRowError', { label: meta.label }), 'error'); return
       }
       if (form.pricingGroups.some(g => g.rows.some(r => r.duration === '' || durationError(r.duration)))) {
-        showToast('Each category price duration must be a multiple of 15 minutes', 'error'); return
+        showToast(t('categoryDurationError'), 'error'); return
       }
     }
     if (bufferError(form.bufferTimeBefore) || bufferError(form.bufferTimeAfter)) {
-      showToast('Buffer times must be a multiple of 15 minutes (e.g. 0, 15, 30)', 'error'); return
+      showToast(t('bufferTimesError'), 'error'); return
     }
     setSaving(true)
     try {
@@ -626,12 +626,12 @@ export default function ServicesPage() {
       }
       const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
       if (res.ok) {
-        showToast(editService ? 'Service updated!' : 'Service created!', 'success')
+        showToast(editService ? t('serviceUpdated') : t('serviceCreated'), 'success')
         if (!editService) clearDraft(DRAFT_KEY)
         closeForm(); load()
       } else {
         const d = await res.json()
-        showToast(d.error || 'Failed to save', 'error')
+        showToast(d.error || t('saveFailed'), 'error')
       }
     } finally { setSaving(false) }
   }
@@ -641,13 +641,13 @@ export default function ServicesPage() {
       method: 'PUT', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ isActive: !svc.isActive }),
     })
-    if (res.ok) { showToast(svc.isActive ? 'Service deactivated' : 'Service activated', 'info'); load() }
+    if (res.ok) { showToast(svc.isActive ? t('serviceDeactivated') : t('serviceActivated'), 'info'); load() }
   }
 
   async function handleDelete(id: string) {
     const res = await fetch(`/api/services/${id}`, { method: 'DELETE' })
-    if (res.ok) { showToast('Service deleted', 'success'); setDeleteConfirm(null); load() }
-    else showToast('Failed to delete', 'error')
+    if (res.ok) { showToast(t('serviceDeleted'), 'success'); setDeleteConfirm(null); load() }
+    else showToast(t('deleteFailed'), 'error')
   }
 
   const hasActiveFilters = searchQuery || filterHotel || filterStatus
@@ -690,12 +690,12 @@ export default function ServicesPage() {
                 background: 'var(--brand-50)', color: 'var(--brand-700)', border: '1px solid var(--brand-100)',
                 marginLeft: 4,
               }}>
-                {activeCount} active
+                {t('activeCount', { count: activeCount })}
               </span>
             )}
           </h2>
           <p style={{ fontSize: '0.8125rem', color: 'var(--gray-500)', marginTop: 2 }}>
-            Manage bookable services and their availability across your hotels.
+            {t('servicesSubtitle')}
           </p>
         </div>
         <button id="add-service-btn" className="btn btn-primary" onClick={openAddForm}>
@@ -721,10 +721,10 @@ export default function ServicesPage() {
             <input
               className="form-input"
               style={{ paddingLeft: 32, paddingTop: 7, paddingBottom: 7, fontSize: '0.8125rem' }}
-              placeholder="Search services…"
+              placeholder={t('searchServices')}
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              aria-label="Search services"
+              aria-label={t('searchServices')}
             />
           </div>
 
@@ -733,13 +733,13 @@ export default function ServicesPage() {
           {/* Hotel filter pills */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.75rem', color: 'var(--gray-400)', fontWeight: 600 }}>
-              <Filter size={12} /> Hotel
+              <Filter size={12} /> {t('hotel')}
             </span>
             <button
               className={`svc-filter-pill ${filterHotel === '' ? 'active' : ''}`}
               onClick={() => setFilterHotel('')}
             >
-              All
+              {t('all')}
             </button>
             {hotels.map(h => (
               <button
@@ -756,14 +756,14 @@ export default function ServicesPage() {
 
           {/* Status filter */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ fontSize: '0.75rem', color: 'var(--gray-400)', fontWeight: 600 }}>Status</span>
+            <span style={{ fontSize: '0.75rem', color: 'var(--gray-400)', fontWeight: 600 }}>{t('status')}</span>
             {(['', 'active', 'inactive'] as const).map(val => (
               <button
                 key={val || 'all'}
                 className={`svc-filter-pill ${filterStatus === val ? 'active' : ''}`}
                 onClick={() => setFilterStatus(val)}
               >
-                {val === '' ? 'All' : val.charAt(0).toUpperCase() + val.slice(1)}
+                {val === '' ? t('all') : t(val)}
               </button>
             ))}
           </div>
@@ -775,7 +775,7 @@ export default function ServicesPage() {
               onClick={() => { setSearchQuery(''); setFilterHotel(''); setFilterStatus('') }}
               style={{ marginLeft: 'auto', color: 'var(--gray-400)', fontSize: '0.75rem' }}
             >
-              <X size={13} /> Clear
+              <X size={13} /> {t('clear')}
             </button>
           )}
         </div>
@@ -794,8 +794,8 @@ export default function ServicesPage() {
                 <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
               </svg>
             </div>
-            <h3>No {t('services').toLowerCase()} yet</h3>
-            <p>Add your first service to start taking bookings.</p>
+            <h3>{t('noServicesTitle')}</h3>
+            <p>{t('noServicesDesc')}</p>
             <button className="btn btn-primary" style={{ marginTop: 8 }} onClick={openAddForm}>
               <Plus size={15} /> {t('addService')}
             </button>
@@ -807,10 +807,10 @@ export default function ServicesPage() {
             <div className="empty-state-icon">
               <Search size={26} />
             </div>
-            <h3>No results</h3>
-            <p>No services match your current filters.</p>
+            <h3>{t('noResults')}</h3>
+            <p>{t('noServicesMatch')}</p>
             <button className="btn btn-secondary btn-sm" style={{ marginTop: 8 }} onClick={() => { setSearchQuery(''); setFilterHotel(''); setFilterStatus('') }}>
-              Clear filters
+              {t('clearFilters')}
             </button>
           </div>
         </div>
@@ -860,7 +860,7 @@ export default function ServicesPage() {
                       </span>
                       <ChevronRight size={14} style={{ color: 'var(--gray-300)' }} />
                       <span style={{ fontSize: '0.75rem', color: 'var(--gray-400)' }} className="tabular-nums">
-                        {hotelServices.length} {hotelServices.length === 1 ? 'service' : 'services'}
+                        {hotelServices.length} {hotelServices.length === 1 ? t('serviceOne') : t('servicesWord')}
                       </span>
                     </div>
                     <div className="services-grid">
@@ -884,7 +884,7 @@ export default function ServicesPage() {
                     {hotel._id === hotels[hotels.length - 1]._id && unassigned.length > 0 && (
                       <div style={{ marginTop: '1.5rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: '0.875rem' }}>
-                          <span style={{ fontWeight: 700, fontSize: '0.8125rem', color: 'var(--warning)' }}>Unassigned</span>
+                          <span style={{ fontWeight: 700, fontSize: '0.8125rem', color: 'var(--warning)' }}>{t('unassigned')}</span>
                         </div>
                         <div className="services-grid">
                           {unassigned.map(svc => (
@@ -927,9 +927,9 @@ export default function ServicesPage() {
                 }}>
                   <ServiceIcon name={form.icon} size={18} />
                 </span>
-                <h2 style={{ margin: 0 }}>{editService ? `Edit: ${editService.name}` : t('addService')}</h2>
+                <h2 style={{ margin: 0 }}>{editService ? t('editColon', { name: editService.name }) : t('addService')}</h2>
               </div>
-              <button className="btn btn-ghost btn-icon" onClick={closeForm} aria-label="Close">
+              <button className="btn btn-ghost btn-icon" onClick={closeForm} aria-label={t('close')}>
                 <X size={18} />
               </button>
             </div>
@@ -939,7 +939,7 @@ export default function ServicesPage() {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '1rem', alignItems: 'start' }}>
                   <div className="form-group">
-                    <label className="form-label">Name *</label>
+                    <label className="form-label">{t('name')} *</label>
                     <input
                       type="text" className="form-input"
                       value={form.name}
@@ -948,16 +948,16 @@ export default function ServicesPage() {
                     />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">Icon *</label>
+                    <label className="form-label">{t('icon')} *</label>
                     <IconPicker value={form.icon} onChange={name => setForm(f => ({ ...f, icon: name }))} />
                   </div>
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Hotel *</label>
+                  <label className="form-label">{t('hotel')} *</label>
                   <Select
-                    ariaLabel="Select hotel"
-                    placeholder="Select hotel…"
+                    ariaLabel={t('selectHotel')}
+                    placeholder={t('selectHotel')}
                     icon={<Building2 size={16} />}
                     value={form.hotelId}
                     onChange={v => setForm(f => ({ ...f, hotelId: v }))}
@@ -966,7 +966,7 @@ export default function ServicesPage() {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Description</label>
+                  <label className="form-label">{t('description')}</label>
                   <textarea
                     className="form-textarea" style={{ minHeight: 60 }}
                     value={form.description}
@@ -976,25 +976,25 @@ export default function ServicesPage() {
 
                 <div className="form-group">
                   <label className="form-label">{t('details')}</label>
-                  <input type="text" className="form-input" placeholder="e.g. Toyota Hiace, 45 capacity…" value={form.details} onChange={e => setForm(f => ({ ...f, details: e.target.value }))} />
+                  <input type="text" className="form-input" placeholder={t('detailsPlaceholder')} value={form.details} onChange={e => setForm(f => ({ ...f, details: e.target.value }))} />
                 </div>
 
                 <div className="divider" style={{ margin: '0.1rem 0' }} />
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <div className="form-group">
-                    <label className="form-label">Opens at *</label>
+                    <label className="form-label">{t('opensAt')} *</label>
                     <input type="time" className="form-input" value={form.openTime} onChange={e => setForm(f => ({ ...f, openTime: e.target.value }))} required />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">Closes at *</label>
+                    <label className="form-label">{t('closesAt')} *</label>
                     <input type="time" className="form-input" value={form.closeTime} onChange={e => setForm(f => ({ ...f, closeTime: e.target.value }))} required />
                   </div>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <div className="form-group">
-                    <label className="form-label">⏪ Buffer Before (min)</label>
+                    <label className="form-label">⏪ {t('bufferBefore')}</label>
                     <input
                       type="number" className="form-input hide-arrows"
                       min={0} max={120} step={15} placeholder="e.g. 15"
@@ -1004,11 +1004,11 @@ export default function ServicesPage() {
                       style={bufferError(form.bufferTimeBefore) ? { borderColor: 'var(--danger)', boxShadow: '0 0 0 3px rgba(239,68,68,0.12)' } : undefined}
                     />
                     {bufferError(form.bufferTimeBefore)
-                      ? <small className="form-error" style={{ display: 'block', marginTop: 4 }}>Must be 0, 15, 30, 45…</small>
-                      : <small style={{ color: 'var(--gray-400)', fontSize: '0.7rem', display: 'block', marginTop: 4 }}>15 min intervals</small>}
+                      ? <small className="form-error" style={{ display: 'block', marginTop: 4 }}>{t('mustBe15')}</small>
+                      : <small style={{ color: 'var(--gray-400)', fontSize: '0.7rem', display: 'block', marginTop: 4 }}>{t('min15IntervalsShort')}</small>}
                   </div>
                   <div className="form-group">
-                    <label className="form-label">⏩ Buffer After (min)</label>
+                    <label className="form-label">⏩ {t('bufferAfter')}</label>
                     <input
                       type="number" className="form-input hide-arrows"
                       min={0} max={120} step={15} placeholder="e.g. 15"
@@ -1018,13 +1018,13 @@ export default function ServicesPage() {
                       style={bufferError(form.bufferTimeAfter) ? { borderColor: 'var(--danger)', boxShadow: '0 0 0 3px rgba(239,68,68,0.12)' } : undefined}
                     />
                     {bufferError(form.bufferTimeAfter)
-                      ? <small className="form-error" style={{ display: 'block', marginTop: 4 }}>Must be 0, 15, 30, 45…</small>
-                      : <small style={{ color: 'var(--gray-400)', fontSize: '0.7rem', display: 'block', marginTop: 4 }}>15 min intervals</small>}
+                      ? <small className="form-error" style={{ display: 'block', marginTop: 4 }}>{t('mustBe15')}</small>
+                      : <small style={{ color: 'var(--gray-400)', fontSize: '0.7rem', display: 'block', marginTop: 4 }}>{t('min15IntervalsShort')}</small>}
                   </div>
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Calendar Color</label>
+                  <label className="form-label">{t('calendarColor')}</label>
                   <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 4 }}>
                     {PRESET_COLORS.map(c => (
                       <button
@@ -1032,7 +1032,7 @@ export default function ServicesPage() {
                         className={`color-swatch ${form.color === c ? 'selected' : ''}`}
                         style={{ background: c }}
                         onClick={() => setForm(f => ({ ...f, color: c }))}
-                        title={c} aria-label={`Calendar color ${c}`} aria-pressed={form.color === c}
+                        title={c} aria-label={t('calendarColorAria', { color: c })} aria-pressed={form.color === c}
                       />
                     ))}
                   </div>
@@ -1043,14 +1043,14 @@ export default function ServicesPage() {
                   <div style={{ marginBottom: '0.875rem' }}>
                     <h3 style={{ fontSize: '0.9rem', color: 'var(--brand-700)', margin: 0 }}>{t('pricingPlans')}</h3>
                     <p style={{ fontSize: '0.72rem', color: 'var(--gray-500)', margin: '2px 0 0' }}>
-                      Set prices per room category or client group. Add a plan and pick who it applies to.
+                      {t('pricingPlansDesc')}
                     </p>
                   </div>
 
                   {/* Legacy flat plans (kept editable when a service already has them) */}
                   {form.pricingPlans.length > 0 && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12, paddingBottom: 12, borderBottom: '1px dashed var(--gray-200)' }}>
-                      <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--gray-500)' }}>General plans</span>
+                      <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--gray-500)' }}>{t('generalPlans')}</span>
                       {form.pricingPlans.map((plan, index) => (
                         <div key={index} style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
                           <div className="form-group" style={{ flex: 1 }}>
@@ -1064,7 +1064,7 @@ export default function ServicesPage() {
                             />
                           </div>
                           <div className="form-group" style={{ flex: 1 }}>
-                            <label className="form-label" style={{ marginBottom: 4 }}>{t('price')} (UZS)</label>
+                            <label className="form-label" style={{ marginBottom: 4 }}>{t('priceUzs')}</label>
                             <input
                               type="text" inputMode="numeric" className="form-input price-input"
                               value={formatPrice(plan.price)}
@@ -1077,7 +1077,7 @@ export default function ServicesPage() {
                               placeholder="0" required
                             />
                           </div>
-                          <button type="button" className="btn btn-ghost btn-sm btn-icon" style={{ marginTop: 22, color: 'var(--danger)' }} onClick={() => removePricingPlan(index)} aria-label={`Remove plan ${index + 1}`}>
+                          <button type="button" className="btn btn-ghost btn-sm btn-icon" style={{ marginTop: 22, color: 'var(--danger)' }} onClick={() => removePricingPlan(index)} aria-label={t('removePlanAria', { index: index + 1 })}>
                             <Trash2 size={14} />
                           </button>
                         </div>
@@ -1100,12 +1100,12 @@ export default function ServicesPage() {
                                 {meta.label}
                               </span>
                               <span style={{ fontSize: '0.68rem', color: 'var(--gray-400)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                                {group.target === 'room' ? 'Room' : 'Client'}
+                                {group.target === 'room' ? t('room') : t('typeClient')}
                               </span>
                               <span style={{ marginLeft: 'auto', fontSize: '0.7rem', color: 'var(--gray-400)' }}>
-                                {group.rows.length} {group.rows.length === 1 ? 'price' : 'prices'}
+                                {group.rows.length} {group.rows.length === 1 ? t('priceLower') : t('pricesWord')}
                               </span>
-                              <button type="button" className="btn btn-ghost btn-sm btn-icon" style={{ color: 'var(--danger)' }} onClick={e => { e.stopPropagation(); removePricingGroup(gi) }} aria-label={`Remove ${meta.label} pricing`}>
+                              <button type="button" className="btn btn-ghost btn-sm btn-icon" style={{ color: 'var(--danger)' }} onClick={e => { e.stopPropagation(); removePricingGroup(gi) }} aria-label={t('removeGroupAria', { label: meta.label })}>
                                 <Trash2 size={13} />
                               </button>
                               <ChevronDown size={15} style={{ color: 'var(--gray-400)', transform: collapsed ? 'rotate(-90deg)' : 'none', transition: 'transform 0.15s' }} />
@@ -1127,7 +1127,7 @@ export default function ServicesPage() {
                                       />
                                     </div>
                                     <div className="form-group" style={{ flex: 1 }}>
-                                      <label className="form-label" style={{ marginBottom: 4 }}>{t('price')} (UZS)</label>
+                                      <label className="form-label" style={{ marginBottom: 4 }}>{t('priceUzs')}</label>
                                       <input
                                         type="text" inputMode="numeric" className="form-input price-input"
                                         value={formatPrice(row.price)}
@@ -1140,13 +1140,13 @@ export default function ServicesPage() {
                                         placeholder="0" required
                                       />
                                     </div>
-                                    <button type="button" className="btn btn-ghost btn-sm btn-icon" style={{ marginTop: 22, color: 'var(--danger)' }} onClick={() => removeGroupRow(gi, ri)} aria-label={`Remove price ${ri + 1}`} disabled={group.rows.length === 1}>
+                                    <button type="button" className="btn btn-ghost btn-sm btn-icon" style={{ marginTop: 22, color: 'var(--danger)' }} onClick={() => removeGroupRow(gi, ri)} aria-label={t('removePriceAria', { index: ri + 1 })} disabled={group.rows.length === 1}>
                                       <Trash2 size={14} />
                                     </button>
                                   </div>
                                 ))}
                                 <button type="button" className="btn btn-ghost btn-sm" style={{ alignSelf: 'flex-start', color: meta.color }} onClick={() => addGroupRow(gi)}>
-                                  <Plus size={13} /> Add price
+                                  <Plus size={13} /> {t('addPrice')}
                                 </button>
                               </div>
                             )}
@@ -1165,15 +1165,15 @@ export default function ServicesPage() {
 
                   {planPicker === 'choose' && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                      <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--gray-600)' }}>Who is this price for?</span>
+                      <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--gray-600)' }}>{t('whoIsPriceFor')}</span>
                       <div style={{ display: 'flex', gap: 8 }}>
                         <button type="button" className="btn btn-secondary btn-sm" onClick={() => { setPlanPicker('room'); setPickerCategory('') }}>
-                          <BedDouble size={14} /> Room category
+                          <BedDouble size={14} /> {t('roomCategoryLabel')}
                         </button>
                         <button type="button" className="btn btn-secondary btn-sm" onClick={() => { setPlanPicker('client'); setPickerCategory('') }}>
-                          <Users size={14} /> Client group
+                          <Users size={14} /> {t('clientGroupLabel')}
                         </button>
-                        <button type="button" className="btn btn-ghost btn-sm" onClick={() => setPlanPicker(null)}>Cancel</button>
+                        <button type="button" className="btn btn-ghost btn-sm" onClick={() => setPlanPicker(null)}>{t('cancel')}</button>
                       </div>
                     </div>
                   )}
@@ -1181,12 +1181,12 @@ export default function ServicesPage() {
                   {(planPicker === 'room' || planPicker === 'client') && (() => {
                     const opts = pickerOptions()
                     const emptyMsg = planPicker === 'room'
-                      ? (!form.hotelId ? 'Select a hotel first.' : 'No more room categories for this hotel. Add them in Hotels & Rooms.')
-                      : 'No more client groups. Create them in Client Groups.'
+                      ? (!form.hotelId ? t('selectHotelFirst') : t('noMoreRoomCats'))
+                      : t('noMoreClientGroups')
                     return (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                         <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--gray-600)' }}>
-                          Which {planPicker === 'room' ? 'room category' : 'client group'}?
+                          {planPicker === 'room' ? t('whichRoomCategory') : t('whichClientGroup')}
                         </span>
                         {opts.length === 0 ? (
                           <p style={{ fontSize: '0.75rem', color: 'var(--gray-500)', margin: 0 }}>{emptyMsg}</p>
@@ -1195,17 +1195,17 @@ export default function ServicesPage() {
                             <select
                               className="form-select" style={{ width: 'auto', minWidth: 180 }}
                               value={pickerCategory} onChange={e => setPickerCategory(e.target.value)}
-                              aria-label="Select category"
+                              aria-label={t('selectCategory')}
                             >
-                              <option value="">Choose…</option>
+                              <option value="">{t('chooseDots')}</option>
                               {opts.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                             </select>
                             <button type="button" className="btn btn-primary btn-sm" onClick={confirmAddGroup} disabled={!pickerCategory}>
-                              <Check size={13} /> Add
+                              <Check size={13} /> {t('add')}
                             </button>
                           </div>
                         )}
-                        <button type="button" className="btn btn-ghost btn-sm" style={{ alignSelf: 'flex-start' }} onClick={() => { setPlanPicker(null); setPickerCategory('') }}>Cancel</button>
+                        <button type="button" className="btn btn-ghost btn-sm" style={{ alignSelf: 'flex-start' }} onClick={() => { setPlanPicker(null); setPickerCategory('') }}>{t('cancel')}</button>
                       </div>
                     )
                   })()}
@@ -1213,7 +1213,7 @@ export default function ServicesPage() {
                   {/* Flat legacy price fallback when nothing else is defined */}
                   {form.pricingPlans.length === 0 && form.pricingGroups.length === 0 && planPicker === null && (
                     <div className="form-group" style={{ marginTop: 12 }}>
-                      <label className="form-label" style={{ color: 'var(--gray-500)' }}>Flat {t('price')} (optional)</label>
+                      <label className="form-label" style={{ color: 'var(--gray-500)' }}>{t('flatPriceOptional')}</label>
                       <input type="number" className="form-input" value={form.price} onChange={e => setForm(f => ({ ...f, price: Number(e.target.value) }))} />
                     </div>
                   )}
@@ -1224,14 +1224,14 @@ export default function ServicesPage() {
               <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'space-between', alignItems: 'center' }}>
                 {!editService ? (
                   <button type="button" className="btn btn-ghost btn-sm" onClick={discardDraft} style={{ color: 'var(--gray-400)' }}>
-                    Discard draft
+                    {t('discardDraft')}
                   </button>
                 ) : <span />}
                 <div style={{ display: 'flex', gap: '0.75rem' }}>
                   <button type="button" className="btn btn-secondary" onClick={closeForm}>{t('cancel')}</button>
                   <button id="save-service-btn" type="submit" className="btn btn-primary" disabled={saving}>
                     {saving ? <span className="spinner" /> : null}
-                    {saving ? 'Saving…' : (editService ? 'Save Changes' : t('save'))}
+                    {saving ? t('saving') : (editService ? t('save') : t('save'))}
                   </button>
                 </div>
               </div>

@@ -8,6 +8,7 @@ import {
 } from 'date-fns'
 import { useToast } from '@/components/ToastProvider'
 import { getServiceIcon } from '@/lib/serviceIcons'
+import { useTranslation, DictionaryKeys } from '@/lib/i18n'
 import {
   ChevronLeft, ChevronRight, Plus, Search, X, Check, Clock,
   MapPin, Phone, User, Trash2, CalendarDays, Building2, Wallet,
@@ -43,11 +44,11 @@ const money = (v: number) => v.toLocaleString('en-US').replace(/,/g, ' ')
 
 // Derived lifecycle state of a booking, driven by payment + completion.
 type StateKey = 'finished' | 'free' | 'paid' | 'unpaid'
-function bookingState(b: Booking): { key: StateKey; label: string; color: string; badge: string } {
-  if (b.finished) return { key: 'finished', label: 'Finished', color: '#10b981', badge: 'badge-success' }
-  if ((b.totalPrice || 0) === 0) return { key: 'free', label: 'Free', color: '#3b82f6', badge: 'badge-blue' }
-  if (b.paid) return { key: 'paid', label: 'Paid', color: '#10b981', badge: 'badge-success' }
-  return { key: 'unpaid', label: 'Unpaid', color: '#f59e0b', badge: 'badge-warning' }
+function bookingState(b: Booking): { key: StateKey; labelKey: DictionaryKeys; color: string; badge: string } {
+  if (b.finished) return { key: 'finished', labelKey: 'finished', color: '#10b981', badge: 'badge-success' }
+  if ((b.totalPrice || 0) === 0) return { key: 'free', labelKey: 'free', color: '#3b82f6', badge: 'badge-blue' }
+  if (b.paid) return { key: 'paid', labelKey: 'paid', color: '#10b981', badge: 'badge-success' }
+  return { key: 'unpaid', labelKey: 'unpaid', color: '#f59e0b', badge: 'badge-warning' }
 }
 // A booking may be completed once it's paid or free.
 const canFinish = (b: Booking) => !b.finished && (b.paid || (b.totalPrice || 0) === 0)
@@ -55,11 +56,13 @@ const canFinish = (b: Booking) => !b.finished && (b.paid || (b.totalPrice || 0) 
 const ROW_HEIGHTS = { Compact: 48, Cozy: 64, Roomy: 88 } as const
 type Density = keyof typeof ROW_HEIGHTS
 const DENSITY_LABEL: Record<Density, string> = { Compact: 'S', Cozy: 'M', Roomy: 'L' }
+const DENSITY_KEY: Record<Density, DictionaryKeys> = { Compact: 'compact', Cozy: 'cozy', Roomy: 'roomy' }
 
 export default function CalendarPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { showToast } = useToast()
+  const { t } = useTranslation()
 
   const [today, setToday] = useState(new Date())
   const [currentDate, setCurrentDate] = useState<Date>(() => {
@@ -201,22 +204,22 @@ export default function CalendarPage() {
       patchLocal(id, changes)
       showToast(successMsg, 'success')
     } else {
-      showToast('Update failed', 'error')
+      showToast(t('updateFailed'), 'error')
     }
   }
 
-  const markPaid = (b: Booking) => updateBooking(b._id, { paid: true }, 'Marked as paid')
-  const markFinished = (b: Booking) => updateBooking(b._id, { finished: true }, 'Booking completed')
+  const markPaid = (b: Booking) => updateBooking(b._id, { paid: true }, t('markedAsPaid'))
+  const markFinished = (b: Booking) => updateBooking(b._id, { finished: true }, t('bookingCompleted'))
 
   async function handleDeleteBooking(id: string) {
     const res = await fetch(`/api/bookings/${id}`, { method: 'DELETE' })
     if (res.ok) {
-      showToast('Booking deleted', 'success')
+      showToast(t('bookingDeleted'), 'success')
       setSelectedBooking(null)
       setDeleteConfirm(null)
       loadBookings()
     } else {
-      showToast('Failed to delete booking', 'error')
+      showToast(t('deleteFailed'), 'error')
     }
   }
 
@@ -261,28 +264,30 @@ export default function CalendarPage() {
         {/* Toolbar */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <button className="cal-icon-btn" onClick={() => navigate(-1)} aria-label="Previous"><ChevronLeft size={16} /></button>
-            <button className="cal-pill" onClick={() => setCurrentDate(new Date())} style={{ minWidth: 52, justifyContent: 'center' }}>Today</button>
-            <button className="cal-icon-btn" onClick={() => navigate(1)} aria-label="Next"><ChevronRight size={16} /></button>
+            <button className="cal-icon-btn" onClick={() => navigate(-1)} aria-label={t('previous')}><ChevronLeft size={16} /></button>
+            <button className="cal-pill" onClick={() => setCurrentDate(new Date())} style={{ minWidth: 52, justifyContent: 'center' }}>{t('today')}</button>
+            <button className="cal-icon-btn" onClick={() => navigate(1)} aria-label={t('next')}><ChevronRight size={16} /></button>
           </div>
           <span style={{ fontWeight: 700, color: 'var(--gray-800)', fontSize: '1.0625rem', letterSpacing: '-0.01em' }}>{headerLabel}</span>
 
           <div className="cal-seg" style={{ marginLeft: 'auto' }}>
             {(['day', 'week', 'month'] as ViewMode[]).map(v => (
-              <button key={v} className={view === v ? 'active' : ''} onClick={() => setView(v)}>{v}</button>
+              <button key={v} className={view === v ? 'active' : ''} onClick={() => setView(v)}>
+                {v === 'day' ? t('day') : v === 'week' ? t('periodWeek') : t('periodMonth')}
+              </button>
             ))}
           </div>
 
           {view !== 'month' && (
             <div className="cal-seg">
               {(Object.keys(ROW_HEIGHTS) as Density[]).map(d => (
-                <button key={d} className={density === d ? 'active' : ''} onClick={() => setDensity(d)} title={`${d} rows`}>{DENSITY_LABEL[d]}</button>
+                <button key={d} className={density === d ? 'active' : ''} onClick={() => setDensity(d)} title={`${t(DENSITY_KEY[d])} ${t('rowsWord')}`}>{DENSITY_LABEL[d]}</button>
               ))}
             </div>
           )}
 
           <button className="btn btn-primary btn-sm" onClick={() => goToCreate(format(currentDate, 'yyyy-MM-dd'))}>
-            <Plus size={14} strokeWidth={2.5} /> New
+            <Plus size={14} strokeWidth={2.5} /> {t('newShort')}
           </button>
         </div>
 
@@ -293,12 +298,12 @@ export default function CalendarPage() {
             <input
               className="form-input"
               style={{ paddingLeft: 32, paddingTop: 7, paddingBottom: 7, fontSize: '0.82rem' }}
-              placeholder="Search guest, room or phone…"
+              placeholder={t('searchGuestRoomPhone')}
               value={search}
               onChange={e => setSearch(e.target.value)}
             />
             {search && (
-              <button onClick={() => setSearch('')} style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--gray-400)', padding: 2 }} aria-label="Clear search">
+              <button onClick={() => setSearch('')} style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--gray-400)', padding: 2 }} aria-label={t('clear')}>
                 <X size={14} />
               </button>
             )}
@@ -306,14 +311,14 @@ export default function CalendarPage() {
 
           <div style={{ display: 'flex', gap: 5 }}>
             {([
-              { key: 'all', label: 'All', dot: '' },
-              { key: 'unpaid', label: 'Unpaid', dot: '#f59e0b' },
-              { key: 'paid', label: 'Paid', dot: '#10b981' },
-              { key: 'finished', label: 'Finished', dot: '#6366f1' },
-            ] as { key: StatusFilter; label: string; dot: string }[]).map(s => (
+              { key: 'all', labelKey: 'all', dot: '' },
+              { key: 'unpaid', labelKey: 'unpaid', dot: '#f59e0b' },
+              { key: 'paid', labelKey: 'paid', dot: '#10b981' },
+              { key: 'finished', labelKey: 'finished', dot: '#6366f1' },
+            ] as { key: StatusFilter; labelKey: DictionaryKeys; dot: string }[]).map(s => (
               <button key={s.key} className={`cal-pill ${statusFilter === s.key ? 'active' : ''}`} onClick={() => setStatusFilter(s.key)}>
                 {s.dot && <span style={{ width: 7, height: 7, borderRadius: '50%', background: statusFilter === s.key ? '#fff' : s.dot }} />}
-                {s.label}
+                {t(s.labelKey)}
               </button>
             ))}
           </div>
@@ -365,19 +370,19 @@ export default function CalendarPage() {
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
             <div>
               <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--gray-800)', lineHeight: 1 }}>{summary.count}</div>
-              <div style={{ fontSize: '0.7rem', color: 'var(--gray-400)', textTransform: 'uppercase', letterSpacing: '0.04em', marginTop: 2 }}>Bookings</div>
+              <div style={{ fontSize: '0.7rem', color: 'var(--gray-400)', textTransform: 'uppercase', letterSpacing: '0.04em', marginTop: 2 }}>{t('bookings')}</div>
             </div>
             <div style={{ textAlign: 'right' }}>
               <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--brand-600)', lineHeight: 1 }}>{money(summary.revenue)}</div>
-              <div style={{ fontSize: '0.7rem', color: 'var(--gray-400)', textTransform: 'uppercase', letterSpacing: '0.04em', marginTop: 2 }}>UZS this {view}</div>
+              <div style={{ fontSize: '0.7rem', color: 'var(--gray-400)', textTransform: 'uppercase', letterSpacing: '0.04em', marginTop: 2 }}>{t('sum')} · {view === 'day' ? t('day') : view === 'week' ? t('periodWeek') : t('periodMonth')}</div>
             </div>
           </div>
           {summary.revenue > 0 && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.72rem', color: 'var(--gray-500)', borderTop: '1px dashed var(--gray-200)', paddingTop: 8 }}>
               <Wallet size={13} style={{ color: '#10b981' }} />
-              <span style={{ fontWeight: 700, color: '#059669' }}>{money(summary.collected)}</span> collected
+              <span style={{ fontWeight: 700, color: '#059669' }}>{money(summary.collected)}</span> {t('collected')}
               {summary.collected < summary.revenue && (
-                <span style={{ marginLeft: 'auto', fontWeight: 700, color: '#d97706' }}>{money(summary.revenue - summary.collected)} due</span>
+                <span style={{ marginLeft: 'auto', fontWeight: 700, color: '#d97706' }}>{money(summary.revenue - summary.collected)} {t('due')}</span>
               )}
             </div>
           )}
@@ -388,13 +393,13 @@ export default function CalendarPage() {
           <div className="card" style={{ padding: '1rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
               <h3 style={{ fontSize: '0.8125rem', margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <Building2 size={14} style={{ color: 'var(--gray-400)' }} /> Hotels
+                <Building2 size={14} style={{ color: 'var(--gray-400)' }} /> {t('hotels')}
               </h3>
               <button
                 onClick={() => setSelectedHotels(allHotelsSelected ? new Set() : new Set(hotels.map(h => h._id)))}
                 style={{ background: 'none', border: 'none', color: 'var(--brand-600)', fontSize: '0.72rem', fontWeight: 600, cursor: 'pointer' }}
               >
-                {allHotelsSelected ? 'Clear' : 'All'}
+                {allHotelsSelected ? t('clear') : t('all')}
               </button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -441,12 +446,12 @@ export default function CalendarPage() {
         {/* Service filter / legend */}
         <div className="card" style={{ padding: '1rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-            <h3 style={{ fontSize: '0.8125rem', margin: 0 }}>Services</h3>
+            <h3 style={{ fontSize: '0.8125rem', margin: 0 }}>{t('services')}</h3>
             <button
               onClick={() => setSelectedServices(allSelected ? new Set() : new Set(services.map(s => s._id)))}
               style={{ background: 'none', border: 'none', color: 'var(--brand-600)', fontSize: '0.72rem', fontWeight: 600, cursor: 'pointer' }}
             >
-              {allSelected ? 'Clear' : 'All'}
+              {allSelected ? t('clear') : t('all')}
             </button>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -485,7 +490,7 @@ export default function CalendarPage() {
                 </button>
               )
             })}
-            {services.length === 0 && <p style={{ fontSize: '0.75rem', color: 'var(--gray-400)' }}>No services yet</p>}
+            {services.length === 0 && <p style={{ fontSize: '0.75rem', color: 'var(--gray-400)' }}>{t('noServicesYet')}</p>}
           </div>
         </div>
       </div>
@@ -495,8 +500,8 @@ export default function CalendarPage() {
         <div className="modal-overlay" onClick={() => { setSelectedBooking(null); setDeleteConfirm(null) }}>
           <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 440 }}>
             <div className="modal-header">
-              <h2>Booking Details</h2>
-              <button className="btn btn-ghost btn-icon" onClick={() => { setSelectedBooking(null); setDeleteConfirm(null) }} aria-label="Close"><X size={18} /></button>
+              <h2>{t('bookingDetails')}</h2>
+              <button className="btn btn-ghost btn-icon" onClick={() => { setSelectedBooking(null); setDeleteConfirm(null) }} aria-label={t('close')}><X size={18} /></button>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', fontSize: '0.875rem' }}>
@@ -517,28 +522,28 @@ export default function CalendarPage() {
                   return (
                     <span className={`badge ${st.badge}`} style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
                       {st.key === 'finished' && <Check size={12} />}
-                      {st.label}
+                      {t(st.labelKey)}
                     </span>
                   )
                 })()}
               </div>
 
-              <DetailRow icon={<User size={15} />} label="Guest" value={selectedBooking.customerName} />
-              {selectedBooking.roomNumber && <DetailRow icon={<MapPin size={15} />} label="Room" value={`🏨 ${selectedBooking.roomNumber}`} accent />}
-              {selectedBooking.customerPhone && <DetailRow icon={<Phone size={15} />} label="Phone" value={selectedBooking.customerPhone} />}
-              <DetailRow icon={<CalendarDays size={15} />} label="Date" value={format(parseISO(selectedBooking.date), 'EEEE, MMM d, yyyy')} />
-              <DetailRow icon={<Clock size={15} />} label="Time" value={`${selectedBooking.startTime} – ${selectedBooking.endTime}`} />
+              <DetailRow icon={<User size={15} />} label={t('guest')} value={selectedBooking.customerName} />
+              {selectedBooking.roomNumber && <DetailRow icon={<MapPin size={15} />} label={t('room')} value={`🏨 ${selectedBooking.roomNumber}`} accent />}
+              {selectedBooking.customerPhone && <DetailRow icon={<Phone size={15} />} label={t('phone')} value={selectedBooking.customerPhone} />}
+              <DetailRow icon={<CalendarDays size={15} />} label={t('date')} value={format(parseISO(selectedBooking.date), 'EEEE, MMM d, yyyy')} />
+              <DetailRow icon={<Clock size={15} />} label={t('time')} value={`${selectedBooking.startTime} – ${selectedBooking.endTime}`} />
               {selectedBooking.totalPrice > 0 && (
-                <DetailRow icon={<span style={{ fontWeight: 700, fontSize: 11 }}>UZS</span>} label="Price" value={`${money(selectedBooking.totalPrice)} UZS`} success />
+                <DetailRow icon={<span style={{ fontWeight: 700, fontSize: 11 }}>{t('sum')}</span>} label={t('price')} value={`${money(selectedBooking.totalPrice)} ${t('sum')}`} success />
               )}
               <DetailRow
                 icon={<Wallet size={15} />}
-                label="Payment"
-                value={selectedBooking.totalPrice === 0 ? 'Free — no charge' : selectedBooking.paid ? 'Paid' : 'Unpaid'}
+                label={t('payment')}
+                value={selectedBooking.totalPrice === 0 ? t('freeNoCharge') : selectedBooking.paid ? t('paid') : t('unpaid')}
                 accent={!selectedBooking.paid && selectedBooking.totalPrice > 0}
                 success={selectedBooking.paid}
               />
-              {selectedBooking.notes && <DetailRow icon={<span style={{ fontSize: 14 }}>📝</span>} label="Notes" value={selectedBooking.notes} />}
+              {selectedBooking.notes && <DetailRow icon={<span style={{ fontSize: 14 }}>📝</span>} label={t('notes')} value={selectedBooking.notes} />}
             </div>
 
             <div className="divider" />
@@ -546,11 +551,11 @@ export default function CalendarPage() {
             {/* Lifecycle actions */}
             {selectedBooking.finished ? (
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '0.6rem', marginBottom: '0.85rem', borderRadius: 10, background: '#10b98114', color: '#059669', fontWeight: 700, fontSize: '0.85rem' }}>
-                <Check size={16} /> Completed
+                <Check size={16} /> {t('completed')}
               </div>
             ) : bookingState(selectedBooking).key === 'unpaid' ? (
               <button className="btn btn-primary" style={{ width: '100%', marginBottom: '0.85rem' }} onClick={() => setPayConfirm(selectedBooking)}>
-                <Wallet size={15} /> Mark as Paid
+                <Wallet size={15} /> {t('markAsPaid')}
               </button>
             ) : (
               <button
@@ -558,23 +563,23 @@ export default function CalendarPage() {
                 style={{ width: '100%', marginBottom: '0.85rem', background: '#10b981', color: '#fff', border: 'none' }}
                 onClick={() => markFinished(selectedBooking)}
               >
-                <Check size={16} strokeWidth={2.5} /> Mark as Finished
+                <Check size={16} strokeWidth={2.5} /> {t('markAsFinished')}
               </button>
             )}
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               {deleteConfirm === selectedBooking._id ? (
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.8125rem', color: 'var(--danger)' }}>Delete this booking?</span>
-                  <button className="btn btn-danger btn-sm" onClick={() => handleDeleteBooking(selectedBooking._id)}>Delete</button>
-                  <button className="btn btn-ghost btn-sm" onClick={() => setDeleteConfirm(null)}>Cancel</button>
+                  <span style={{ fontSize: '0.8125rem', color: 'var(--danger)' }}>{t('deleteThisBooking')}</span>
+                  <button className="btn btn-danger btn-sm" onClick={() => handleDeleteBooking(selectedBooking._id)}>{t('delete')}</button>
+                  <button className="btn btn-ghost btn-sm" onClick={() => setDeleteConfirm(null)}>{t('cancel')}</button>
                 </div>
               ) : (
                 <button className="btn btn-danger btn-sm" onClick={() => setDeleteConfirm(selectedBooking._id)}>
-                  <Trash2 size={13} /> Delete
+                  <Trash2 size={13} /> {t('delete')}
                 </button>
               )}
-              <button className="btn btn-secondary btn-sm" onClick={() => { setSelectedBooking(null); setDeleteConfirm(null) }}>Close</button>
+              <button className="btn btn-secondary btn-sm" onClick={() => { setSelectedBooking(null); setDeleteConfirm(null) }}>{t('close')}</button>
             </div>
           </div>
         </div>
@@ -588,21 +593,20 @@ export default function CalendarPage() {
               <span style={{ width: 52, height: 52, borderRadius: '50%', background: '#10b98118', color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Wallet size={24} />
               </span>
-              <h2 style={{ margin: 0, fontSize: '1.1rem' }}>Confirm payment</h2>
+              <h2 style={{ margin: 0, fontSize: '1.1rem' }}>{t('confirmPayment')}</h2>
               <p style={{ margin: 0, color: 'var(--gray-600)', fontSize: '0.9rem', lineHeight: 1.5 }}>
-                Did you receive <strong style={{ color: 'var(--gray-900)' }}>{money(payConfirm.totalPrice)} UZS</strong>
-                {' '}from <strong style={{ color: 'var(--gray-900)' }}>{payConfirm.customerName}</strong>?
+                {t('didYouReceive', { amount: `${money(payConfirm.totalPrice)} ${t('sum')}`, name: payConfirm.customerName })}
               </p>
             </div>
             <div className="divider" />
             <div style={{ display: 'flex', gap: 10 }}>
-              <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setPayConfirm(null)}>Back</button>
+              <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setPayConfirm(null)}>{t('back')}</button>
               <button
                 className="btn btn-primary"
                 style={{ flex: 1 }}
                 onClick={async () => { await markPaid(payConfirm); setPayConfirm(null) }}
               >
-                <Check size={15} strokeWidth={2.5} /> Yes, received
+                <Check size={15} strokeWidth={2.5} /> {t('yesReceived')}
               </button>
             </div>
           </div>
@@ -838,6 +842,7 @@ function TimeGrid({ days, today, rowH, bookingsForDay, onCreate, onBookingClick,
 }
 
 function EventBlock({ placed, startMin, ppm, onClick, onFinish }: { placed: Placed; startMin: number; ppm: number; onClick: (b: Booking) => void; onFinish: (b: Booking) => void }) {
+  const { t } = useTranslation()
   const { b } = placed
   const color = b.serviceId?.color || '#6366f1'
   const top = (placed.start - startMin) * ppm
@@ -851,7 +856,7 @@ function EventBlock({ placed, startMin, ppm, onClick, onFinish }: { placed: Plac
   return (
     <div
       className="cal-event"
-      title={`${b.startTime}–${b.endTime} · ${b.customerName}${b.roomNumber ? ` · Room ${b.roomNumber}` : ''} · ${b.serviceId?.name || ''} · ${state.label}`}
+      title={`${b.startTime}–${b.endTime} · ${b.customerName}${b.roomNumber ? ` · ${t('room')} ${b.roomNumber}` : ''} · ${b.serviceId?.name || ''} · ${t(state.labelKey)}`}
       onClick={e => { e.stopPropagation(); onClick(b) }}
       style={{
         top, height,
@@ -866,13 +871,13 @@ function EventBlock({ placed, startMin, ppm, onClick, onFinish }: { placed: Plac
       {/* Corner status marker / finish button */}
       <span style={{ position: 'absolute', top: 3, right: 3, zIndex: 2 }}>
         {finished ? (
-          <span title="Completed" style={{ width: 16, height: 16, borderRadius: '50%', background: '#10b981', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <span title={t('completed')} style={{ width: 16, height: 16, borderRadius: '50%', background: '#10b981', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Check size={11} strokeWidth={3} />
           </span>
         ) : canFinish(b) ? (
           <button
-            title="Mark as finished"
-            aria-label="Mark as finished"
+            title={t('markFinishedTitle')}
+            aria-label={t('markFinishedTitle')}
             onClick={e => { e.stopPropagation(); onFinish(b) }}
             style={{
               width: 16, height: 16, borderRadius: '50%', padding: 0, cursor: 'pointer',
@@ -885,7 +890,7 @@ function EventBlock({ placed, startMin, ppm, onClick, onFinish }: { placed: Plac
             <Check size={11} strokeWidth={3} />
           </button>
         ) : (
-          <span title="Unpaid" style={{ width: 9, height: 9, borderRadius: '50%', background: '#f59e0b', display: 'block', boxShadow: '0 0 0 2px #fff' }} />
+          <span title={t('unpaid')} style={{ width: 9, height: 9, borderRadius: '50%', background: '#f59e0b', display: 'block', boxShadow: '0 0 0 2px #fff' }} />
         )}
       </span>
 
@@ -920,16 +925,17 @@ function MonthView({ currentDate, today, bookingsForDay, onDayClick, onBookingCl
   onBookingClick: (b: Booking) => void
   onFinish: (b: Booking) => void
 }) {
+  const { t } = useTranslation()
   const start = startOfWeek(startOfMonth(currentDate), { weekStartsOn: 1 })
   const end = addDays(startOfWeek(endOfMonth(currentDate), { weekStartsOn: 1 }), 6)
   const days = eachDayOfInterval({ start, end })
-  const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+  const dayNames: DictionaryKeys[] = ['dowMon', 'dowTue', 'dowWed', 'dowThu', 'dowFri', 'dowSat', 'dowSun']
 
   return (
     <div style={{ padding: '0.85rem' }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 3, marginBottom: 4 }}>
         {dayNames.map(d => (
-          <div key={d} style={{ textAlign: 'center', fontSize: '0.7rem', fontWeight: 700, color: 'var(--gray-400)', padding: '4px 0', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{d}</div>
+          <div key={d} style={{ textAlign: 'center', fontSize: '0.7rem', fontWeight: 700, color: 'var(--gray-400)', padding: '4px 0', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{t(d)}</div>
         ))}
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4 }}>
@@ -981,20 +987,20 @@ function MonthView({ currentDate, today, bookingsForDay, onDayClick, onBookingCl
                       <Check size={11} strokeWidth={3} style={{ color: '#10b981', flexShrink: 0 }} />
                     ) : canFinish(b) ? (
                       <button
-                        title="Mark as finished" aria-label="Mark as finished"
+                        title={t('markFinishedTitle')} aria-label={t('markFinishedTitle')}
                         onClick={e => { e.stopPropagation(); onFinish(b) }}
                         style={{ width: 14, height: 14, flexShrink: 0, borderRadius: '50%', padding: 0, cursor: 'pointer', background: '#fff', border: '1.5px solid #10b981', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                       >
                         <Check size={9} strokeWidth={3} />
                       </button>
                     ) : (
-                      <span title="Unpaid" style={{ width: 7, height: 7, flexShrink: 0, borderRadius: '50%', background: '#f59e0b' }} />
+                      <span title={t('unpaid')} style={{ width: 7, height: 7, flexShrink: 0, borderRadius: '50%', background: '#f59e0b' }} />
                     )}
                   </div>
                 )
               })}
               {list.length > 3 && (
-                <div style={{ fontSize: '0.68rem', color: 'var(--gray-400)', paddingLeft: 4, fontWeight: 600 }}>+{list.length - 3} more</div>
+                <div style={{ fontSize: '0.68rem', color: 'var(--gray-400)', paddingLeft: 4, fontWeight: 600 }}>{t('plusMore', { count: list.length - 3 })}</div>
               )}
             </div>
           )

@@ -2,19 +2,21 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useTranslation, DictionaryKeys } from '@/lib/i18n'
 
-const TABS = [
-  { label: 'Services', href: '/settings/services' },
-  { label: 'Hotels & Rooms', href: '/settings/hotels' },
-  { label: 'Client Groups', href: '/settings/client-groups' },
+const TABS: { labelKey: DictionaryKeys; href: string }[] = [
+  { labelKey: 'services', href: '/settings/services' },
+  { labelKey: 'hotelsAndRooms', href: '/settings/hotels' },
+  { labelKey: 'clientGroups', href: '/settings/client-groups' },
 ]
 
 export default function SettingsLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const { t } = useTranslation()
   return (
     <div>
       <div className="page-header">
-        <h1>Settings</h1>
+        <h1>{t('settings')}</h1>
       </div>
 
       {/* Tabs */}
@@ -40,7 +42,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
                 transition: 'all 0.15s',
               }}
             >
-              {tab.label}
+              {t(tab.labelKey)}
             </Link>
           )
         })}

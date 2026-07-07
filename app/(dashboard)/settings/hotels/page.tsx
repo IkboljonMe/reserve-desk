@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useToast } from '@/components/ToastProvider'
+import { useTranslation } from '@/lib/i18n'
 import Select from '@/components/Select'
 import {
   Building2, MapPin, Layers, Trash2, Plus, DoorClosed, TriangleAlert,
@@ -49,6 +50,7 @@ function displayCode(hotel: { shortName?: string; name: string }): string {
 
 export default function HotelsRoomsPage() {
   const { showToast } = useToast()
+  const { t } = useTranslation()
   const [hotels, setHotels] = useState<Hotel[]>([])
   const [rooms, setRooms] = useState<Room[]>([])
   const [loading, setLoading] = useState(true)
@@ -83,11 +85,11 @@ export default function HotelsRoomsPage() {
       setHotels(Array.isArray(hData) ? hData : [])
       setRooms(Array.isArray(rData) ? rData : [])
     } catch {
-      showToast('Failed to load data', 'error')
+      showToast(t('loadDataFailed'), 'error')
     } finally {
       setLoading(false)
     }
-  }, [showToast])
+  }, [showToast, t])
 
   useEffect(() => { load() }, [load])
   useEffect(() => { roomsRef.current = rooms }, [rooms])
@@ -134,12 +136,12 @@ export default function HotelsRoomsPage() {
   const shortNameError = useMemo(() => {
     const sn = hotelForm.shortName.trim().toUpperCase()
     if (!sn) return null // handled by `required`
-    if (!SHORT_NAME_RE.test(sn)) return 'Use 2–6 letters or digits (e.g. FG, FGH1)'
+    if (!SHORT_NAME_RE.test(sn)) return t('shortCodeFormat')
     if (hotels.some(h => h._id !== editHotelId && h.shortName?.toUpperCase() === sn)) {
-      return `"${sn}" is already used by another hotel`
+      return t('shortCodeTaken', { code: sn })
     }
     return null
-  }, [hotelForm.shortName, hotels, editHotelId])
+  }, [hotelForm.shortName, hotels, editHotelId, t])
 
   async function handleSubmitHotel(e: React.FormEvent) {
     e.preventDefault()
@@ -153,7 +155,7 @@ export default function HotelsRoomsPage() {
 
     if (!finalForm.name.trim() || !finalForm.shortName.trim() || shortNameError) return
     if (finalForm.roomTypes.length === 0) {
-      showToast('Please add at least one room category', 'error')
+      showToast(t('addAtLeastOneCategory'), 'error')
       return
     }
     setSavingHotel(true)
@@ -165,12 +167,12 @@ export default function HotelsRoomsPage() {
       })
       const data = await res.json()
       if (res.ok) {
-        showToast(editHotelId ? 'Hotel updated' : 'Hotel added', 'success')
+        showToast(editHotelId ? t('hotelUpdated') : t('hotelAdded'), 'success')
         setHotelOpen(false)
         setEditHotelId(null)
         load()
       } else {
-        showToast(data.error || 'Failed to save hotel', 'error')
+        showToast(data.error || t('saveHotelFailed'), 'error')
       }
     } finally {
       setSavingHotel(false)
@@ -180,11 +182,11 @@ export default function HotelsRoomsPage() {
   async function handleDeleteHotel(id: string) {
     const res = await fetch(`/api/hotels/${id}`, { method: 'DELETE' })
     if (res.ok) {
-      showToast('Hotel deleted', 'success')
+      showToast(t('hotelDeleted'), 'success')
       setHotelDeleteConfirm(null)
       load()
     } else {
-      showToast('Failed to delete hotel', 'error')
+      showToast(t('deleteHotelFailed'), 'error')
     }
   }
 
@@ -192,7 +194,7 @@ export default function HotelsRoomsPage() {
 
   function openRoomModal() {
     if (hotels.length === 0) {
-      showToast('Add a hotel first', 'info')
+      showToast(t('addHotelFirst'), 'info')
       return
     }
     const h = hotels[0]
@@ -222,12 +224,12 @@ export default function HotelsRoomsPage() {
       })
       const data = await res.json()
       if (res.ok) {
-        showToast(editRoomId ? 'Room updated' : 'Room added', 'success')
+        showToast(editRoomId ? t('roomUpdated') : t('roomAdded'), 'success')
         setRoomOpen(false)
         setEditRoomId(null)
         load()
       } else {
-        showToast(data.error || 'Failed to save room', 'error')
+        showToast(data.error || t('saveRoomFailed'), 'error')
       }
     } finally {
       setSavingRoom(false)
@@ -264,7 +266,7 @@ export default function HotelsRoomsPage() {
         body: JSON.stringify({ ids }),
       })
     } catch {
-      showToast('Failed to save room order', 'error')
+      showToast(t('saveRoomOrderFailed'), 'error')
     }
   }
 
@@ -276,11 +278,11 @@ export default function HotelsRoomsPage() {
   async function handleDeleteRoom(id: string) {
     const res = await fetch(`/api/rooms/${id}`, { method: 'DELETE' })
     if (res.ok) {
-      showToast('Room deleted', 'success')
+      showToast(t('roomDeleted'), 'success')
       setRoomDeleteConfirm(null)
       load()
     } else {
-      showToast('Failed to delete room', 'error')
+      showToast(t('deleteRoomFailed'), 'error')
     }
   }
 
@@ -294,10 +296,10 @@ export default function HotelsRoomsPage() {
     })
     const data = await res.json()
     if (res.ok) {
-      showToast('Room assigned', 'success')
+      showToast(t('roomAssigned'), 'success')
       load()
     } else {
-      showToast(data.error || 'Failed to assign room', 'error')
+      showToast(data.error || t('assignRoomFailed'), 'error')
     }
   }
 
@@ -330,14 +332,14 @@ export default function HotelsRoomsPage() {
         <div className="page-header" style={{ marginBottom: '1rem' }}>
           <div>
             <h2 style={{ fontSize: '1.125rem', color: 'var(--gray-800)', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Building2 size={18} style={{ color: 'var(--brand-600)' }} /> Hotels
+              <Building2 size={18} style={{ color: 'var(--brand-600)' }} /> {t('hotels')}
             </h2>
             <p style={{ fontSize: '0.8125rem', color: 'var(--gray-500)', marginTop: 2 }}>
-              Each hotel has a unique compact code used to name its rooms (e.g. <strong>FG</strong> → FG-202).
+              {t('hotelCodeDesc')}
             </p>
           </div>
           <button className="btn btn-primary" onClick={openHotelModal}>
-            <Plus size={15} strokeWidth={2.5} /> Add Hotel
+            <Plus size={15} strokeWidth={2.5} /> {t('addHotel')}
           </button>
         </div>
 
@@ -349,9 +351,9 @@ export default function HotelsRoomsPage() {
           <div className="card">
             <div className="empty-state">
               <div className="empty-state-icon"><Building2 size={26} /></div>
-              <h3>No hotels added yet</h3>
-              <p>Add hotels to group your rooms and services.</p>
-              <button className="btn btn-primary" style={{ marginTop: 8 }} onClick={openHotelModal}>Add First Hotel</button>
+              <h3>{t('noHotelsAdded')}</h3>
+              <p>{t('noHotelsDesc')}</p>
+              <button className="btn btn-primary" style={{ marginTop: 8 }} onClick={openHotelModal}>{t('addFirstHotel')}</button>
             </div>
           </div>
         ) : (
@@ -375,20 +377,20 @@ export default function HotelsRoomsPage() {
                         {hotel.name}
                       </div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--gray-400)', marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <MapPin size={12} /> {hotel.location || 'No location set'}
+                        <MapPin size={12} /> {hotel.location || t('noLocationSet')}
                       </div>
                     </div>
                     {hotelDeleteConfirm === hotel._id ? (
                       <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
-                        <button className="btn btn-danger btn-sm btn-icon" onClick={() => handleDeleteHotel(hotel._id)} aria-label="Confirm delete hotel"><Check size={14} /></button>
-                        <button className="btn btn-ghost btn-sm btn-icon" onClick={() => setHotelDeleteConfirm(null)} aria-label="Cancel delete"><X size={14} /></button>
+                        <button className="btn btn-danger btn-sm btn-icon" onClick={() => handleDeleteHotel(hotel._id)} aria-label={t('confirmDeleteHotel')}><Check size={14} /></button>
+                        <button className="btn btn-ghost btn-sm btn-icon" onClick={() => setHotelDeleteConfirm(null)} aria-label={t('cancelDelete')}><X size={14} /></button>
                       </div>
                     ) : (
                       <div style={{ display: 'flex', gap: 2, flexShrink: 0 }}>
-                        <button className="btn btn-ghost btn-sm btn-icon" onClick={() => openEditHotel(hotel)} title="Edit hotel" aria-label="Edit hotel">
+                        <button className="btn btn-ghost btn-sm btn-icon" onClick={() => openEditHotel(hotel)} title={t('editHotelAria')} aria-label={t('editHotelAria')}>
                           <Pencil size={15} />
                         </button>
-                        <button className="btn btn-ghost btn-sm btn-icon" style={{ color: 'var(--danger)' }} onClick={() => setHotelDeleteConfirm(hotel._id)} title="Delete hotel" aria-label="Delete hotel">
+                        <button className="btn btn-ghost btn-sm btn-icon" style={{ color: 'var(--danger)' }} onClick={() => setHotelDeleteConfirm(hotel._id)} title={t('deleteHotelAria')} aria-label={t('deleteHotelAria')}>
                           <Trash2 size={15} />
                         </button>
                       </div>
@@ -396,7 +398,7 @@ export default function HotelsRoomsPage() {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.75rem', color: 'var(--gray-500)', paddingTop: 10, borderTop: '1px solid var(--surface-border)' }}>
                     <BedDouble size={13} />
-                    <span className="tabular-nums">{roomCount}</span> {roomCount === 1 ? 'room' : 'rooms'}
+                    <span className="tabular-nums">{roomCount}</span> {roomCount === 1 ? t('roomLower') : t('roomsLower')}
                     {hotel.roomTypes && hotel.roomTypes.length > 0 && (
                       <div style={{ marginLeft: 'auto', display: 'flex', gap: 4, alignItems: 'center' }}>
                         {hotel.roomTypes.slice(0, 3).map(rt => <span key={rt} style={{ background: 'var(--brand-50)', color: 'var(--brand-600)', padding: '2px 6px', borderRadius: 6, fontWeight: 600, fontSize: '0.68rem' }}>{rt}</span>)}
@@ -416,14 +418,14 @@ export default function HotelsRoomsPage() {
         <div className="page-header" style={{ marginBottom: '1rem' }}>
           <div>
             <h2 style={{ fontSize: '1.125rem', color: 'var(--gray-800)', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <BedDouble size={18} style={{ color: 'var(--brand-600)' }} /> Rooms
+              <BedDouble size={18} style={{ color: 'var(--brand-600)' }} /> {t('rooms')}
             </h2>
             <p style={{ fontSize: '0.8125rem', color: 'var(--gray-500)', marginTop: 2 }}>
-              Rooms are named with their hotel’s code, like <strong>FG-202</strong>.
+              {t('roomsSectionDesc')}
             </p>
           </div>
           <button className="btn btn-primary" onClick={openRoomModal}>
-            <Plus size={15} strokeWidth={2.5} /> Add Room
+            <Plus size={15} strokeWidth={2.5} /> {t('addRoom')}
           </button>
         </div>
 
@@ -431,9 +433,9 @@ export default function HotelsRoomsPage() {
           <div className="card">
             <div className="empty-state">
               <div className="empty-state-icon"><BedDouble size={26} /></div>
-              <h3>No rooms added yet</h3>
-              <p>Add rooms to a hotel to use room selection during booking.</p>
-              <button className="btn btn-primary" style={{ marginTop: 8 }} onClick={openRoomModal}>Add First Room</button>
+              <h3>{t('noRoomsAdded')}</h3>
+              <p>{t('noRoomsDesc')}</p>
+              <button className="btn btn-primary" style={{ marginTop: 8 }} onClick={openRoomModal}>{t('addFirstRoom')}</button>
             </div>
           </div>
         ) : (
@@ -446,9 +448,9 @@ export default function HotelsRoomsPage() {
                   <TriangleAlert size={16} style={{ color: 'var(--warning)', flexShrink: 0 }} />
                   <div>
                     <div style={{ fontWeight: 700, fontSize: '0.8125rem', color: '#92400e' }}>
-                      {unassignedRooms.length} unassigned {unassignedRooms.length === 1 ? 'room' : 'rooms'}
+                      {t('unassignedRoomsCount', { count: unassignedRooms.length })}
                     </div>
-                    <div style={{ fontSize: '0.72rem', color: '#b45309' }}>These rooms aren’t linked to a hotel. Assign each one below.</div>
+                    <div style={{ fontSize: '0.72rem', color: '#b45309' }}>{t('unassignedHint')}</div>
                   </div>
                 </div>
                 {unassignedRooms.map(room => (
@@ -456,18 +458,18 @@ export default function HotelsRoomsPage() {
                     <span style={{ fontWeight: 700, color: 'var(--gray-800)', fontSize: '0.9375rem', minWidth: 60 }} className="tabular-nums">
                       #{room.number}
                     </span>
-                    <span style={{ fontSize: '0.72rem', color: 'var(--gray-400)' }}>Floor {room.floor}</span>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--gray-400)' }}>{t('floor')} {room.floor}</span>
                     <div style={{ flex: 1, maxWidth: 260 }}>
                       <Select
-                        ariaLabel={`Assign room ${room.number} to a hotel`}
-                        placeholder="Assign to hotel…"
+                        ariaLabel={t('assignRoomAria', { number: room.number })}
+                        placeholder={t('assignToHotel')}
                         icon={<Building2 size={15} />}
                         value=""
                         onChange={v => assignRoomToHotel(room._id, v)}
                         options={hotels.map(h => ({ value: h._id, label: `${displayCode(h)} · ${h.name}` }))}
                       />
                     </div>
-                    <button className="btn btn-ghost btn-sm btn-icon" style={{ color: 'var(--danger)' }} onClick={() => handleDeleteRoom(room._id)} title="Delete room" aria-label="Delete room">
+                    <button className="btn btn-ghost btn-sm btn-icon" style={{ color: 'var(--danger)' }} onClick={() => handleDeleteRoom(room._id)} title={t('deleteRoomAria')} aria-label={t('deleteRoomAria')}>
                       <Trash2 size={15} />
                     </button>
                   </div>
@@ -495,7 +497,7 @@ export default function HotelsRoomsPage() {
                     </span>
                     <span style={{ fontWeight: 600, fontSize: '0.8125rem', color: 'var(--gray-700)' }}>{hotel.name}</span>
                     <span style={{ marginLeft: 'auto', fontSize: '0.72rem', color: 'var(--gray-400)' }} className="tabular-nums">
-                      {hotelRooms.length} {hotelRooms.length === 1 ? 'room' : 'rooms'}
+                      {hotelRooms.length} {hotelRooms.length === 1 ? t('roomLower') : t('roomsLower')}
                     </span>
                   </div>
                   {floors.map(floor => (
@@ -511,7 +513,7 @@ export default function HotelsRoomsPage() {
                         borderBottom: '1px solid var(--gray-100)',
                         display: 'flex', alignItems: 'center', gap: 5,
                       }}>
-                        <Layers size={11} /> Floor {floor}
+                        <Layers size={11} /> {t('floor')} {floor}
                       </div>
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 1, background: 'var(--gray-200)' }}>
                         {hotelRooms.filter(r => r.floor === floor).map(room => {
@@ -533,8 +535,8 @@ export default function HotelsRoomsPage() {
                                 draggable
                                 onDragStart={e => { setDraggingRoomId(room._id); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', room._id) }}
                                 onDragEnd={() => setDraggingRoomId(null)}
-                                title="Drag to reorder"
-                                aria-label="Drag to reorder room"
+                                title={t('dragToReorder')}
+                                aria-label={t('dragToReorderRoom')}
                                 style={{
                                   display: 'inline-flex', alignItems: 'center', color: 'var(--gray-300)',
                                   cursor: 'grab', flexShrink: 0, touchAction: 'none',
@@ -562,15 +564,15 @@ export default function HotelsRoomsPage() {
                             </div>
                             {roomDeleteConfirm === room._id ? (
                               <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
-                                <button className="btn btn-danger btn-sm btn-icon" onClick={() => handleDeleteRoom(room._id)} aria-label="Confirm delete room"><Check size={14} /></button>
-                                <button className="btn btn-ghost btn-sm btn-icon" onClick={() => setRoomDeleteConfirm(null)} aria-label="Cancel delete"><X size={14} /></button>
+                                <button className="btn btn-danger btn-sm btn-icon" onClick={() => handleDeleteRoom(room._id)} aria-label={t('confirmDeleteRoom')}><Check size={14} /></button>
+                                <button className="btn btn-ghost btn-sm btn-icon" onClick={() => setRoomDeleteConfirm(null)} aria-label={t('cancelDelete')}><X size={14} /></button>
                               </div>
                             ) : (
                               <div style={{ display: 'flex', gap: 2, flexShrink: 0 }}>
-                                <button className="btn btn-ghost btn-sm btn-icon" onClick={() => openEditRoom(room)} title="Edit room" aria-label="Edit room">
+                                <button className="btn btn-ghost btn-sm btn-icon" onClick={() => openEditRoom(room)} title={t('editRoomAria')} aria-label={t('editRoomAria')}>
                                   <Pencil size={14} />
                                 </button>
-                                <button className="btn btn-ghost btn-sm btn-icon" style={{ color: 'var(--danger)' }} onClick={() => setRoomDeleteConfirm(room._id)} title="Delete room" aria-label="Delete room">
+                                <button className="btn btn-ghost btn-sm btn-icon" style={{ color: 'var(--danger)' }} onClick={() => setRoomDeleteConfirm(room._id)} title={t('deleteRoomAria')} aria-label={t('deleteRoomAria')}>
                                   <Trash2 size={14} />
                                 </button>
                               </div>
@@ -588,7 +590,7 @@ export default function HotelsRoomsPage() {
             {/* All rooms are unassigned — nudge toward assigning them */}
             {!hasAnyGroupedRooms && unassignedRooms.length > 0 && (
               <p style={{ fontSize: '0.8125rem', color: 'var(--gray-400)', textAlign: 'center', padding: '0.5rem' }}>
-                Assign the rooms above to a hotel to see them grouped here.
+                {t('assignRoomsAboveHint')}
               </p>
             )}
           </div>
@@ -600,33 +602,33 @@ export default function HotelsRoomsPage() {
         <div className="modal-overlay" onClick={() => setHotelOpen(false)}>
           <div className="modal" style={{ maxWidth: 440 }} onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>{editHotelId ? 'Edit Hotel' : 'Add Hotel'}</h2>
-              <button className="btn btn-ghost btn-icon" onClick={() => setHotelOpen(false)} aria-label="Close">
+              <h2>{editHotelId ? t('editHotel') : t('addHotel')}</h2>
+              <button className="btn btn-ghost btn-icon" onClick={() => setHotelOpen(false)} aria-label={t('close')}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               </button>
             </div>
             <form onSubmit={handleSubmitHotel}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.125rem' }}>
                 <div className="form-group">
-                  <label className="form-label">Full Hotel Name *</label>
+                  <label className="form-label">{t('fullHotelName')} *</label>
                   <input
                     className="form-input"
                     required
                     value={hotelForm.name}
                     onChange={e => onHotelNameChange(e.target.value)}
-                    placeholder="e.g. Fergana Grand Hotel"
+                    placeholder={t('hotelNamePlaceholder')}
                     autoFocus
                   />
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Short Code *</label>
+                  <label className="form-label">{t('shortCode')} *</label>
                   <input
                     className="form-input"
                     required
                     value={hotelForm.shortName}
                     onChange={e => onShortNameChange(e.target.value)}
-                    placeholder="e.g. FG"
+                    placeholder={t('shortCodePlaceholder')}
                     maxLength={6}
                     style={{
                       textTransform: 'uppercase',
@@ -640,23 +642,23 @@ export default function HotelsRoomsPage() {
                     <small className="form-error" style={{ display: 'block', marginTop: 4 }}>{shortNameError}</small>
                   ) : (
                     <small style={{ color: 'var(--gray-400)', fontSize: '0.72rem', display: 'block', marginTop: 4 }}>
-                      Unique 2–6 char code. Used to name rooms — e.g. {hotelForm.shortName || 'FG'}-202.
+                      {t('shortCodeHint', { code: hotelForm.shortName || 'FG' })}
                     </small>
                   )}
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Location</label>
+                  <label className="form-label">{t('location')}</label>
                   <input
                     className="form-input"
                     value={hotelForm.location}
                     onChange={e => setHotelForm(f => ({ ...f, location: e.target.value }))}
-                    placeholder="e.g. Fergana, Uzbekistan"
+                    placeholder={t('locationPlaceholder')}
                   />
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Room Categories</label>
+                  <label className="form-label">{t('roomCategories')}</label>
                   {hotelForm.roomTypes.length > 0 && (
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
                       {hotelForm.roomTypes.map((rt, i) => (
@@ -673,7 +675,7 @@ export default function HotelsRoomsPage() {
                     className="form-input"
                     value={roomCategoryInput}
                     onChange={e => setRoomCategoryInput(e.target.value)}
-                    placeholder="Type category (e.g. Standard) and press Enter"
+                    placeholder={t('categoryInputPlaceholder')}
                     onKeyDown={e => {
                       if (e.key === 'Enter') {
                         e.preventDefault() // prevent submitting the whole hotel form
@@ -686,16 +688,16 @@ export default function HotelsRoomsPage() {
                     }}
                   />
                   <small style={{ color: 'var(--gray-400)', fontSize: '0.72rem', display: 'block', marginTop: 4 }}>
-                    Optional. Define categories to classify rooms (e.g., Standard, Lux). Keep alphabetical order or edit as needed.
+                    {t('roomCategoriesHint')}
                   </small>
                 </div>
               </div>
               <div className="divider" />
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-                <button type="button" className="btn btn-secondary" onClick={() => setHotelOpen(false)}>Cancel</button>
+                <button type="button" className="btn btn-secondary" onClick={() => setHotelOpen(false)}>{t('cancel')}</button>
                 <button type="submit" className="btn btn-primary" disabled={savingHotel || !!shortNameError}>
                   {savingHotel ? <span className="spinner" /> : null}
-                  {savingHotel ? (editHotelId ? 'Saving…' : 'Adding…') : (editHotelId ? 'Save Changes' : 'Add Hotel')}
+                  {savingHotel ? (editHotelId ? t('saving') : t('adding')) : (editHotelId ? t('save') : t('addHotel'))}
                 </button>
               </div>
             </form>
@@ -708,18 +710,18 @@ export default function HotelsRoomsPage() {
         <div className="modal-overlay" onClick={() => setRoomOpen(false)}>
           <div className="modal" style={{ maxWidth: 440 }} onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>{editRoomId ? 'Edit Room' : 'Add Room'}</h2>
-              <button className="btn btn-ghost btn-icon" onClick={() => setRoomOpen(false)} aria-label="Close">
+              <h2>{editRoomId ? t('editRoom') : t('addRoom')}</h2>
+              <button className="btn btn-ghost btn-icon" onClick={() => setRoomOpen(false)} aria-label={t('close')}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               </button>
             </div>
             <form onSubmit={handleSubmitRoom}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <div className="form-group">
-                  <label className="form-label">Hotel *</label>
+                  <label className="form-label">{t('hotel')} *</label>
                   <Select
-                    ariaLabel="Hotel"
-                    placeholder="Select hotel"
+                    ariaLabel={t('hotel')}
+                    placeholder={t('selectHotel')}
                     icon={<Building2 size={16} />}
                     value={roomForm.hotelId}
                     onChange={v => {
@@ -732,7 +734,7 @@ export default function HotelsRoomsPage() {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <div className="form-group">
-                    <label className="form-label">Floor *</label>
+                    <label className="form-label">{t('floor')} *</label>
                     <input
                       className="form-input"
                       type="number"
@@ -744,7 +746,7 @@ export default function HotelsRoomsPage() {
                     />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">Room Number *</label>
+                    <label className="form-label">{t('roomNumberField')} *</label>
                     <input
                       className="form-input"
                       required
@@ -757,10 +759,10 @@ export default function HotelsRoomsPage() {
 
                 {roomHotel && roomHotel.roomTypes && roomHotel.roomTypes.length > 0 && (
                   <div className="form-group">
-                    <label className="form-label">Category</label>
+                    <label className="form-label">{t('category')}</label>
                     <Select
-                      ariaLabel="Room Category"
-                      placeholder="Select category"
+                      ariaLabel={t('roomCategoryAria')}
+                      placeholder={t('selectCategory')}
                       value={roomForm.type}
                       onChange={v => setRoomForm(f => ({ ...f, type: v }))}
                       options={roomHotel.roomTypes.map(t => ({ value: t, label: t }))}
@@ -778,7 +780,7 @@ export default function HotelsRoomsPage() {
                   color: 'var(--brand-700)',
                   display: 'flex', alignItems: 'center', gap: 8,
                 }}>
-                  Room name:&nbsp;
+                  {t('roomNameLabel')}&nbsp;
                   <strong style={{ fontSize: '0.9375rem', fontVariantNumeric: 'tabular-nums' }}>
                     {roomShort}-{roomForm.number || '###'}
                   </strong>
@@ -786,10 +788,10 @@ export default function HotelsRoomsPage() {
               </div>
               <div className="divider" />
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-                <button type="button" className="btn btn-secondary" onClick={() => setRoomOpen(false)}>Cancel</button>
+                <button type="button" className="btn btn-secondary" onClick={() => setRoomOpen(false)}>{t('cancel')}</button>
                 <button type="submit" className="btn btn-primary" disabled={savingRoom}>
                   {savingRoom ? <span className="spinner" /> : null}
-                  {savingRoom ? 'Saving…' : editRoomId ? 'Save Changes' : 'Add Room'}
+                  {savingRoom ? t('saving') : editRoomId ? t('save') : t('addRoom')}
                 </button>
               </div>
             </form>

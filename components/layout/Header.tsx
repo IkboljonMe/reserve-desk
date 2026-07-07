@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { useTranslation, LanguageCode } from '@/lib/i18n'
+import { useTranslation, LanguageCode, LANGUAGES } from '@/lib/i18n'
 
 interface Props {
   userName: string
@@ -40,7 +40,7 @@ export default function Header({ userName, userEmail }: Props) {
         <select
           value={lang}
           onChange={e => setLang(e.target.value as LanguageCode)}
-          aria-label="Language"
+          aria-label={t('language')}
           style={{
             padding: '6px 10px',
             borderRadius: 8,
@@ -54,9 +54,9 @@ export default function Header({ userName, userEmail }: Props) {
             boxShadow: 'var(--shadow-xs)',
           }}
         >
-          <option value="uz">O'Z</option>
-          <option value="ru">RU</option>
-          <option value="en">EN</option>
+          {LANGUAGES.map(l => (
+            <option key={l.code} value={l.code}>{l.label}</option>
+          ))}
         </select>
 
         <div style={{ width: 1, height: 24, background: 'var(--surface-border)' }} />
