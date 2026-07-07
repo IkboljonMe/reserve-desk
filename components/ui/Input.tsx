@@ -36,16 +36,100 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     const hasRightIcon = !!rightIcon
 
     return (
-      <div className={`flex flex-col gap-1.5 w-full ${containerClassName}`.trim()}>
+      <div className={`rd-input-container ${containerClassName}`.trim()}>
+        <style>{`
+          .rd-input-container {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            width: 100%;
+            box-sizing: border-box;
+          }
+          .rd-input-label {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--gray-700, #374151);
+            letter-spacing: -0.01em;
+          }
+          .rd-input-wrapper {
+            position: relative;
+            width: 100%;
+          }
+          .rd-input-field {
+            width: 100%;
+            padding: 8px 12px;
+            min-height: 38px;
+            border: 1.5px solid var(--gray-200, #e5e7eb);
+            border-radius: 8px;
+            background: var(--white, #ffffff);
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--gray-800, #1f2937);
+            outline: none;
+            transition: all 0.15s ease;
+            box-sizing: border-box;
+            font-family: inherit;
+          }
+          .rd-input-field:hover:not(:disabled) {
+            border-color: var(--gray-300, #d1d5db);
+          }
+          .rd-input-field:focus {
+            border-color: var(--brand-500, #6366f1);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.14);
+          }
+          .rd-input-field.error-state {
+            border-color: var(--danger, #ef4444);
+          }
+          .rd-input-field.error-state:focus {
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.14);
+          }
+          .rd-input-field:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background: var(--gray-50, #f9fafb);
+          }
+          .rd-input-icon-left {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray-400, #9ca3af);
+            pointer-events: none;
+          }
+          .rd-input-icon-right {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray-400, #9ca3af);
+            pointer-events: none;
+          }
+          .rd-input-error {
+            font-size: 0.75rem;
+            color: var(--danger, #ef4444);
+            font-weight: 500;
+          }
+          .rd-input-helper {
+            font-size: 0.75rem;
+            color: var(--gray-500, #6b7280);
+          }
+        `}</style>
+
         {label && (
-          <label htmlFor={inputId} className="text-[0.8125rem] font-semibold text-gray-700 tracking-tight">
+          <label htmlFor={inputId} className="rd-input-label">
             {label}
           </label>
         )}
 
-        <div className="relative w-full">
+        <div className="rd-input-wrapper">
           {leftIcon && (
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 inline-flex items-center justify-center text-gray-400 pointer-events-none">
+            <div className="rd-input-icon-left">
               {leftIcon}
             </div>
           )}
@@ -58,29 +142,29 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             aria-describedby={
               error ? errorId : helperText ? helperId : undefined
             }
-            className={`w-full border-[1.5px] rounded-[10px] bg-surface-card text-gray-800 text-sm outline-none transition-all duration-150 hover:border-gray-300 placeholder-gray-400 disabled:opacity-60 disabled:cursor-not-allowed ${
-              error
-                ? 'border-danger focus:border-danger focus:ring-3 focus:ring-danger/14'
-                : 'border-gray-200 focus:border-brand-500 focus:ring-3 focus:ring-brand-500/14'
-            } ${hasLeftIcon ? 'pl-9' : 'pl-3'} ${hasRightIcon ? 'pr-9' : 'pr-3'} ${className}`.trim()}
+            className={`rd-input-field ${error ? 'error-state' : ''} ${className}`}
+            style={{
+              paddingLeft: hasLeftIcon ? '34px' : '12px',
+              paddingRight: hasRightIcon ? '34px' : '12px',
+            }}
             {...props}
           />
 
           {rightIcon && (
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 inline-flex items-center justify-center text-gray-400 pointer-events-none">
+            <div className="rd-input-icon-right">
               {rightIcon}
             </div>
           )}
         </div>
 
         {error && (
-          <span id={errorId} className="text-xs text-danger font-medium">
+          <span id={errorId} className="rd-input-error">
             {error}
           </span>
         )}
 
         {!error && helperText && (
-          <span id={helperId} className="text-xs text-gray-500">
+          <span id={helperId} className="rd-input-helper">
             {helperText}
           </span>
         )}

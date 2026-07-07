@@ -21,41 +21,117 @@ export default function Button({
   disabled,
   ...props
 }: ButtonProps) {
-  // Base classes (resets and defaults)
-  const baseClasses = 'inline-flex items-center justify-center gap-1.5 font-semibold cursor-pointer transition-all duration-150 active:translate-y-px active:scale-[0.99] disabled:opacity-55 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-brand-500/30 border border-transparent whitespace-nowrap tracking-tight rounded-radius-sm'
-
-  // Variant classes using Tailwind 4 theme mapping
-  const variantClasses = {
-    primary: 'bg-gradient-to-br from-[#4f6ef7] to-[#7c3aed] text-white shadow-brand hover:brightness-106 hover:shadow-[0_8px_20px_rgba(79,110,247,0.36)] hover:-translate-y-px',
-    secondary: 'bg-surface-card text-gray-700 border-gray-200 shadow-xs hover:bg-gray-50 hover:border-gray-300 hover:-translate-y-px hover:shadow-sm',
-    danger: 'bg-[#fee2e2] text-danger border-[#fecaca] hover:bg-[#fecaca]',
-    ghost: 'bg-transparent text-gray-600 hover:bg-gray-100 hover:text-gray-800',
-  }[variant]
-
-  // Size classes
-  const sizeClasses = {
-    sm: 'px-3 py-1.5 text-[0.8125rem]',
-    md: 'px-4 py-[9px] text-sm',
-    lg: 'px-5.5 py-[11px] text-[0.9375rem]',
-  }[size]
-
-  const isDarkSpinner = variant === 'secondary' || variant === 'ghost'
-  const spinnerColorClass = isDarkSpinner ? 'border-brand-500/20 border-t-brand-500' : 'border-white/30 border-t-white'
-
   return (
     <button
-      className={`${baseClasses} ${variantClasses} ${sizeClasses} ${className}`.trim()}
+      className={`rd-btn rd-btn-${variant} rd-btn-${size} ${className}`.trim()}
       disabled={disabled || loading}
       {...props}
     >
+      <style>{`
+        .rd-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.15s ease;
+          border: 1px solid transparent;
+          white-space: nowrap;
+          outline: none;
+          box-sizing: border-box;
+          font-family: inherit;
+        }
+        .rd-btn:active:not(:disabled) {
+          transform: translateY(1px);
+        }
+        .rd-btn:disabled {
+          opacity: 0.55;
+          cursor: not-allowed;
+        }
+
+        /* Variants */
+        .rd-btn-primary {
+          background: linear-gradient(135deg, #4f6ef7 0%, #7c3aed 100%);
+          color: #ffffff;
+          box-shadow: 0 4px 14px rgba(79, 110, 247, 0.25);
+        }
+        .rd-btn-primary:hover:not(:disabled) {
+          filter: brightness(1.08);
+          box-shadow: 0 6px 18px rgba(79, 110, 247, 0.35);
+        }
+        .rd-btn-secondary {
+          background: #ffffff;
+          color: var(--gray-700, #374151);
+          border-color: var(--gray-200, #e5e7eb);
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+        .rd-btn-secondary:hover:not(:disabled) {
+          background: var(--gray-5, #f9fafb);
+          border-color: var(--gray-300, #d1d5db);
+        }
+        .rd-btn-danger {
+          background: #fee2e2;
+          color: var(--danger, #ef4444);
+          border-color: #fecaca;
+        }
+        .rd-btn-danger:hover:not(:disabled) {
+          background: #fecaca;
+        }
+        .rd-btn-ghost {
+          background: transparent;
+          color: var(--gray-600, #4b5563);
+        }
+        .rd-btn-ghost:hover:not(:disabled) {
+          background: var(--gray-100, #f3f4f6);
+          color: var(--gray-800, #1f2937);
+        }
+
+        /* Sizes */
+        .rd-btn-sm {
+          padding: 6px 12px;
+          font-size: 0.8125rem;
+          border-radius: 6px;
+        }
+        .rd-btn-md {
+          padding: 8px 16px;
+          font-size: 0.875rem;
+          border-radius: 8px;
+          min-height: 38px;
+        }
+        .rd-btn-lg {
+          padding: 10px 20px;
+          font-size: 0.9375rem;
+          border-radius: 8px;
+          min-height: 44px;
+        }
+
+        /* Spinner animation */
+        @keyframes rd-spin {
+          to { transform: rotate(360deg); }
+        }
+        .rd-spinner {
+          width: 16px;
+          height: 16px;
+          border: 2px solid rgba(255, 255, 255, 0.3);
+          border-top-color: #ffffff;
+          border-radius: 50%;
+          animation: rd-spin 0.6s linear infinite;
+        }
+        .rd-btn-secondary .rd-spinner, .rd-btn-ghost .rd-spinner {
+          border-color: rgba(99, 102, 241, 0.2);
+          border-top-color: var(--brand-500, #6366f1);
+        }
+      `}</style>
+
       {loading ? (
         <span
-          className={`w-4.5 h-4.5 border-2 rounded-full animate-spin inline-block ${spinnerColorClass}`}
-          style={{ marginRight: children ? '6px' : '0px' }}
+          className="rd-spinner"
+          style={{ marginRight: children ? '4px' : '0px' }}
           aria-hidden="true"
         />
       ) : leftIcon ? (
-        <span className="inline-flex items-center justify-center">
+        <span style={{ display: 'inline-flex', alignItems: 'center' }}>
           {leftIcon}
         </span>
       ) : null}
@@ -63,7 +139,7 @@ export default function Button({
       {children}
 
       {!loading && rightIcon ? (
-        <span className="inline-flex items-center justify-center">
+        <span style={{ display: 'inline-flex', alignItems: 'center' }}>
           {rightIcon}
         </span>
       ) : null}
