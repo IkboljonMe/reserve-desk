@@ -131,19 +131,15 @@ export default function Sidebar() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
           <div style={{
             width: 38, height: 38,
-            background: 'linear-gradient(135deg, #4f6ef7, #7c3aed)',
-            borderRadius: 12,
+            borderRadius: 8,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             flexShrink: 0,
-            boxShadow: '0 6px 16px rgba(79,110,247,0.4)',
+            overflow: 'hidden',
           }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="2" y="3" width="20" height="14" rx="2"/>
-              <path d="M8 21h8M12 17v4"/>
-            </svg>
+            <img src="/assets/logo-safir.png" alt="Safir Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
           <div>
-            <div style={{ color: '#fff', fontSize: '0.95rem', fontWeight: 700, lineHeight: 1.2, letterSpacing: '-0.01em' }}>ReserveDesk</div>
+            <div style={{ color: '#fff', fontSize: '0.95rem', fontWeight: 700, lineHeight: 1.2, letterSpacing: '-0.01em' }}>Safir Hotel Services</div>
             <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.7rem', letterSpacing: '0.02em' }}>Hotel Admin</div>
           </div>
         </div>
