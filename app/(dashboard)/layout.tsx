@@ -4,25 +4,28 @@ import Header from '@/components/layout/Header'
 import { ToastProvider } from '@/components/ToastProvider'
 import { DraftProvider } from '@/components/DraftProvider'
 import { LanguageProvider } from '@/lib/i18n'
+import QueryProvider from '@/components/QueryProvider'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await requireAuth()
 
   return (
     <LanguageProvider>
-      <ToastProvider>
-       <DraftProvider>
-        <div style={{ display: 'flex', height: '100dvh', overflow: 'hidden' }}>
-          <Sidebar />
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            <Header userName={session.name} userEmail={session.email} />
-            <main style={{ flex: 1, overflow: 'auto', padding: '1.5rem' }}>
-              {children}
-            </main>
+      <QueryProvider>
+        <ToastProvider>
+         <DraftProvider>
+          <div style={{ display: 'flex', height: '100dvh', overflow: 'hidden' }}>
+            <Sidebar />
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+              <Header userName={session.name} userEmail={session.email} />
+              <main style={{ flex: 1, overflow: 'auto', padding: '1.5rem' }}>
+                {children}
+              </main>
+            </div>
           </div>
-        </div>
-       </DraftProvider>
-      </ToastProvider>
+         </DraftProvider>
+        </ToastProvider>
+      </QueryProvider>
     </LanguageProvider>
   )
 }
