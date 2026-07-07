@@ -331,6 +331,8 @@ export default function BookPage() {
           totalPrice: activePlan.price,
           notes: notes.trim(),
           paid: activePlan.price === 0 ? false : paid,
+          bookingType,
+          category: selectedCategory,
         }),
       })
       const data = await res.json()

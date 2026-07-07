@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json()
-    const { serviceId, clientId, customerName, customerPhone, roomNumber, date, startTime, endTime, notes, status } = body
+    const { serviceId, clientId, customerName, customerPhone, roomNumber, date, startTime, endTime, notes, status, bookingType, category } = body
 
     if (!serviceId || !customerName || !date || !startTime || !endTime) {
       return Response.json({ error: 'serviceId, customerName, date, startTime, endTime are required' }, { status: 400 })
@@ -75,6 +75,13 @@ export async function POST(req: NextRequest) {
       return Response.json({ error: 'This time slot is already booked for this service' }, { status: 409 })
     }
 
+    const now = new Date()
+    const paid = Boolean(body.paid)
+    const history = [
+      { action: 'created', at: now, by: session.userId },
+      ...(paid ? [{ action: 'paid', at: now, by: session.userId }] : []),
+    ]
+
     const booking = await Booking.create({
       serviceId,
       clientId: clientId || null,
@@ -89,8 +96,12 @@ export async function POST(req: NextRequest) {
       totalPrice: body.totalPrice || 0,
       notes: notes || '',
       status: status || 'confirmed',
-      paid: Boolean(body.paid),
+      paid,
       finished: false,
+      bookingType: bookingType || undefined,
+      category: category || '',
+      paidAt: paid ? now : null,
+      history: history as never,
       createdBy: session.userId,
     })
 

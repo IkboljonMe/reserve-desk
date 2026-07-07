@@ -1,6 +1,15 @@
 import mongoose, { Schema, Document, Types } from 'mongoose'
 
 export type BookingStatus = 'confirmed' | 'pending' | 'cancelled'
+export type BookingType = 'client' | 'room' | 'custom'
+
+// A single audit event in a booking's history.
+export interface IBookingEvent {
+  action: 'created' | 'paid' | 'finished' | 'notes_updated' | 'reopened'
+  at: Date
+  by?: Types.ObjectId
+  detail?: string
+}
 
 export interface IBooking extends Document {
   _id: Types.ObjectId
@@ -19,10 +28,22 @@ export interface IBooking extends Document {
   status: BookingStatus
   paid: boolean       // payment received (free bookings need no payment)
   finished: boolean   // booking fulfilled/completed
+  bookingType?: BookingType  // how it was booked: client group, room category, or custom
+  category?: string          // client-group id or room-type chosen at booking
+  paidAt?: Date | null       // when payment was recorded
+  finishedAt?: Date | null   // when it was marked completed
+  history: IBookingEvent[]
   createdBy: Types.ObjectId
   createdAt: Date
   updatedAt: Date
 }
+
+const BookingEventSchema = new Schema<IBookingEvent>({
+  action: { type: String, required: true },
+  at: { type: Date, default: Date.now },
+  by: { type: Schema.Types.ObjectId, ref: 'Admin' },
+  detail: { type: String },
+}, { _id: false })
 
 const BookingSchema = new Schema<IBooking>(
   {
@@ -41,6 +62,11 @@ const BookingSchema = new Schema<IBooking>(
     status: { type: String, enum: ['confirmed', 'pending', 'cancelled'], default: 'confirmed' },
     paid: { type: Boolean, default: false },
     finished: { type: Boolean, default: false },
+    bookingType: { type: String, enum: ['client', 'room', 'custom'], default: undefined },
+    category: { type: String, default: '' },
+    paidAt: { type: Date, default: null },
+    finishedAt: { type: Date, default: null },
+    history: { type: [BookingEventSchema], default: [] },
     createdBy: { type: Schema.Types.ObjectId, ref: 'Admin' },
   },
   { timestamps: true }

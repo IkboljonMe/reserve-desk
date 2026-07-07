@@ -9,7 +9,11 @@ export async function GET(_req: NextRequest, ctx: RouteContext<'/api/bookings/[i
 
   const { id } = await ctx.params
   await connectDB()
-  const booking = await Booking.findById(id).populate('serviceId', 'name color').lean()
+  const booking = await Booking.findById(id)
+    .populate('serviceId', 'name color')
+    .populate('createdBy', 'email name')
+    .populate('history.by', 'email name')
+    .lean()
   if (!booking) return Response.json({ error: 'Not found' }, { status: 404 })
   return Response.json(booking)
 }
@@ -21,19 +25,38 @@ export async function PUT(req: NextRequest, ctx: RouteContext<'/api/bookings/[id
   const { id } = await ctx.params
   const body = await req.json()
 
-  // Whitelist mutable fields.
-  const update: Record<string, unknown> = {}
-  if (typeof body.paid === 'boolean') update.paid = body.paid
-  if (typeof body.finished === 'boolean') update.finished = body.finished
-  if (typeof body.status === 'string') update.status = body.status
-  if (typeof body.notes === 'string') update.notes = body.notes
-
   await connectDB()
-  const booking = await Booking.findByIdAndUpdate(id, update, { new: true, runValidators: true })
-    .populate('serviceId', 'name color')
-    .lean()
+  const current = await Booking.findById(id)
+  if (!current) return Response.json({ error: 'Not found' }, { status: 404 })
 
-  if (!booking) return Response.json({ error: 'Not found' }, { status: 404 })
+  const now = new Date()
+  const events: { action: string; at: Date; by: unknown }[] = []
+
+  // Only stamp timestamps / log events on real transitions.
+  if (typeof body.paid === 'boolean' && body.paid !== current.paid) {
+    current.paid = body.paid
+    if (body.paid) { current.paidAt = now; events.push({ action: 'paid', at: now, by: session.userId }) }
+    else { current.paidAt = null; events.push({ action: 'reopened', at: now, by: session.userId }) }
+  }
+  if (typeof body.finished === 'boolean' && body.finished !== current.finished) {
+    current.finished = body.finished
+    if (body.finished) { current.finishedAt = now; events.push({ action: 'finished', at: now, by: session.userId }) }
+    else { current.finishedAt = null; events.push({ action: 'reopened', at: now, by: session.userId }) }
+  }
+  if (typeof body.notes === 'string' && body.notes !== current.notes) {
+    current.notes = body.notes
+    events.push({ action: 'notes_updated', at: now, by: session.userId })
+  }
+  if (typeof body.status === 'string') current.status = body.status
+
+  if (events.length) current.history.push(...(events as never[]))
+  await current.save()
+
+  const booking = await Booking.findById(id)
+    .populate('serviceId', 'name color')
+    .populate('createdBy', 'email name')
+    .populate('history.by', 'email name')
+    .lean()
   return Response.json(booking)
 }
 
