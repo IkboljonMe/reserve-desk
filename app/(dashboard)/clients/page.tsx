@@ -15,6 +15,12 @@ interface Hotel {
   shortName: string
 }
 
+interface ClientGroup {
+  _id: string
+  name: string
+  color: string
+}
+
 interface Client {
   _id: string
   name: string
@@ -22,15 +28,25 @@ interface Client {
   roomNumber: string
   floor: number
   notes: string
+  groupId: ClientGroup | string | null
 }
 
-const EMPTY_FORM = { name: '', phone: '', roomNumber: '', floor: 1, notes: '' }
+const EMPTY_FORM = { name: '', phone: '', roomNumber: '', floor: 1, notes: '', groupId: '' }
+
+// groupId comes back populated (object) on GET but is a raw id/string elsewhere.
+function extractGroupId(groupId: Client['groupId']): string {
+  if (!groupId) return ''
+  if (typeof groupId === 'string') return groupId
+  return groupId._id ?? ''
+}
 
 export default function ClientsPage() {
   const { showToast } = useToast()
   const [clients, setClients] = useState<Client[]>([])
   const [rooms, setRooms] = useState<Room[]>([])
   const [hotels, setHotels] = useState<Hotel[]>([])
+  const [groups, setGroups] = useState<ClientGroup[]>([])
+  const [groupFilter, setGroupFilter] = useState('')
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [modalOpen, setModalOpen] = useState(false)
@@ -42,21 +58,27 @@ export default function ClientsPage() {
   const loadData = useCallback(async () => {
     setLoading(true)
     try {
-      const [cr, rr, hr] = await Promise.all([
-        fetch(`/api/clients${search ? `?search=${encodeURIComponent(search)}` : ''}`),
+      const params = new URLSearchParams()
+      if (search) params.set('search', search)
+      if (groupFilter) params.set('groupId', groupFilter)
+      const qs = params.toString()
+      const [cr, rr, hr, gr] = await Promise.all([
+        fetch(`/api/clients${qs ? `?${qs}` : ''}`),
         fetch('/api/rooms'),
         fetch('/api/hotels'),
+        fetch('/api/client-groups'),
       ])
-      const [c, r, h] = await Promise.all([cr.json(), rr.json(), hr.json()])
+      const [c, r, h, g] = await Promise.all([cr.json(), rr.json(), hr.json(), gr.json()])
       setClients(Array.isArray(c) ? c : [])
       setRooms(Array.isArray(r) ? r : [])
       setHotels(Array.isArray(h) ? h : [])
+      setGroups(Array.isArray(g) ? g : [])
     } catch {
       showToast('Failed to load clients', 'error')
     } finally {
       setLoading(false)
     }
-  }, [search, showToast])
+  }, [search, groupFilter, showToast])
 
   useEffect(() => { loadData() }, [loadData])
 
@@ -68,7 +90,7 @@ export default function ClientsPage() {
 
   function openEdit(c: Client) {
     setEditClient(c)
-    setForm({ name: c.name, phone: c.phone, roomNumber: c.roomNumber, floor: c.floor, notes: c.notes })
+    setForm({ name: c.name, phone: c.phone, roomNumber: c.roomNumber, floor: c.floor, notes: c.notes, groupId: extractGroupId(c.groupId) })
     setModalOpen(true)
   }
 
@@ -127,6 +149,14 @@ export default function ClientsPage() {
   // Group by floor for display
   const floorGroups = Array.from(new Set(rooms.map(r => r.floor))).sort((a, b) => a - b)
 
+  // Resolve the full group record for a client (works whether populated or id).
+  function clientGroup(c: Client): ClientGroup | null {
+    const id = extractGroupId(c.groupId)
+    if (!id) return null
+    if (typeof c.groupId === 'object' && c.groupId) return c.groupId
+    return groups.find(g => g._id === id) || null
+  }
+
   return (
     <div>
       <div className="page-header">
@@ -140,20 +170,33 @@ export default function ClientsPage() {
         </button>
       </div>
 
-      {/* Search */}
+      {/* Search + group filter */}
       <div className="card" style={{ padding: '1rem', marginBottom: '1rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gray-400)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-            <circle cx="11" cy="11" r="8"/>
-            <path d="m21 21-4.35-4.35"/>
-          </svg>
-          <input
-            className="form-input"
-            style={{ border: 'none', padding: '0 4px', boxShadow: 'none' }}
-            placeholder="Search by name, room number, or phone…"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minWidth: 200 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gray-400)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+              <circle cx="11" cy="11" r="8"/>
+              <path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input
+              className="form-input"
+              style={{ border: 'none', padding: '0 4px', boxShadow: 'none' }}
+              placeholder="Search by name, room number, or phone…"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
+          </div>
+          <select
+            className="form-select"
+            style={{ width: 'auto', minWidth: 160 }}
+            value={groupFilter}
+            onChange={e => setGroupFilter(e.target.value)}
+            aria-label="Filter by group"
+          >
+            <option value="">All groups</option>
+            {groups.map(g => <option key={g._id} value={g._id}>{g.name}</option>)}
+            <option value="none">Ungrouped</option>
+          </select>
         </div>
       </div>
 
@@ -181,7 +224,7 @@ export default function ClientsPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--gray-200)', background: 'var(--gray-50)' }}>
-                {['Guest', 'Room', 'Floor', 'Phone', 'Notes', ''].map(col => (
+                {['Guest', 'Group', 'Room', 'Floor', 'Phone', 'Notes', ''].map(col => (
                   <th key={col} style={{ padding: '10px 16px', textAlign: 'left', fontWeight: 600, color: 'var(--gray-500)', fontSize: '0.75rem' }}>
                     {col}
                   </th>
@@ -210,6 +253,22 @@ export default function ClientsPage() {
                       </div>
                       <span style={{ fontWeight: 600, color: 'var(--gray-800)' }}>{c.name}</span>
                     </div>
+                  </td>
+                  <td style={{ padding: '12px 16px' }}>
+                    {(() => {
+                      const g = clientGroup(c)
+                      return g ? (
+                        <span style={{
+                          display: 'inline-flex', alignItems: 'center', gap: 6,
+                          padding: '2px 10px', borderRadius: 20,
+                          background: `${g.color}1a`, color: g.color,
+                          fontWeight: 600, fontSize: '0.8125rem',
+                        }}>
+                          <span style={{ width: 8, height: 8, borderRadius: '50%', background: g.color }} />
+                          {g.name}
+                        </span>
+                      ) : <span style={{ color: 'var(--gray-300)' }}>—</span>
+                    })()}
                   </td>
                   <td style={{ padding: '12px 16px' }}>
                     {c.roomNumber ? (
@@ -277,6 +336,23 @@ export default function ClientsPage() {
                 <div className="form-group">
                   <label className="form-label">Full Name *</label>
                   <input className="form-input" required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="John Doe" />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Group</label>
+                  <select
+                    className="form-select"
+                    value={form.groupId}
+                    onChange={e => setForm(f => ({ ...f, groupId: e.target.value }))}
+                  >
+                    <option value="">No group</option>
+                    {groups.map(g => <option key={g._id} value={g._id}>{g.name}</option>)}
+                  </select>
+                  {groups.length === 0 && (
+                    <p style={{ marginTop: 6, fontSize: '0.75rem', color: 'var(--gray-500)' }}>
+                      No groups yet — create them in Settings → Client Groups.
+                    </p>
+                  )}
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>

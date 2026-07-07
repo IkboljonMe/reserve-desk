@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json()
-    const { name, icon, description, hotelId, openTime, closeTime, slotDuration, capacity, color, price, isFree, details, bufferTimeBefore, bufferTimeAfter, pricingPlans } = body
+    const { name, icon, description, hotelId, openTime, closeTime, slotDuration, capacity, color, price, isFree, details, bufferTimeBefore, bufferTimeAfter, pricingPlans, pricingGroups } = body
 
     if (!name || !openTime || !closeTime) {
       return Response.json({ error: 'Name, open time, and close time are required' }, { status: 400 })
@@ -38,6 +38,7 @@ export async function POST(req: NextRequest) {
       bufferTimeBefore: Number(bufferTimeBefore) || 0,
       bufferTimeAfter: Number(bufferTimeAfter) || 0,
       pricingPlans: Array.isArray(pricingPlans) ? pricingPlans : [],
+      pricingGroups: Array.isArray(pricingGroups) ? pricingGroups : [],
       color: color || '#6366f1',
     })
 

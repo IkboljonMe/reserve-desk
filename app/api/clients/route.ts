@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Client } from '@/models/Client'
+import '@/models/ClientGroup'
 import { getSession } from '@/lib/session'
 
 export async function GET(req: NextRequest) {
@@ -9,6 +10,7 @@ export async function GET(req: NextRequest) {
 
   const { searchParams } = new URL(req.url)
   const search = searchParams.get('search') || ''
+  const groupId = searchParams.get('groupId') || ''
 
   await connectDB()
 
@@ -20,8 +22,11 @@ export async function GET(req: NextRequest) {
       { phone: { $regex: search, $options: 'i' } },
     ]
   }
+  if (groupId === 'none') filter.groupId = null
+  else if (groupId) filter.groupId = groupId
 
   const clients = await Client.find(filter)
+    .populate('groupId')
     .sort({ name: 1 })
     .lean()
 
@@ -34,12 +39,12 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json()
-    const { name, phone, roomNumber, floor, notes } = body
+    const { name, phone, roomNumber, floor, notes, groupId } = body
 
     if (!name) return Response.json({ error: 'Name is required' }, { status: 400 })
 
     await connectDB()
-    const client = await Client.create({ name, phone, roomNumber, floor, notes })
+    const client = await Client.create({ name, phone, roomNumber, floor, notes, groupId: groupId || null })
     return Response.json(client, { status: 201 })
   } catch (err) {
     console.error(err)

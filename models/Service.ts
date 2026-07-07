@@ -5,6 +5,16 @@ export interface IPricingPlan {
   price: number
 }
 
+// A pricing group scopes a set of duration/price rows to a specific room
+// category or client group. `target` is what kind of category it applies to;
+// `category` holds the room-type name (for 'room') or the ClientGroup _id
+// (for 'client').
+export interface IPricingGroup {
+  target: 'room' | 'client'
+  category: string
+  rows: IPricingPlan[]
+}
+
 export interface IService extends Document {
   _id: Types.ObjectId
   name: string
@@ -21,6 +31,7 @@ export interface IService extends Document {
   bufferTimeBefore: number
   bufferTimeAfter: number
   pricingPlans: IPricingPlan[]
+  pricingGroups: IPricingGroup[]
   color: string
   isActive: boolean
   createdAt: Date
@@ -30,6 +41,12 @@ export interface IService extends Document {
 const PricingPlanSchema = new Schema<IPricingPlan>({
   duration: { type: Number, required: true },
   price: { type: Number, required: true }
+}, { _id: false })
+
+const PricingGroupSchema = new Schema<IPricingGroup>({
+  target: { type: String, enum: ['room', 'client'], required: true },
+  category: { type: String, required: true },
+  rows: { type: [PricingPlanSchema], default: [] },
 }, { _id: false })
 
 const ServiceSchema = new Schema<IService>(
@@ -48,12 +65,13 @@ const ServiceSchema = new Schema<IService>(
     bufferTimeBefore: { type: Number, default: 0 },
     bufferTimeAfter: { type: Number, default: 0 },
     pricingPlans: { type: [PricingPlanSchema], default: [] },
+    pricingGroups: { type: [PricingGroupSchema], default: [] },
     color: { type: String, default: '#6366f1' },
     isActive: { type: Boolean, default: true },
   },
   { timestamps: true }
 )
 
-export const Service =
-  (mongoose.models.Service as mongoose.Model<IService>) ||
-  mongoose.model<IService>('Service', ServiceSchema)
+// Force re-registration so the new pricingGroups field is picked up in dev.
+delete mongoose.models.Service
+export const Service = mongoose.model<IService>('Service', ServiceSchema)

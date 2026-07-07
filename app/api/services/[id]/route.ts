@@ -34,6 +34,7 @@ export async function PUT(req: NextRequest, ctx: RouteContext<'/api/services/[id
     ...(body.bufferTimeAfter !== undefined && { bufferTimeAfter: Number(body.bufferTimeAfter) }),
     ...(body.hotelId === '' && { hotelId: null }),
     ...(Array.isArray(body.pricingPlans) && { pricingPlans: body.pricingPlans }),
+    ...(Array.isArray(body.pricingGroups) && { pricingGroups: body.pricingGroups }),
   }
 
   const service = await Service.findByIdAndUpdate(
