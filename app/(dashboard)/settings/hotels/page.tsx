@@ -89,6 +89,26 @@ export default function HotelsRoomsPage() {
     }
   }, [showToast])
 
+  const [seeding, setSeeding] = useState(false)
+
+  async function handleSeed() {
+    setSeeding(true)
+    try {
+      const res = await fetch('/api/seed', { method: 'POST' })
+      const data = await res.json()
+      if (res.ok) {
+        showToast('Database seeded successfully!', 'success')
+        load()
+      } else {
+        showToast(data.error || 'Failed to seed database', 'error')
+      }
+    } catch {
+      showToast('Connection error during seeding', 'error')
+    } finally {
+      setSeeding(false)
+    }
+  }
+
   useEffect(() => { load() }, [load])
   useEffect(() => { roomsRef.current = rooms }, [rooms])
 
@@ -336,9 +356,14 @@ export default function HotelsRoomsPage() {
               Each hotel has a unique compact code used to name its rooms (e.g. <strong>FG</strong> → FG-202).
             </p>
           </div>
-          <button className="btn btn-primary" onClick={openHotelModal}>
-            <Plus size={15} strokeWidth={2.5} /> Add Hotel
-          </button>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button className="btn btn-secondary" onClick={handleSeed} disabled={seeding}>
+              {seeding ? 'Seeding...' : 'Seed Safir Demo Data'}
+            </button>
+            <button className="btn btn-primary" onClick={openHotelModal}>
+              <Plus size={15} strokeWidth={2.5} /> Add Hotel
+            </button>
+          </div>
         </div>
 
         {loading ? (
