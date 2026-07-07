@@ -26,6 +26,5 @@ const HotelSchema = new Schema<IHotel>(
   { timestamps: true }
 )
 
-export const Hotel =
-  (mongoose.models.Hotel as mongoose.Model<IHotel>) ||
-  mongoose.model<IHotel>('Hotel', HotelSchema)
+delete mongoose.models.Hotel
+export const Hotel = mongoose.model<IHotel>('Hotel', HotelSchema)

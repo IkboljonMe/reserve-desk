@@ -28,6 +28,5 @@ const RoomSchema = new Schema<IRoom>(
 RoomSchema.index({ hotelId: 1, number: 1 }, { unique: true })
 RoomSchema.index({ hotelId: 1, floor: 1, number: 1 })
 
-export const Room =
-  (mongoose.models.Room as mongoose.Model<IRoom>) ||
-  mongoose.model<IRoom>('Room', RoomSchema)
+delete mongoose.models.Room
+export const Room = mongoose.model<IRoom>('Room', RoomSchema)

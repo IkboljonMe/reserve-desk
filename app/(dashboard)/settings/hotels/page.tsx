@@ -61,6 +61,8 @@ export default function HotelsRoomsPage() {
   const [savingHotel, setSavingHotel] = useState(false)
   const [hotelDeleteConfirm, setHotelDeleteConfirm] = useState<string | null>(null)
 
+  const [roomCategoryInput, setRoomCategoryInput] = useState('')
+
   // Room modal
   const [roomOpen, setRoomOpen] = useState(false)
   const [editRoomId, setEditRoomId] = useState<string | null>(null)
@@ -101,6 +103,7 @@ export default function HotelsRoomsPage() {
   function openHotelModal() {
     setEditHotelId(null)
     setHotelForm({ name: '', shortName: '', location: '', roomTypes: [] })
+    setRoomCategoryInput('')
     setShortNameTouched(false)
     setHotelOpen(true)
   }
@@ -108,6 +111,7 @@ export default function HotelsRoomsPage() {
   function openEditHotel(hotel: Hotel) {
     setEditHotelId(hotel._id)
     setHotelForm({ name: hotel.name, shortName: displayCode(hotel), location: hotel.location || '', roomTypes: hotel.roomTypes || [] })
+    setRoomCategoryInput('')
     setShortNameTouched(true) // don't auto-overwrite an existing code from the name
     setHotelOpen(true)
   }
@@ -139,8 +143,16 @@ export default function HotelsRoomsPage() {
 
   async function handleSubmitHotel(e: React.FormEvent) {
     e.preventDefault()
-    if (!hotelForm.name.trim() || !hotelForm.shortName.trim() || shortNameError) return
-    if (hotelForm.roomTypes.length === 0) {
+
+    // Auto-append anything typed in the field before submitting
+    const finalForm = { ...hotelForm }
+    const pendingCat = roomCategoryInput.trim()
+    if (pendingCat && !finalForm.roomTypes.includes(pendingCat)) {
+       finalForm.roomTypes.push(pendingCat)
+    }
+
+    if (!finalForm.name.trim() || !finalForm.shortName.trim() || shortNameError) return
+    if (finalForm.roomTypes.length === 0) {
       showToast('Please add at least one room category', 'error')
       return
     }
@@ -149,7 +161,7 @@ export default function HotelsRoomsPage() {
       const res = await fetch(editHotelId ? `/api/hotels/${editHotelId}` : '/api/hotels', {
         method: editHotelId ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(hotelForm),
+        body: JSON.stringify(finalForm),
       })
       const data = await res.json()
       if (res.ok) {
@@ -659,6 +671,8 @@ export default function HotelsRoomsPage() {
                   )}
                   <input
                     className="form-input"
+                    value={roomCategoryInput}
+                    onChange={e => setRoomCategoryInput(e.target.value)}
                     placeholder="Type category (e.g. Standard) and press Enter"
                     onKeyDown={e => {
                       if (e.key === 'Enter') {
@@ -666,7 +680,7 @@ export default function HotelsRoomsPage() {
                         const val = e.currentTarget.value.trim()
                         if (val && !hotelForm.roomTypes.includes(val)) {
                           setHotelForm(f => ({ ...f, roomTypes: [...f.roomTypes, val] }))
-                          e.currentTarget.value = ''
+                          setRoomCategoryInput('')
                         }
                       }
                     }}
