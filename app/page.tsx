@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { format } from 'date-fns'
+import { nowUZ } from '@/lib/timezone'
 import Link from 'next/link'
 
 interface DashboardStats {
@@ -16,7 +17,7 @@ export default function RootPage() {
   useEffect(() => {
     // In a real app we'd fetch actual aggregated data, but we'll fetch existing lists
     async function loadStats() {
-      const today = format(new Date(), 'yyyy-MM-dd')
+      const today = format(nowUZ(), 'yyyy-MM-dd')
       const [bookRes, servRes] = await Promise.all([
         fetch('/api/bookings'),
         fetch('/api/services')

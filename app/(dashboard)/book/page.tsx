@@ -5,6 +5,7 @@ import { useToast } from '@/components/ToastProvider'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useTranslation } from '@/lib/i18n'
 import { getServiceIcon } from '@/lib/serviceIcons'
+import { nowUZ } from '@/lib/timezone'
 
 interface PricingPlan { duration: number; price: number }
 
@@ -24,6 +25,7 @@ interface Service {
   pricingPlans?: PricingPlan[]
   color: string
   isActive: boolean
+  hotelId: any
 }
 
 interface Room {
@@ -55,10 +57,18 @@ function generateTimeSlots(openTime: string, closeTime: string, activeDuration: 
   if (!activeDuration) return []
   const [openH, openM] = openTime.split(':').map(Number)
   const [closeH, closeM] = closeTime.split(':').map(Number)
-  const start = openH * 60 + openM
+  
+  let start = openH * 60 + openM
+  // Round UP to the next 15-minute interval if it doesn't land perfectly on one
+  if (start % 15 !== 0) {
+    start = start + (15 - (start % 15))
+  }
+
   const end = closeH * 60 + closeM
   const slots: string[] = []
-  for (let t = start; t + activeDuration <= end; t += activeDuration) {
+  
+  // Step by 15-minute intervals, ensuring the required duration fits before closing time
+  for (let t = start; t + activeDuration <= end; t += 15) {
     const h = Math.floor(t / 60).toString().padStart(2, '0')
     const m = (t % 60).toString().padStart(2, '0')
     slots.push(`${h}:${m}`)
@@ -72,6 +82,11 @@ function slotEnd(startTime: string, duration: number): string {
   return `${Math.floor(total / 60).toString().padStart(2, '0')}:${(total % 60).toString().padStart(2, '0')}`
 }
 
+function extractHotelId(hotelId: any): string {
+  if (!hotelId) return ''
+  return typeof hotelId === 'string' ? hotelId : (hotelId._id || '')
+}
+
 export default function BookPage() {
   const { showToast } = useToast()
   const router = useRouter()
@@ -81,9 +96,10 @@ export default function BookPage() {
   const [services, setServices] = useState<Service[]>([])
   const [rooms, setRooms] = useState<Room[]>([])
   const [hotels, setHotels] = useState<Hotel[]>([])
+  const [selectedHotelId, setSelectedHotelId] = useState<string | null>(null)
   const [selectedService, setSelectedService] = useState<Service | null>(null)
   const [selectedPlan, setSelectedPlan] = useState<PricingPlan | null>(null)
-  const [date, setDate] = useState(searchParams.get('date') || new Date().toISOString().split('T')[0])
+  const [date, setDate] = useState(searchParams.get('date') || nowUZ().toISOString().split('T')[0])
   const [selectedSlot, setSelectedSlot] = useState(searchParams.get('time') || '')
   const [customerName, setCustomerName] = useState('')
   const [customerPhone, setCustomerPhone] = useState('')
@@ -116,11 +132,13 @@ export default function BookPage() {
       if (preServiceId) {
         const found = active.find((s: Service) => s._id === preServiceId)
         if (found) {
+          const hid = extractHotelId(found.hotelId)
+          if (hid) setSelectedHotelId(hid)
           setSelectedService(found)
           if (!found.pricingPlans || found.pricingPlans.length === 0) {
             setSelectedPlan({ duration: found.slotDuration, price: found.isFree ? 0 : (found.price || 0) })
           }
-          setStep(2)
+          setStep(3)
         }
       }
     })
@@ -222,7 +240,7 @@ export default function BookPage() {
     } else {
       setSelectedPlan({ duration: svc.slotDuration || 60, price: svc.isFree ? 0 : (svc.price || 0) })
     }
-    setStep(2)
+    setStep(3)
   }
 
   const timeSlots = selectedService && selectedPlan
@@ -247,9 +265,10 @@ export default function BookPage() {
       {/* Step indicator */}
       <div style={{ display: 'flex', gap: 8, marginBottom: '1.75rem' }}>
         {[
-          { n: 1, label: 'Select Service' },
-          { n: 2, label: 'Date & Time' },
-          { n: 3, label: 'Guest Info' },
+          { n: 1, label: 'Select Hotel' },
+          { n: 2, label: 'Select Service' },
+          { n: 3, label: 'Date & Time' },
+          { n: 4, label: 'Guest Info' },
         ].map(({ n, label }) => (
           <div key={n} style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1 }}>
             <div style={{
@@ -266,28 +285,69 @@ export default function BookPage() {
               fontWeight: step === n ? 600 : 400,
               color: step === n ? 'var(--gray-800)' : 'var(--gray-400)',
             }}>{label}</span>
-            {n < 3 && <div style={{ flex: 1, height: 2, background: step > n ? 'var(--brand-500)' : 'var(--gray-200)', borderRadius: 1 }} />}
+            {n < 4 && <div style={{ flex: 1, height: 2, background: step > n ? 'var(--brand-500)' : 'var(--gray-200)', borderRadius: 1 }} />}
           </div>
         ))}
       </div>
 
       <form onSubmit={handleSubmit}>
-        {/* Step 1: Service */}
+        {/* Step 1: Hotel */}
         {step === 1 && (
           <div className="card" style={{ animation: 'slideInRight 0.3s ease-out' }}>
-            <h2 style={{ marginBottom: '1rem' }}>Choose a Service</h2>
-            {services.length === 0 ? (
+            <h2 style={{ marginBottom: '1rem' }}>Choose a Hotel</h2>
+            {hotels.length === 0 ? (
+              <div className="empty-state">
+                <div className="empty-state-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 21h18M3 7v14M21 7v14M6 21V7c0-2 2-3 4-3h4c2 0 4 1 4 3v14"/>
+                  </svg>
+                </div>
+                <h3>No hotels found</h3>
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.75rem' }}>
+                {hotels.map(hotel => (
+                  <button
+                    key={hotel._id}
+                    type="button"
+                    onClick={() => { setSelectedHotelId(hotel._id); setStep(2) }}
+                    style={{
+                      border: `2px solid ${selectedHotelId === hotel._id ? 'var(--brand-500)' : 'var(--gray-200)'}`,
+                      borderRadius: 12,
+                      padding: '1rem',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      background: selectedHotelId === hotel._id ? 'var(--brand-50)' : '#fff',
+                      transition: 'all 0.15s ease',
+                    }}
+                  >
+                    <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--gray-800)' }}>{hotel.shortName}</div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Step 2: Service */}
+        {step === 2 && selectedHotelId && (
+          <div className="card" style={{ animation: 'slideInRight 0.3s ease-out' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: '1rem' }}>
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setStep(1)}>← Back</button>
+              <h2 style={{ margin: 0 }}>Choose a Service</h2>
+            </div>
+            {services.filter(s => extractHotelId(s.hotelId) === selectedHotelId).length === 0 ? (
               <div className="empty-state">
                 <div className="empty-state-icon">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
                   </svg>
                 </div>
-                <h3>No active services</h3>
+                <h3>No active services for this hotel</h3>
               </div>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.75rem' }}>
-                {services.map(svc => (
+                {services.filter(s => extractHotelId(s.hotelId) === selectedHotelId).map(svc => (
                   <button
                     key={svc._id}
                     type="button"
@@ -327,11 +387,11 @@ export default function BookPage() {
           </div>
         )}
 
-        {/* Step 2: Date & time */}
-        {step === 2 && selectedService && (
+        {/* Step 3: Date & time */}
+        {step === 3 && selectedService && (
           <div className="card" style={{ animation: 'slideInRight 0.3s ease-out' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: '1.25rem' }}>
-              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setStep(1)}>← Back</button>
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setStep(2)}>← Back</button>
               <div style={{
                 width: 32, height: 32, borderRadius: 8,
                 background: `${selectedService.color}18`,
@@ -388,7 +448,7 @@ export default function BookPage() {
                     type="date"
                     className="form-input"
                     value={date}
-                    min={new Date().toISOString().split('T')[0]}
+                    min={nowUZ().toISOString().split('T')[0]}
                     onChange={e => { setDate(e.target.value); setSelectedSlot('') }}
                     required
                   />
@@ -441,7 +501,7 @@ export default function BookPage() {
 
             {selectedSlot && (
               <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
-                <button type="button" className="btn btn-primary" onClick={() => setStep(3)}>
+                <button type="button" className="btn btn-primary" onClick={() => setStep(4)}>
                   Continue →
                 </button>
               </div>
@@ -449,11 +509,11 @@ export default function BookPage() {
           </div>
         )}
 
-        {/* Step 3: Guest Info */}
-        {step === 3 && selectedService && selectedSlot && selectedPlan && (
+        {/* Step 4: Guest Info */}
+        {step === 4 && selectedService && selectedSlot && selectedPlan && (
           <div className="card" style={{ animation: 'slideInRight 0.3s ease-out' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: '1.25rem' }}>
-              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setStep(2)}>← Back</button>
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setStep(3)}>← Back</button>
               <span style={{ fontSize: '0.875rem', color: 'var(--gray-500)' }}>
                 {selectedService.name} · {date} · {selectedSlot} – {slotEnd(selectedSlot, selectedPlan.duration)}
               </span>

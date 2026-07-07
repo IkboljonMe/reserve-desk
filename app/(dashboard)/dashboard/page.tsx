@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, addDays } from 'date-fns'
+import { nowUZ } from '@/lib/timezone'
 import { getServiceIcon } from '@/lib/serviceIcons'
 import { useToast } from '@/components/ToastProvider'
 
@@ -85,11 +86,11 @@ const STATUS_BG: Record<string, string> = {
 export default function DashboardPage() {
   const router = useRouter()
   const { showToast } = useToast()
-  const today = format(new Date(), 'yyyy-MM-dd')
-  const weekStart = format(startOfWeek(new Date(), { weekStartsOn: 1 }), 'yyyy-MM-dd')
-  const weekEnd = format(endOfWeek(new Date(), { weekStartsOn: 1 }), 'yyyy-MM-dd')
-  const monthStart = format(startOfMonth(new Date()), 'yyyy-MM-dd')
-  const monthEnd = format(endOfMonth(new Date()), 'yyyy-MM-dd')
+  const today = format(nowUZ(), 'yyyy-MM-dd')
+  const weekStart = format(startOfWeek(nowUZ(), { weekStartsOn: 1 }), 'yyyy-MM-dd')
+  const weekEnd = format(endOfWeek(nowUZ(), { weekStartsOn: 1 }), 'yyyy-MM-dd')
+  const monthStart = format(startOfMonth(nowUZ()), 'yyyy-MM-dd')
+  const monthEnd = format(endOfMonth(nowUZ()), 'yyyy-MM-dd')
 
   const [services, setServices] = useState<Service[]>([])
   const [todayBookings, setTodayBookings] = useState<Booking[]>([])
@@ -111,7 +112,7 @@ export default function DashboardPage() {
         fetch(`/api/bookings?dateFrom=${today}&dateTo=${today}`),
         fetch(`/api/bookings?dateFrom=${weekStart}&dateTo=${weekEnd}`),
         fetch(`/api/bookings?dateFrom=${monthStart}&dateTo=${monthEnd}`),
-        fetch(`/api/bookings?dateFrom=${today}&dateTo=${format(addDays(new Date(), 14), 'yyyy-MM-dd')}`),
+        fetch(`/api/bookings?dateFrom=${today}&dateTo=${format(addDays(nowUZ(), 14), 'yyyy-MM-dd')}`),
         fetch('/api/clients'),
       ])
       const [svcs, tb, wb, mb, ub, clients] = await Promise.all([
@@ -161,7 +162,7 @@ export default function DashboardPage() {
       <div className="page-header">
         <div>
           <h1>Dashboard</h1>
-          <p style={{ marginTop: 4 }}>{format(new Date(), 'EEEE, MMMM d, yyyy')}</p>
+          <p style={{ marginTop: 4 }}>{format(nowUZ(), 'EEEE, MMMM d, yyyy')}</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button className="btn btn-secondary btn-sm" onClick={loadAll} disabled={loading}>

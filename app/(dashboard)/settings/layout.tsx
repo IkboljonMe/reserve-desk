@@ -6,7 +6,6 @@ import { usePathname } from 'next/navigation'
 const TABS = [
   { label: 'Services', href: '/settings/services' },
   { label: 'Hotels & Rooms', href: '/settings/hotels' },
-  { label: 'General', href: '/settings' },
 ]
 
 export default function SettingsLayout({ children }: { children: React.ReactNode }) {

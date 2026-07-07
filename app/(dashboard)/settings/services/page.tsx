@@ -801,20 +801,9 @@ export default function ServicesPage() {
                 <div style={{ border: '1px solid var(--brand-100)', borderRadius: 10, padding: 16, background: '#fcfdff' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.875rem' }}>
                     <h3 style={{ fontSize: '0.9rem', color: 'var(--brand-700)', margin: 0 }}>{t('pricingPlans')}</h3>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontSize: '0.8125rem', fontWeight: 600, color: 'var(--gray-600)' }}>
-                      <input
-                        type="checkbox"
-                        checked={form.isFree}
-                        onChange={e => setForm(f => ({ ...f, isFree: e.target.checked, price: e.target.checked ? 0 : f.price, pricingPlans: [] }))}
-                        style={{ width: 15, height: 15 }}
-                      />
-                      {t('isFree')}
-                    </label>
                   </div>
 
-                  {!form.isFree && (
-                    <>
-                      {form.pricingPlans.length === 0 ? (
+                  {form.pricingPlans.length === 0 ? (
                         <div className="form-group" style={{ marginBottom: 12 }}>
                           <label className="form-label" style={{ color: 'var(--gray-500)' }}>Flat {t('price')} (Legacy)</label>
                           <input type="number" className="form-input" value={form.price} onChange={e => setForm(f => ({ ...f, price: Number(e.target.value) }))} />
@@ -860,11 +849,9 @@ export default function ServicesPage() {
                           ))}
                         </div>
                       )}
-                      <button type="button" className="btn btn-secondary btn-sm" onClick={addPricingPlan}>
-                        <Plus size={13} /> {t('addPlan')}
-                      </button>
-                    </>
-                  )}
+                  <button type="button" className="btn btn-secondary btn-sm" onClick={addPricingPlan}>
+                    <Plus size={13} /> {t('addPlan')}
+                  </button>
                 </div>
 
                 <div className="form-group">
