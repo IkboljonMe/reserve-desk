@@ -21,8 +21,12 @@ export default function LoginPage() {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             margin: '0 auto 1rem',
             overflow: 'hidden',
+            background: '#ffffff',
+            padding: '5px',
+            boxShadow: '0 4px 14px rgba(255, 255, 255, 0.15)',
+            boxSizing: 'border-box',
           }}>
-            <img src="/assets/logo-safir.png" alt="Safir Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img src="/assets/logo-safir.png" alt="Safir Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
           </div>
           <h1 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.25rem' }}>Safir Hotel Services</h1>
           <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.875rem' }}>Safir Hotel Admin Panel</p>
