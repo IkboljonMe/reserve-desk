@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import { useTranslation } from '@/lib/i18n'
 import { useState, useEffect, useCallback } from 'react'
 
-export default function Sidebar() {
+export default function Sidebar({ collapsed = false }: { collapsed?: boolean }) {
   const pathname = usePathname()
   const { t } = useTranslation()
   const [notifCount, setNotifCount] = useState(0)
@@ -115,13 +115,14 @@ export default function Sidebar() {
 
   return (
     <aside style={{
-      width: 232,
-      minWidth: 232,
+      width: collapsed ? 0 : 232,
+      minWidth: collapsed ? 0 : 232,
       background: 'var(--sidebar-bg)',
-      borderRight: '1px solid rgba(255,255,255,0.05)',
+      borderRight: collapsed ? 'none' : '1px solid rgba(255,255,255,0.05)',
       display: 'flex',
       flexDirection: 'column',
       overflow: 'hidden',
+      transition: 'width 0.2s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-right 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
     }}>
       {/* Brand */}
       <div style={{

@@ -25,7 +25,7 @@ export default function LoginPage() {
             <img src="/assets/logo-safir.png" alt="Safir Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
           <h1 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.25rem' }}>Safir Hotel Services</h1>
-          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.875rem' }}>Hotel Admin Portal</p>
+          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.875rem' }}>Safir Hotel Admin Panel</p>
         </div>
 
         {/* Card */}
