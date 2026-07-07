@@ -10,10 +10,12 @@ import { useToast } from '@/components/ToastProvider'
 import { getServiceIcon } from '@/lib/serviceIcons'
 import {
   ChevronLeft, ChevronRight, Plus, Search, X, Check, Clock,
-  MapPin, Phone, User, Trash2, CalendarDays,
+  MapPin, Phone, User, Trash2, CalendarDays, Building2, Wallet,
 } from 'lucide-react'
 
-interface Service { _id: string; name: string; color: string; isActive: boolean }
+type HotelRef = { _id: string; name?: string; shortName?: string }
+interface Service { _id: string; name: string; color: string; isActive: boolean; hotelId?: string | HotelRef }
+interface Hotel { _id: string; name: string; shortName: string }
 interface Booking {
   _id: string
   serviceId: { _id: string; name: string; color: string }
@@ -26,24 +28,33 @@ interface Booking {
   notes: string
   status: string
   totalPrice: number
+  paid: boolean
+  finished: boolean
 }
 
 type ViewMode = 'day' | 'week' | 'month'
-type StatusFilter = 'all' | 'confirmed' | 'pending'
+type StatusFilter = 'all' | 'unpaid' | 'paid' | 'finished'
 
 const svcId = (b: Booking) => (typeof b.serviceId === 'string' ? b.serviceId : b.serviceId?._id)
+const extractHotelId = (h?: string | HotelRef) => (!h ? '' : typeof h === 'string' ? h : h._id || '')
 const toMin = (t: string) => { const [h, m] = t.split(':').map(Number); return h * 60 + m }
 const fromMin = (min: number) => `${Math.floor(min / 60).toString().padStart(2, '0')}:${(min % 60).toString().padStart(2, '0')}`
 const money = (v: number) => v.toLocaleString('en-US').replace(/,/g, ' ')
 
-const STATUS_META: Record<string, { label: string; dot: string; badge: string }> = {
-  confirmed: { label: 'Confirmed', dot: '#10b981', badge: 'badge-success' },
-  pending: { label: 'Pending', dot: '#f59e0b', badge: 'badge-warning' },
-  cancelled: { label: 'Cancelled', dot: '#94a3b8', badge: 'badge-danger' },
+// Derived lifecycle state of a booking, driven by payment + completion.
+type StateKey = 'finished' | 'free' | 'paid' | 'unpaid'
+function bookingState(b: Booking): { key: StateKey; label: string; color: string; badge: string } {
+  if (b.finished) return { key: 'finished', label: 'Finished', color: '#10b981', badge: 'badge-success' }
+  if ((b.totalPrice || 0) === 0) return { key: 'free', label: 'Free', color: '#3b82f6', badge: 'badge-blue' }
+  if (b.paid) return { key: 'paid', label: 'Paid', color: '#10b981', badge: 'badge-success' }
+  return { key: 'unpaid', label: 'Unpaid', color: '#f59e0b', badge: 'badge-warning' }
 }
+// A booking may be completed once it's paid or free.
+const canFinish = (b: Booking) => !b.finished && (b.paid || (b.totalPrice || 0) === 0)
 
 const ROW_HEIGHTS = { Compact: 48, Cozy: 64, Roomy: 88 } as const
 type Density = keyof typeof ROW_HEIGHTS
+const DENSITY_LABEL: Record<Density, string> = { Compact: 'S', Cozy: 'M', Roomy: 'L' }
 
 export default function CalendarPage() {
   const router = useRouter()
@@ -59,17 +70,26 @@ export default function CalendarPage() {
   const [density, setDensity] = useState<Density>('Cozy')
   const [services, setServices] = useState<Service[]>([])
   const [selectedServices, setSelectedServices] = useState<Set<string>>(new Set())
+  const [hotels, setHotels] = useState<Hotel[]>([])
+  const [selectedHotels, setSelectedHotels] = useState<Set<string>>(new Set())
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loadingBookings, setLoadingBookings] = useState(false)
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
+  const [payConfirm, setPayConfirm] = useState<Booking | null>(null)
 
   // Filters
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
-  const [showCancelled, setShowCancelled] = useState(false)
 
   const rowH = ROW_HEIGHTS[density]
+
+  // Map each service to its hotel (services are populated with hotelId).
+  const serviceHotel = useMemo(() => {
+    const m = new Map<string, string>()
+    services.forEach(s => m.set(s._id, extractHotelId(s.hotelId)))
+    return m
+  }, [services])
 
   // Keep "now" fresh for the current-time indicator
   useEffect(() => {
@@ -77,7 +97,7 @@ export default function CalendarPage() {
     return () => clearInterval(id)
   }, [])
 
-  // Load services
+  // Load services + hotels (default: everything selected)
   useEffect(() => {
     fetch('/api/services')
       .then(r => r.json())
@@ -85,6 +105,13 @@ export default function CalendarPage() {
         const active = Array.isArray(data) ? data.filter(s => s.isActive) : []
         setServices(active)
         setSelectedServices(new Set(active.map(s => s._id)))
+      })
+    fetch('/api/hotels')
+      .then(r => r.json())
+      .then((data: Hotel[]) => {
+        const list = Array.isArray(data) ? data : []
+        setHotels(list)
+        setSelectedHotels(new Set(list.map(h => h._id)))
       })
   }, [])
 
@@ -125,16 +152,23 @@ export default function CalendarPage() {
     const q = search.trim().toLowerCase()
     return bookings.filter(b => {
       if (!b.serviceId) return false
+      if (b.status === 'cancelled') return false
       if (!selectedServices.has(svcId(b))) return false
-      if (b.status === 'cancelled' && !showCancelled) return false
-      if (statusFilter !== 'all' && b.status !== statusFilter) return false
+      const hid = serviceHotel.get(svcId(b)) || ''
+      if (hid && !selectedHotels.has(hid)) return false
+      if (statusFilter !== 'all') {
+        const st = bookingState(b).key
+        if (statusFilter === 'unpaid' && st !== 'unpaid') return false
+        if (statusFilter === 'paid' && !(st === 'paid' || st === 'free')) return false
+        if (statusFilter === 'finished' && st !== 'finished') return false
+      }
       if (q) {
         const hay = `${b.customerName} ${b.roomNumber} ${b.customerPhone}`.toLowerCase()
         if (!hay.includes(q)) return false
       }
       return true
     })
-  }, [bookings, selectedServices, statusFilter, showCancelled, search])
+  }, [bookings, selectedServices, selectedHotels, serviceHotel, statusFilter, search])
 
   const bookingsForDay = useCallback(
     (dateStr: string) => visibleBookings.filter(b => b.date === dateStr),
@@ -143,12 +177,36 @@ export default function CalendarPage() {
 
   // Summary of the visible range
   const summary = useMemo(() => {
-    const count = visibleBookings.filter(b => b.status !== 'cancelled').length
-    const revenue = visibleBookings
-      .filter(b => b.status !== 'cancelled')
+    const count = visibleBookings.length
+    const revenue = visibleBookings.reduce((sum, b) => sum + (b.totalPrice || 0), 0)
+    const collected = visibleBookings
+      .filter(b => b.paid || (b.totalPrice || 0) === 0)
       .reduce((sum, b) => sum + (b.totalPrice || 0), 0)
-    return { count, revenue }
+    return { count, revenue, collected }
   }, [visibleBookings])
+
+  // Optimistically patch a booking locally after a mutation.
+  function patchLocal(id: string, changes: Partial<Booking>) {
+    setBookings(prev => prev.map(b => (b._id === id ? { ...b, ...changes } : b)))
+    setSelectedBooking(prev => (prev && prev._id === id ? { ...prev, ...changes } : prev))
+  }
+
+  async function updateBooking(id: string, changes: Partial<Booking>, successMsg: string) {
+    const res = await fetch(`/api/bookings/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(changes),
+    })
+    if (res.ok) {
+      patchLocal(id, changes)
+      showToast(successMsg, 'success')
+    } else {
+      showToast('Update failed', 'error')
+    }
+  }
+
+  const markPaid = (b: Booking) => updateBooking(b._id, { paid: true }, 'Marked as paid')
+  const markFinished = (b: Booking) => updateBooking(b._id, { finished: true }, 'Booking completed')
 
   async function handleDeleteBooking(id: string) {
     const res = await fetch(`/api/bookings/${id}`, { method: 'DELETE' })
@@ -175,6 +233,7 @@ export default function CalendarPage() {
       : format(currentDate, 'MMMM yyyy')
 
   const allSelected = services.length > 0 && selectedServices.size === services.length
+  const allHotelsSelected = hotels.length > 0 && selectedHotels.size === hotels.length
 
   return (
     <div style={{ display: 'flex', gap: '1.25rem', height: '100%', minHeight: 0 }}>
@@ -217,7 +276,7 @@ export default function CalendarPage() {
           {view !== 'month' && (
             <div className="cal-seg">
               {(Object.keys(ROW_HEIGHTS) as Density[]).map(d => (
-                <button key={d} className={density === d ? 'active' : ''} onClick={() => setDensity(d)} title={`${d} rows`}>{d[0]}</button>
+                <button key={d} className={density === d ? 'active' : ''} onClick={() => setDensity(d)} title={`${d} rows`}>{DENSITY_LABEL[d]}</button>
               ))}
             </div>
           )}
@@ -246,15 +305,17 @@ export default function CalendarPage() {
           </div>
 
           <div style={{ display: 'flex', gap: 5 }}>
-            {(['all', 'confirmed', 'pending'] as StatusFilter[]).map(s => (
-              <button key={s} className={`cal-pill ${statusFilter === s ? 'active' : ''}`} onClick={() => setStatusFilter(s)}>
-                {s !== 'all' && <span style={{ width: 7, height: 7, borderRadius: '50%', background: statusFilter === s ? '#fff' : STATUS_META[s].dot }} />}
-                {s === 'all' ? 'All' : STATUS_META[s].label}
+            {([
+              { key: 'all', label: 'All', dot: '' },
+              { key: 'unpaid', label: 'Unpaid', dot: '#f59e0b' },
+              { key: 'paid', label: 'Paid', dot: '#10b981' },
+              { key: 'finished', label: 'Finished', dot: '#6366f1' },
+            ] as { key: StatusFilter; label: string; dot: string }[]).map(s => (
+              <button key={s.key} className={`cal-pill ${statusFilter === s.key ? 'active' : ''}`} onClick={() => setStatusFilter(s.key)}>
+                {s.dot && <span style={{ width: 7, height: 7, borderRadius: '50%', background: statusFilter === s.key ? '#fff' : s.dot }} />}
+                {s.label}
               </button>
             ))}
-            <button className={`cal-pill ${showCancelled ? 'active' : ''}`} onClick={() => setShowCancelled(v => !v)} title="Toggle cancelled bookings">
-              {showCancelled ? <Check size={13} /> : null} Cancelled
-            </button>
           </div>
         </div>
 
@@ -278,6 +339,7 @@ export default function CalendarPage() {
               bookingsForDay={bookingsForDay}
               onDayClick={d => { setCurrentDate(d); setView('day') }}
               onBookingClick={setSelectedBooking}
+              onFinish={markFinished}
             />
           ) : (
             <TimeGrid
@@ -289,6 +351,7 @@ export default function CalendarPage() {
               bookingsForDay={bookingsForDay}
               onCreate={goToCreate}
               onBookingClick={setSelectedBooking}
+              onFinish={markFinished}
               onDayHeaderClick={view === 'week' ? (d => { setCurrentDate(d); setView('day') }) : undefined}
             />
           )}
@@ -297,10 +360,6 @@ export default function CalendarPage() {
 
       {/* ── Sidebar ── */}
       <div style={{ width: 232, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '0.9rem', overflow: 'auto' }}>
-        <button className="btn btn-primary" style={{ width: '100%' }} onClick={() => goToCreate(format(currentDate, 'yyyy-MM-dd'))}>
-          <Plus size={15} strokeWidth={2.5} /> New Booking
-        </button>
-
         {/* Range summary */}
         <div className="card" style={{ padding: '0.9rem 1rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
@@ -313,7 +372,71 @@ export default function CalendarPage() {
               <div style={{ fontSize: '0.7rem', color: 'var(--gray-400)', textTransform: 'uppercase', letterSpacing: '0.04em', marginTop: 2 }}>UZS this {view}</div>
             </div>
           </div>
+          {summary.revenue > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.72rem', color: 'var(--gray-500)', borderTop: '1px dashed var(--gray-200)', paddingTop: 8 }}>
+              <Wallet size={13} style={{ color: '#10b981' }} />
+              <span style={{ fontWeight: 700, color: '#059669' }}>{money(summary.collected)}</span> collected
+              {summary.collected < summary.revenue && (
+                <span style={{ marginLeft: 'auto', fontWeight: 700, color: '#d97706' }}>{money(summary.revenue - summary.collected)} due</span>
+              )}
+            </div>
+          )}
         </div>
+
+        {/* Hotel filter */}
+        {hotels.length > 0 && (
+          <div className="card" style={{ padding: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+              <h3 style={{ fontSize: '0.8125rem', margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Building2 size={14} style={{ color: 'var(--gray-400)' }} /> Hotels
+              </h3>
+              <button
+                onClick={() => setSelectedHotels(allHotelsSelected ? new Set() : new Set(hotels.map(h => h._id)))}
+                style={{ background: 'none', border: 'none', color: 'var(--brand-600)', fontSize: '0.72rem', fontWeight: 600, cursor: 'pointer' }}
+              >
+                {allHotelsSelected ? 'Clear' : 'All'}
+              </button>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              {hotels.map(h => {
+                const checked = selectedHotels.has(h._id)
+                const count = visibleBookings.filter(b => (serviceHotel.get(svcId(b)) || '') === h._id).length
+                return (
+                  <button
+                    key={h._id}
+                    onClick={() => setSelectedHotels(prev => {
+                      const next = new Set(prev)
+                      if (checked) next.delete(h._id); else next.add(h._id)
+                      return next
+                    })}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 9, textAlign: 'left',
+                      padding: '5px 7px', borderRadius: 8, border: 'none', cursor: 'pointer',
+                      background: checked ? 'var(--brand-50)' : 'transparent',
+                      opacity: checked ? 1 : 0.5, transition: 'all .12s', fontFamily: 'inherit',
+                    }}
+                  >
+                    <span style={{
+                      minWidth: 30, height: 22, padding: '0 6px', borderRadius: 6, flexShrink: 0,
+                      background: checked ? 'var(--brand-500)' : 'var(--gray-200)',
+                      color: checked ? '#fff' : 'var(--gray-500)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontWeight: 700, fontSize: '0.66rem', letterSpacing: '0.03em',
+                    }}>
+                      {h.shortName}
+                    </span>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--gray-700)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: checked ? 600 : 400 }}>
+                      {h.name}
+                    </span>
+                    {count > 0 && (
+                      <span style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--brand-600)', background: 'var(--brand-100)', borderRadius: 999, padding: '1px 7px' }}>{count}</span>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Service filter / legend */}
         <div className="card" style={{ padding: '1rem' }}>
@@ -389,9 +512,15 @@ export default function CalendarPage() {
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}>{getServiceIcon(selectedBooking.serviceId?.name || '')}</span>
                 <strong style={{ color: 'var(--gray-800)', fontSize: '0.95rem' }}>{selectedBooking.serviceId?.name}</strong>
-                <span className={`badge ${STATUS_META[selectedBooking.status]?.badge || ''}`} style={{ marginLeft: 'auto' }}>
-                  {STATUS_META[selectedBooking.status]?.label || selectedBooking.status}
-                </span>
+                {(() => {
+                  const st = bookingState(selectedBooking)
+                  return (
+                    <span className={`badge ${st.badge}`} style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                      {st.key === 'finished' && <Check size={12} />}
+                      {st.label}
+                    </span>
+                  )
+                })()}
               </div>
 
               <DetailRow icon={<User size={15} />} label="Guest" value={selectedBooking.customerName} />
@@ -400,12 +529,39 @@ export default function CalendarPage() {
               <DetailRow icon={<CalendarDays size={15} />} label="Date" value={format(parseISO(selectedBooking.date), 'EEEE, MMM d, yyyy')} />
               <DetailRow icon={<Clock size={15} />} label="Time" value={`${selectedBooking.startTime} – ${selectedBooking.endTime}`} />
               {selectedBooking.totalPrice > 0 && (
-                <DetailRow icon={<span style={{ fontWeight: 700 }}>UZS</span>} label="Price" value={`${money(selectedBooking.totalPrice)} UZS`} success />
+                <DetailRow icon={<span style={{ fontWeight: 700, fontSize: 11 }}>UZS</span>} label="Price" value={`${money(selectedBooking.totalPrice)} UZS`} success />
               )}
+              <DetailRow
+                icon={<Wallet size={15} />}
+                label="Payment"
+                value={selectedBooking.totalPrice === 0 ? 'Free — no charge' : selectedBooking.paid ? 'Paid' : 'Unpaid'}
+                accent={!selectedBooking.paid && selectedBooking.totalPrice > 0}
+                success={selectedBooking.paid}
+              />
               {selectedBooking.notes && <DetailRow icon={<span style={{ fontSize: 14 }}>📝</span>} label="Notes" value={selectedBooking.notes} />}
             </div>
 
             <div className="divider" />
+
+            {/* Lifecycle actions */}
+            {selectedBooking.finished ? (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '0.6rem', marginBottom: '0.85rem', borderRadius: 10, background: '#10b98114', color: '#059669', fontWeight: 700, fontSize: '0.85rem' }}>
+                <Check size={16} /> Completed
+              </div>
+            ) : bookingState(selectedBooking).key === 'unpaid' ? (
+              <button className="btn btn-primary" style={{ width: '100%', marginBottom: '0.85rem' }} onClick={() => setPayConfirm(selectedBooking)}>
+                <Wallet size={15} /> Mark as Paid
+              </button>
+            ) : (
+              <button
+                className="btn"
+                style={{ width: '100%', marginBottom: '0.85rem', background: '#10b981', color: '#fff', border: 'none' }}
+                onClick={() => markFinished(selectedBooking)}
+              >
+                <Check size={16} strokeWidth={2.5} /> Mark as Finished
+              </button>
+            )}
+
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               {deleteConfirm === selectedBooking._id ? (
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -419,6 +575,35 @@ export default function CalendarPage() {
                 </button>
               )}
               <button className="btn btn-secondary btn-sm" onClick={() => { setSelectedBooking(null); setDeleteConfirm(null) }}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Payment confirmation */}
+      {payConfirm && (
+        <div className="modal-overlay" style={{ zIndex: 2000 }} onClick={() => setPayConfirm(null)}>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 384 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.75rem' }}>
+              <span style={{ width: 52, height: 52, borderRadius: '50%', background: '#10b98118', color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Wallet size={24} />
+              </span>
+              <h2 style={{ margin: 0, fontSize: '1.1rem' }}>Confirm payment</h2>
+              <p style={{ margin: 0, color: 'var(--gray-600)', fontSize: '0.9rem', lineHeight: 1.5 }}>
+                Did you receive <strong style={{ color: 'var(--gray-900)' }}>{money(payConfirm.totalPrice)} UZS</strong>
+                {' '}from <strong style={{ color: 'var(--gray-900)' }}>{payConfirm.customerName}</strong>?
+              </p>
+            </div>
+            <div className="divider" />
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setPayConfirm(null)}>Back</button>
+              <button
+                className="btn btn-primary"
+                style={{ flex: 1 }}
+                onClick={async () => { await markPaid(payConfirm); setPayConfirm(null) }}
+              >
+                <Check size={15} strokeWidth={2.5} /> Yes, received
+              </button>
             </div>
           </div>
         </div>
@@ -475,13 +660,14 @@ function packDay(events: Booking[]): Placed[] {
   return out
 }
 
-function TimeGrid({ days, today, rowH, bookingsForDay, onCreate, onBookingClick, onDayHeaderClick }: {
+function TimeGrid({ days, today, rowH, bookingsForDay, onCreate, onBookingClick, onFinish, onDayHeaderClick }: {
   days: Date[]
   today: Date
   rowH: number
   bookingsForDay: (d: string) => Booking[]
   onCreate: (dateStr: string, time: string) => void
   onBookingClick: (b: Booking) => void
+  onFinish: (b: Booking) => void
   onDayHeaderClick?: (d: Date) => void
 }) {
   const bodyRef = useRef<HTMLDivElement>(null)
@@ -506,17 +692,20 @@ function TimeGrid({ days, today, rowH, bookingsForDay, onCreate, onBookingClick,
   const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i)
   const GUTTER = 58
 
-  // Scroll to a sensible spot on mount (08:00 or first event)
-  useEffect(() => {
-    if (bodyRef.current) {
-      const target = Math.max(0, (8 * 60 - startMin) * ppm - 12)
-      bodyRef.current.parentElement?.scrollTo({ top: target })
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
   const nowMin = today.getHours() * 60 + today.getMinutes()
   const nowVisible = nowMin >= startMin && nowMin <= endHour * 60
+  const todayInRange = days.some(d => isSameDay(d, today))
+
+  // On mount, scroll to the current time (centered) when today is in view,
+  // otherwise to a sensible business-hours start.
+  useEffect(() => {
+    const scroller = bodyRef.current?.parentElement
+    if (!scroller) return
+    const anchorMin = todayInRange && nowVisible ? nowMin : 8 * 60
+    const target = Math.max(0, (anchorMin - startMin) * ppm - scroller.clientHeight / 2 + 40)
+    scroller.scrollTo({ top: target })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const handleColumnClick = (e: React.MouseEvent<HTMLDivElement>, day: Date) => {
     const rect = e.currentTarget.getBoundingClientRect()
@@ -535,25 +724,33 @@ function TimeGrid({ days, today, rowH, bookingsForDay, onCreate, onBookingClick,
       }}>
         {days.map(day => {
           const isToday = isSameDay(day, today)
+          const isWeekend = [0, 6].includes(day.getDay())
           const clickable = !!onDayHeaderClick
           return (
             <div
               key={day.toISOString()}
               onClick={clickable ? () => onDayHeaderClick!(day) : undefined}
               style={{
-                flex: 1, textAlign: 'center', padding: '9px 4px',
+                flex: 1, textAlign: 'center', padding: '9px 4px 8px',
                 borderLeft: '1px solid var(--gray-100)', cursor: clickable ? 'pointer' : 'default',
+                background: isToday ? 'var(--brand-50)' : 'transparent',
+                borderBottom: isToday ? '2px solid var(--brand-500)' : '2px solid transparent',
+                marginBottom: -1,
               }}
             >
-              <div style={{ fontSize: '0.68rem', color: 'var(--gray-400)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>
+              <div style={{
+                fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700,
+                color: isToday ? 'var(--brand-600)' : isWeekend ? 'var(--gray-300)' : 'var(--gray-400)',
+              }}>
                 {format(day, 'EEE')}
               </div>
               <div style={{
                 width: 30, height: 30, borderRadius: '50%', margin: '3px auto 0',
                 background: isToday ? 'var(--brand-500)' : 'transparent',
+                boxShadow: isToday ? '0 2px 8px rgba(99,102,241,0.4)' : 'none',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: '0.9375rem', fontWeight: isToday ? 700 : 600,
-                color: isToday ? '#fff' : 'var(--gray-700)',
+                color: isToday ? '#fff' : isWeekend ? 'var(--gray-400)' : 'var(--gray-700)',
               }}>
                 {format(day, 'd')}
               </div>
@@ -591,70 +788,115 @@ function TimeGrid({ days, today, rowH, bookingsForDay, onCreate, onBookingClick,
             const dateStr = format(day, 'yyyy-MM-dd')
             const placed = packDay(bookingsForDay(dateStr))
             const isToday = isSameDay(day, today)
+            const isWeekend = [0, 6].includes(day.getDay())
             return (
               <div
                 key={day.toISOString()}
                 onClick={e => handleColumnClick(e, day)}
                 style={{
                   flex: 1, position: 'relative', borderLeft: '1px solid var(--gray-100)',
-                  cursor: 'pointer', background: isToday ? 'rgba(99,102,241,0.025)' : 'transparent',
+                  cursor: 'pointer',
+                  background: isToday ? 'rgba(99,102,241,0.055)' : isWeekend ? 'rgba(148,163,184,0.04)' : 'transparent',
                 }}
               >
                 {placed.map(p => (
-                  <EventBlock key={p.b._id} placed={p} startMin={startMin} ppm={ppm} onClick={onBookingClick} />
+                  <EventBlock key={p.b._id} placed={p} startMin={startMin} ppm={ppm} onClick={onBookingClick} onFinish={onFinish} />
                 ))}
                 {isToday && nowVisible && (
-                  <div style={{ position: 'absolute', top: (nowMin - startMin) * ppm, left: 0, right: 0, zIndex: 8, pointerEvents: 'none' }}>
-                    <div style={{ position: 'absolute', left: -4, top: -4, width: 8, height: 8, borderRadius: '50%', background: '#ef4444' }} />
-                    <div style={{ borderTop: '2px solid #ef4444' }} />
+                  <div style={{ position: 'absolute', top: (nowMin - startMin) * ppm, left: 0, right: 0, zIndex: 9, pointerEvents: 'none' }}>
+                    <div style={{
+                      position: 'absolute', left: -5, top: -5, width: 11, height: 11, borderRadius: '50%',
+                      background: 'var(--brand-500)', border: '2px solid #fff', boxShadow: '0 0 0 1px var(--brand-500)',
+                    }} />
+                    <div style={{ borderTop: '2px solid var(--brand-500)', boxShadow: '0 0 6px rgba(99,102,241,0.35)' }} />
                   </div>
                 )}
               </div>
             )
           })}
         </div>
+
+        {/* Current-time label in the gutter (Teams-style) */}
+        {todayInRange && nowVisible && (
+          <div style={{
+            position: 'absolute', top: (nowMin - startMin) * ppm, left: 0, width: GUTTER - 6,
+            transform: 'translateY(-50%)', zIndex: 10, pointerEvents: 'none',
+            display: 'flex', justifyContent: 'flex-end',
+          }}>
+            <span style={{
+              background: 'var(--brand-500)', color: '#fff', fontSize: '0.66rem', fontWeight: 700,
+              padding: '1px 6px', borderRadius: 6, fontVariantNumeric: 'tabular-nums',
+              boxShadow: '0 2px 6px rgba(99,102,241,0.4)', letterSpacing: '0.01em',
+            }}>
+              {fromMin(nowMin)}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   )
 }
 
-function EventBlock({ placed, startMin, ppm, onClick }: { placed: Placed; startMin: number; ppm: number; onClick: (b: Booking) => void }) {
+function EventBlock({ placed, startMin, ppm, onClick, onFinish }: { placed: Placed; startMin: number; ppm: number; onClick: (b: Booking) => void; onFinish: (b: Booking) => void }) {
   const { b } = placed
   const color = b.serviceId?.color || '#6366f1'
   const top = (placed.start - startMin) * ppm
   const height = Math.max((placed.end - placed.start) * ppm, 20)
   const widthPct = 100 / placed.cols
-  const cancelled = b.status === 'cancelled'
-  const pending = b.status === 'pending'
+  const state = bookingState(b)
+  const finished = b.finished
+  const unpaid = state.key === 'unpaid'
   const label = b.roomNumber ? `🏨 ${b.roomNumber}` : b.customerName
 
   return (
     <div
       className="cal-event"
-      title={`${b.startTime}–${b.endTime} · ${b.customerName}${b.roomNumber ? ` · Room ${b.roomNumber}` : ''} · ${b.serviceId?.name || ''}`}
+      title={`${b.startTime}–${b.endTime} · ${b.customerName}${b.roomNumber ? ` · Room ${b.roomNumber}` : ''} · ${b.serviceId?.name || ''} · ${state.label}`}
       onClick={e => { e.stopPropagation(); onClick(b) }}
       style={{
         top, height,
         left: `calc(${placed.col * widthPct}% + 2px)`,
         width: `calc(${widthPct}% - 4px)`,
-        background: cancelled ? 'var(--gray-100)' : `${color}26`,
-        border: `1px solid ${cancelled ? 'var(--gray-300)' : `${color}66`}`,
-        borderLeft: `3px solid ${cancelled ? 'var(--gray-400)' : color}`,
-        borderStyle: pending ? 'dashed' : 'solid',
-        borderLeftStyle: 'solid',
+        background: finished ? `${color}18` : `${color}26`,
+        border: `1px ${unpaid ? 'dashed' : 'solid'} ${color}66`,
+        borderLeft: `3px solid ${finished ? '#10b981' : color}`,
         padding: height > 34 ? '3px 6px' : '1px 6px',
-        opacity: cancelled ? 0.65 : 1,
       }}
     >
+      {/* Corner status marker / finish button */}
+      <span style={{ position: 'absolute', top: 3, right: 3, zIndex: 2 }}>
+        {finished ? (
+          <span title="Completed" style={{ width: 16, height: 16, borderRadius: '50%', background: '#10b981', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Check size={11} strokeWidth={3} />
+          </span>
+        ) : canFinish(b) ? (
+          <button
+            title="Mark as finished"
+            aria-label="Mark as finished"
+            onClick={e => { e.stopPropagation(); onFinish(b) }}
+            style={{
+              width: 16, height: 16, borderRadius: '50%', padding: 0, cursor: 'pointer',
+              background: '#fff', border: '1.5px solid #10b981', color: '#10b981',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .12s',
+            }}
+            onMouseEnter={e => { const t = e.currentTarget; t.style.background = '#10b981'; t.style.color = '#fff' }}
+            onMouseLeave={e => { const t = e.currentTarget; t.style.background = '#fff'; t.style.color = '#10b981' }}
+          >
+            <Check size={11} strokeWidth={3} />
+          </button>
+        ) : (
+          <span title="Unpaid" style={{ width: 9, height: 9, borderRadius: '50%', background: '#f59e0b', display: 'block', boxShadow: '0 0 0 2px #fff' }} />
+        )}
+      </span>
+
       <div style={{
-        fontSize: '0.7rem', fontWeight: 700, color: cancelled ? 'var(--gray-500)' : 'var(--gray-800)',
+        fontSize: '0.7rem', fontWeight: 700, color: 'var(--gray-800)', paddingRight: 16,
         lineHeight: 1.15, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-        textDecoration: cancelled ? 'line-through' : 'none',
       }}>
         {label}
       </div>
       {height > 30 && (
-        <div style={{ fontSize: '0.64rem', color: cancelled ? 'var(--gray-400)' : 'var(--gray-600)', lineHeight: 1.2, fontVariantNumeric: 'tabular-nums', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+        <div style={{ fontSize: '0.64rem', color: 'var(--gray-600)', lineHeight: 1.2, fontVariantNumeric: 'tabular-nums', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
           {b.startTime}–{b.endTime}
         </div>
       )}
@@ -662,7 +904,7 @@ function EventBlock({ placed, startMin, ppm, onClick }: { placed: Placed; startM
         <div style={{ fontSize: '0.64rem', color: 'var(--gray-500)', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{b.customerName}</div>
       )}
       {height > 68 && (
-        <div style={{ fontSize: '0.62rem', color: color, fontWeight: 600, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', marginTop: 1 }}>{b.serviceId?.name}</div>
+        <div style={{ fontSize: '0.62rem', color, fontWeight: 600, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', marginTop: 1 }}>{b.serviceId?.name}</div>
       )}
     </div>
   )
@@ -670,12 +912,13 @@ function EventBlock({ placed, startMin, ppm, onClick }: { placed: Placed; startM
 
 /* ──────────────── Month view ──────────────── */
 
-function MonthView({ currentDate, today, bookingsForDay, onDayClick, onBookingClick }: {
+function MonthView({ currentDate, today, bookingsForDay, onDayClick, onBookingClick, onFinish }: {
   currentDate: Date
   today: Date
   bookingsForDay: (d: string) => Booking[]
   onDayClick: (d: Date) => void
   onBookingClick: (b: Booking) => void
+  onFinish: (b: Booking) => void
 }) {
   const start = startOfWeek(startOfMonth(currentDate), { weekStartsOn: 1 })
   const end = addDays(startOfWeek(endOfMonth(currentDate), { weekStartsOn: 1 }), 6)
@@ -727,13 +970,26 @@ function MonthView({ currentDate, today, bookingsForDay, onDayClick, onBookingCl
                     onClick={e => { e.stopPropagation(); onBookingClick(b) }}
                     style={{
                       display: 'flex', alignItems: 'center', gap: 5,
-                      background: `${color}1f`, borderLeft: `3px solid ${color}`,
-                      borderRadius: 5, padding: '2px 6px', fontSize: '0.68rem',
+                      background: b.finished ? `${color}12` : `${color}1f`, borderLeft: `3px solid ${b.finished ? '#10b981' : color}`,
+                      borderRadius: 5, padding: '2px 5px 2px 6px', fontSize: '0.68rem',
                       color: 'var(--gray-700)', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis',
                     }}
                   >
                     <span style={{ fontWeight: 700, color, fontVariantNumeric: 'tabular-nums' }}>{b.startTime}</span>
-                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.roomNumber ? `🏨 ${b.roomNumber}` : b.customerName}</span>
+                    <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.roomNumber ? `🏨 ${b.roomNumber}` : b.customerName}</span>
+                    {b.finished ? (
+                      <Check size={11} strokeWidth={3} style={{ color: '#10b981', flexShrink: 0 }} />
+                    ) : canFinish(b) ? (
+                      <button
+                        title="Mark as finished" aria-label="Mark as finished"
+                        onClick={e => { e.stopPropagation(); onFinish(b) }}
+                        style={{ width: 14, height: 14, flexShrink: 0, borderRadius: '50%', padding: 0, cursor: 'pointer', background: '#fff', border: '1.5px solid #10b981', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      >
+                        <Check size={9} strokeWidth={3} />
+                      </button>
+                    ) : (
+                      <span title="Unpaid" style={{ width: 7, height: 7, flexShrink: 0, borderRadius: '50%', background: '#f59e0b' }} />
+                    )}
                   </div>
                 )
               })}

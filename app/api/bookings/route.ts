@@ -89,6 +89,8 @@ export async function POST(req: NextRequest) {
       totalPrice: body.totalPrice || 0,
       notes: notes || '',
       status: status || 'confirmed',
+      paid: Boolean(body.paid),
+      finished: false,
       createdBy: session.userId,
     })
 

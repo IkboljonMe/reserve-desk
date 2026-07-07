@@ -23,7 +23,8 @@ interface Service {
   price?: number
   isFree?: boolean
   details?: string
-  bufferTime?: number
+  bufferTimeBefore?: number
+  bufferTimeAfter?: number
   pricingPlans?: PricingPlan[]
   pricingGroups?: PricingGroup[]
   color: string
@@ -61,10 +62,6 @@ interface Client {
 
 type BookingType = 'client' | 'room' | 'custom'
 
-const STATUS_OPTIONS = [
-  { value: 'confirmed', label: '✓ Confirmed' },
-  { value: 'pending', label: '⏳ Pending' },
-]
 
 const TYPE_META: Record<BookingType, { label: string; desc: string; color: string; icon: React.ReactNode }> = {
   client: { label: 'Clients', desc: 'Book under a client group', color: '#3b82f6', icon: <Users size={22} /> },
@@ -94,6 +91,11 @@ function slotEnd(startTime: string, duration: number): string {
   const [h, m] = startTime.split(':').map(Number)
   const total = h * 60 + m + duration
   return `${Math.floor(total / 60).toString().padStart(2, '0')}:${(total % 60).toString().padStart(2, '0')}`
+}
+
+function toMin(t: string): number {
+  const [h, m] = t.split(':').map(Number)
+  return h * 60 + m
 }
 
 function extractHotelId(hotelId: Service['hotelId']): string {
@@ -145,7 +147,7 @@ export default function BookPage() {
   const [customerPhone, setCustomerPhone] = useState('')
   const [roomNumber, setRoomNumber] = useState('')
   const [notes, setNotes] = useState('')
-  const [status, setStatus] = useState<'confirmed' | 'pending'>('confirmed')
+  const [paid, setPaid] = useState(false)
   const [loading, setLoading] = useState(false)
 
   // Client search (client booking type)
@@ -328,7 +330,7 @@ export default function BookPage() {
           duration: activePlan.duration,
           totalPrice: activePlan.price,
           notes: notes.trim(),
-          status,
+          paid: activePlan.price === 0 ? false : paid,
         }),
       })
       const data = await res.json()
@@ -658,15 +660,18 @@ export default function BookPage() {
             ) : (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                 {timeSlots.map(slot => {
-                  const slotEndTime = slotEnd(slot, activePlan.duration)
-                  const buffer = selectedService.bufferTime || 0
-                  const [h, m] = slotEndTime.split(':').map(Number)
-                  const totalM = h * 60 + m + buffer
-                  const slotBufferedEndTime = `${Math.floor(totalM / 60).toString().padStart(2, '0')}:${(totalM % 60).toString().padStart(2, '0')}`
-                  const booked = dayBookings.some(b => {
-                    const existingBufferedEnd = b.bufferedEndTime || b.endTime
-                    return b.startTime < slotBufferedEndTime && existingBufferedEnd > slot
-                  })
+                  // Mirror the server's buffered-overlap rule: the candidate booking
+                  // reserves [start - bufferBefore, end + bufferAfter], and must not
+                  // overlap any existing booking's raw [start, end] for this service.
+                  const before = selectedService.bufferTimeBefore || 0
+                  const after = selectedService.bufferTimeAfter || 0
+                  const start = toMin(slot)
+                  const end = start + activePlan.duration
+                  const bufferedStart = start - before
+                  const bufferedEnd = end + after
+                  const booked = dayBookings.some(b =>
+                    toMin(b.startTime) < bufferedEnd && toMin(b.endTime) > bufferedStart
+                  )
                   const selected = selectedSlot === slot
                   return (
                     <button
@@ -842,14 +847,19 @@ export default function BookPage() {
             </div>
 
             <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-              <label className="form-label">{t('status')}</label>
-              <select
-                className="form-select" style={{ maxWidth: 200 }}
-                value={status}
-                onChange={e => setStatus(e.target.value as 'confirmed' | 'pending')}
-              >
-                {STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-              </select>
+              <label className="form-label">Payment</label>
+              {activePlan.price === 0 ? (
+                <div style={{ ...chipStyle('#3b82f618', '#2563eb'), padding: '8px 12px' }}>Free — no payment needed</div>
+              ) : (
+                <select
+                  className="form-select" style={{ maxWidth: 200 }}
+                  value={paid ? 'paid' : 'unpaid'}
+                  onChange={e => setPaid(e.target.value === 'paid')}
+                >
+                  <option value="unpaid">🔴 Unpaid</option>
+                  <option value="paid">✓ Paid</option>
+                </select>
+              )}
             </div>
 
             {/* Order summary */}
@@ -884,8 +894,8 @@ export default function BookPage() {
                 {activePlan.price === 0 ? t('isFree') : `${formatUZS(activePlan.price)} UZS`}
               </span>
 
-              <strong style={{ color: 'var(--gray-800)' }}>Status</strong>
-              <span>{STATUS_OPTIONS.find(o => o.value === status)?.label}</span>
+              <strong style={{ color: 'var(--gray-800)' }}>Payment</strong>
+              <span>{activePlan.price === 0 ? 'Free' : paid ? '✓ Paid' : '🔴 Unpaid'}</span>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>

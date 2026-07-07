@@ -21,8 +21,15 @@ export async function PUT(req: NextRequest, ctx: RouteContext<'/api/bookings/[id
   const { id } = await ctx.params
   const body = await req.json()
 
+  // Whitelist mutable fields.
+  const update: Record<string, unknown> = {}
+  if (typeof body.paid === 'boolean') update.paid = body.paid
+  if (typeof body.finished === 'boolean') update.finished = body.finished
+  if (typeof body.status === 'string') update.status = body.status
+  if (typeof body.notes === 'string') update.notes = body.notes
+
   await connectDB()
-  const booking = await Booking.findByIdAndUpdate(id, body, { new: true, runValidators: true })
+  const booking = await Booking.findByIdAndUpdate(id, update, { new: true, runValidators: true })
     .populate('serviceId', 'name color')
     .lean()
 

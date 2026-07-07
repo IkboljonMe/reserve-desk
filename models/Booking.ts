@@ -17,6 +17,8 @@ export interface IBooking extends Document {
   totalPrice: number
   notes: string
   status: BookingStatus
+  paid: boolean       // payment received (free bookings need no payment)
+  finished: boolean   // booking fulfilled/completed
   createdBy: Types.ObjectId
   createdAt: Date
   updatedAt: Date
@@ -37,6 +39,8 @@ const BookingSchema = new Schema<IBooking>(
     totalPrice: { type: Number, required: true, default: 0 },
     notes: { type: String, default: '' },
     status: { type: String, enum: ['confirmed', 'pending', 'cancelled'], default: 'confirmed' },
+    paid: { type: Boolean, default: false },
+    finished: { type: Boolean, default: false },
     createdBy: { type: Schema.Types.ObjectId, ref: 'Admin' },
   },
   { timestamps: true }
@@ -46,6 +50,6 @@ const BookingSchema = new Schema<IBooking>(
 BookingSchema.index({ serviceId: 1, date: 1 })
 BookingSchema.index({ date: 1 })
 
-export const Booking =
-  (mongoose.models.Booking as mongoose.Model<IBooking>) ||
-  mongoose.model<IBooking>('Booking', BookingSchema)
+// Force re-registration so the new paid/finished fields are picked up in dev.
+delete mongoose.models.Booking
+export const Booking = mongoose.model<IBooking>('Booking', BookingSchema)
