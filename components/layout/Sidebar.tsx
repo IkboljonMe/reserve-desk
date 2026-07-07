@@ -136,8 +136,11 @@ export default function Sidebar({ collapsed = false }: { collapsed?: boolean }) 
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             flexShrink: 0,
             overflow: 'hidden',
+            background: '#ffffff',
+            padding: '3px',
+            boxSizing: 'border-box',
           }}>
-            <img src="/assets/logo-safir.png" alt="Safir Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img src="/assets/logo-safir.png" alt="Safir Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
           </div>
           <div>
             <div style={{ color: '#fff', fontSize: '0.95rem', fontWeight: 700, lineHeight: 1.2, letterSpacing: '-0.01em' }}>Safir Hotel Services</div>
