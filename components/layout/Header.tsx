@@ -3,13 +3,16 @@
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useTranslation, LanguageCode, LANGUAGES } from '@/lib/i18n'
+import Dropdown from '@/components/ui/Dropdown'
 
 interface Props {
   userName: string
   userEmail: string
+  onToggleSidebar?: () => void
+  sidebarCollapsed?: boolean
 }
 
-export default function Header({ userName, userEmail }: Props) {
+export default function Header({ userName, userEmail, onToggleSidebar, sidebarCollapsed }: Props) {
   const router = useRouter()
   const [loggingOut, setLoggingOut] = useState(false)
   const { lang, setLang, t } = useTranslation()
@@ -34,30 +37,40 @@ export default function Header({ userName, userEmail }: Props) {
       padding: '0 1.5rem',
       flexShrink: 0,
     }}>
-      <div />
+      {onToggleSidebar && (
+        <button
+          onClick={onToggleSidebar}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            color: 'var(--gray-600, #4b5563)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '6px',
+            borderRadius: '6px',
+            transition: 'background-color 0.15s ease',
+          }}
+          title={sidebarCollapsed ? t('showSidebar') : t('hideSidebar')}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="4" y1="12" x2="20" y2="12" />
+            <line x1="4" y1="6" x2="20" y2="6" />
+            <line x1="4" y1="18" x2="20" y2="18" />
+          </svg>
+        </button>
+      )}
+      {!onToggleSidebar && <div />}
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-        <select
+        <Dropdown
           value={lang}
-          onChange={e => setLang(e.target.value as LanguageCode)}
-          aria-label={t('language')}
-          style={{
-            padding: '6px 10px',
-            borderRadius: 8,
-            border: '1px solid var(--gray-200)',
-            fontSize: '0.75rem',
-            fontWeight: 600,
-            background: 'var(--surface-card)',
-            color: 'var(--gray-700)',
-            outline: 'none',
-            cursor: 'pointer',
-            boxShadow: 'var(--shadow-xs)',
-          }}
-        >
-          {LANGUAGES.map(l => (
-            <option key={l.code} value={l.code}>{l.label}</option>
-          ))}
-        </select>
+          onChange={val => setLang(val as LanguageCode)}
+          options={LANGUAGES.map(l => ({ value: l.code, label: l.label }))}
+          ariaLabel={t('language')}
+          containerClassName="lang-dropdown"
+        />
 
         <div style={{ width: 1, height: 24, background: 'var(--surface-border)' }} />
 

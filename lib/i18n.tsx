@@ -74,6 +74,8 @@ const T = {
   hotelAdmin: { en: "Hotel Admin", uz: "Mehmonxona boshqaruvi", ru: "Администратор отеля" },
   signOut: { en: "Sign out", uz: "Chiqish", ru: "Выйти" },
   language: { en: "Language", uz: "Til", ru: "Язык" },
+  showSidebar: { en: "Show sidebar", uz: "Yon panelni ko'rsatish", ru: "Показать панель" },
+  hideSidebar: { en: "Hide sidebar", uz: "Yon panelni yashirish", ru: "Скрыть панель" },
 
   // ── Status / booking states ───────────────────────────────────────
   status: { en: "Status", uz: "Holat", ru: "Статус" },
@@ -410,6 +412,11 @@ const T = {
   selectCategory: { en: "Select category", uz: "Toifani tanlang", ru: "Выберите категорию" },
   roomCategoryAria: { en: "Room Category", uz: "Xona toifasi", ru: "Категория номера" },
   roomNameLabel: { en: "Room name:", uz: "Xona nomi:", ru: "Название номера:" },
+  seedDemoData: { en: "Seed Safir Demo Data", uz: "Safir demo ma'lumotlarini yuklash", ru: "Загрузить демо-данные Safir" },
+  seedingData: { en: "Seeding…", uz: "Yuklanmoqda…", ru: "Загрузка…" },
+  dbSeeded: { en: "Database seeded successfully!", uz: "Ma'lumotlar bazasi muvaffaqiyatli yuklandi!", ru: "База данных успешно заполнена!" },
+  seedFailed: { en: "Failed to seed database", uz: "Ma'lumotlar bazasini yuklab bo'lmadi", ru: "Не удалось заполнить базу данных" },
+  seedConnectionError: { en: "Connection error during seeding", uz: "Yuklash vaqtida ulanish xatosi", ru: "Ошибка соединения при загрузке" },
 
   // ── Settings: services ────────────────────────────────────────────
   deactivate: { en: "Deactivate", uz: "O'chirish", ru: "Деактивировать" },

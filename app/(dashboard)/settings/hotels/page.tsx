@@ -91,6 +91,26 @@ export default function HotelsRoomsPage() {
     }
   }, [showToast, t])
 
+  const [seeding, setSeeding] = useState(false)
+
+  async function handleSeed() {
+    setSeeding(true)
+    try {
+      const res = await fetch('/api/seed', { method: 'POST' })
+      const data = await res.json()
+      if (res.ok) {
+        showToast(t('dbSeeded'), 'success')
+        load()
+      } else {
+        showToast(data.error || t('seedFailed'), 'error')
+      }
+    } catch {
+      showToast(t('seedConnectionError'), 'error')
+    } finally {
+      setSeeding(false)
+    }
+  }
+
   useEffect(() => { load() }, [load])
   useEffect(() => { roomsRef.current = rooms }, [rooms])
 
@@ -338,9 +358,14 @@ export default function HotelsRoomsPage() {
               {t('hotelCodeDesc')}
             </p>
           </div>
-          <button className="btn btn-primary" onClick={openHotelModal}>
-            <Plus size={15} strokeWidth={2.5} /> {t('addHotel')}
-          </button>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button className="btn btn-secondary" onClick={handleSeed} disabled={seeding}>
+              {seeding ? t('seedingData') : t('seedDemoData')}
+            </button>
+            <button className="btn btn-primary" onClick={openHotelModal}>
+              <Plus size={15} strokeWidth={2.5} /> {t('addHotel')}
+            </button>
+          </div>
         </div>
 
         {loading ? (

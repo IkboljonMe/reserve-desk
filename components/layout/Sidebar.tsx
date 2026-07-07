@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import { useTranslation } from '@/lib/i18n'
 import { useState, useEffect, useCallback } from 'react'
 
-export default function Sidebar() {
+export default function Sidebar({ collapsed = false }: { collapsed?: boolean }) {
   const pathname = usePathname()
   const { t } = useTranslation()
   const [notifCount, setNotifCount] = useState(0)
@@ -115,13 +115,14 @@ export default function Sidebar() {
 
   return (
     <aside style={{
-      width: 232,
-      minWidth: 232,
+      width: collapsed ? 0 : 232,
+      minWidth: collapsed ? 0 : 232,
       background: 'var(--sidebar-bg)',
-      borderRight: '1px solid rgba(255,255,255,0.05)',
+      borderRight: collapsed ? 'none' : '1px solid rgba(255,255,255,0.05)',
       display: 'flex',
       flexDirection: 'column',
       overflow: 'hidden',
+      transition: 'width 0.2s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-right 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
     }}>
       {/* Brand */}
       <div style={{
@@ -131,19 +132,18 @@ export default function Sidebar() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
           <div style={{
             width: 38, height: 38,
-            background: 'linear-gradient(135deg, #4f6ef7, #7c3aed)',
-            borderRadius: 12,
+            borderRadius: 8,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             flexShrink: 0,
-            boxShadow: '0 6px 16px rgba(79,110,247,0.4)',
+            overflow: 'hidden',
+            background: '#ffffff',
+            padding: '3px',
+            boxSizing: 'border-box',
           }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="2" y="3" width="20" height="14" rx="2"/>
-              <path d="M8 21h8M12 17v4"/>
-            </svg>
+            <img src="/assets/logo-safir.png" alt="Safir Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
           </div>
           <div>
-            <div style={{ color: '#fff', fontSize: '0.95rem', fontWeight: 700, lineHeight: 1.2, letterSpacing: '-0.01em' }}>ReserveDesk</div>
+            <div style={{ color: '#fff', fontSize: '0.95rem', fontWeight: 700, lineHeight: 1.2, letterSpacing: '-0.01em' }}>Safir Hotel Services</div>
             <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.7rem', letterSpacing: '0.02em' }}>{t('hotelAdmin')}</div>
           </div>
         </div>

@@ -17,20 +17,19 @@ export default function LoginPage() {
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <div style={{
             width: 56, height: 56,
-            background: 'linear-gradient(135deg, #4f6ef7, #7c3aed)',
-            borderRadius: 16,
+            borderRadius: 12,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             margin: '0 auto 1rem',
-            boxShadow: '0 8px 24px rgba(79,110,247,0.4)',
+            overflow: 'hidden',
+            background: '#ffffff',
+            padding: '5px',
+            boxShadow: '0 4px 14px rgba(255, 255, 255, 0.15)',
+            boxSizing: 'border-box',
           }}>
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="2" y="3" width="20" height="14" rx="2"/>
-              <path d="M8 21h8M12 17v4"/>
-              <path d="M7 8h.01M12 8h.01M17 8h.01M7 12h.01M12 12h.01M17 12h.01"/>
-            </svg>
+            <img src="/assets/logo-safir.png" alt="Safir Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
           </div>
-          <h1 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.25rem' }}>ReserveDesk</h1>
-          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.875rem' }}>Hotel Admin Portal</p>
+          <h1 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.25rem' }}>Safir Hotel Services</h1>
+          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.875rem' }}>Safir Hotel Admin Panel</p>
         </div>
 
         {/* Card */}

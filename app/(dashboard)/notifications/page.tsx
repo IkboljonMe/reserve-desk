@@ -1,24 +1,12 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { useToast } from '@/components/ToastProvider'
 import { formatUZ } from '@/lib/timezone'
 import { useTranslation, DictionaryKeys } from '@/lib/i18n'
-
-type NotificationTier = 'expired' | 'urgent' | 'warning'
-
-interface ContractNotification {
-  contractId: string
-  organizationName: string
-  contractNumber: string
-  finishDate: string | null
-  daysLeft: number
-  tier: NotificationTier
-  threshold: number
-  title: string
-  message: string
-}
+import { ContractNotification, NotificationTier } from '@/types'
+import { useNotificationsQuery, useDismissNotificationMutation } from '@/hooks/useNotifications'
 
 const TIER_META: Record<NotificationTier, { labelKey: DictionaryKeys; color: string; bg: string; border: string; icon: React.ReactNode }> = {
   expired: {
@@ -54,35 +42,17 @@ function fmtDate(d: string | null): string {
 export default function NotificationsPage() {
   const { showToast } = useToast()
   const { t } = useTranslation()
-  const [items, setItems] = useState<ContractNotification[]>([])
-  const [loading, setLoading] = useState(true)
   const [dismissing, setDismissing] = useState<string | null>(null)
 
-  const load = useCallback(async () => {
-    setLoading(true)
-    try {
-      const res = await fetch('/api/notifications')
-      const data = await res.json()
-      setItems(Array.isArray(data.notifications) ? data.notifications : [])
-    } catch {
-      showToast(t('loadNotificationsFailed'), 'error')
-    } finally {
-      setLoading(false)
-    }
-  }, [showToast, t])
+  const { data, isLoading: loading, refetch } = useNotificationsQuery()
+  const items = data?.notifications || []
 
-  useEffect(() => { load() }, [load])
+  const dismissMutation = useDismissNotificationMutation()
 
   async function dismiss(n: ContractNotification) {
     setDismissing(n.contractId + ':' + n.threshold)
     try {
-      const res = await fetch(`/api/contracts/${n.contractId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ dismissReminder: n.threshold }),
-      })
-      if (!res.ok) throw new Error()
-      setItems(prev => prev.filter(x => !(x.contractId === n.contractId && x.threshold === n.threshold)))
+      await dismissMutation.mutateAsync({ contractId: n.contractId, threshold: n.threshold })
       // Let the sidebar badge refresh.
       window.dispatchEvent(new Event('notifications-updated'))
       showToast(t('reminderDismissed'), 'success')
@@ -104,7 +74,7 @@ export default function NotificationsPage() {
           <h1>{t('notifications')}</h1>
           <p style={{ marginTop: 4 }}>{t('notificationsSubtitle')}</p>
         </div>
-        <button className="btn btn-secondary" onClick={load} disabled={loading}>
+        <button className="btn btn-secondary" onClick={() => refetch()} disabled={loading}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
           {t('refresh')}
         </button>

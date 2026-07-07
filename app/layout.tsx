@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ReserveDesk — Hotel Admin",
+  title: "Safir Hotel Services — Hotel Admin",
   description: "Hotel service reservation management system for staff",
 };
 

@@ -3,47 +3,22 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useToast } from '@/components/ToastProvider'
 import { formatUZ } from '@/lib/timezone'
-import { useTranslation, DictionaryKeys } from '@/lib/i18n'
-
-type ContractStatus = 'awaiting' | 'signed' | 'terminated'
-
-interface Contract {
-  _id: string
-  organizationName: string
-  inn: string
-  representativeName: string
-  phone: string
-  contractNumber: string
-  signDate: string | null
-  finishDate: string | null
-  status: ContractStatus
-  contractLink: string
-  notes: string
-  reminderDays: number[]
-  dismissedReminders: number[]
-}
+import Dropdown from '@/components/ui/Dropdown'
+import ContractModal, { Contract, ContractStatus } from '@/components/contracts/ContractModal'
+import {
+  useContractsQuery,
+  useCreateContractMutation,
+  useUpdateContractMutation,
+  useDeleteContractMutation,
+} from '@/hooks/useContracts'
 
 type ExpiryFilter = 'all' | 'expiring' | 'expired' | 'active'
 type SortKey = 'finishSoon' | 'finishLate' | 'nameAsc' | 'recent'
 
-const EMPTY_FORM = {
-  organizationName: '',
-  inn: '',
-  representativeName: '',
-  phone: '',
-  contractNumber: '',
-  signDate: '',
-  finishDate: '',
-  status: 'awaiting' as ContractStatus,
-  contractLink: '',
-  notes: '',
-  reminderDays: [30, 7] as number[],
-}
-
-const STATUS_META: Record<ContractStatus, { labelKey: DictionaryKeys; color: string; bg: string }> = {
-  signed: { labelKey: 'signed', color: '#0f9d58', bg: 'rgba(16,185,129,0.14)' },
-  awaiting: { labelKey: 'awaitingSignature', color: '#b7791f', bg: 'rgba(245,158,11,0.15)' },
-  terminated: { labelKey: 'terminated', color: '#6b7584', bg: 'rgba(107,117,132,0.14)' },
+const STATUS_META: Record<ContractStatus, { label: string; color: string; bg: string }> = {
+  signed: { label: 'Signed', color: '#0f9d58', bg: 'rgba(16,185,129,0.14)' },
+  awaiting: { label: 'Awaiting signature', color: '#b7791f', bg: 'rgba(245,158,11,0.15)' },
+  terminated: { label: 'Terminated', color: '#6b7584', bg: 'rgba(107,117,132,0.14)' },
 }
 
 // Whole-day difference to the finish date in local terms. Negative = expired.
@@ -61,120 +36,65 @@ function fmtDate(d: string | null): string {
   return formatUZ(d, { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
-// yyyy-mm-dd for <input type="date">
-function toDateInput(d: string | null): string {
-  if (!d) return ''
-  return new Date(d).toISOString().slice(0, 10)
-}
-
 export default function ContractsPage() {
   const { showToast } = useToast()
-  const { t } = useTranslation()
-  const [contracts, setContracts] = useState<Contract[]>([])
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<'' | ContractStatus>('')
   const [expiryFilter, setExpiryFilter] = useState<ExpiryFilter>('all')
   const [sortKey, setSortKey] = useState<SortKey>('finishSoon')
-  const [loading, setLoading] = useState(true)
   const [modalOpen, setModalOpen] = useState(false)
   const [editContract, setEditContract] = useState<Contract | null>(null)
-  const [form, setForm] = useState(EMPTY_FORM)
-  const [saving, setSaving] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
 
-  const loadData = useCallback(async () => {
-    setLoading(true)
-    try {
-      const params = new URLSearchParams()
-      if (search) params.set('search', search)
-      if (statusFilter) params.set('status', statusFilter)
-      const qs = params.toString()
-      const res = await fetch(`/api/contracts${qs ? `?${qs}` : ''}`)
-      const data = await res.json()
-      setContracts(Array.isArray(data) ? data : [])
-    } catch {
-      showToast(t('loadContractsFailed'), 'error')
-    } finally {
-      setLoading(false)
-    }
-  }, [search, statusFilter, showToast, t])
+  const { data: contracts = [], isLoading: loading } = useContractsQuery(search, statusFilter)
 
-  useEffect(() => { loadData() }, [loadData])
+  const createMutation = useCreateContractMutation()
+  const updateMutation = useUpdateContractMutation()
+  const deleteMutation = useDeleteContractMutation()
+
+  const saving = createMutation.isPending || updateMutation.isPending
 
   function openAdd() {
     setEditContract(null)
-    setForm(EMPTY_FORM)
     setModalOpen(true)
   }
 
   function openEdit(c: Contract) {
     setEditContract(c)
-    setForm({
-      organizationName: c.organizationName,
-      inn: c.inn,
-      representativeName: c.representativeName,
-      phone: c.phone,
-      contractNumber: c.contractNumber,
-      signDate: toDateInput(c.signDate),
-      finishDate: toDateInput(c.finishDate),
-      status: c.status,
-      contractLink: c.contractLink,
-      notes: c.notes,
-      reminderDays: c.reminderDays?.length ? c.reminderDays : [30, 7],
-    })
     setModalOpen(true)
   }
 
   function closeModal() {
     setModalOpen(false)
     setEditContract(null)
-    setForm(EMPTY_FORM)
   }
 
-  function toggleReminder(day: number) {
-    setForm(f => ({
-      ...f,
-      reminderDays: f.reminderDays.includes(day)
-        ? f.reminderDays.filter(d => d !== day)
-        : [...f.reminderDays, day].sort((a, b) => b - a),
-    }))
-  }
-
-  async function handleSave(e: React.FormEvent) {
-    e.preventDefault()
+  async function handleSave(form: any) {
     if (!form.organizationName.trim()) return
     if (form.contractLink && !/^https?:\/\//i.test(form.contractLink)) {
-      showToast(t('contractLinkInvalid'), 'error')
+      showToast('Contract link must start with http:// or https://', 'error')
       return
     }
-    setSaving(true)
     try {
-      const url = editContract ? `/api/contracts/${editContract._id}` : '/api/contracts'
-      const method = editContract ? 'PUT' : 'POST'
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      })
-      if (!res.ok) throw new Error()
-      showToast(editContract ? t('contractUpdated') : t('contractAdded'), 'success')
+      if (editContract) {
+        await updateMutation.mutateAsync({ id: editContract._id, data: form })
+      } else {
+        await createMutation.mutateAsync(form)
+      }
+      showToast(editContract ? 'Contract updated' : 'Contract added', 'success')
       closeModal()
-      loadData()
     } catch {
-      showToast(t('saveContractFailed'), 'error')
-    } finally {
-      setSaving(false)
+      showToast('Failed to save contract', 'error')
     }
   }
 
   async function handleDelete(id: string) {
-    const res = await fetch(`/api/contracts/${id}`, { method: 'DELETE' })
-    if (res.ok) {
-      showToast(t('contractDeleted'), 'success')
+    try {
+      await deleteMutation.mutateAsync(id)
+      showToast('Contract deleted', 'success')
       setDeleteConfirm(null)
-      loadData()
-    } else {
-      showToast(t('deleteFailed'), 'error')
+    } catch {
+      showToast('Failed to delete', 'error')
     }
   }
 
@@ -229,21 +149,21 @@ export default function ContractsPage() {
     <div>
       <div className="page-header">
         <div>
-          <h1>{t('contracts')}</h1>
-          <p style={{ marginTop: 4 }}>{t('contractsSubtitle')}</p>
+          <h1>Contracts</h1>
+          <p style={{ marginTop: 4 }}>Partner organizations, their agreements, and renewal reminders</p>
         </div>
         <button className="btn btn-primary" onClick={openAdd}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14"/></svg>
-          {t('addContract')}
+          Add Contract
         </button>
       </div>
 
       {/* KPI stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12, marginBottom: '1rem' }}>
-        <StatCard label={t('totalContracts')} value={stats.total} tint="var(--brand-600)" tintBg="var(--brand-100)" icon="doc" />
-        <StatCard label={t('signed')} value={stats.signed} tint="#0f9d58" tintBg="rgba(16,185,129,0.14)" icon="check" />
-        <StatCard label={t('expiring30')} value={stats.expiring} tint="#b7791f" tintBg="rgba(245,158,11,0.16)" icon="clock" />
-        <StatCard label={t('expired')} value={stats.expired} tint="var(--danger)" tintBg="rgba(239,68,68,0.13)" icon="alert" />
+        <StatCard label="Total contracts" value={stats.total} tint="var(--brand-600)" tintBg="var(--brand-100)" icon="doc" />
+        <StatCard label="Signed" value={stats.signed} tint="#0f9d58" tintBg="rgba(16,185,129,0.14)" icon="check" />
+        <StatCard label="Expiring ≤ 30 days" value={stats.expiring} tint="#b7791f" tintBg="rgba(245,158,11,0.16)" icon="clock" />
+        <StatCard label="Expired" value={stats.expired} tint="var(--danger)" tintBg="rgba(239,68,68,0.13)" icon="alert" />
       </div>
 
       {/* Filters */}
@@ -256,35 +176,56 @@ export default function ContractsPage() {
             <input
               className="form-input"
               style={{ border: 'none', padding: '0 4px', boxShadow: 'none' }}
-              placeholder={t('searchContractsPlaceholder')}
+              placeholder="Search organization, INN, contract №, representative…"
               value={search}
               onChange={e => setSearch(e.target.value)}
             />
           </div>
 
-          <select className="form-select" style={{ width: 'auto', minWidth: 150 }} value={statusFilter} onChange={e => setStatusFilter(e.target.value as '' | ContractStatus)} aria-label={t('filterByStatus')}>
-            <option value="">{t('allStatuses')}</option>
-            <option value="signed">{t('signed')}</option>
-            <option value="awaiting">{t('awaitingSignature')}</option>
-            <option value="terminated">{t('terminated')}</option>
-          </select>
+          <div style={{ minWidth: 150 }}>
+            <Dropdown
+              value={statusFilter}
+              onChange={val => setStatusFilter(val as '' | ContractStatus)}
+              options={[
+                { value: '', label: 'All statuses' },
+                { value: 'signed', label: 'Signed' },
+                { value: 'awaiting', label: 'Awaiting signature' },
+                { value: 'terminated', label: 'Terminated' },
+              ]}
+              ariaLabel="Filter by status"
+            />
+          </div>
 
-          <select className="form-select" style={{ width: 'auto', minWidth: 160 }} value={expiryFilter} onChange={e => setExpiryFilter(e.target.value as ExpiryFilter)} aria-label={t('filterByExpiry')}>
-            <option value="all">{t('anyExpiry')}</option>
-            <option value="expiring">{t('expiringSoon30')}</option>
-            <option value="expired">{t('expired')}</option>
-            <option value="active">{t('activeOver30')}</option>
-          </select>
+          <div style={{ minWidth: 160 }}>
+            <Dropdown
+              value={expiryFilter}
+              onChange={val => setExpiryFilter(val as ExpiryFilter)}
+              options={[
+                { value: 'all', label: 'Any expiry' },
+                { value: 'expiring', label: 'Expiring soon (≤30d)' },
+                { value: 'expired', label: 'Expired' },
+                { value: 'active', label: 'Active (>30d)' },
+              ]}
+              ariaLabel="Filter by expiry"
+            />
+          </div>
 
-          <select className="form-select" style={{ width: 'auto', minWidth: 150 }} value={sortKey} onChange={e => setSortKey(e.target.value as SortKey)} aria-label={t('sort')}>
-            <option value="finishSoon">{t('finishSoonest')}</option>
-            <option value="finishLate">{t('finishLatest')}</option>
-            <option value="nameAsc">{t('nameAZ')}</option>
-          </select>
+          <div style={{ minWidth: 150 }}>
+            <Dropdown
+              value={sortKey}
+              onChange={val => setSortKey(val as SortKey)}
+              options={[
+                { value: 'finishSoon', label: 'Finish: soonest' },
+                { value: 'finishLate', label: 'Finish: latest' },
+                { value: 'nameAsc', label: 'Name: A–Z' },
+              ]}
+              ariaLabel="Sort"
+            />
+          </div>
 
           {activeFilterCount > 0 && (
             <button className="btn btn-ghost btn-sm" onClick={() => { setStatusFilter(''); setExpiryFilter('all') }}>
-              {t('clearFilters')}
+              Clear filters
             </button>
           )}
         </div>
@@ -303,17 +244,17 @@ export default function ContractsPage() {
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/>
               </svg>
             </div>
-            <h3>{contracts.length === 0 ? t('noContractsYet') : t('noContractsMatch')}</h3>
-            <p>{contracts.length === 0 ? t('noContractsDesc') : t('tryClearFilters')}</p>
-            {contracts.length === 0 && <button className="btn btn-primary" style={{ marginTop: 8 }} onClick={openAdd}>{t('addFirstContract')}</button>}
+            <h3>{contracts.length === 0 ? 'No contracts yet' : 'No contracts match your filters'}</h3>
+            <p>{contracts.length === 0 ? 'Add your partner organizations and track when their agreements expire.' : 'Try clearing the filters or adjusting your search.'}</p>
+            {contracts.length === 0 && <button className="btn btn-primary" style={{ marginTop: 8 }} onClick={openAdd}>Add First Contract</button>}
           </div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem', minWidth: 920 }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--gray-200)', background: 'var(--gray-50)' }}>
-                  {[['organization', t('organization')], ['contractNo', t('contractNo')], ['representative', t('representative')], ['status', t('status')], ['finishDate', t('finishDate')], ['renewal', t('renewal')], ['link', t('link')], ['actions', '']].map(([key, col]) => (
-                    <th key={key} style={{ padding: '10px 16px', textAlign: 'left', fontWeight: 600, color: 'var(--gray-500)', fontSize: '0.75rem', whiteSpace: 'nowrap' }}>{col}</th>
+                  {['Organization', 'Contract №', 'Representative', 'Status', 'Finish date', 'Renewal', 'Link', ''].map(col => (
+                    <th key={col} style={{ padding: '10px 16px', textAlign: 'left', fontWeight: 600, color: 'var(--gray-500)', fontSize: '0.75rem', whiteSpace: 'nowrap' }}>{col}</th>
                   ))}
                 </tr>
               </thead>
@@ -330,7 +271,7 @@ export default function ContractsPage() {
                           </div>
                           <div style={{ minWidth: 0 }}>
                             <div style={{ fontWeight: 600, color: 'var(--gray-800)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 240 }}>{c.organizationName}</div>
-                            {c.inn && <div style={{ fontSize: '0.72rem', color: 'var(--gray-400)' }}>{t('inn')} {c.inn}</div>}
+                            {c.inn && <div style={{ fontSize: '0.72rem', color: 'var(--gray-400)' }}>INN {c.inn}</div>}
                           </div>
                         </div>
                       </td>
@@ -346,7 +287,7 @@ export default function ContractsPage() {
                       <td style={{ padding: '12px 16px' }}>
                         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '2px 10px', borderRadius: 20, background: sm.bg, color: sm.color, fontWeight: 600, fontSize: '0.78rem', whiteSpace: 'nowrap' }}>
                           <span style={{ width: 7, height: 7, borderRadius: '50%', background: sm.color }} />
-                          {t(sm.labelKey)}
+                          {sm.label}
                         </span>
                       </td>
                       <td style={{ padding: '12px 16px', color: 'var(--gray-700)', whiteSpace: 'nowrap' }}>{fmtDate(c.finishDate)}</td>
@@ -355,22 +296,22 @@ export default function ContractsPage() {
                         {c.contractLink ? (
                           <a href={c.contractLink} target="_blank" rel="noopener noreferrer" className="btn btn-ghost btn-sm" style={{ gap: 6, color: 'var(--brand-600)' }} title={c.contractLink}>
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                            {t('openLink')}
+                            Open
                           </a>
                         ) : <span style={{ color: 'var(--gray-300)' }}>—</span>}
                       </td>
                       <td style={{ padding: '12px 16px' }}>
                         <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-                          <button className="btn btn-ghost btn-sm btn-icon" onClick={() => openEdit(c)} title={t('edit')} aria-label={t('editContractAria')}>
+                          <button className="btn btn-ghost btn-sm btn-icon" onClick={() => openEdit(c)} title="Edit" aria-label="Edit contract">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                           </button>
                           {deleteConfirm === c._id ? (
                             <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-                              <button className="btn btn-danger btn-sm" onClick={() => handleDelete(c._id)}>{t('delete')}</button>
-                              <button className="btn btn-ghost btn-sm" onClick={() => setDeleteConfirm(null)}>{t('cancel')}</button>
+                              <button className="btn btn-danger btn-sm" onClick={() => handleDelete(c._id)}>Delete</button>
+                              <button className="btn btn-ghost btn-sm" onClick={() => setDeleteConfirm(null)}>Cancel</button>
                             </div>
                           ) : (
-                            <button className="btn btn-ghost btn-sm btn-icon" onClick={() => setDeleteConfirm(c._id)} title={t('delete')} aria-label={t('deleteContractAria')}>
+                            <button className="btn btn-ghost btn-sm btn-icon" onClick={() => setDeleteConfirm(c._id)} title="Delete" aria-label="Delete contract">
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
                             </button>
                           )}
@@ -387,143 +328,31 @@ export default function ContractsPage() {
 
       {!loading && visible.length > 0 && (
         <p style={{ marginTop: 12, fontSize: '0.78rem', color: 'var(--gray-400)' }}>
-          {t('showingContracts', { shown: visible.length, total: contracts.length })}
+          Showing {visible.length} of {contracts.length} contract{contracts.length === 1 ? '' : 's'}
         </p>
       )}
 
       {/* Add / Edit modal */}
-      {modalOpen && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 640 }}>
-            <div className="modal-header">
-              <h2>{editContract ? t('editContract') : t('addContract')}</h2>
-              <button className="btn btn-ghost btn-icon" onClick={closeModal} aria-label={t('close')}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              </button>
-            </div>
-
-            <form onSubmit={handleSave}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxHeight: '62vh', overflowY: 'auto', paddingRight: 4 }}>
-                <div className="form-group">
-                  <label className="form-label">{t('organizationName')} *</label>
-                  <input className="form-input" required value={form.organizationName} onChange={e => setForm(f => ({ ...f, organizationName: e.target.value }))} placeholder={t('orgNamePlaceholder')} />
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <div className="form-group">
-                    <label className="form-label">{t('inn')}</label>
-                    <input className="form-input" value={form.inn} onChange={e => setForm(f => ({ ...f, inn: e.target.value }))} placeholder="207 324 986" />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">{t('contractNo')}</label>
-                    <input className="form-input" value={form.contractNumber} onChange={e => setForm(f => ({ ...f, contractNumber: e.target.value }))} placeholder="SAF78" />
-                  </div>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <div className="form-group">
-                    <label className="form-label">{t('representativeAccountant')}</label>
-                    <input className="form-input" value={form.representativeName} onChange={e => setForm(f => ({ ...f, representativeName: e.target.value }))} placeholder={t('fullNamePlaceholder')} />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">{t('phone')}</label>
-                    <input className="form-input" type="tel" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+998 90 123 45 67" />
-                  </div>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <div className="form-group">
-                    <label className="form-label">{t('signDate')}</label>
-                    <input className="form-input" type="date" value={form.signDate} onChange={e => setForm(f => ({ ...f, signDate: e.target.value }))} />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">{t('finishDate')}</label>
-                    <input className="form-input" type="date" value={form.finishDate} onChange={e => setForm(f => ({ ...f, finishDate: e.target.value }))} />
-                    <p style={{ marginTop: 6, fontSize: '0.72rem', color: 'var(--gray-500)' }}>{t('finishDateHint')}</p>
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">{t('status')}</label>
-                  <select className="form-select" value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value as ContractStatus }))}>
-                    <option value="awaiting">{t('awaitingSignature')}</option>
-                    <option value="signed">{t('signed')}</option>
-                    <option value="terminated">{t('terminated')}</option>
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">{t('contractLink')}</label>
-                  <input className="form-input" type="url" value={form.contractLink} onChange={e => setForm(f => ({ ...f, contractLink: e.target.value }))} placeholder="https://drive.google.com/…" />
-                  <p style={{ marginTop: 6, fontSize: '0.72rem', color: 'var(--gray-500)' }}>{t('contractLinkHint')}</p>
-                </div>
-
-                {/* Reminder config */}
-                <div className="form-group">
-                  <label className="form-label">{t('renewalReminders')}</label>
-                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                    {[30, 7].map(day => {
-                      const on = form.reminderDays.includes(day)
-                      return (
-                        <button
-                          type="button"
-                          key={day}
-                          onClick={() => toggleReminder(day)}
-                          style={{
-                            display: 'inline-flex', alignItems: 'center', gap: 7,
-                            padding: '7px 12px', borderRadius: 9, cursor: 'pointer',
-                            fontSize: '0.8125rem', fontWeight: 600,
-                            border: on ? '1px solid var(--brand-500)' : '1px solid var(--gray-200)',
-                            background: on ? 'var(--brand-50)' : '#fff',
-                            color: on ? 'var(--brand-700)' : 'var(--gray-500)',
-                            transition: 'all 0.15s ease',
-                          }}
-                        >
-                          <span style={{ display: 'inline-flex', width: 15, height: 15, borderRadius: 4, alignItems: 'center', justifyContent: 'center', background: on ? 'var(--brand-500)' : 'var(--gray-100)', color: '#fff' }}>
-                            {on && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5"><polyline points="20 6 9 17 4 12"/></svg>}
-                          </span>
-                          {t('daysBefore', { days: day })}
-                        </button>
-                      )
-                    })}
-                  </div>
-                  <p style={{ marginTop: 6, fontSize: '0.72rem', color: 'var(--gray-500)' }}>
-                    {t('reminderHint')}
-                  </p>
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">{t('notes')}</label>
-                  <textarea className="form-textarea" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} placeholder={t('notesContractPlaceholder')} style={{ minHeight: 64 }} />
-                </div>
-              </div>
-
-              <div className="divider" />
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-                <button type="button" className="btn btn-secondary" onClick={closeModal}>{t('cancel')}</button>
-                <button type="submit" className="btn btn-primary" disabled={saving}>
-                  {saving ? <span className="spinner" /> : null}
-                  {saving ? t('saving') : editContract ? t('save') : t('addContract')}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <ContractModal
+        isOpen={modalOpen}
+        editContract={editContract}
+        onClose={closeModal}
+        onSave={handleSave}
+        saving={saving}
+      />
     </div>
   )
 }
 
 function ExpiryPill({ status, daysLeft }: { status: ContractStatus; daysLeft: number | null }) {
-  const { t } = useTranslation()
   if (status === 'terminated') return <span style={{ color: 'var(--gray-300)' }}>—</span>
-  if (daysLeft === null) return <span style={{ color: 'var(--gray-300)' }}>{t('noDate')}</span>
+  if (daysLeft === null) return <span style={{ color: 'var(--gray-300)' }}>No date</span>
 
-  let color = '#0f9d58', bg = 'rgba(16,185,129,0.12)', label = t('daysLeft', { days: daysLeft })
-  if (daysLeft < 0) { color = 'var(--danger)'; bg = 'rgba(239,68,68,0.12)'; label = t('expiredAgo', { days: Math.abs(daysLeft) }) }
-  else if (daysLeft === 0) { color = 'var(--danger)'; bg = 'rgba(239,68,68,0.12)'; label = t('expiresToday') }
-  else if (daysLeft <= 7) { color = '#c2410c'; bg = 'rgba(234,88,12,0.12)'; label = t('daysLeft', { days: daysLeft }) }
-  else if (daysLeft <= 30) { color = '#b7791f'; bg = 'rgba(245,158,11,0.15)'; label = t('daysLeft', { days: daysLeft }) }
+  let color = '#0f9d58', bg = 'rgba(16,185,129,0.12)', label = `${daysLeft} days left`
+  if (daysLeft < 0) { color = 'var(--danger)'; bg = 'rgba(239,68,68,0.12)'; label = `Expired ${Math.abs(daysLeft)}d ago` }
+  else if (daysLeft === 0) { color = 'var(--danger)'; bg = 'rgba(239,68,68,0.12)'; label = 'Expires today' }
+  else if (daysLeft <= 7) { color = '#c2410c'; bg = 'rgba(234,88,12,0.12)'; label = `${daysLeft} days left` }
+  else if (daysLeft <= 30) { color = '#b7791f'; bg = 'rgba(245,158,11,0.15)'; label = `${daysLeft} days left` }
 
   return (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '2px 10px', borderRadius: 20, background: bg, color, fontWeight: 600, fontSize: '0.78rem', whiteSpace: 'nowrap' }}>
