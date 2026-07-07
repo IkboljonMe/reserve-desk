@@ -26,6 +26,7 @@ import { useHotelsQuery } from '@/hooks/useHotels'
 import { useBookingsQuery } from '@/hooks/useBookings'
 import IncomeAnalytics from '@/components/dashboard/IncomeAnalytics'
 import BookingDrawer from '@/components/dashboard/BookingDrawer'
+import * as XLSX from 'xlsx'
 
 type PaymentFilter = 'all' | 'paid' | 'unpaid' | 'free'
 type TypeFilter = 'all' | 'client' | 'room' | 'custom'
@@ -96,6 +97,53 @@ export default function DashboardPage() {
       return old.map(b => (b._id === id ? { ...b, ...changes } : b))
     })
   }, [queryClient])
+
+  function exportToExcel() {
+    if (rows.length === 0) {
+      showToast('No data to export', 'error')
+      return
+    }
+
+    const data = rows.map((b, index) => {
+      const hotel = hotels.find(h => h._id === serviceHotel.get(svcId(b)))
+      const st = bookingState(b)
+      return {
+        '#': index + 1,
+        'Guest Name': b.customerName,
+        'Phone': b.customerPhone,
+        'Hotel': hotel?.name || '—',
+        'Room': b.roomNumber || '—',
+        'Service': b.serviceId?.name || '—',
+        'Date': b.date,
+        'Time': `${b.startTime} - ${b.endTime}`,
+        'Price': b.totalPrice,
+        'Status': st.label,
+        'Notes': b.notes || '',
+      }
+    })
+
+    const worksheet = XLSX.utils.json_to_sheet(data)
+    
+    // Auto-fit column widths
+    const maxLens = Object.keys(data[0] || {}).reduce((acc: any, key) => {
+      acc[key] = key.length
+      return acc
+    }, {})
+    data.forEach(row => {
+      Object.keys(row).forEach(key => {
+        const val = String((row as any)[key] ?? '')
+        maxLens[key] = Math.max(maxLens[key], val.length)
+      })
+    })
+    worksheet['!cols'] = Object.keys(maxLens).map(key => ({
+      wch: Math.min(Math.max(maxLens[key] + 3, 10), 50)
+    }))
+
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Bookings')
+    XLSX.writeFile(workbook, `bookings_${range.from}_to_${range.to}.xlsx`)
+    showToast('Excel download started', 'success')
+  }
 
   // ── Filtered + sorted rows ──────────────────────────────────────────────────
   const rows = useMemo(() => {
@@ -224,7 +272,20 @@ export default function DashboardPage() {
         <div style={{ padding: '0.9rem 1.1rem', borderBottom: '1px solid var(--surface-border)', display: 'flex', flexDirection: 'column', gap: 10 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
             <h3 style={{ fontSize: '0.95rem', margin: 0, marginRight: 4 }}>Bookings</h3>
-            <span style={{ fontSize: '0.75rem', color: 'var(--gray-400)', fontWeight: 600 }}>{rows.length} in range</span>
+            <span style={{ fontSize: '0.75rem', color: 'var(--gray-400)', fontWeight: 600, marginRight: 8 }}>{rows.length} in range</span>
+            <button
+              onClick={exportToExcel}
+              className="btn btn-secondary btn-sm"
+              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px', height: '30px', fontSize: '0.8rem', cursor: 'pointer' }}
+              title="Download bookings as Excel spreadsheet (XLSX)"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              Export
+            </button>
             <div style={{ position: 'relative', marginLeft: 'auto', flex: '1 1 220px', maxWidth: 320 }}>
               <Search size={14} style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)', color: 'var(--gray-400)', pointerEvents: 'none' }} />
               <input className="form-input" style={{ paddingLeft: 32, paddingTop: 6, paddingBottom: 6, fontSize: '0.82rem' }}

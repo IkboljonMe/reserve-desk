@@ -8,9 +8,11 @@ import Dropdown from '@/components/ui/Dropdown'
 interface Props {
   userName: string
   userEmail: string
+  onToggleSidebar?: () => void
+  sidebarCollapsed?: boolean
 }
 
-export default function Header({ userName, userEmail }: Props) {
+export default function Header({ userName, userEmail, onToggleSidebar, sidebarCollapsed }: Props) {
   const router = useRouter()
   const [loggingOut, setLoggingOut] = useState(false)
   const { lang, setLang, t } = useTranslation()
@@ -35,7 +37,31 @@ export default function Header({ userName, userEmail }: Props) {
       padding: '0 1.5rem',
       flexShrink: 0,
     }}>
-      <div />
+      {onToggleSidebar && (
+        <button
+          onClick={onToggleSidebar}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            color: 'var(--gray-600, #4b5563)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '6px',
+            borderRadius: '6px',
+            transition: 'background-color 0.15s ease',
+          }}
+          title={sidebarCollapsed ? "Show sidebar" : "Hide sidebar"}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="4" y1="12" x2="20" y2="12" />
+            <line x1="4" y1="6" x2="20" y2="6" />
+            <line x1="4" y1="18" x2="20" y2="18" />
+          </svg>
+        </button>
+      )}
+      {!onToggleSidebar && <div />}
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
         <Dropdown
