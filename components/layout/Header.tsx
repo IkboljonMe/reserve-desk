@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useTranslation, LanguageCode } from '@/lib/i18n'
+import Dropdown from '@/components/ui/Dropdown'
 
 interface Props {
   userName: string
@@ -37,27 +38,17 @@ export default function Header({ userName, userEmail }: Props) {
       <div />
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-        <select
+        <Dropdown
           value={lang}
-          onChange={e => setLang(e.target.value as LanguageCode)}
-          aria-label="Language"
-          style={{
-            padding: '6px 10px',
-            borderRadius: 8,
-            border: '1px solid var(--gray-200)',
-            fontSize: '0.75rem',
-            fontWeight: 600,
-            background: 'var(--surface-card)',
-            color: 'var(--gray-700)',
-            outline: 'none',
-            cursor: 'pointer',
-            boxShadow: 'var(--shadow-xs)',
-          }}
-        >
-          <option value="uz">O'Z</option>
-          <option value="ru">RU</option>
-          <option value="en">EN</option>
-        </select>
+          onChange={val => setLang(val as LanguageCode)}
+          options={[
+            { value: 'uz', label: "O'Z" },
+            { value: 'ru', label: 'RU' },
+            { value: 'en', label: 'EN' },
+          ]}
+          ariaLabel="Language"
+          containerClassName="lang-dropdown"
+        />
 
         <div style={{ width: 1, height: 24, background: 'var(--surface-border)' }} />
 

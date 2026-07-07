@@ -7,6 +7,10 @@ import { useTranslation } from '@/lib/i18n'
 import { getServiceIcon } from '@/lib/serviceIcons'
 import { nowUZ } from '@/lib/timezone'
 import { Users, BedDouble, SlidersHorizontal, ArrowLeft, Check, Search, Clock } from 'lucide-react'
+import { getServices } from '@/lib/api/services'
+import { getHotels } from '@/lib/api/hotels'
+import { getBookings, createBooking } from '@/lib/api/bookings'
+import { getClients } from '@/lib/api/clients'
 
 interface PricingPlan { duration: number; price: number }
 interface PricingGroup { target: 'room' | 'client'; category: string; rows: PricingPlan[] }
@@ -158,9 +162,9 @@ export default function BookPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch('/api/services').then(r => r.json()),
+      getServices(),
       fetch('/api/rooms').then(r => r.json()),
-      fetch('/api/hotels').then(r => r.json()),
+      getHotels(),
       fetch('/api/client-groups').then(r => r.json()),
     ]).then(([svcs, rms, htls, grps]) => {
       const active = Array.isArray(svcs) ? svcs.filter((s: Service) => s.isActive) : []
@@ -183,20 +187,25 @@ export default function BookPage() {
   // Load existing bookings for the day (for slot availability)
   useEffect(() => {
     if (!selectedService || !date) return
-    fetch(`/api/bookings?dateFrom=${date}&dateTo=${date}&serviceId=${selectedService._id}`)
-      .then(r => r.json())
-      .then(data => setDayBookings(Array.isArray(data) ? data.filter((b: { status: string }) => b.status !== 'cancelled') : []))
+    getBookings(date, date)
+      .then(data => {
+        const filtered = Array.isArray(data)
+          ? data.filter((b: any) => b.status !== 'cancelled' && (typeof b.serviceId === 'string' ? b.serviceId : b.serviceId?._id) === selectedService._id)
+          : []
+        setDayBookings(filtered)
+      })
   }, [selectedService, date])
 
   // Search clients within the chosen group (client booking type)
   useEffect(() => {
     if (step !== 5 || bookingType !== 'client' || !selectedCategory) return
     const timer = setTimeout(async () => {
-      const params = new URLSearchParams({ groupId: selectedCategory })
-      if (clientSearch.trim()) params.set('search', clientSearch.trim())
-      const res = await fetch(`/api/clients?${params}`)
-      const data = await res.json()
-      setClientResults(Array.isArray(data) ? data : [])
+      try {
+        const data = await getClients(selectedCategory, clientSearch.trim())
+        setClientResults(Array.isArray(data) ? data : [])
+      } catch {
+        setClientResults([])
+      }
     }, 200)
     return () => clearTimeout(timer)
   }, [step, bookingType, selectedCategory, clientSearch])
@@ -315,33 +324,26 @@ export default function BookPage() {
     setLoading(true)
     try {
       const endTime = slotEnd(selectedSlot, activePlan.duration)
-      const res = await fetch('/api/bookings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          serviceId: selectedService._id,
-          clientId: selectedClientId,
-          customerName: customerName.trim(),
-          customerPhone: customerPhone.trim(),
-          roomNumber: roomNumber.trim(),
-          date,
-          startTime: selectedSlot,
-          endTime,
-          duration: activePlan.duration,
-          totalPrice: activePlan.price,
-          notes: notes.trim(),
-          paid: activePlan.price === 0 ? false : paid,
-          bookingType,
-          category: selectedCategory,
-        }),
+      await createBooking({
+        serviceId: selectedService._id,
+        clientId: selectedClientId,
+        customerName: customerName.trim(),
+        customerPhone: customerPhone.trim(),
+        roomNumber: roomNumber.trim(),
+        date,
+        startTime: selectedSlot,
+        endTime,
+        duration: activePlan.duration,
+        totalPrice: activePlan.price,
+        notes: notes.trim(),
+        paid: activePlan.price === 0 ? false : paid,
+        bookingType,
+        category: selectedCategory,
       })
-      const data = await res.json()
-      if (!res.ok) {
-        showToast(data.error || 'Failed to create booking', 'error')
-      } else {
-        showToast('Booking created successfully!', 'success')
-        router.push(`/calendar?date=${date}`)
-      }
+      showToast('Booking created successfully!', 'success')
+      router.push(`/calendar?date=${date}`)
+    } catch (err: any) {
+      showToast(err.message || 'Failed to create booking', 'error')
     } finally {
       setLoading(false)
     }
@@ -383,7 +385,7 @@ export default function BookPage() {
   )
 
   return (
-    <div style={{ maxWidth: 760, margin: '0 auto' }}>
+    <div style={{ width: '100%' }}>
       <div className="page-header">
         <div>
           <h1>{t('newBooking')}</h1>

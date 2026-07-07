@@ -3,41 +3,17 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useToast } from '@/components/ToastProvider'
 import { formatUZ } from '@/lib/timezone'
-
-type ContractStatus = 'awaiting' | 'signed' | 'terminated'
-
-interface Contract {
-  _id: string
-  organizationName: string
-  inn: string
-  representativeName: string
-  phone: string
-  contractNumber: string
-  signDate: string | null
-  finishDate: string | null
-  status: ContractStatus
-  contractLink: string
-  notes: string
-  reminderDays: number[]
-  dismissedReminders: number[]
-}
+import Dropdown from '@/components/ui/Dropdown'
+import ContractModal, { Contract, ContractStatus } from '@/components/contracts/ContractModal'
+import {
+  useContractsQuery,
+  useCreateContractMutation,
+  useUpdateContractMutation,
+  useDeleteContractMutation,
+} from '@/hooks/useContracts'
 
 type ExpiryFilter = 'all' | 'expiring' | 'expired' | 'active'
 type SortKey = 'finishSoon' | 'finishLate' | 'nameAsc' | 'recent'
-
-const EMPTY_FORM = {
-  organizationName: '',
-  inn: '',
-  representativeName: '',
-  phone: '',
-  contractNumber: '',
-  signDate: '',
-  finishDate: '',
-  status: 'awaiting' as ContractStatus,
-  contractLink: '',
-  notes: '',
-  reminderDays: [30, 7] as number[],
-}
 
 const STATUS_META: Record<ContractStatus, { label: string; color: string; bg: string }> = {
   signed: { label: 'Signed', color: '#0f9d58', bg: 'rgba(16,185,129,0.14)' },
@@ -60,118 +36,64 @@ function fmtDate(d: string | null): string {
   return formatUZ(d, { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
-// yyyy-mm-dd for <input type="date">
-function toDateInput(d: string | null): string {
-  if (!d) return ''
-  return new Date(d).toISOString().slice(0, 10)
-}
-
 export default function ContractsPage() {
   const { showToast } = useToast()
-  const [contracts, setContracts] = useState<Contract[]>([])
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<'' | ContractStatus>('')
   const [expiryFilter, setExpiryFilter] = useState<ExpiryFilter>('all')
   const [sortKey, setSortKey] = useState<SortKey>('finishSoon')
-  const [loading, setLoading] = useState(true)
   const [modalOpen, setModalOpen] = useState(false)
   const [editContract, setEditContract] = useState<Contract | null>(null)
-  const [form, setForm] = useState(EMPTY_FORM)
-  const [saving, setSaving] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
 
-  const loadData = useCallback(async () => {
-    setLoading(true)
-    try {
-      const params = new URLSearchParams()
-      if (search) params.set('search', search)
-      if (statusFilter) params.set('status', statusFilter)
-      const qs = params.toString()
-      const res = await fetch(`/api/contracts${qs ? `?${qs}` : ''}`)
-      const data = await res.json()
-      setContracts(Array.isArray(data) ? data : [])
-    } catch {
-      showToast('Failed to load contracts', 'error')
-    } finally {
-      setLoading(false)
-    }
-  }, [search, statusFilter, showToast])
+  const { data: contracts = [], isLoading: loading } = useContractsQuery(search, statusFilter)
 
-  useEffect(() => { loadData() }, [loadData])
+  const createMutation = useCreateContractMutation()
+  const updateMutation = useUpdateContractMutation()
+  const deleteMutation = useDeleteContractMutation()
+
+  const saving = createMutation.isPending || updateMutation.isPending
 
   function openAdd() {
     setEditContract(null)
-    setForm(EMPTY_FORM)
     setModalOpen(true)
   }
 
   function openEdit(c: Contract) {
     setEditContract(c)
-    setForm({
-      organizationName: c.organizationName,
-      inn: c.inn,
-      representativeName: c.representativeName,
-      phone: c.phone,
-      contractNumber: c.contractNumber,
-      signDate: toDateInput(c.signDate),
-      finishDate: toDateInput(c.finishDate),
-      status: c.status,
-      contractLink: c.contractLink,
-      notes: c.notes,
-      reminderDays: c.reminderDays?.length ? c.reminderDays : [30, 7],
-    })
     setModalOpen(true)
   }
 
   function closeModal() {
     setModalOpen(false)
     setEditContract(null)
-    setForm(EMPTY_FORM)
   }
 
-  function toggleReminder(day: number) {
-    setForm(f => ({
-      ...f,
-      reminderDays: f.reminderDays.includes(day)
-        ? f.reminderDays.filter(d => d !== day)
-        : [...f.reminderDays, day].sort((a, b) => b - a),
-    }))
-  }
-
-  async function handleSave(e: React.FormEvent) {
-    e.preventDefault()
+  async function handleSave(form: any) {
     if (!form.organizationName.trim()) return
     if (form.contractLink && !/^https?:\/\//i.test(form.contractLink)) {
       showToast('Contract link must start with http:// or https://', 'error')
       return
     }
-    setSaving(true)
     try {
-      const url = editContract ? `/api/contracts/${editContract._id}` : '/api/contracts'
-      const method = editContract ? 'PUT' : 'POST'
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      })
-      if (!res.ok) throw new Error()
+      if (editContract) {
+        await updateMutation.mutateAsync({ id: editContract._id, data: form })
+      } else {
+        await createMutation.mutateAsync(form)
+      }
       showToast(editContract ? 'Contract updated' : 'Contract added', 'success')
       closeModal()
-      loadData()
     } catch {
       showToast('Failed to save contract', 'error')
-    } finally {
-      setSaving(false)
     }
   }
 
   async function handleDelete(id: string) {
-    const res = await fetch(`/api/contracts/${id}`, { method: 'DELETE' })
-    if (res.ok) {
+    try {
+      await deleteMutation.mutateAsync(id)
       showToast('Contract deleted', 'success')
       setDeleteConfirm(null)
-      loadData()
-    } else {
+    } catch {
       showToast('Failed to delete', 'error')
     }
   }
@@ -260,25 +182,46 @@ export default function ContractsPage() {
             />
           </div>
 
-          <select className="form-select" style={{ width: 'auto', minWidth: 150 }} value={statusFilter} onChange={e => setStatusFilter(e.target.value as '' | ContractStatus)} aria-label="Filter by status">
-            <option value="">All statuses</option>
-            <option value="signed">Signed</option>
-            <option value="awaiting">Awaiting signature</option>
-            <option value="terminated">Terminated</option>
-          </select>
+          <div style={{ minWidth: 150 }}>
+            <Dropdown
+              value={statusFilter}
+              onChange={val => setStatusFilter(val as '' | ContractStatus)}
+              options={[
+                { value: '', label: 'All statuses' },
+                { value: 'signed', label: 'Signed' },
+                { value: 'awaiting', label: 'Awaiting signature' },
+                { value: 'terminated', label: 'Terminated' },
+              ]}
+              ariaLabel="Filter by status"
+            />
+          </div>
 
-          <select className="form-select" style={{ width: 'auto', minWidth: 160 }} value={expiryFilter} onChange={e => setExpiryFilter(e.target.value as ExpiryFilter)} aria-label="Filter by expiry">
-            <option value="all">Any expiry</option>
-            <option value="expiring">Expiring soon (≤30d)</option>
-            <option value="expired">Expired</option>
-            <option value="active">Active (&gt;30d)</option>
-          </select>
+          <div style={{ minWidth: 160 }}>
+            <Dropdown
+              value={expiryFilter}
+              onChange={val => setExpiryFilter(val as ExpiryFilter)}
+              options={[
+                { value: 'all', label: 'Any expiry' },
+                { value: 'expiring', label: 'Expiring soon (≤30d)' },
+                { value: 'expired', label: 'Expired' },
+                { value: 'active', label: 'Active (>30d)' },
+              ]}
+              ariaLabel="Filter by expiry"
+            />
+          </div>
 
-          <select className="form-select" style={{ width: 'auto', minWidth: 150 }} value={sortKey} onChange={e => setSortKey(e.target.value as SortKey)} aria-label="Sort">
-            <option value="finishSoon">Finish: soonest</option>
-            <option value="finishLate">Finish: latest</option>
-            <option value="nameAsc">Name: A–Z</option>
-          </select>
+          <div style={{ minWidth: 150 }}>
+            <Dropdown
+              value={sortKey}
+              onChange={val => setSortKey(val as SortKey)}
+              options={[
+                { value: 'finishSoon', label: 'Finish: soonest' },
+                { value: 'finishLate', label: 'Finish: latest' },
+                { value: 'nameAsc', label: 'Name: A–Z' },
+              ]}
+              ariaLabel="Sort"
+            />
+          </div>
 
           {activeFilterCount > 0 && (
             <button className="btn btn-ghost btn-sm" onClick={() => { setStatusFilter(''); setExpiryFilter('all') }}>
@@ -390,124 +333,13 @@ export default function ContractsPage() {
       )}
 
       {/* Add / Edit modal */}
-      {modalOpen && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 640 }}>
-            <div className="modal-header">
-              <h2>{editContract ? 'Edit Contract' : 'Add Contract'}</h2>
-              <button className="btn btn-ghost btn-icon" onClick={closeModal} aria-label="Close">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              </button>
-            </div>
-
-            <form onSubmit={handleSave}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxHeight: '62vh', overflowY: 'auto', paddingRight: 4 }}>
-                <div className="form-group">
-                  <label className="form-label">Organization name *</label>
-                  <input className="form-input" required value={form.organizationName} onChange={e => setForm(f => ({ ...f, organizationName: e.target.value }))} placeholder='e.g. "ANOR BANK" AJ' />
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <div className="form-group">
-                    <label className="form-label">INN</label>
-                    <input className="form-input" value={form.inn} onChange={e => setForm(f => ({ ...f, inn: e.target.value }))} placeholder="207 324 986" />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Contract №</label>
-                    <input className="form-input" value={form.contractNumber} onChange={e => setForm(f => ({ ...f, contractNumber: e.target.value }))} placeholder="SAF78" />
-                  </div>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <div className="form-group">
-                    <label className="form-label">Representative / accountant</label>
-                    <input className="form-input" value={form.representativeName} onChange={e => setForm(f => ({ ...f, representativeName: e.target.value }))} placeholder="Full name" />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Phone</label>
-                    <input className="form-input" type="tel" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+998 90 123 45 67" />
-                  </div>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <div className="form-group">
-                    <label className="form-label">Sign date</label>
-                    <input className="form-input" type="date" value={form.signDate} onChange={e => setForm(f => ({ ...f, signDate: e.target.value }))} />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Finish date</label>
-                    <input className="form-input" type="date" value={form.finishDate} onChange={e => setForm(f => ({ ...f, finishDate: e.target.value }))} />
-                    <p style={{ marginTop: 6, fontSize: '0.72rem', color: 'var(--gray-500)' }}>When the agreement ends — drives renewal reminders.</p>
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Status</label>
-                  <select className="form-select" value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value as ContractStatus }))}>
-                    <option value="awaiting">Awaiting signature</option>
-                    <option value="signed">Signed</option>
-                    <option value="terminated">Terminated</option>
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Contract link</label>
-                  <input className="form-input" type="url" value={form.contractLink} onChange={e => setForm(f => ({ ...f, contractLink: e.target.value }))} placeholder="https://drive.google.com/…" />
-                  <p style={{ marginTop: 6, fontSize: '0.72rem', color: 'var(--gray-500)' }}>Paste a shareable link (Google Drive, etc.). Opens in a new tab.</p>
-                </div>
-
-                {/* Reminder config */}
-                <div className="form-group">
-                  <label className="form-label">Renewal reminders</label>
-                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                    {[30, 7].map(day => {
-                      const on = form.reminderDays.includes(day)
-                      return (
-                        <button
-                          type="button"
-                          key={day}
-                          onClick={() => toggleReminder(day)}
-                          style={{
-                            display: 'inline-flex', alignItems: 'center', gap: 7,
-                            padding: '7px 12px', borderRadius: 9, cursor: 'pointer',
-                            fontSize: '0.8125rem', fontWeight: 600,
-                            border: on ? '1px solid var(--brand-500)' : '1px solid var(--gray-200)',
-                            background: on ? 'var(--brand-50)' : '#fff',
-                            color: on ? 'var(--brand-700)' : 'var(--gray-500)',
-                            transition: 'all 0.15s ease',
-                          }}
-                        >
-                          <span style={{ display: 'inline-flex', width: 15, height: 15, borderRadius: 4, alignItems: 'center', justifyContent: 'center', background: on ? 'var(--brand-500)' : 'var(--gray-100)', color: '#fff' }}>
-                            {on && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5"><polyline points="20 6 9 17 4 12"/></svg>}
-                          </span>
-                          {day} days before
-                        </button>
-                      )
-                    })}
-                  </div>
-                  <p style={{ marginTop: 6, fontSize: '0.72rem', color: 'var(--gray-500)' }}>
-                    You&apos;ll be notified on the Notifications page at each selected point before the finish date, and again once it expires.
-                  </p>
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Notes</label>
-                  <textarea className="form-textarea" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} placeholder="Terms, discount rate, special conditions…" style={{ minHeight: 64 }} />
-                </div>
-              </div>
-
-              <div className="divider" />
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-                <button type="button" className="btn btn-secondary" onClick={closeModal}>Cancel</button>
-                <button type="submit" className="btn btn-primary" disabled={saving}>
-                  {saving ? <span className="spinner" /> : null}
-                  {saving ? 'Saving…' : editContract ? 'Save Changes' : 'Add Contract'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <ContractModal
+        isOpen={modalOpen}
+        editContract={editContract}
+        onClose={closeModal}
+        onSave={handleSave}
+        saving={saving}
+      />
     </div>
   )
 }
