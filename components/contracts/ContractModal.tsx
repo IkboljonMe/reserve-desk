@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import Dropdown from '@/components/ui/Dropdown'
+import { useTranslation } from '@/lib/i18n'
 
 export type ContractStatus = 'awaiting' | 'signed' | 'terminated'
 
@@ -56,6 +57,7 @@ export default function ContractModal({
   onSave,
   saving,
 }: ContractModalProps) {
+  const { t } = useTranslation()
   const [form, setForm] = useState(EMPTY_FORM)
 
   useEffect(() => {
@@ -99,8 +101,8 @@ export default function ContractModal({
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 640 }}>
         <div className="modal-header">
-          <h2>{editContract ? 'Edit Contract' : 'Add Contract'}</h2>
-          <button className="btn btn-ghost btn-icon" onClick={onClose} aria-label="Close">
+          <h2>{editContract ? t('editContract') : t('addContract')}</h2>
+          <button className="btn btn-ghost btn-icon" onClick={onClose} aria-label={t('close')}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="18" y1="6" x2="6" y2="18" />
               <line x1="6" y1="6" x2="18" y2="18" />
@@ -111,64 +113,64 @@ export default function ContractModal({
         <form onSubmit={handleFormSubmit}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxHeight: '62vh', overflowY: 'auto', paddingRight: 4 }}>
             <div className="form-group">
-              <label className="form-label">Organization name *</label>
-              <input className="form-input" required value={form.organizationName} onChange={e => setForm(f => ({ ...f, organizationName: e.target.value }))} placeholder='e.g. "ANOR BANK" AJ' />
+              <label className="form-label">{t('organizationName')} *</label>
+              <input className="form-input" required value={form.organizationName} onChange={e => setForm(f => ({ ...f, organizationName: e.target.value }))} placeholder={t('orgNamePlaceholder')} />
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div className="form-group">
-                <label className="form-label">INN</label>
+                <label className="form-label">{t('inn')}</label>
                 <input className="form-input" value={form.inn} onChange={e => setForm(f => ({ ...f, inn: e.target.value }))} placeholder="207 324 986" />
               </div>
               <div className="form-group">
-                <label className="form-label">Contract №</label>
+                <label className="form-label">{t('contractNo')}</label>
                 <input className="form-input" value={form.contractNumber} onChange={e => setForm(f => ({ ...f, contractNumber: e.target.value }))} placeholder="SAF78" />
               </div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div className="form-group">
-                <label className="form-label">Representative / accountant</label>
-                <input className="form-input" value={form.representativeName} onChange={e => setForm(f => ({ ...f, representativeName: e.target.value }))} placeholder="Full name" />
+                <label className="form-label">{t('representativeAccountant')}</label>
+                <input className="form-input" value={form.representativeName} onChange={e => setForm(f => ({ ...f, representativeName: e.target.value }))} placeholder={t('fullNamePlaceholder')} />
               </div>
               <div className="form-group">
-                <label className="form-label">Phone</label>
+                <label className="form-label">{t('phone')}</label>
                 <input className="form-input" type="tel" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+998 90 123 45 67" />
               </div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div className="form-group">
-                <label className="form-label">Sign date</label>
+                <label className="form-label">{t('signDate')}</label>
                 <input className="form-input" type="date" value={form.signDate} onChange={e => setForm(f => ({ ...f, signDate: e.target.value }))} />
               </div>
               <div className="form-group">
-                <label className="form-label">Finish date</label>
+                <label className="form-label">{t('finishDate')}</label>
                 <input className="form-input" type="date" value={form.finishDate} onChange={e => setForm(f => ({ ...f, finishDate: e.target.value }))} />
-                <p style={{ marginTop: 6, fontSize: '0.72rem', color: 'var(--gray-500)' }}>When the agreement ends — drives renewal reminders.</p>
+                <p style={{ marginTop: 6, fontSize: '0.72rem', color: 'var(--gray-500)' }}>{t('finishDateHint')}</p>
               </div>
             </div>
 
             <Dropdown
-              label="Status"
+              label={t('status')}
               value={form.status}
               onChange={val => setForm(f => ({ ...f, status: val as ContractStatus }))}
               options={[
-                { value: 'awaiting', label: 'Awaiting signature' },
-                { value: 'signed', label: 'Signed' },
-                { value: 'terminated', label: 'Terminated' },
+                { value: 'awaiting', label: t('awaitingSignature') },
+                { value: 'signed', label: t('signed') },
+                { value: 'terminated', label: t('terminated') },
               ]}
             />
 
             <div className="form-group">
-              <label className="form-label">Contract link</label>
+              <label className="form-label">{t('contractLink')}</label>
               <input className="form-input" type="url" value={form.contractLink} onChange={e => setForm(f => ({ ...f, contractLink: e.target.value }))} placeholder="https://drive.google.com/…" />
-              <p style={{ marginTop: 6, fontSize: '0.72rem', color: 'var(--gray-500)' }}>Paste a shareable link (Google Drive, etc.). Opens in a new tab.</p>
+              <p style={{ marginTop: 6, fontSize: '0.72rem', color: 'var(--gray-500)' }}>{t('contractLinkHint')}</p>
             </div>
 
             {/* Reminder config */}
             <div className="form-group">
-              <label className="form-label">Renewal reminders</label>
+              <label className="form-label">{t('renewalReminders')}</label>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 {[30, 7].map(day => {
                   const on = form.reminderDays.includes(day)
@@ -199,28 +201,28 @@ export default function ContractModal({
                           </svg>
                         )}
                       </span>
-                      {day} days before
+                      {t('daysBefore', { days: day })}
                     </button>
                   )
                 })}
               </div>
               <p style={{ marginTop: 6, fontSize: '0.72rem', color: 'var(--gray-500)' }}>
-                You&apos;ll be notified on the Notifications page at each selected point before the finish date, and again once it expires.
+                {t('reminderHint')}
               </p>
             </div>
 
             <div className="form-group">
-              <label className="form-label">Notes</label>
-              <textarea className="form-textarea" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} placeholder="Terms, discount rate, special conditions…" style={{ minHeight: 64 }} />
+              <label className="form-label">{t('notes')}</label>
+              <textarea className="form-textarea" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} placeholder={t('notesContractPlaceholder')} style={{ minHeight: 64 }} />
             </div>
           </div>
 
           <div className="divider" />
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-            <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
+            <button type="button" className="btn btn-secondary" onClick={onClose}>{t('cancel')}</button>
             <button type="submit" className="btn btn-primary" disabled={saving}>
               {saving ? <span className="spinner" /> : null}
-              {saving ? 'Saving…' : editContract ? 'Save Changes' : 'Add Contract'}
+              {saving ? t('saving') : editContract ? t('save') : t('addContract')}
             </button>
           </div>
         </form>

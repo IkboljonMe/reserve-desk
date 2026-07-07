@@ -8,6 +8,7 @@ import {
 } from 'date-fns'
 import { nowUZ } from '@/lib/timezone'
 import { useToast } from '@/components/ToastProvider'
+import { useTranslation, DictionaryKeys } from '@/lib/i18n'
 import Dropdown from '@/components/ui/Dropdown'
 import {
   Search, X, Wallet, Building2, Users, BedDouble, SlidersHorizontal,
@@ -33,10 +34,10 @@ type TypeFilter = 'all' | 'client' | 'room' | 'custom'
 type StateFilter = 'all' | 'active' | 'finished'
 type PeriodKey = 'week' | 'month' | '7d' | '30d' | 'custom'
 
-const TYPE_META: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
-  client: { label: 'Client', icon: <Users size={12} />, color: '#3b82f6' },
-  room: { label: 'Room', icon: <BedDouble size={12} />, color: '#10b981' },
-  custom: { label: 'Custom', icon: <SlidersHorizontal size={12} />, color: '#f59e0b' },
+const TYPE_META: Record<string, { labelKey: DictionaryKeys; icon: React.ReactNode; color: string }> = {
+  client: { labelKey: 'typeClient', icon: <Users size={12} />, color: '#3b82f6' },
+  room: { labelKey: 'typeRoom', icon: <BedDouble size={12} />, color: '#10b981' },
+  custom: { labelKey: 'typeCustom', icon: <SlidersHorizontal size={12} />, color: '#f59e0b' },
 }
 
 function periodRange(key: PeriodKey, customFrom: string, customTo: string): { from: string; to: string } {
@@ -55,6 +56,7 @@ function periodRange(key: PeriodKey, customFrom: string, customTo: string): { fr
 export default function DashboardPage() {
   const router = useRouter()
   const { showToast } = useToast()
+  const { t } = useTranslation()
 
   const { data: servicesRaw = [] } = useServicesQuery()
   const { data: hotels = [] } = useHotelsQuery()
@@ -100,7 +102,7 @@ export default function DashboardPage() {
 
   function exportToExcel() {
     if (rows.length === 0) {
-      showToast('No data to export', 'error')
+      showToast(t('noDataToExport'), 'error')
       return
     }
 
@@ -142,7 +144,7 @@ export default function DashboardPage() {
     const workbook = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Bookings')
     XLSX.writeFile(workbook, `bookings_${range.from}_to_${range.to}.xlsx`)
-    showToast('Excel download started', 'success')
+    showToast(t('excelDownloadStarted'), 'success')
   }
 
   // ── Filtered + sorted rows ──────────────────────────────────────────────────
@@ -239,12 +241,12 @@ export default function DashboardPage() {
       {/* Header + period */}
       <div className="page-header" style={{ marginBottom: 0 }}>
         <div>
-          <h1>Dashboard</h1>
+          <h1>{t('dashboard')}</h1>
           <p style={{ marginTop: 4 }}>{format(nowUZ(), 'EEEE, MMMM d, yyyy')}</p>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
           <div className="dash-seg">
-            {([['week', 'Week'], ['month', 'Month'], ['7d', '7d'], ['30d', '30d'], ['custom', 'Custom']] as [PeriodKey, string][]).map(([k, l]) => (
+            {([['week', t('periodWeek')], ['month', t('periodMonth')], ['7d', '7d'], ['30d', '30d'], ['custom', t('periodCustom')]] as [PeriodKey, string][]).map(([k, l]) => (
               <button key={k} className={period === k ? 'active' : ''} onClick={() => setPeriod(k)}>{l}</button>
             ))}
           </div>
@@ -256,7 +258,7 @@ export default function DashboardPage() {
             </div>
           )}
           <button className="btn btn-primary btn-sm" onClick={() => router.push(`/book?date=${format(nowUZ(), 'yyyy-MM-dd')}`)}>
-            <Plus size={14} strokeWidth={2.5} /> New Booking
+            <Plus size={14} strokeWidth={2.5} /> {t('newBooking')}
           </button>
         </div>
       </div>
@@ -271,34 +273,34 @@ export default function DashboardPage() {
         {/* Filter toolbar */}
         <div style={{ padding: '0.9rem 1.1rem', borderBottom: '1px solid var(--surface-border)', display: 'flex', flexDirection: 'column', gap: 10 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-            <h3 style={{ fontSize: '0.95rem', margin: 0, marginRight: 4 }}>Bookings</h3>
-            <span style={{ fontSize: '0.75rem', color: 'var(--gray-400)', fontWeight: 600, marginRight: 8 }}>{rows.length} in range</span>
+            <h3 style={{ fontSize: '0.95rem', margin: 0, marginRight: 4 }}>{t('bookings')}</h3>
+            <span style={{ fontSize: '0.75rem', color: 'var(--gray-400)', fontWeight: 600, marginRight: 8 }}>{rows.length} {t('inRange')}</span>
             <button
               onClick={exportToExcel}
               className="btn btn-secondary btn-sm"
               style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px', height: '30px', fontSize: '0.8rem', cursor: 'pointer' }}
-              title="Download bookings as Excel spreadsheet (XLSX)"
+              title={t('exportTitle')}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                 <polyline points="7 10 12 15 17 10" />
                 <line x1="12" y1="15" x2="12" y2="3" />
               </svg>
-              Export
+              {t('exportBtn')}
             </button>
             <div style={{ position: 'relative', marginLeft: 'auto', flex: '1 1 220px', maxWidth: 320 }}>
               <Search size={14} style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)', color: 'var(--gray-400)', pointerEvents: 'none' }} />
               <input className="form-input" style={{ paddingLeft: 32, paddingTop: 6, paddingBottom: 6, fontSize: '0.82rem' }}
-                placeholder="Search guest, room or phone…" value={search} onChange={e => setSearch(e.target.value)} />
-              {search && <button onClick={() => setSearch('')} style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--gray-400)' }} aria-label="Clear"><X size={14} /></button>}
+                placeholder={t('searchGuestRoomPhone')} value={search} onChange={e => setSearch(e.target.value)} />
+              {search && <button onClick={() => setSearch('')} style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--gray-400)' }} aria-label={t('clear')}><X size={14} /></button>}
             </div>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
             {/* Hotels */}
             {hotels.length > 1 && (
-              <FilterGroup icon={<Building2 size={12} />} label="Hotel">
-                <button className={`dash-pill ${allHotelsOn ? 'active' : ''}`} onClick={() => setFHotels(new Set())}>All</button>
+              <FilterGroup icon={<Building2 size={12} />} label={t('hotel')}>
+                <button className={`dash-pill ${allHotelsOn ? 'active' : ''}`} onClick={() => setFHotels(new Set())}>{t('all')}</button>
                 {hotels.map(h => (
                   <button key={h._id} className={`dash-pill ${fHotels.has(h._id) ? 'active' : ''}`}
                     onClick={() => setFHotels(prev => { const n = new Set(prev); if (n.has(h._id)) n.delete(h._id); else n.add(h._id); return n })}>{h.shortName}</button>
@@ -311,10 +313,10 @@ export default function DashboardPage() {
                 value={fPayment}
                 onChange={val => setFPayment(val as PaymentFilter)}
                 options={[
-                  { value: 'all', label: 'All Payments' },
-                  { value: 'paid', label: 'Paid' },
-                  { value: 'unpaid', label: 'Unpaid' },
-                  { value: 'free', label: 'Free' },
+                  { value: 'all', label: t('allPayments') },
+                  { value: 'paid', label: t('paid') },
+                  { value: 'unpaid', label: t('unpaid') },
+                  { value: 'free', label: t('free') },
                 ]}
                 icon={<Wallet size={12} />}
               />
@@ -326,10 +328,10 @@ export default function DashboardPage() {
                 value={fType}
                 onChange={val => setFType(val as TypeFilter)}
                 options={[
-                  { value: 'all', label: 'All Types' },
-                  { value: 'client', label: 'Client' },
-                  { value: 'room', label: 'Room' },
-                  { value: 'custom', label: 'Custom' },
+                  { value: 'all', label: t('allTypes') },
+                  { value: 'client', label: t('typeClient') },
+                  { value: 'room', label: t('typeRoom') },
+                  { value: 'custom', label: t('typeCustom') },
                 ]}
               />
             </div>
@@ -340,16 +342,16 @@ export default function DashboardPage() {
                 value={fState}
                 onChange={val => setFState(val as StateFilter)}
                 options={[
-                  { value: 'all', label: 'All States' },
-                  { value: 'active', label: 'Active' },
-                  { value: 'finished', label: 'Finished' },
+                  { value: 'all', label: t('allStates') },
+                  { value: 'active', label: t('active') },
+                  { value: 'finished', label: t('finished') },
                 ]}
               />
             </div>
             {activeFilterCount > 0 && (
               <button className="btn btn-ghost btn-sm" style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}
                 onClick={() => { setFHotels(new Set()); setFServices(new Set()); setFPayment('all'); setFType('all'); setFState('all'); setSearch('') }}>
-                <X size={13} /> Clear
+                <X size={13} /> {t('clear')}
               </button>
             )}
           </div>
@@ -357,7 +359,7 @@ export default function DashboardPage() {
           {/* Service chips */}
           {services.length > 1 && (
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-              <button className={`dash-pill ${allServicesOn ? 'active' : ''}`} onClick={() => setFServices(new Set())}>All services</button>
+              <button className={`dash-pill ${allServicesOn ? 'active' : ''}`} onClick={() => setFServices(new Set())}>{t('allServices')}</button>
               {services.map(s => (
                 <button key={s._id} className="dash-pill" style={fServices.has(s._id) ? { background: s.color, color: '#fff', borderColor: 'transparent' } : {}}
                   onClick={() => setFServices(prev => { const n = new Set(prev); if (n.has(s._id)) n.delete(s._id); else n.add(s._id); return n })}>
@@ -374,21 +376,21 @@ export default function DashboardPage() {
         ) : rows.length === 0 ? (
           <div className="empty-state" style={{ padding: '3rem' }}>
             <div className="empty-state-icon"><CalendarDays size={22} /></div>
-            <p style={{ fontSize: '0.875rem' }}>No bookings match these filters</p>
+            <p style={{ fontSize: '0.875rem' }}>{t('noBookingsMatch')}</p>
           </div>
         ) : (
           <div style={{ overflow: 'auto', maxHeight: 560 }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8125rem' }}>
               <thead>
                 <tr style={{ position: 'sticky', top: 0, background: 'var(--gray-50)', zIndex: 1, borderBottom: '1px solid var(--gray-200)' }}>
-                  <th className="dash-th" style={{ cursor: 'pointer' }} onClick={() => toggleSort('date')}>Date / Time <ArrowUpDown size={11} style={{ opacity: sortKey === 'date' ? 1 : 0.3 }} /></th>
-                  <th className="dash-th">Service</th>
-                  <th className="dash-th">Hotel</th>
-                  <th className="dash-th">Guest</th>
-                  <th className="dash-th">Room / Type</th>
-                  <th className="dash-th" style={{ cursor: 'pointer' }} onClick={() => toggleSort('price')}>Price <ArrowUpDown size={11} style={{ opacity: sortKey === 'price' ? 1 : 0.3 }} /></th>
-                  <th className="dash-th">Status</th>
-                  <th className="dash-th" style={{ cursor: 'pointer' }} onClick={() => toggleSort('created')}>Created <ArrowUpDown size={11} style={{ opacity: sortKey === 'created' ? 1 : 0.3 }} /></th>
+                  <th className="dash-th" style={{ cursor: 'pointer' }} onClick={() => toggleSort('date')}>{t('colDateTime')} <ArrowUpDown size={11} style={{ opacity: sortKey === 'date' ? 1 : 0.3 }} /></th>
+                  <th className="dash-th">{t('service')}</th>
+                  <th className="dash-th">{t('hotel')}</th>
+                  <th className="dash-th">{t('guest')}</th>
+                  <th className="dash-th">{t('roomType')}</th>
+                  <th className="dash-th" style={{ cursor: 'pointer' }} onClick={() => toggleSort('price')}>{t('price')} <ArrowUpDown size={11} style={{ opacity: sortKey === 'price' ? 1 : 0.3 }} /></th>
+                  <th className="dash-th">{t('status')}</th>
+                  <th className="dash-th" style={{ cursor: 'pointer' }} onClick={() => toggleSort('created')}>{t('created')} <ArrowUpDown size={11} style={{ opacity: sortKey === 'created' ? 1 : 0.3 }} /></th>
                 </tr>
               </thead>
               <tbody>
@@ -415,12 +417,12 @@ export default function DashboardPage() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                           {b.roomNumber ? <span style={{ color: 'var(--gray-600)' }}>🏨 {b.roomNumber}</span> : <span style={{ color: 'var(--gray-300)' }}>—</span>}
                           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, padding: '1px 6px', borderRadius: 6, background: `${TYPE_META[type].color}14`, color: TYPE_META[type].color, fontSize: '0.66rem', fontWeight: 700 }}>
-                            {TYPE_META[type].icon}{TYPE_META[type].label}
+                            {TYPE_META[type].icon}{t(TYPE_META[type].labelKey)}
                           </span>
                         </div>
                       </td>
                       <td style={{ padding: '9px 12px', color: 'var(--gray-700)', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
-                        {b.totalPrice > 0 ? `${money(b.totalPrice)}` : <span style={{ color: 'var(--gray-400)' }}>Free</span>}
+                        {b.totalPrice > 0 ? `${money(b.totalPrice)}` : <span style={{ color: 'var(--gray-400)' }}>{t('free')}</span>}
                       </td>
                       <td style={{ padding: '9px 12px' }}>
                         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 20, fontSize: '0.7rem', fontWeight: 700, background: st.bg, color: st.color }}>
