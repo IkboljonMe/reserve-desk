@@ -3,10 +3,30 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslation } from '@/lib/i18n'
+import { useState, useEffect, useCallback } from 'react'
 
 export default function Sidebar() {
   const pathname = usePathname()
   const { t } = useTranslation()
+  const [notifCount, setNotifCount] = useState(0)
+
+  const loadNotifCount = useCallback(async () => {
+    try {
+      const res = await fetch('/api/notifications')
+      const data = await res.json()
+      setNotifCount(typeof data.count === 'number' ? data.count : 0)
+    } catch {
+      /* silent — badge is non-critical */
+    }
+  }, [])
+
+  // Refresh the badge on navigation and whenever a reminder is dismissed.
+  useEffect(() => { loadNotifCount() }, [loadNotifCount, pathname])
+  useEffect(() => {
+    const handler = () => loadNotifCount()
+    window.addEventListener('notifications-updated', handler)
+    return () => window.removeEventListener('notifications-updated', handler)
+  }, [loadNotifCount])
 
   const NAV_ITEMS = [
     {
@@ -51,6 +71,28 @@ export default function Sidebar() {
           <circle cx="9" cy="7" r="4"/>
           <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
           <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      ),
+    },
+    {
+      label: 'Contracts',
+      href: '/contracts',
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <path d="M14 2v6h6"/>
+          <path d="M16 13H8M16 17H8M10 9H8"/>
+        </svg>
+      ),
+    },
+    {
+      label: 'Notifications',
+      href: '/notifications',
+      badge: notifCount,
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
         </svg>
       ),
     },
@@ -158,6 +200,20 @@ export default function Sidebar() {
                 )}
                 <span style={{ display: 'inline-flex', color: isActive ? '#fff' : 'var(--sidebar-text)' }}>{item.icon}</span>
                 {item.label}
+                {'badge' in item && (item.badge ?? 0) > 0 && (
+                  <span style={{
+                    marginLeft: 'auto',
+                    minWidth: 18, height: 18, padding: '0 5px',
+                    borderRadius: 9,
+                    background: 'var(--danger)',
+                    color: '#fff',
+                    fontSize: '0.68rem', fontWeight: 700,
+                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                    boxShadow: '0 2px 6px rgba(239,68,68,0.45)',
+                  }}>
+                    {(item.badge ?? 0) > 99 ? '99+' : item.badge}
+                  </span>
+                )}
                 {isActive && item.href === '/settings' && (
                   <span style={{ marginLeft: 'auto', color: 'rgba(255,255,255,0.5)' }}>
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
