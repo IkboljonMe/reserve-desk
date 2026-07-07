@@ -108,7 +108,7 @@ export default function Sidebar({ collapsed = false }: { collapsed?: boolean }) 
       children: [
         { label: t('services'), href: '/settings/services' },
         { label: t('hotelsAndRooms'), href: '/settings/hotels' },
-        { label: t('general'), href: '/settings' },
+        { label: t('clientGroups'), href: '/settings/client-groups' },
       ],
     },
   ]
