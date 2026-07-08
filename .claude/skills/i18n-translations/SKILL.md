@@ -1,6 +1,6 @@
 ---
 name: i18n-translations
-description: Use this skill WHENEVER you add or edit any user-facing UI in this ReserveDesk app — a new page, modal, form, button, toast, error, placeholder, aria-label, empty state, table header, or tooltip. Every fixed English string must go through the hardcoded EN/UZ/RU dictionary in lib/i18n.tsx and be rendered with t(). NEVER ship a raw English literal in JSX or in showToast(...). Triggers: "new page", "add a modal/form/button", "add a toast/error message", "translate", "i18n", "UZ/RU/EN", or any edit under app/(dashboard)/** and components/**.
+description: Use this skill WHENEVER you add or edit any user-facing UI in this ReserveDesk app — a new page, modal, form, button, toast, error, placeholder, aria-label, empty state, table header, or tooltip. Every fixed English string must go through the EN/UZ/RU dictionaries in i18n/locales/{en,uz,ru}.json (consumed via @/i18n) and be rendered with t(). NEVER ship a raw English literal in JSX or in showToast(...). Triggers: "new page", "add a modal/form/button", "add a toast/error message", "translate", "i18n", "UZ/RU/EN", or any edit under app/(dashboard)/** and features/**.
 ---
 
 # ReserveDesk Translations (EN / UZ / RU)
@@ -11,13 +11,17 @@ values. There is a language switcher in the header; the default is `uz`.
 
 **Your job: no user-facing English literal ever reaches the screen untranslated.**
 
-## The system (lib/i18n.tsx)
+## The system (`i18n/locales/*.json` + `i18n/index.tsx`)
 
-- One dictionary object `T`, keyed by a stable camelCase key, each entry
-  `{ en, uz, ru }`. `en` is required; `uz`/`ru` fall back to `en` if missing.
+- Three dictionaries — `i18n/locales/en.json`, `i18n/locales/uz.json`,
+  `i18n/locales/ru.json` — each a flat `{ "<camelCaseKey>": "<value>" }` map.
+  `en` is the source and defines the full key set; `uz`/`ru` fall back to `en`
+  if a key is missing. `i18n/index.tsx` imports the three files, exposes the
+  hook, and derives `DictionaryKeys` from `en.json`'s keys (so a key must exist
+  in `en.json` to be usable in `t()`).
 - Consume it in a **client component** (`'use client'`) with the hook:
   ```tsx
-  import { useTranslation } from '@/lib/i18n'
+  import { useTranslation } from '@/i18n'
   const { t } = useTranslation()
   // ...
   <button>{t('save')}</button>
@@ -32,11 +36,14 @@ values. There is a language switcher in the header; the default is `uz`.
 
 ## Rules — follow every time
 
-1. **Add the key first.** Open `lib/i18n.tsx`, add the entry inside the matching
-   `// ──` section (or a new one) with **all three languages**. Keep keys
-   camelCase and descriptive (`saveContractFailed`, not `err1`). Reuse an
-   existing key if one already means the same thing (`save`, `cancel`, `delete`,
-   `close`, `edit`, `phone`, `notes`, `status`, `all`, `clear`, `loading`…).
+1. **Add the key first — to all three files.** Add the same camelCase key to
+   `i18n/locales/en.json`, `i18n/locales/uz.json`, and `i18n/locales/ru.json`,
+   in the same relative position (files share key order; drop it near related keys).
+   All three languages are required. Keep keys descriptive (`saveContractFailed`,
+   not `err1`). Reuse an existing key if one already means the same thing
+   (`save`, `cancel`, `delete`, `close`, `edit`, `phone`, `notes`, `status`,
+   `all`, `clear`, `loading`…). JSON has no comments, so there are no section
+   headers — keep the grouping by ordering alone.
 2. **Render with `t()`.** Replace the literal in JSX, and in every
    `placeholder`, `title`, `aria-label`, `alt`, and toast/error string:
    ```tsx
@@ -62,9 +69,15 @@ values. There is a language switcher in the header; the default is `uz`.
 
 ## Adding a dictionary entry
 
-```ts
-// inside T = { ... } in lib/i18n.tsx, under the relevant section
-myNewLabel: { en: "Save Changes", uz: "Saqlash", ru: "Сохранить" },
+Add the same key to each file at the matching position:
+
+```jsonc
+// i18n/locales/en.json
+"myNewLabel": "Save Changes",
+// i18n/locales/uz.json
+"myNewLabel": "Saqlash",
+// i18n/locales/ru.json
+"myNewLabel": "Сохранить",
 ```
 
 Write natural, correct Uzbek (Latin script, e.g. "Saqlash", "Bekor qilish") and
