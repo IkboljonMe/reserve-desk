@@ -5,6 +5,10 @@ import { DEFAULT_LOCALE, LOCALE_COOKIE, isLocale } from '@/i18n/config'
 // Paths (locale-stripped) that don't require an authenticated session.
 const PUBLIC_ROUTES = ['/login']
 
+// A request for a static file — its last path segment has an extension, e.g.
+// /assets/logo-safir.png. These must never be locale-redirected.
+const PUBLIC_FILE = /\.[^/]+$/
+
 // Pick a locale for a request that arrived without one: remembered choice
 // (cookie) first, then the browser's Accept-Language, then the default.
 function pickLocale(request: NextRequest): string {
@@ -20,6 +24,10 @@ function pickLocale(request: NextRequest): string {
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
+
+  // Static files (public/) pass straight through — no locale, no auth.
+  if (PUBLIC_FILE.test(pathname)) return NextResponse.next()
+
   const firstSegment = pathname.split('/')[1]
 
   // 1. No (valid) locale prefix → redirect to the same path under a locale.
