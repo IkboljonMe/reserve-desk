@@ -183,26 +183,14 @@ export default function Sidebar({
           transition: `gap 0.24s ${ease}`,
         }}>
           <div style={{
-            width: 38, height: 38,
-            borderRadius: 8,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            flexShrink: 0,
-            overflow: 'hidden',
-            background: '#ffffff',
-            padding: '3px',
-            boxSizing: 'border-box',
-          }}>
-            <img src="/assets/logo-safir.png" alt="Safir Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-          </div>
-          <div style={{
             overflow: 'hidden',
             maxWidth: collapsed ? 0 : 160,
             opacity: collapsed ? 0 : 1,
             whiteSpace: 'nowrap',
             transition: labelTransition,
           }}>
-            <div style={{ color: '#fff', fontSize: '0.95rem', fontWeight: 700, lineHeight: 1.2, letterSpacing: '-0.01em' }}>Safir Hotel Services</div>
-            <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.7rem', letterSpacing: '0.02em' }}>{t('hotelAdmin')}</div>
+            <div style={{ color: '#fff', fontSize: '0.95rem', fontWeight: 700, lineHeight: 1.2, letterSpacing: '-0.01em' }}>easy-service.uz</div>
+            <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.7rem', letterSpacing: '0.02em' }}>{t('brandTagline')}</div>
           </div>
         </div>
       </div>
