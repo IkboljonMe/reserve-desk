@@ -34,6 +34,13 @@ interface Service {
   color: string
   isActive: boolean
   hotelId: string | { _id: string; name?: string; shortName?: string }
+  sharedHotelIds?: string[]
+}
+
+// A service is available to a hotel if that hotel owns it or it's shared with it.
+function serviceAvailableToHotel(s: Service, hotelId: string): boolean {
+  if (extractHotelId(s.hotelId) === hotelId) return true
+  return (s.sharedHotelIds ?? []).map(h => (typeof h === 'string' ? h : (h as { _id: string })._id)).includes(hotelId)
 }
 
 interface Room {
@@ -217,7 +224,7 @@ export default function BookPage() {
 
   // ── Derived ────────────────────────────────────────────────────────────────
 
-  const hotelServices = services.filter(s => extractHotelId(s.hotelId) === selectedHotelId)
+  const hotelServices = services.filter(s => serviceAvailableToHotel(s, selectedHotelId))
 
   function resolveGroupMeta(g: PricingGroup): { label: string; color: string } {
     if (g.target === 'client') {

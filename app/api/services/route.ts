@@ -8,8 +8,11 @@ export async function GET() {
   const session = await getSession()
   if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
-  // Owner sees every hotel's services; an admin only their own hotel's.
-  const filter = session.role === 'owner' ? {} : { hotelId: session.hotelId }
+  // Owner sees every hotel's services; an admin sees services their hotel owns
+  // OR that another hotel has shared with them.
+  const filter = session.role === 'owner'
+    ? {}
+    : { $or: [{ hotelId: session.hotelId }, { sharedHotelIds: session.hotelId }] }
 
   await connectDB()
   const services = await Service.find(filter).populate('hotelId').sort({ createdAt: -1 }).lean()
@@ -22,16 +25,22 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json()
-    const { name, icon, description, hotelId, openTime, closeTime, slotDuration, capacity, color, price, isFree, details, bufferTimeBefore, bufferTimeAfter, pricingPlans, pricingGroups } = body
+    const { name, icon, description, hotelId, sharedHotelIds, openTime, closeTime, slotDuration, capacity, color, price, isFree, details, bufferTimeBefore, bufferTimeAfter, pricingPlans, pricingGroups } = body
 
     if (!name || !openTime || !closeTime) {
       return Response.json({ error: 'Name, open time, and close time are required' }, { status: 400 })
     }
 
+    // Sanitize shared hotels: unique, and never the owner hotel itself.
+    const shared = Array.isArray(sharedHotelIds)
+      ? [...new Set(sharedHotelIds.map(String))].filter(id => id && id !== String(hotelId || ''))
+      : []
+
     await connectDB()
     const service = await Service.create({
       name, icon, description,
       hotelId: hotelId || null,
+      sharedHotelIds: shared,
       openTime, closeTime,
       slotDuration: Number(slotDuration) || 60,
       capacity: Number(capacity) || 1,

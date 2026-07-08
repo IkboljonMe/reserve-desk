@@ -36,6 +36,7 @@ export interface Booking {
   history?: any[]
   paidAt?: string | null
   finishedAt?: string | null
+  masked?: boolean  // booking on a shared service owned/made by another hotel — details hidden
 }
 
 export const svcId = (b: Booking) => (typeof b.serviceId === 'string' ? b.serviceId : b.serviceId?._id)

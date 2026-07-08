@@ -2,7 +2,8 @@
 
 import React from 'react'
 import { format, startOfWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSameMonth } from 'date-fns'
-import { Check } from 'lucide-react'
+import { Check, Lock } from 'lucide-react'
+import { useTranslation } from '@/lib/i18n'
 import { Booking, toMin, canFinish } from '@/lib/bookingHelpers'
 
 interface MonthViewProps {
@@ -22,6 +23,7 @@ export default function MonthView({
   onBookingClick,
   onFinish,
 }: MonthViewProps) {
+  const { t } = useTranslation()
   const start = startOfWeek(startOfMonth(currentDate), { weekStartsOn: 1 })
   const end = addDays(startOfWeek(endOfMonth(currentDate), { weekStartsOn: 1 }), 6)
   const days = eachDayOfInterval({ start, end })
@@ -108,6 +110,28 @@ export default function MonthView({
               </div>
               {list.slice(0, 3).map(b => {
                 const color = b.serviceId?.color || '#6366f1'
+                if (b.masked) {
+                  return (
+                    <div
+                      key={b._id}
+                      title={`${b.startTime}–${b.endTime} · ${t('occupied')}`}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 5,
+                        background: 'repeating-linear-gradient(45deg, var(--gray-100), var(--gray-100) 5px, var(--gray-200) 5px, var(--gray-200) 10px)',
+                        borderLeft: '3px solid var(--gray-400)',
+                        borderRadius: 5, padding: '2px 5px 2px 6px',
+                        fontSize: '0.68rem', color: 'var(--gray-500)',
+                        overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis',
+                        cursor: 'default',
+                      }}
+                    >
+                      <span style={{ fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>{b.startTime}</span>
+                      <span style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 3, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        <Lock size={10} /> {t('occupied')}
+                      </span>
+                    </div>
+                  )
+                }
                 return (
                   <div
                     key={b._id}

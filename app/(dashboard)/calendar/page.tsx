@@ -109,6 +109,8 @@ export default function CalendarPage() {
     else setCurrentDate(d => dir === 1 ? addMonths(d, 1) : subMonths(d, 1))
   }
 
+  const knownHotelIds = useMemo(() => new Set(hotels.map(h => h._id)), [hotels])
+
   // Apply all filters
   const visibleBookings = useMemo(() => {
     const q = search.trim().toLowerCase()
@@ -116,8 +118,11 @@ export default function CalendarPage() {
       if (!b.serviceId) return false
       if (b.status === 'cancelled') return false
       if (!selectedServices.has(svcId(b))) return false
+      // Only apply the hotel filter to hotels the viewer can actually filter by.
+      // A shared service is owned by a hotel that may not be in this viewer's
+      // pill list; its bookings (incl. masked occupancy) should still show.
       const hid = serviceHotel.get(svcId(b)) || ''
-      if (hid && !selectedHotels.has(hid)) return false
+      if (hid && knownHotelIds.has(hid) && !selectedHotels.has(hid)) return false
       if (statusFilter !== 'all') {
         const st = bookingState(b).key
         if (statusFilter === 'unpaid' && st !== 'unpaid') return false
@@ -130,7 +135,7 @@ export default function CalendarPage() {
       }
       return true
     })
-  }, [bookings, selectedServices, selectedHotels, serviceHotel, statusFilter, search])
+  }, [bookings, selectedServices, selectedHotels, serviceHotel, knownHotelIds, statusFilter, search])
 
   const bookingsForDay = useCallback(
     (dateStr: string) => visibleBookings.filter(b => b.date === dateStr),
@@ -139,9 +144,10 @@ export default function CalendarPage() {
 
   // Summary of the visible range
   const summary = useMemo(() => {
-    const count = visibleBookings.length
-    const revenue = visibleBookings.reduce((sum, b) => sum + (b.totalPrice || 0), 0)
-    const collected = visibleBookings
+    const own = visibleBookings.filter(b => !b.masked)
+    const count = own.length
+    const revenue = own.reduce((sum, b) => sum + (b.totalPrice || 0), 0)
+    const collected = own
       .filter(b => b.paid || (b.totalPrice || 0) === 0)
       .reduce((sum, b) => sum + (b.totalPrice || 0), 0)
     return { count, revenue, collected }

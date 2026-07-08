@@ -2,7 +2,8 @@
 
 import React, { useRef, useMemo, useEffect } from 'react'
 import { format, startOfWeek, addDays, isSameDay } from 'date-fns'
-import { Check } from 'lucide-react'
+import { Check, Lock } from 'lucide-react'
+import { useTranslation } from '@/lib/i18n'
 import {
   Booking,
   toMin,
@@ -331,11 +332,45 @@ function EventBlock({
   onClick: (b: Booking) => void
   onFinish: (b: Booking) => void
 }) {
+  const { t } = useTranslation()
   const { b } = placed
   const color = b.serviceId?.color || '#6366f1'
   const top = (placed.start - startMin) * ppm
   const height = Math.max((placed.end - placed.start) * ppm, 20)
   const widthPct = 100 / placed.cols
+
+  // A booking on a shared service made by another hotel: show it as an occupied
+  // block so this hotel can't double-book, but reveal none of its guest data.
+  if (b.masked) {
+    return (
+      <div
+        className="cal-event"
+        title={`${b.startTime}–${b.endTime} · ${t('occupied')}`}
+        style={{
+          top,
+          height,
+          left: `calc(${placed.col * widthPct}% + 2px)`,
+          width: `calc(${widthPct}% - 4px)`,
+          background: 'repeating-linear-gradient(45deg, var(--gray-100), var(--gray-100) 6px, var(--gray-200) 6px, var(--gray-200) 12px)',
+          border: '1px solid var(--gray-300)',
+          borderLeft: '3px solid var(--gray-400)',
+          padding: height > 34 ? '3px 6px' : '1px 6px',
+          cursor: 'default',
+          color: 'var(--gray-500)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.7rem', fontWeight: 600 }}>
+          <Lock size={11} /> {t('occupied')}
+        </div>
+        {height > 30 && (
+          <div style={{ fontSize: '0.64rem', fontVariantNumeric: 'tabular-nums' }}>
+            {b.startTime}–{b.endTime}
+          </div>
+        )}
+      </div>
+    )
+  }
+
   const state = bookingState(b)
   const finished = b.finished
   const unpaid = state.key === 'unpaid'

@@ -50,6 +50,7 @@ const BookingEventSchema = new Schema<IBookingEvent>({
 const BookingSchema = new Schema<IBooking>(
   {
     hotelId: { type: Schema.Types.ObjectId, ref: 'Hotel', required: true, index: true },
+    bookedByHotelId: { type: Schema.Types.ObjectId, ref: 'Hotel', default: null },
     serviceId: { type: Schema.Types.ObjectId, ref: 'Service', required: true },
     clientId: { type: Schema.Types.ObjectId, ref: 'Client', default: null },
     customerName: { type: String, required: true, trim: true },

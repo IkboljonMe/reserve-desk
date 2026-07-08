@@ -12,9 +12,13 @@ export async function GET(_req: NextRequest, ctx: RouteContext<'/api/services/[i
   await connectDB()
   const service = await Service.findById(id).populate('hotelId').lean()
   if (!service) return Response.json({ error: 'Not found' }, { status: 404 })
-  // Admins can only read services belonging to their own hotel.
-  if (session.role !== 'owner' && String((service.hotelId as { _id?: unknown })?._id ?? service.hotelId) !== session.hotelId) {
-    return Response.json({ error: 'Not found' }, { status: 404 })
+  // Admins can read services their hotel owns OR that are shared with them.
+  if (session.role !== 'owner') {
+    const ownerId = String((service.hotelId as { _id?: unknown })?._id ?? service.hotelId)
+    const shared = (service.sharedHotelIds ?? []).map(String)
+    if (ownerId !== session.hotelId && !shared.includes(session.hotelId!)) {
+      return Response.json({ error: 'Not found' }, { status: 404 })
+    }
   }
   return Response.json(service)
 }
@@ -37,6 +41,10 @@ export async function PUT(req: NextRequest, ctx: RouteContext<'/api/services/[id
     ...(body.bufferTimeBefore !== undefined && { bufferTimeBefore: Number(body.bufferTimeBefore) }),
     ...(body.bufferTimeAfter !== undefined && { bufferTimeAfter: Number(body.bufferTimeAfter) }),
     ...(body.hotelId === '' && { hotelId: null }),
+    ...(Array.isArray(body.sharedHotelIds) && {
+      sharedHotelIds: [...new Set(body.sharedHotelIds.map(String))]
+        .filter((sid): sid is string => Boolean(sid) && sid !== String(body.hotelId ?? '')),
+    }),
     ...(Array.isArray(body.pricingPlans) && { pricingPlans: body.pricingPlans }),
     ...(Array.isArray(body.pricingGroups) && { pricingGroups: body.pricingGroups }),
   }

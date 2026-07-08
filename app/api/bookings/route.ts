@@ -1,7 +1,32 @@
 import { NextRequest } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Booking } from '@/models/Booking'
-import { requireDashboard, hotelScope } from '@/lib/session'
+import { Service } from '@/models/Service'
+import { requireDashboard } from '@/lib/session'
+
+// Fields kept when a booking on a shared service belongs to another hotel: the
+// viewer needs to see the slot is occupied, but not the other hotel's guest data.
+function maskBooking(b: Record<string, unknown>) {
+  return {
+    _id: b._id,
+    serviceId: b.serviceId,
+    date: b.date,
+    startTime: b.startTime,
+    endTime: b.endTime,
+    bufferedEndTime: b.bufferedEndTime,
+    duration: b.duration,
+    status: b.status,
+    masked: true,
+    customerName: '',
+    customerPhone: '',
+    roomNumber: '',
+    notes: '',
+    totalPrice: 0,
+    paid: false,
+    finished: false,
+    history: [],
+  }
+}
 
 export async function GET(req: NextRequest) {
   const session = await requireDashboard()
@@ -14,7 +39,7 @@ export async function GET(req: NextRequest) {
   const status = searchParams.get('status')
   const limit = searchParams.get('limit')
 
-  const filter: Record<string, unknown> = hotelScope(session)
+  const filter: Record<string, unknown> = {}
   if (dateFrom && dateTo) {
     filter.date = { $gte: dateFrom, $lte: dateTo }
   } else if (dateFrom) {
@@ -24,6 +49,20 @@ export async function GET(req: NextRequest) {
   if (status) filter.status = status
 
   await connectDB()
+
+  // The owner sees every booking. An admin sees bookings attributed to their
+  // hotel PLUS bookings on any service shared with their hotel (so the shared
+  // resource's occupancy is visible), then we mask the ones that aren't theirs.
+  if (session.role !== 'owner') {
+    const accessible = await Service.find({
+      $or: [{ hotelId: session.hotelId }, { sharedHotelIds: session.hotelId }],
+    }).select('_id').lean()
+    filter.$or = [
+      { hotelId: session.hotelId },
+      { serviceId: { $in: accessible.map(s => s._id) } },
+    ]
+  }
+
   let query = Booking.find(filter)
     .populate('serviceId', 'name color')
     .sort({ date: 1, startTime: 1 })
@@ -31,6 +70,17 @@ export async function GET(req: NextRequest) {
   if (limit) query = query.limit(parseInt(limit))
 
   const bookings = await query.lean()
+
+  // Owner-sees-all / others-see-busy: for an admin, redact bookings on a shared
+  // service that neither their hotel owns (hotelId) nor made (bookedByHotelId).
+  if (session.role !== 'owner') {
+    const me = session.hotelId
+    const masked = bookings.map(b =>
+      String(b.hotelId) === me || String(b.bookedByHotelId) === me ? b : maskBooking(b)
+    )
+    return Response.json(masked)
+  }
+
   return Response.json(bookings)
 }
 
@@ -47,15 +97,24 @@ export async function POST(req: NextRequest) {
     }
 
     await connectDB()
-    const { Service } = await import('@/models/Service')
     const service = await Service.findById(serviceId).lean()
     if (!service) return Response.json({ error: 'Service not found' }, { status: 404 })
-    // Admins may only book services belonging to their own hotel; the owner may
-    // book any service. Either way, the booking inherits the service's hotel.
-    if (session.role !== 'owner' && String(service.hotelId) !== session.hotelId) {
+    // Admins may book services their hotel owns OR that are shared with them;
+    // the owner may book any service.
+    const ownerHotelId = String(service.hotelId)
+    const sharedIds = (service.sharedHotelIds ?? []).map(String)
+    if (
+      session.role !== 'owner' &&
+      ownerHotelId !== session.hotelId &&
+      !sharedIds.includes(session.hotelId!)
+    ) {
       return Response.json({ error: 'Service not found' }, { status: 404 })
     }
-    const bookingHotelId = String(service.hotelId)
+    // Revenue/ownership is always attributed to the service's owner hotel, but we
+    // record which hotel actually made the booking (for a shared resource this
+    // may be a different, sharing hotel).
+    const bookingHotelId = ownerHotelId
+    const bookedByHotelId = session.role === 'owner' ? ownerHotelId : session.hotelId
 
     const [h, m] = endTime.split(':').map(Number)
     const totalM = h * 60 + m + (service.bufferTimeAfter || 0)
@@ -90,6 +149,7 @@ export async function POST(req: NextRequest) {
 
     const booking = await Booking.create({
       hotelId: bookingHotelId,
+      bookedByHotelId,
       serviceId,
       clientId: clientId || null,
       customerName,

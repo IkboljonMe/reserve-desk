@@ -44,6 +44,7 @@ interface Service {
   icon: string
   description: string
   hotelId: string | { _id: string; name: string; shortName?: string }
+  sharedHotelIds?: string[]
   openTime: string
   closeTime: string
   slotDuration: number
@@ -76,7 +77,7 @@ const PRESET_COLORS = [
 const DRAFT_KEY = 'add-service'
 
 const EMPTY_FORM = {
-  name: '', description: '', hotelId: '', icon: 'Waves',
+  name: '', description: '', hotelId: '', sharedHotelIds: [] as string[], icon: 'Waves',
   openTime: '08:00', closeTime: '20:00',
   slotDuration: 60, capacity: 1, color: '#6366f1',
   price: 0, isFree: false, details: '',
@@ -209,6 +210,11 @@ function ServiceCard({
             <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.72rem', color: 'var(--gray-400)' }}>
               <Building2 size={11} />
               <span>{hotelName}</span>
+              {(svc.sharedHotelIds?.length ?? 0) > 0 && (
+                <span style={{ color: 'var(--brand-600)', fontWeight: 600 }}>
+                  {t('plusNHotels', { count: svc.sharedHotelIds!.length })}
+                </span>
+              )}
             </div>
           )}
         </div>
@@ -431,8 +437,9 @@ export default function ServicesPage() {
     const q = searchQuery.trim().toLowerCase()
     return services.filter(svc => {
       const hid = extractHotelId(svc.hotelId)
+      const belongsToFilterHotel = hid === filterHotel || (svc.sharedHotelIds ?? []).includes(filterHotel)
       if (q && !svc.name.toLowerCase().includes(q) && !svc.description?.toLowerCase().includes(q)) return false
-      if (filterHotel && hid !== filterHotel) return false
+      if (filterHotel && !belongsToFilterHotel) return false
       if (filterStatus === 'active' && !svc.isActive) return false
       if (filterStatus === 'inactive' && svc.isActive) return false
       return true
@@ -468,6 +475,7 @@ export default function ServicesPage() {
       icon: svc.icon || 'Waves',
       description: svc.description,
       hotelId: extractHotelId(svc.hotelId),
+      sharedHotelIds: (svc.sharedHotelIds || []).map(h => (typeof h === 'string' ? h : (h as { _id: string })._id)),
       openTime: svc.openTime,
       closeTime: svc.closeTime,
       slotDuration: svc.slotDuration,
@@ -576,8 +584,10 @@ export default function ServicesPage() {
   // Available categories for the current picker, excluding ones already added.
   function pickerOptions(): { value: string; label: string }[] {
     if (planPicker === 'room') {
-      const hotel = hotelMap.get(form.hotelId)
-      const types = hotel?.roomTypes ?? []
+      // Include the owner hotel's room types plus every shared hotel's, so a
+      // shared service can price each participating hotel's categories.
+      const ids = [form.hotelId, ...form.sharedHotelIds]
+      const types = [...new Set(ids.flatMap(id => hotelMap.get(id)?.roomTypes ?? []))]
       return types
         .filter(t => !form.pricingGroups.some(g => g.target === 'room' && g.category === t))
         .map(t => ({ value: t, label: t }))
@@ -960,10 +970,45 @@ export default function ServicesPage() {
                     placeholder={t('selectHotel')}
                     icon={<Building2 size={16} />}
                     value={form.hotelId}
-                    onChange={v => setForm(f => ({ ...f, hotelId: v }))}
+                    onChange={v => setForm(f => ({
+                      ...f,
+                      hotelId: v,
+                      // Drop the new owner from the shared list if it was there.
+                      sharedHotelIds: f.sharedHotelIds.filter(id => id !== v),
+                    }))}
                     options={hotels.map(h => ({ value: h._id, label: h.name }))}
                   />
                 </div>
+
+                {form.hotelId && hotels.length > 1 && (
+                  <div className="form-group">
+                    <label className="form-label">{t('sharedWithHotels')}</label>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                      {hotels.filter(h => h._id !== form.hotelId).map(h => {
+                        const on = form.sharedHotelIds.includes(h._id)
+                        return (
+                          <button
+                            key={h._id}
+                            type="button"
+                            className={`svc-filter-pill ${on ? 'active' : ''}`}
+                            aria-pressed={on}
+                            onClick={() => setForm(f => ({
+                              ...f,
+                              sharedHotelIds: on
+                                ? f.sharedHotelIds.filter(id => id !== h._id)
+                                : [...f.sharedHotelIds, h._id],
+                            }))}
+                          >
+                            {on ? <Check size={12} /> : <Building2 size={12} />} {h.name}
+                          </button>
+                        )
+                      })}
+                    </div>
+                    <small style={{ color: 'var(--gray-400)', fontSize: '0.7rem', display: 'block', marginTop: 6 }}>
+                      {t('sharedWithHotelsHint')}
+                    </small>
+                  </div>
+                )}
 
                 <div className="form-group">
                   <label className="form-label">{t('description')}</label>

@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Booking } from '@/models/Booking'
-import { requireDashboard, idScope } from '@/lib/session'
+import { requireDashboard, bookingIdScope } from '@/lib/session'
 
 export async function GET(_req: NextRequest, ctx: RouteContext<'/api/bookings/[id]'>) {
   const session = await requireDashboard()
@@ -9,7 +9,7 @@ export async function GET(_req: NextRequest, ctx: RouteContext<'/api/bookings/[i
 
   const { id } = await ctx.params
   await connectDB()
-  const booking = await Booking.findOne(idScope(session, id))
+  const booking = await Booking.findOne(bookingIdScope(session, id))
     .populate('serviceId', 'name color')
     .populate('createdBy', 'email name')
     .populate('history.by', 'email name')
@@ -26,7 +26,7 @@ export async function PUT(req: NextRequest, ctx: RouteContext<'/api/bookings/[id
   const body = await req.json()
 
   await connectDB()
-  const current = await Booking.findOne(idScope(session, id))
+  const current = await Booking.findOne(bookingIdScope(session, id))
   if (!current) return Response.json({ error: 'Not found' }, { status: 404 })
 
   const now = new Date()
@@ -66,6 +66,6 @@ export async function DELETE(_req: NextRequest, ctx: RouteContext<'/api/bookings
 
   const { id } = await ctx.params
   await connectDB()
-  await Booking.findOneAndDelete(idScope(session, id))
+  await Booking.findOneAndDelete(bookingIdScope(session, id))
   return Response.json({ success: true })
 }

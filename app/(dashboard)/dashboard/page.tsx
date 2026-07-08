@@ -69,7 +69,9 @@ export default function DashboardPage() {
   const range = useMemo(() => periodRange(period, customFrom, customTo), [period, customFrom, customTo])
 
   const { data: bookingsRaw = [], isLoading: loading } = useBookingsQuery(range.from, range.to)
-  const bookings = useMemo(() => bookingsRaw.filter(b => b.status !== 'cancelled'), [bookingsRaw])
+  // Exclude cancelled and masked (other hotels' bookings on a shared service —
+  // they're attributed elsewhere and carry no visible data for this hotel).
+  const bookings = useMemo(() => bookingsRaw.filter(b => b.status !== 'cancelled' && !b.masked), [bookingsRaw])
 
   // Explorer filters
   const [search, setSearch] = useState('')

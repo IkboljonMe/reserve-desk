@@ -121,6 +121,14 @@ export function idScope(session: SessionPayload, id: string): Record<string, unk
   return session.role === 'owner' ? { _id: id } : { _id: id, hotelId: session.hotelId }
 }
 
+// Booking-specific id scope. A booking is attributed to the service owner hotel
+// (hotelId) but may have been made by a different, sharing hotel (bookedByHotelId).
+// An admin may manage a booking their hotel owns OR one their hotel made.
+export function bookingIdScope(session: SessionPayload, id: string): Record<string, unknown> {
+  if (session.role === 'owner') return { _id: id }
+  return { _id: id, $or: [{ hotelId: session.hotelId }, { bookedByHotelId: session.hotelId }] }
+}
+
 // Resolve which hotel a newly-created record belongs to. Admins always use their
 // own hotel; the owner must name one (from the request body). Returns null when
 // the owner failed to supply a valid hotel.

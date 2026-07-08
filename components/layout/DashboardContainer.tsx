@@ -3,7 +3,6 @@
 import React, { useState, useEffect, Suspense } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import Sidebar from './Sidebar'
-import Header from './Header'
 import type { SessionRole } from '@/lib/session'
 
 interface Props {
@@ -11,6 +10,7 @@ interface Props {
   userName: string
   userEmail: string
   role: SessionRole
+  hotelName: string
 }
 
 function LoaderTrigger({ setLoading }: { setLoading: (val: boolean) => void }) {
@@ -47,7 +47,7 @@ function LoaderTrigger({ setLoading }: { setLoading: (val: boolean) => void }) {
   return null
 }
 
-export default function DashboardContainer({ children, userName, userEmail, role }: Props) {
+export default function DashboardContainer({ children, userName, userEmail, role, hotelName }: Props) {
   const [collapsed, setCollapsed] = useState(false)
   const [loading, setLoading] = useState(false)
 
@@ -77,15 +77,16 @@ export default function DashboardContainer({ children, userName, userEmail, role
           zIndex: 2,
         }} />
 
-        <Sidebar collapsed={collapsed} role={role} onToggle={() => setCollapsed(!collapsed)} />
+        <Sidebar
+          collapsed={collapsed}
+          role={role}
+          onToggle={() => setCollapsed(!collapsed)}
+          userName={userName}
+          userEmail={userEmail}
+          hotelName={hotelName}
+        />
 
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
-          <Header
-            userName={userName}
-            userEmail={userEmail}
-            onToggleSidebar={() => setCollapsed(!collapsed)}
-            sidebarCollapsed={collapsed}
-          />
           <main style={{ flex: 1, overflow: 'auto', padding: '1.5rem', background: 'var(--gray-50)' }}>
             {children}
           </main>

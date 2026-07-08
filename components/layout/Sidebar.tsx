@@ -1,8 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { useTranslation } from '@/lib/i18n'
+import { usePathname, useRouter } from 'next/navigation'
+import { useTranslation, LANGUAGES, LanguageCode } from '@/lib/i18n'
 import { useState, useEffect, useCallback } from 'react'
 import type { SessionRole } from '@/lib/session'
 
@@ -13,14 +13,33 @@ export default function Sidebar({
   collapsed = false,
   role = 'admin',
   onToggle,
+  userName = '',
+  userEmail = '',
+  hotelName = '',
 }: {
   collapsed?: boolean
   role?: SessionRole
   onToggle?: () => void
+  userName?: string
+  userEmail?: string
+  hotelName?: string
 }) {
   const pathname = usePathname()
-  const { t } = useTranslation()
+  const router = useRouter()
+  const { t, lang, setLang } = useTranslation()
   const [notifCount, setNotifCount] = useState(0)
+  const [loggingOut, setLoggingOut] = useState(false)
+
+  async function handleLogout() {
+    setLoggingOut(true)
+    await fetch('/api/auth/logout', { method: 'POST' })
+    router.push('/login')
+    router.refresh()
+  }
+
+  // Owner has no single hotel; admins are scoped to one. Show whichever applies
+  // as the account's context line under the name.
+  const accountContext = role === 'owner' ? t('owner') : (hotelName || t('hotelAdmin'))
 
   const loadNotifCount = useCallback(async () => {
     try {
@@ -324,59 +343,191 @@ export default function Sidebar({
         })}
       </nav>
 
-      {/* Bottom: collapse / expand toggle */}
+      {/* Bottom: account, language, logout, and the collapse / expand toggle */}
       <div style={{
-        padding: collapsed ? '0.6rem 0' : '0.6rem 0.75rem',
         borderTop: '1px solid rgba(255,255,255,0.06)',
+        padding: collapsed ? '0.6rem 0' : '0.75rem',
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: collapsed ? 'center' : 'space-between',
-        gap: 8,
+        flexDirection: 'column',
+        gap: 10,
+        alignItems: collapsed ? 'center' : 'stretch',
         transition: `padding 0.24s ${ease}`,
       }}>
-        <span style={{
-          overflow: 'hidden',
-          maxWidth: collapsed ? 0 : 60,
-          opacity: collapsed ? 0 : 1,
-          whiteSpace: 'nowrap',
-          color: 'rgba(255,255,255,0.2)',
-          fontSize: '0.7rem',
-          paddingLeft: collapsed ? 0 : 6,
-          transition: labelTransition,
+        {/* Account */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: collapsed ? 0 : 10,
+          justifyContent: collapsed ? 'center' : 'flex-start',
+          padding: collapsed ? 0 : '2px',
+          transition: `gap 0.24s ${ease}`,
         }}>
-          v1.0
-        </span>
-        <button
-          type="button"
-          onClick={onToggle}
-          title={collapsed ? t('expandMenu') : t('collapseMenu')}
-          aria-label={collapsed ? t('expandMenu') : t('collapseMenu')}
-          style={{
-            width: 34, height: 34,
-            flexShrink: 0,
-            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            background: 'rgba(255,255,255,0.05)',
-            border: '1px solid rgba(255,255,255,0.08)',
-            borderRadius: 9,
-            color: 'rgba(255,255,255,0.65)',
-            cursor: 'pointer',
-            transition: 'background 0.15s ease, color 0.15s ease',
-          }}
-          onMouseEnter={e => {
-            (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.12)'
-            ;(e.currentTarget as HTMLElement).style.color = '#fff'
-          }}
-          onMouseLeave={e => {
-            (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)'
-            ;(e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.65)'
-          }}
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-            style={{ transform: collapsed ? 'rotate(180deg)' : 'rotate(0deg)', transition: `transform 0.24s ${ease}` }}
+          <div
+            title={collapsed ? `${userName} · ${accountContext}` : undefined}
+            style={{
+              width: 36, height: 36,
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #4f6ef7, #7c3aed)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#fff',
+              fontWeight: 700,
+              fontSize: '0.9rem',
+              boxShadow: '0 3px 8px rgba(79,110,247,0.35)',
+              flexShrink: 0,
+            }}
           >
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
-        </button>
+            {(userName.charAt(0) || '?').toUpperCase()}
+          </div>
+          <div style={{
+            overflow: 'hidden',
+            flex: 1,
+            minWidth: 0,
+            maxWidth: collapsed ? 0 : 200,
+            opacity: collapsed ? 0 : 1,
+            transition: labelTransition,
+          }}>
+            <div style={{
+              color: '#fff', fontSize: '0.8125rem', fontWeight: 600, lineHeight: 1.25,
+              whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+            }}>
+              {userName}
+            </div>
+            <div style={{
+              color: 'var(--sidebar-active, #8ea2ff)', fontSize: '0.7rem', fontWeight: 500, lineHeight: 1.3,
+              whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+            }}>
+              {accountContext}
+            </div>
+            <div style={{
+              color: 'rgba(255,255,255,0.4)', fontSize: '0.68rem', lineHeight: 1.3,
+              whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+            }}>
+              {userEmail}
+            </div>
+          </div>
+        </div>
+
+        {/* Language segmented control — hidden in the rail */}
+        {!collapsed && (
+          <div style={{
+            display: 'flex',
+            gap: 2,
+            padding: 3,
+            borderRadius: 9,
+            background: 'rgba(255,255,255,0.05)',
+            border: '1px solid rgba(255,255,255,0.06)',
+          }}>
+            {LANGUAGES.map(l => {
+              const active = l.code === lang
+              return (
+                <button
+                  key={l.code}
+                  type="button"
+                  onClick={() => setLang(l.code as LanguageCode)}
+                  style={{
+                    flex: 1,
+                    padding: '5px 0',
+                    borderRadius: 6,
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '0.7rem',
+                    fontWeight: 700,
+                    letterSpacing: '0.03em',
+                    color: active ? '#fff' : 'rgba(255,255,255,0.5)',
+                    background: active ? 'linear-gradient(135deg, rgba(79,110,247,0.9), rgba(124,58,237,0.85))' : 'transparent',
+                    boxShadow: active ? '0 2px 6px rgba(79,110,247,0.35)' : 'none',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  {l.label}
+                </button>
+              )
+            })}
+          </div>
+        )}
+
+        {/* Logout + collapse toggle */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          flexDirection: collapsed ? 'column' : 'row',
+          width: collapsed ? 'auto' : '100%',
+        }}>
+          <button
+            type="button"
+            onClick={handleLogout}
+            disabled={loggingOut}
+            title={t('signOut')}
+            aria-label={t('signOut')}
+            style={{
+              flex: collapsed ? undefined : 1,
+              width: collapsed ? 34 : undefined,
+              height: 34,
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              gap: 8,
+              background: 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: 9,
+              color: 'rgba(255,255,255,0.65)',
+              cursor: loggingOut ? 'default' : 'pointer',
+              opacity: loggingOut ? 0.6 : 1,
+              fontSize: '0.8rem',
+              fontWeight: 500,
+              transition: 'background 0.15s ease, color 0.15s ease',
+            }}
+            onMouseEnter={e => {
+              if (loggingOut) return
+              ;(e.currentTarget as HTMLElement).style.background = 'rgba(239,68,68,0.15)'
+              ;(e.currentTarget as HTMLElement).style.color = '#fca5a5'
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)'
+              ;(e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.65)'
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              <polyline points="16 17 21 12 16 7"/>
+              <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            {!collapsed && (
+              <span style={{ whiteSpace: 'nowrap' }}>{t('signOut')}</span>
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={onToggle}
+            title={collapsed ? t('expandMenu') : t('collapseMenu')}
+            aria-label={collapsed ? t('expandMenu') : t('collapseMenu')}
+            style={{
+              width: 34, height: 34,
+              flexShrink: 0,
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              background: 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: 9,
+              color: 'rgba(255,255,255,0.65)',
+              cursor: 'pointer',
+              transition: 'background 0.15s ease, color 0.15s ease',
+            }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.12)'
+              ;(e.currentTarget as HTMLElement).style.color = '#fff'
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)'
+              ;(e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.65)'
+            }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+              style={{ transform: collapsed ? 'rotate(180deg)' : 'rotate(0deg)', transition: `transform 0.24s ${ease}` }}
+            >
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+        </div>
       </div>
     </aside>
   )
