@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { useTranslation, DictionaryKeys } from '@/lib/i18n'
 
 const TABS: { labelKey: DictionaryKeys; href: string }[] = [
+  { labelKey: 'admins', href: '/settings/admins' },
   { labelKey: 'services', href: '/settings/services' },
   { labelKey: 'hotelsAndRooms', href: '/settings/hotels' },
   { labelKey: 'clientGroups', href: '/settings/client-groups' },

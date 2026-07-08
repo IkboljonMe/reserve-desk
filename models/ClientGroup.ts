@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document, Types } from 'mongoose'
 
 // Admin-defined client groups (categories), e.g. "Private", "Friends",
-// "Contractors". Global collection — not scoped to a hotel.
+// "Contractors". Global collection — one shared set used by every hotel.
 export interface IClientGroup extends Document {
   _id: Types.ObjectId
   name: string

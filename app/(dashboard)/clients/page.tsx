@@ -13,6 +13,7 @@ interface Room {
 
 interface Hotel {
   _id: string
+  name?: string
   shortName: string
 }
 
@@ -20,10 +21,12 @@ interface ClientGroup {
   _id: string
   name: string
   color: string
+  hotelId?: string
 }
 
 interface Client {
   _id: string
+  hotelId: string
   name: string
   phone: string
   roomNumber: string
@@ -32,7 +35,7 @@ interface Client {
   groupId: ClientGroup | string | null
 }
 
-const EMPTY_FORM = { name: '', phone: '', roomNumber: '', floor: 1, notes: '', groupId: '' }
+const EMPTY_FORM = { name: '', phone: '', roomNumber: '', floor: 1, notes: '', groupId: '', hotelId: '' }
 
 // groupId comes back populated (object) on GET but is a raw id/string elsewhere.
 function extractGroupId(groupId: Client['groupId']): string {
@@ -84,15 +87,18 @@ export default function ClientsPage() {
 
   useEffect(() => { loadData() }, [loadData])
 
+  // When the owner manages several hotels, new records must name a hotel.
+  const multiHotel = hotels.length > 1
+
   function openAdd() {
     setEditClient(null)
-    setForm(EMPTY_FORM)
+    setForm({ ...EMPTY_FORM, hotelId: hotels[0]?._id || '' })
     setModalOpen(true)
   }
 
   function openEdit(c: Client) {
     setEditClient(c)
-    setForm({ name: c.name, phone: c.phone, roomNumber: c.roomNumber, floor: c.floor, notes: c.notes, groupId: extractGroupId(c.groupId) })
+    setForm({ name: c.name, phone: c.phone, roomNumber: c.roomNumber, floor: c.floor, notes: c.notes, groupId: extractGroupId(c.groupId), hotelId: c.hotelId })
     setModalOpen(true)
   }
 
@@ -148,8 +154,13 @@ export default function ClientsPage() {
     }
   }
 
+  // Rooms are per-hotel, so scope the room picker to the record's hotel when the
+  // owner spans several. Client groups are global (shared across all hotels).
+  const modalRooms = multiHotel ? rooms.filter(r => r.hotelId === form.hotelId) : rooms
+  const modalGroups = groups
+
   // Group by floor for display
-  const floorGroups = Array.from(new Set(rooms.map(r => r.floor))).sort((a, b) => a - b)
+  const floorGroups = Array.from(new Set(modalRooms.map(r => r.floor))).sort((a, b) => a - b)
 
   // Resolve the full group record for a client (works whether populated or id).
   function clientGroup(c: Client): ClientGroup | null {
@@ -335,6 +346,22 @@ export default function ClientsPage() {
 
             <form onSubmit={handleSave}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {multiHotel && (
+                  <div className="form-group">
+                    <label className="form-label">{t('hotel')} *</label>
+                    <select
+                      className="form-select"
+                      required
+                      value={form.hotelId}
+                      disabled={!!editClient}
+                      onChange={e => setForm(f => ({ ...f, hotelId: e.target.value, roomNumber: '' }))}
+                    >
+                      <option value="" disabled>{t('selectHotel')}</option>
+                      {hotels.map(h => <option key={h._id} value={h._id}>{h.name || h.shortName} ({h.shortName})</option>)}
+                    </select>
+                  </div>
+                )}
+
                 <div className="form-group">
                   <label className="form-label">{t('fullName')} *</label>
                   <input className="form-input" required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder={t('fullNamePlaceholder')} />
@@ -348,9 +375,9 @@ export default function ClientsPage() {
                     onChange={e => setForm(f => ({ ...f, groupId: e.target.value }))}
                   >
                     <option value="">{t('noGroup')}</option>
-                    {groups.map(g => <option key={g._id} value={g._id}>{g.name}</option>)}
+                    {modalGroups.map(g => <option key={g._id} value={g._id}>{g.name}</option>)}
                   </select>
-                  {groups.length === 0 && (
+                  {modalGroups.length === 0 && (
                     <p style={{ marginTop: 6, fontSize: '0.75rem', color: 'var(--gray-500)' }}>
                       {t('noGroupsYet')}
                     </p>

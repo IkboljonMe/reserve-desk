@@ -1,11 +1,11 @@
 import { NextRequest } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Room } from '@/models/Room'
-import { getSession } from '@/lib/session'
+import { requireOwner } from '@/lib/session'
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const session = await getSession()
-  if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  const session = await requireOwner()
+  if (session instanceof Response) return session
 
   try {
     const { id } = await params
@@ -32,8 +32,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const session = await getSession()
-  if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  const session = await requireOwner()
+  if (session instanceof Response) return session
 
   try {
     const { id } = await params

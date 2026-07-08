@@ -83,6 +83,7 @@ export type ContractStatus = 'awaiting' | 'signed' | 'terminated'
 
 export interface Contract {
   _id: string
+  hotelId?: string
   organizationName: string
   inn: string
   representativeName: string

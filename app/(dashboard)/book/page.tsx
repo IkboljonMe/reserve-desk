@@ -172,6 +172,7 @@ export default function BookPage() {
       setRooms(Array.isArray(rms) ? rms : [])
       setHotels(Array.isArray(htls) ? htls : [])
       setClientGroups(Array.isArray(grps) ? grps : [])
+      const htlList = Array.isArray(htls) ? htls : []
       if (preServiceId) {
         const found = active.find((s: Service) => s._id === preServiceId)
         if (found) {
@@ -180,6 +181,10 @@ export default function BookPage() {
           setSelectedService(found)
           setStep(3)
         }
+      } else if (htlList.length === 1) {
+        // Admins are scoped to a single hotel — skip the hotel-picker step.
+        setSelectedHotelId(htlList[0]._id)
+        setStep(2)
       }
     })
   }, [preServiceId])

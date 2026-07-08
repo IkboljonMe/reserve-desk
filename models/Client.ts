@@ -2,6 +2,7 @@ import mongoose, { Schema, Document, Types } from 'mongoose'
 
 export interface IClient extends Document {
   _id: Types.ObjectId
+  hotelId: Types.ObjectId  // Hotel this client belongs to
   name: string
   phone: string
   roomNumber: string
@@ -14,6 +15,7 @@ export interface IClient extends Document {
 
 const ClientSchema = new Schema<IClient>(
   {
+    hotelId: { type: Schema.Types.ObjectId, ref: 'Hotel', required: true, index: true },
     name: { type: String, required: true, trim: true },
     phone: { type: String, default: '', trim: true },
     roomNumber: { type: String, default: '', trim: true },

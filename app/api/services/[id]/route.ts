@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Service } from '@/models/Service'
 import '@/models/Hotel'
-import { getSession } from '@/lib/session'
+import { getSession, requireOwner } from '@/lib/session'
 
 export async function GET(_req: NextRequest, ctx: RouteContext<'/api/services/[id]'>) {
   const session = await getSession()
@@ -12,12 +12,16 @@ export async function GET(_req: NextRequest, ctx: RouteContext<'/api/services/[i
   await connectDB()
   const service = await Service.findById(id).populate('hotelId').lean()
   if (!service) return Response.json({ error: 'Not found' }, { status: 404 })
+  // Admins can only read services belonging to their own hotel.
+  if (session.role !== 'owner' && String((service.hotelId as { _id?: unknown })?._id ?? service.hotelId) !== session.hotelId) {
+    return Response.json({ error: 'Not found' }, { status: 404 })
+  }
   return Response.json(service)
 }
 
 export async function PUT(req: NextRequest, ctx: RouteContext<'/api/services/[id]'>) {
-  const session = await getSession()
-  if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  const session = await requireOwner()
+  if (session instanceof Response) return session
 
   const { id } = await ctx.params
   const body = await req.json()
@@ -48,8 +52,8 @@ export async function PUT(req: NextRequest, ctx: RouteContext<'/api/services/[id
 }
 
 export async function DELETE(_req: NextRequest, ctx: RouteContext<'/api/services/[id]'>) {
-  const session = await getSession()
-  if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  const session = await requireOwner()
+  if (session instanceof Response) return session
 
   const { id } = await ctx.params
   await connectDB()

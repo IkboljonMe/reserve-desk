@@ -4,8 +4,20 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslation } from '@/lib/i18n'
 import { useState, useEffect, useCallback } from 'react'
+import type { SessionRole } from '@/lib/session'
 
-export default function Sidebar({ collapsed = false }: { collapsed?: boolean }) {
+const EXPANDED_WIDTH = 232
+const RAIL_WIDTH = 72
+
+export default function Sidebar({
+  collapsed = false,
+  role = 'admin',
+  onToggle,
+}: {
+  collapsed?: boolean
+  role?: SessionRole
+  onToggle?: () => void
+}) {
   const pathname = usePathname()
   const { t } = useTranslation()
   const [notifCount, setNotifCount] = useState(0)
@@ -106,6 +118,7 @@ export default function Sidebar({ collapsed = false }: { collapsed?: boolean }) 
         </svg>
       ),
       children: [
+        { label: t('admins'), href: '/settings/admins' },
         { label: t('services'), href: '/settings/services' },
         { label: t('hotelsAndRooms'), href: '/settings/hotels' },
         { label: t('clientGroups'), href: '/settings/client-groups' },
@@ -113,23 +126,40 @@ export default function Sidebar({ collapsed = false }: { collapsed?: boolean }) 
     },
   ]
 
+  // The owner sees everything (all hotels + Settings); admins get every
+  // operational item but Settings.
+  const visibleItems = role === 'owner'
+    ? NAV_ITEMS
+    : NAV_ITEMS.filter(item => item.href !== '/settings')
+
+  // Shared transition timing so every collapsing element moves in sync.
+  const ease = 'cubic-bezier(0.4, 0, 0.2, 1)'
+  const labelTransition = `max-width 0.22s ${ease}, opacity 0.18s ${ease}, margin 0.22s ${ease}`
+
   return (
     <aside style={{
-      width: collapsed ? 0 : 232,
-      minWidth: collapsed ? 0 : 232,
+      width: collapsed ? RAIL_WIDTH : EXPANDED_WIDTH,
+      minWidth: collapsed ? RAIL_WIDTH : EXPANDED_WIDTH,
       background: 'var(--sidebar-bg)',
-      borderRight: collapsed ? 'none' : '1px solid rgba(255,255,255,0.05)',
+      borderRight: '1px solid rgba(255,255,255,0.08)',
       display: 'flex',
       flexDirection: 'column',
       overflow: 'hidden',
-      transition: 'width 0.2s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-right 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+      transition: `width 0.24s ${ease}, min-width 0.24s ${ease}`,
     }}>
       {/* Brand */}
       <div style={{
-        padding: '1.35rem 1.25rem 1.1rem',
+        padding: collapsed ? '1.35rem 0 1.1rem' : '1.35rem 1.25rem 1.1rem',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
+        transition: `padding 0.24s ${ease}`,
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: collapsed ? 0 : 11,
+          justifyContent: collapsed ? 'center' : 'flex-start',
+          transition: `gap 0.24s ${ease}`,
+        }}>
           <div style={{
             width: 38, height: 38,
             borderRadius: 8,
@@ -142,7 +172,13 @@ export default function Sidebar({ collapsed = false }: { collapsed?: boolean }) 
           }}>
             <img src="/assets/logo-safir.png" alt="Safir Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
           </div>
-          <div>
+          <div style={{
+            overflow: 'hidden',
+            maxWidth: collapsed ? 0 : 160,
+            opacity: collapsed ? 0 : 1,
+            whiteSpace: 'nowrap',
+            transition: labelTransition,
+          }}>
             <div style={{ color: '#fff', fontSize: '0.95rem', fontWeight: 700, lineHeight: 1.2, letterSpacing: '-0.01em' }}>Safir Hotel Services</div>
             <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.7rem', letterSpacing: '0.02em' }}>{t('hotelAdmin')}</div>
           </div>
@@ -150,38 +186,47 @@ export default function Sidebar({ collapsed = false }: { collapsed?: boolean }) 
       </div>
 
       {/* Nav */}
-      <nav style={{ flex: 1, padding: '1rem 0.75rem', display: 'flex', flexDirection: 'column', gap: 3 }}>
+      <nav style={{ flex: 1, padding: '1rem 0.75rem', display: 'flex', flexDirection: 'column', gap: 3, overflowY: 'auto', overflowX: 'hidden' }}>
         <div style={{
-          padding: '0 10px 8px',
+          padding: '0 10px',
+          height: collapsed ? 0 : 22,
+          marginBottom: collapsed ? 0 : 8,
           fontSize: '0.65rem',
           fontWeight: 700,
           letterSpacing: '0.12em',
           textTransform: 'uppercase',
           color: 'rgba(255,255,255,0.28)',
+          overflow: 'hidden',
+          opacity: collapsed ? 0 : 1,
+          whiteSpace: 'nowrap',
+          transition: `height 0.22s ${ease}, opacity 0.18s ${ease}, margin 0.22s ${ease}`,
         }}>
           {t('menu')}
         </div>
-        {NAV_ITEMS.map((item) => {
+        {visibleItems.map((item) => {
           const isActive = item.href === '/settings'
             ? pathname.startsWith('/settings')
             : pathname.startsWith(item.href)
+          const badge = 'badge' in item ? (item.badge ?? 0) : 0
 
           return (
             <div key={item.href}>
               <Link
                 href={item.href}
+                title={collapsed ? item.label : undefined}
                 style={{
                   position: 'relative',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 11,
-                  padding: '9px 11px',
+                  gap: collapsed ? 0 : 11,
+                  justifyContent: collapsed ? 'center' : 'flex-start',
+                  padding: collapsed ? '10px 0' : '9px 11px',
                   borderRadius: 10,
                   textDecoration: 'none',
                   color: isActive ? '#fff' : 'var(--sidebar-text)',
                   background: isActive ? 'linear-gradient(135deg, rgba(79,110,247,0.28), rgba(124,58,237,0.22))' : 'transparent',
                   boxShadow: isActive ? 'inset 0 0 0 1px rgba(124,146,255,0.25)' : 'none',
-                  transition: 'all 0.15s ease',
+                  transition: `background 0.15s ease, gap 0.24s ${ease}, padding 0.24s ${ease}`,
                   fontSize: '0.875rem',
                   fontWeight: isActive ? 600 : 500,
                 }}
@@ -192,39 +237,62 @@ export default function Sidebar({ collapsed = false }: { collapsed?: boolean }) 
                   if (!isActive) (e.currentTarget as HTMLElement).style.background = 'transparent'
                 }}
               >
-                {isActive && (
+                {isActive && !collapsed && (
                   <span style={{
                     position: 'absolute', left: -7, top: '50%', transform: 'translateY(-50%)',
                     width: 3, height: 18, borderRadius: 4, background: 'var(--sidebar-active)',
                   }} />
                 )}
-                <span style={{ display: 'inline-flex', color: isActive ? '#fff' : 'var(--sidebar-text)' }}>{item.icon}</span>
-                {item.label}
-                {'badge' in item && (item.badge ?? 0) > 0 && (
-                  <span style={{
-                    marginLeft: 'auto',
-                    minWidth: 18, height: 18, padding: '0 5px',
-                    borderRadius: 9,
-                    background: 'var(--danger)',
-                    color: '#fff',
-                    fontSize: '0.68rem', fontWeight: 700,
-                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                    boxShadow: '0 2px 6px rgba(239,68,68,0.45)',
-                  }}>
-                    {(item.badge ?? 0) > 99 ? '99+' : item.badge}
-                  </span>
-                )}
-                {isActive && item.href === '/settings' && (
-                  <span style={{ marginLeft: 'auto', color: 'rgba(255,255,255,0.5)' }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <polyline points="6 9 12 15 18 9"/>
-                    </svg>
-                  </span>
-                )}
+                <span style={{ position: 'relative', display: 'inline-flex', flexShrink: 0, color: isActive ? '#fff' : 'var(--sidebar-text)' }}>
+                  {item.icon}
+                  {/* Collapsed rail: badge shrinks to a dot on the icon corner. */}
+                  {collapsed && badge > 0 && (
+                    <span style={{
+                      position: 'absolute', top: -4, right: -4,
+                      minWidth: 8, height: 8,
+                      borderRadius: 9,
+                      background: 'var(--danger)',
+                      boxShadow: '0 0 0 2px var(--sidebar-bg)',
+                    }} />
+                  )}
+                </span>
+                <span style={{
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  overflow: 'hidden',
+                  maxWidth: collapsed ? 0 : 200,
+                  opacity: collapsed ? 0 : 1,
+                  whiteSpace: 'nowrap',
+                  transition: labelTransition,
+                }}>
+                  <span style={{ flex: 1 }}>{item.label}</span>
+                  {badge > 0 && (
+                    <span style={{
+                      marginLeft: 8,
+                      minWidth: 18, height: 18, padding: '0 5px',
+                      borderRadius: 9,
+                      background: 'var(--danger)',
+                      color: '#fff',
+                      fontSize: '0.68rem', fontWeight: 700,
+                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                      boxShadow: '0 2px 6px rgba(239,68,68,0.45)',
+                    }}>
+                      {badge > 99 ? '99+' : badge}
+                    </span>
+                  )}
+                  {item.href === '/settings' && (
+                    <span style={{ marginLeft: 8, color: 'rgba(255,255,255,0.5)', display: 'inline-flex', transform: isActive ? 'rotate(0deg)' : 'rotate(-90deg)', transition: 'transform 0.2s ease' }}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="6 9 12 15 18 9"/>
+                      </svg>
+                    </span>
+                  )}
+                </span>
               </Link>
 
-              {/* Sub-items for settings */}
-              {item.children && isActive && (
+              {/* Sub-items for settings — only shown when expanded */}
+              {item.children && isActive && !collapsed && (
                 <div style={{ marginLeft: 28, marginTop: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>
                   {item.children.map(child => {
                     const childActive = pathname === child.href || (child.href !== '/settings' && pathname.startsWith(child.href))
@@ -242,6 +310,7 @@ export default function Sidebar({ collapsed = false }: { collapsed?: boolean }) 
                           fontSize: '0.8125rem',
                           fontWeight: childActive ? 500 : 400,
                           transition: 'all 0.15s ease',
+                          whiteSpace: 'nowrap',
                         }}
                       >
                         {child.label}
@@ -255,14 +324,59 @@ export default function Sidebar({ collapsed = false }: { collapsed?: boolean }) 
         })}
       </nav>
 
-      {/* Bottom label */}
+      {/* Bottom: collapse / expand toggle */}
       <div style={{
-        padding: '0.75rem 1.25rem',
+        padding: collapsed ? '0.6rem 0' : '0.6rem 0.75rem',
         borderTop: '1px solid rgba(255,255,255,0.06)',
-        color: 'rgba(255,255,255,0.2)',
-        fontSize: '0.7rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: collapsed ? 'center' : 'space-between',
+        gap: 8,
+        transition: `padding 0.24s ${ease}`,
       }}>
-        v1.0
+        <span style={{
+          overflow: 'hidden',
+          maxWidth: collapsed ? 0 : 60,
+          opacity: collapsed ? 0 : 1,
+          whiteSpace: 'nowrap',
+          color: 'rgba(255,255,255,0.2)',
+          fontSize: '0.7rem',
+          paddingLeft: collapsed ? 0 : 6,
+          transition: labelTransition,
+        }}>
+          v1.0
+        </span>
+        <button
+          type="button"
+          onClick={onToggle}
+          title={collapsed ? t('expandMenu') : t('collapseMenu')}
+          aria-label={collapsed ? t('expandMenu') : t('collapseMenu')}
+          style={{
+            width: 34, height: 34,
+            flexShrink: 0,
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            background: 'rgba(255,255,255,0.05)',
+            border: '1px solid rgba(255,255,255,0.08)',
+            borderRadius: 9,
+            color: 'rgba(255,255,255,0.65)',
+            cursor: 'pointer',
+            transition: 'background 0.15s ease, color 0.15s ease',
+          }}
+          onMouseEnter={e => {
+            (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.12)'
+            ;(e.currentTarget as HTMLElement).style.color = '#fff'
+          }}
+          onMouseLeave={e => {
+            (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)'
+            ;(e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.65)'
+          }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+            style={{ transform: collapsed ? 'rotate(180deg)' : 'rotate(0deg)', transition: `transform 0.24s ${ease}` }}
+          >
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+        </button>
       </div>
     </aside>
   )

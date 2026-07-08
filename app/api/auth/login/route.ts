@@ -18,9 +18,10 @@ export async function POST(req: NextRequest) {
       return Response.json({ error: 'Invalid email or password' }, { status: 401 })
     }
 
-    await createSession(admin._id.toString(), admin.email, admin.name)
+    const hotelId = admin.hotelId ? admin.hotelId.toString() : null
+    await createSession(admin._id.toString(), admin.email, admin.name, admin.role, hotelId)
 
-    return Response.json({ success: true, name: admin.name })
+    return Response.json({ success: true, name: admin.name, role: admin.role })
   } catch (err) {
     console.error('Login error:', err)
     return Response.json({ error: 'Something went wrong' }, { status: 500 })

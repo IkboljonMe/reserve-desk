@@ -1,4 +1,5 @@
 export interface ContractInput {
+  hotelId?: string
   organizationName: string
   inn: string
   representativeName: string

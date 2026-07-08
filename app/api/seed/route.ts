@@ -4,8 +4,12 @@ import { Hotel } from '@/models/Hotel'
 import { Room } from '@/models/Room'
 import { Service } from '@/models/Service'
 import { ClientGroup } from '@/models/ClientGroup'
+import { requireOwner } from '@/lib/session'
 
 export async function POST() {
+  const session = await requireOwner()
+  if (session instanceof Response) return session
+
   try {
     await connectDB()
 
@@ -39,13 +43,13 @@ export async function POST() {
 
     // 3. Seed Client Groups
     const vipGroup = await ClientGroup.findOneAndUpdate(
-      { name: 'VIP Clients' },
-      { name: 'VIP Clients', color: '#f59e0b', order: 1 },
+      { hotelId: safirHotel._id, name: 'VIP Clients' },
+      { hotelId: safirHotel._id, name: 'VIP Clients', color: '#f59e0b', order: 1 },
       { upsert: true, new: true }
     )
     const regularGroup = await ClientGroup.findOneAndUpdate(
-      { name: 'Regular Clients' },
-      { name: 'Regular Clients', color: '#3b82f6', order: 2 },
+      { hotelId: safirHotel._id, name: 'Regular Clients' },
+      { hotelId: safirHotel._id, name: 'Regular Clients', color: '#3b82f6', order: 2 },
       { upsert: true, new: true }
     )
 

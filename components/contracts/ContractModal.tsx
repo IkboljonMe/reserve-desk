@@ -6,8 +6,15 @@ import { useTranslation } from '@/lib/i18n'
 
 export type ContractStatus = 'awaiting' | 'signed' | 'terminated'
 
+export interface ContractHotel {
+  _id: string
+  name?: string
+  shortName: string
+}
+
 export interface Contract {
   _id: string
+  hotelId?: string
   organizationName: string
   inn: string
   representativeName: string
@@ -25,12 +32,14 @@ export interface Contract {
 interface ContractModalProps {
   isOpen: boolean
   editContract: Contract | null
+  hotels?: ContractHotel[]
   onClose: () => void
   onSave: (formData: typeof EMPTY_FORM) => Promise<void>
   saving: boolean
 }
 
 const EMPTY_FORM = {
+  hotelId: '',
   organizationName: '',
   inn: '',
   representativeName: '',
@@ -53,6 +62,7 @@ function toDateInput(d: string | null): string {
 export default function ContractModal({
   isOpen,
   editContract,
+  hotels = [],
   onClose,
   onSave,
   saving,
@@ -60,9 +70,13 @@ export default function ContractModal({
   const { t } = useTranslation()
   const [form, setForm] = useState(EMPTY_FORM)
 
+  // Only the owner spans multiple hotels; a new contract must then name one.
+  const multiHotel = hotels.length > 1
+
   useEffect(() => {
     if (editContract) {
       setForm({
+        hotelId: editContract.hotelId || '',
         organizationName: editContract.organizationName || '',
         inn: editContract.inn || '',
         representativeName: editContract.representativeName || '',
@@ -76,8 +90,9 @@ export default function ContractModal({
         reminderDays: editContract.reminderDays || [30, 7],
       })
     } else {
-      setForm(EMPTY_FORM)
+      setForm({ ...EMPTY_FORM, hotelId: hotels[0]?._id || '' })
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editContract, isOpen])
 
   const toggleReminder = (day: number) => {
@@ -112,6 +127,22 @@ export default function ContractModal({
 
         <form onSubmit={handleFormSubmit}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxHeight: '62vh', overflowY: 'auto', paddingRight: 4 }}>
+            {multiHotel && (
+              <div className="form-group">
+                <label className="form-label">{t('hotel')} *</label>
+                <select
+                  className="form-input"
+                  required
+                  value={form.hotelId}
+                  disabled={!!editContract}
+                  onChange={e => setForm(f => ({ ...f, hotelId: e.target.value }))}
+                >
+                  <option value="" disabled>{t('selectHotel')}</option>
+                  {hotels.map(h => <option key={h._id} value={h._id}>{h.name || h.shortName} ({h.shortName})</option>)}
+                </select>
+              </div>
+            )}
+
             <div className="form-group">
               <label className="form-label">{t('organizationName')} *</label>
               <input className="form-input" required value={form.organizationName} onChange={e => setForm(f => ({ ...f, organizationName: e.target.value }))} placeholder={t('orgNamePlaceholder')} />

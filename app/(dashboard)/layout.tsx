@@ -13,7 +13,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <QueryProvider>
         <ToastProvider>
          <DraftProvider>
-          <DashboardContainer userName={session.name} userEmail={session.email}>
+          <DashboardContainer userName={session.name} userEmail={session.email} role={session.role}>
             {children}
           </DashboardContainer>
          </DraftProvider>

@@ -1,11 +1,11 @@
 import { NextRequest } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Contract } from '@/models/Contract'
-import { getSession } from '@/lib/session'
+import { requireDashboard, idScope } from '@/lib/session'
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const session = await getSession()
-  if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  const session = await requireDashboard()
+  if (session instanceof Response) return session
 
   try {
     const { id } = await params
@@ -30,7 +30,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     }
 
     await connectDB()
-    const contract = await Contract.findByIdAndUpdate(id, update, { new: true }).lean()
+    const contract = await Contract.findOneAndUpdate(idScope(session, id), update, { new: true }).lean()
     if (!contract) return Response.json({ error: 'Not found' }, { status: 404 })
     return Response.json(contract)
   } catch (err) {
@@ -42,8 +42,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 // PATCH is used to dismiss a single reminder tier without touching the rest of
 // the contract (called from the Notifications page).
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const session = await getSession()
-  if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  const session = await requireDashboard()
+  if (session instanceof Response) return session
 
   try {
     const { id } = await params
@@ -51,8 +51,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     await connectDB()
 
     if (typeof body.dismissReminder === 'number') {
-      const contract = await Contract.findByIdAndUpdate(
-        id,
+      const contract = await Contract.findOneAndUpdate(
+        idScope(session, id),
         { $addToSet: { dismissedReminders: body.dismissReminder } },
         { new: true },
       ).lean()
@@ -68,13 +68,13 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const session = await getSession()
-  if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  const session = await requireDashboard()
+  if (session instanceof Response) return session
 
   try {
     const { id } = await params
     await connectDB()
-    await Contract.findByIdAndDelete(id)
+    await Contract.findOneAndDelete(idScope(session, id))
     return Response.json({ ok: true })
   } catch (err) {
     console.error(err)

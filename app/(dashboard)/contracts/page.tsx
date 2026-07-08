@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useToast } from '@/components/ToastProvider'
+import { getHotels } from '@/lib/api/hotels'
 import { formatUZ } from '@/lib/timezone'
 import { useTranslation, DictionaryKeys } from '@/lib/i18n'
 import Dropdown from '@/components/ui/Dropdown'
@@ -47,6 +48,17 @@ export default function ContractsPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const [editContract, setEditContract] = useState<Contract | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
+  const [hotels, setHotels] = useState<{ _id: string; name?: string; shortName: string }[]>([])
+
+  // Hotels drive the owner's per-contract hotel picker (admins get just theirs).
+  useEffect(() => { getHotels().then(h => setHotels(Array.isArray(h) ? h : [])).catch(() => {}) }, [])
+
+  // Only the owner spans multiple hotels — then the list shows a Hotel column.
+  const multiHotel = hotels.length > 1
+  const hotelLabel = (id?: string) => {
+    const h = hotels.find(x => x._id === id)
+    return h ? (h.shortName || h.name || '—') : '—'
+  }
 
   const { data: contracts = [], isLoading: loading } = useContractsQuery(search, statusFilter)
 
@@ -255,7 +267,11 @@ export default function ContractsPage() {
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem', minWidth: 920 }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--gray-200)', background: 'var(--gray-50)' }}>
-                  {([['organization', t('organization')], ['contractNo', t('contractNo')], ['representative', t('representative')], ['status', t('status')], ['finishDate', t('finishDate')], ['renewal', t('renewal')], ['link', t('link')], ['actions', '']] as const).map(([key, label]) => (
+                  {([
+                    ['organization', t('organization')],
+                    ...(multiHotel ? [['hotel', t('hotel')]] : []),
+                    ['contractNo', t('contractNo')], ['representative', t('representative')], ['status', t('status')], ['finishDate', t('finishDate')], ['renewal', t('renewal')], ['link', t('link')], ['actions', ''],
+                  ] as [string, string][]).map(([key, label]) => (
                     <th key={key} style={{ padding: '10px 16px', textAlign: 'left', fontWeight: 600, color: 'var(--gray-500)', fontSize: '0.75rem', whiteSpace: 'nowrap' }}>{label}</th>
                   ))}
                 </tr>
@@ -277,6 +293,13 @@ export default function ContractsPage() {
                           </div>
                         </div>
                       </td>
+                      {multiHotel && (
+                        <td style={{ padding: '12px 16px' }}>
+                          <span style={{ display: 'inline-flex', alignItems: 'center', padding: '2px 10px', borderRadius: 20, background: 'var(--gray-100)', color: 'var(--gray-700)', fontWeight: 600, fontSize: '0.78rem', whiteSpace: 'nowrap' }}>
+                            {hotelLabel(c.hotelId)}
+                          </span>
+                        </td>
+                      )}
                       <td style={{ padding: '12px 16px', color: 'var(--gray-700)', fontWeight: 600, whiteSpace: 'nowrap' }}>{c.contractNumber || <span style={{ color: 'var(--gray-300)' }}>—</span>}</td>
                       <td style={{ padding: '12px 16px', color: 'var(--gray-600)' }}>
                         {c.representativeName ? (
@@ -338,6 +361,7 @@ export default function ContractsPage() {
       <ContractModal
         isOpen={modalOpen}
         editContract={editContract}
+        hotels={hotels}
         onClose={closeModal}
         onSave={handleSave}
         saving={saving}

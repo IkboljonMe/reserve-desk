@@ -70,12 +70,15 @@ const T = {
   settings: { en: "Settings", uz: "Sozlamalar", ru: "Настройки" },
   general: { en: "General", uz: "Umumiy", ru: "Общие" },
   hotelsAndRooms: { en: "Hotels & Rooms", uz: "Mehmonxonalar va xonalar", ru: "Отели и номера" },
+  admins: { en: "Admins", uz: "Administratorlar", ru: "Администраторы" },
   menu: { en: "Menu", uz: "Menyu", ru: "Меню" },
   hotelAdmin: { en: "Hotel Admin", uz: "Mehmonxona boshqaruvi", ru: "Администратор отеля" },
   signOut: { en: "Sign out", uz: "Chiqish", ru: "Выйти" },
   language: { en: "Language", uz: "Til", ru: "Язык" },
   showSidebar: { en: "Show sidebar", uz: "Yon panelni ko'rsatish", ru: "Показать панель" },
   hideSidebar: { en: "Hide sidebar", uz: "Yon panelni yashirish", ru: "Скрыть панель" },
+  collapseMenu: { en: "Collapse menu", uz: "Menyuni yig'ish", ru: "Свернуть меню" },
+  expandMenu: { en: "Expand menu", uz: "Menyuni ochish", ru: "Развернуть меню" },
 
   // ── Status / booking states ───────────────────────────────────────
   status: { en: "Status", uz: "Holat", ru: "Статус" },
@@ -355,6 +358,24 @@ const T = {
   groupNamePlaceholder: { en: "e.g. Contractors", uz: "masalan Pudratchilar", ru: "напр. Подрядчики" },
   color: { en: "Color", uz: "Rang", ru: "Цвет" },
   selectColor: { en: "Select color {color}", uz: "{color} rangni tanlash", ru: "Выбрать цвет {color}" },
+
+  // ── Settings: admins ──────────────────────────────────────────────
+  adminsSubtitle: { en: "Create hotel administrators and assign each one to a single hotel.", uz: "Mehmonxona administratorlarini yarating va har birini bitta mehmonxonaga biriktiring.", ru: "Создавайте администраторов и закрепляйте каждого за одним отелем." },
+  addAdmin: { en: "Add Admin", uz: "Administrator qo'shish", ru: "Добавить администратора" },
+  editAdmin: { en: "Edit Admin", uz: "Administratorni tahrirlash", ru: "Изменить администратора" },
+  addFirstAdmin: { en: "Add First Admin", uz: "Birinchi administratorni qo'shish", ru: "Добавить первого администратора" },
+  noAdminsTitle: { en: "No admins yet", uz: "Hozircha administratorlar yo'q", ru: "Пока нет администраторов" },
+  noAdminsDesc: { en: "Add an admin and assign them to a hotel so they can manage its bookings.", uz: "Administrator qo'shing va uni mehmonxonaga biriktiring, shunda u buyurtmalarni boshqaradi.", ru: "Добавьте администратора и закрепите за отелем, чтобы он управлял бронированиями." },
+  password: { en: "Password", uz: "Parol", ru: "Пароль" },
+  passwordKeepHint: { en: "Leave blank to keep the current password", uz: "Joriy parolni saqlash uchun bo'sh qoldiring", ru: "Оставьте пустым, чтобы сохранить текущий пароль" },
+  adminAdded: { en: "Admin added", uz: "Administrator qo'shildi", ru: "Администратор добавлен" },
+  adminUpdated: { en: "Admin updated", uz: "Administrator yangilandi", ru: "Администратор обновлён" },
+  adminDeleted: { en: "Admin deleted", uz: "Administrator o'chirildi", ru: "Администратор удалён" },
+  saveAdminFailed: { en: "Failed to save admin", uz: "Administratorni saqlab bo'lmadi", ru: "Не удалось сохранить администратора" },
+  loadAdminsFailed: { en: "Failed to load admins", uz: "Administratorlarni yuklab bo'lmadi", ru: "Не удалось загрузить администраторов" },
+  editAdminAria: { en: "Edit admin", uz: "Administratorni tahrirlash", ru: "Изменить администратора" },
+  deleteAdminAria: { en: "Delete admin", uz: "Administratorni o'chirish", ru: "Удалить администратора" },
+  noHotelAssigned: { en: "No hotel", uz: "Mehmonxona yo'q", ru: "Нет отеля" },
 
   // ── Settings: hotels & rooms ──────────────────────────────────────
   loadDataFailed: { en: "Failed to load data", uz: "Ma'lumotlarni yuklab bo'lmadi", ru: "Не удалось загрузить данные" },

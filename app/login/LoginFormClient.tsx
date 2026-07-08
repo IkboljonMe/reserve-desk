@@ -24,7 +24,8 @@ export default function LoginFormClient() {
       if (!res.ok) {
         setError(data.error || 'Login failed')
       } else {
-        router.push('/calendar')
+        // Owner lands on the cross-hotel dashboard; admins on their calendar.
+        router.push(data.role === 'owner' ? '/dashboard' : '/calendar')
         router.refresh()
       }
     } catch {

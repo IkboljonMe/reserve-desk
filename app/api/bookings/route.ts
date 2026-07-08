@@ -1,11 +1,11 @@
 import { NextRequest } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Booking } from '@/models/Booking'
-import { getSession } from '@/lib/session'
+import { requireDashboard, hotelScope } from '@/lib/session'
 
 export async function GET(req: NextRequest) {
-  const session = await getSession()
-  if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  const session = await requireDashboard()
+  if (session instanceof Response) return session
 
   const { searchParams } = new URL(req.url)
   const dateFrom = searchParams.get('dateFrom')
@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
   const status = searchParams.get('status')
   const limit = searchParams.get('limit')
 
-  const filter: Record<string, unknown> = {}
+  const filter: Record<string, unknown> = hotelScope(session)
   if (dateFrom && dateTo) {
     filter.date = { $gte: dateFrom, $lte: dateTo }
   } else if (dateFrom) {
@@ -35,8 +35,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await getSession()
-  if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  const session = await requireDashboard()
+  if (session instanceof Response) return session
 
   try {
     const body = await req.json()
@@ -50,6 +50,12 @@ export async function POST(req: NextRequest) {
     const { Service } = await import('@/models/Service')
     const service = await Service.findById(serviceId).lean()
     if (!service) return Response.json({ error: 'Service not found' }, { status: 404 })
+    // Admins may only book services belonging to their own hotel; the owner may
+    // book any service. Either way, the booking inherits the service's hotel.
+    if (session.role !== 'owner' && String(service.hotelId) !== session.hotelId) {
+      return Response.json({ error: 'Service not found' }, { status: 404 })
+    }
+    const bookingHotelId = String(service.hotelId)
 
     const [h, m] = endTime.split(':').map(Number)
     const totalM = h * 60 + m + (service.bufferTimeAfter || 0)
@@ -83,6 +89,7 @@ export async function POST(req: NextRequest) {
     ]
 
     const booking = await Booking.create({
+      hotelId: bookingHotelId,
       serviceId,
       clientId: clientId || null,
       customerName,

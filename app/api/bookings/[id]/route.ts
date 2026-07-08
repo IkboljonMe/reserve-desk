@@ -1,15 +1,15 @@
 import { NextRequest } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Booking } from '@/models/Booking'
-import { getSession } from '@/lib/session'
+import { requireDashboard, idScope } from '@/lib/session'
 
 export async function GET(_req: NextRequest, ctx: RouteContext<'/api/bookings/[id]'>) {
-  const session = await getSession()
-  if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  const session = await requireDashboard()
+  if (session instanceof Response) return session
 
   const { id } = await ctx.params
   await connectDB()
-  const booking = await Booking.findById(id)
+  const booking = await Booking.findOne(idScope(session, id))
     .populate('serviceId', 'name color')
     .populate('createdBy', 'email name')
     .populate('history.by', 'email name')
@@ -19,14 +19,14 @@ export async function GET(_req: NextRequest, ctx: RouteContext<'/api/bookings/[i
 }
 
 export async function PUT(req: NextRequest, ctx: RouteContext<'/api/bookings/[id]'>) {
-  const session = await getSession()
-  if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  const session = await requireDashboard()
+  if (session instanceof Response) return session
 
   const { id } = await ctx.params
   const body = await req.json()
 
   await connectDB()
-  const current = await Booking.findById(id)
+  const current = await Booking.findOne(idScope(session, id))
   if (!current) return Response.json({ error: 'Not found' }, { status: 404 })
 
   const now = new Date()
@@ -61,11 +61,11 @@ export async function PUT(req: NextRequest, ctx: RouteContext<'/api/bookings/[id
 }
 
 export async function DELETE(_req: NextRequest, ctx: RouteContext<'/api/bookings/[id]'>) {
-  const session = await getSession()
-  if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  const session = await requireDashboard()
+  if (session instanceof Response) return session
 
   const { id } = await ctx.params
   await connectDB()
-  await Booking.findByIdAndDelete(id)
+  await Booking.findOneAndDelete(idScope(session, id))
   return Response.json({ success: true })
 }

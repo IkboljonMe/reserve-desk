@@ -27,9 +27,7 @@ export default function Header({ userName, userEmail, onToggleSidebar, sidebarCo
   return (
     <header style={{
       height: 60,
-      background: 'var(--header-bg)',
-      backdropFilter: 'blur(20px)',
-      WebkitBackdropFilter: 'blur(20px)',
+      background: 'var(--surface-card)',
       borderBottom: '1px solid var(--surface-border)',
       display: 'flex',
       alignItems: 'center',
@@ -41,20 +39,23 @@ export default function Header({ userName, userEmail, onToggleSidebar, sidebarCo
         <button
           onClick={onToggleSidebar}
           style={{
-            background: 'transparent',
-            border: 'none',
-            color: 'var(--gray-600, #4b5563)',
+            width: 34, height: 34,
+            flexShrink: 0,
+            background: 'var(--gray-100)',
+            border: '1px solid var(--gray-200)',
+            borderRadius: 9,
+            color: 'var(--gray-600)',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '6px',
-            borderRadius: '6px',
-            transition: 'background-color 0.15s ease',
+            transition: 'background-color 0.15s ease, border-color 0.15s ease',
           }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--gray-200)' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'var(--gray-100)' }}
           title={sidebarCollapsed ? t('showSidebar') : t('hideSidebar')}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="4" y1="12" x2="20" y2="12" />
             <line x1="4" y1="6" x2="20" y2="6" />
             <line x1="4" y1="18" x2="20" y2="18" />

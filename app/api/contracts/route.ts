@@ -1,11 +1,11 @@
 import { NextRequest } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Contract } from '@/models/Contract'
-import { getSession } from '@/lib/session'
+import { requireDashboard, hotelScope, writeHotelId } from '@/lib/session'
 
 export async function GET(req: NextRequest) {
-  const session = await getSession()
-  if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  const session = await requireDashboard()
+  if (session instanceof Response) return session
 
   const { searchParams } = new URL(req.url)
   const search = searchParams.get('search') || ''
@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
 
   await connectDB()
 
-  const filter: Record<string, unknown> = {}
+  const filter: Record<string, unknown> = hotelScope(session)
   if (search) {
     filter.$or = [
       { organizationName: { $regex: search, $options: 'i' } },
@@ -30,8 +30,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await getSession()
-  if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  const session = await requireDashboard()
+  if (session instanceof Response) return session
 
   try {
     const body = await req.json()
@@ -39,8 +39,12 @@ export async function POST(req: NextRequest) {
       return Response.json({ error: 'Organization name is required' }, { status: 400 })
     }
 
+    const hotelId = writeHotelId(session, body.hotelId)
+    if (!hotelId) return Response.json({ error: 'Hotel is required' }, { status: 400 })
+
     await connectDB()
     const contract = await Contract.create({
+      hotelId,
       organizationName: body.organizationName,
       inn: body.inn || '',
       representativeName: body.representativeName || '',

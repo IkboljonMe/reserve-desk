@@ -1,17 +1,18 @@
 import { connectDB } from '@/lib/mongodb'
 import { Contract } from '@/models/Contract'
-import { getSession } from '@/lib/session'
+import { requireDashboard, hotelScope } from '@/lib/session'
 import { notificationForContract } from '@/lib/notifications'
 
 // Derived notification feed: computed on the fly from every non-terminated
 // contract that has a finish date, so it always reflects the current day
 // without needing a background job.
 export async function GET() {
-  const session = await getSession()
-  if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  const session = await requireDashboard()
+  if (session instanceof Response) return session
 
   await connectDB()
   const contracts = await Contract.find({
+    ...hotelScope(session),
     status: { $ne: 'terminated' },
     finishDate: { $ne: null },
   }).lean()

@@ -13,6 +13,8 @@ export interface IBookingEvent {
 
 export interface IBooking extends Document {
   _id: Types.ObjectId
+  hotelId: Types.ObjectId  // Owner hotel the booking is attributed to (the service's owner hotel)
+  bookedByHotelId?: Types.ObjectId  // Hotel that actually created it (differs from hotelId for shared services)
   serviceId: Types.ObjectId
   clientId?: Types.ObjectId
   customerName: string
@@ -47,6 +49,7 @@ const BookingEventSchema = new Schema<IBookingEvent>({
 
 const BookingSchema = new Schema<IBooking>(
   {
+    hotelId: { type: Schema.Types.ObjectId, ref: 'Hotel', required: true, index: true },
     serviceId: { type: Schema.Types.ObjectId, ref: 'Service', required: true },
     clientId: { type: Schema.Types.ObjectId, ref: 'Client', default: null },
     customerName: { type: String, required: true, trim: true },

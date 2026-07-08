@@ -2,20 +2,23 @@ import { NextRequest } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Service } from '@/models/Service'
 import '@/models/Hotel'
-import { getSession } from '@/lib/session'
+import { getSession, requireOwner } from '@/lib/session'
 
 export async function GET() {
   const session = await getSession()
   if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
+  // Owner sees every hotel's services; an admin only their own hotel's.
+  const filter = session.role === 'owner' ? {} : { hotelId: session.hotelId }
+
   await connectDB()
-  const services = await Service.find().populate('hotelId').sort({ createdAt: -1 }).lean()
+  const services = await Service.find(filter).populate('hotelId').sort({ createdAt: -1 }).lean()
   return Response.json(services)
 }
 
 export async function POST(req: NextRequest) {
-  const session = await getSession()
-  if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  const session = await requireOwner()
+  if (session instanceof Response) return session
 
   try {
     const body = await req.json()

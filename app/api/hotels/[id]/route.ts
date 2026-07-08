@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Hotel } from '@/models/Hotel'
+import { requireOwner } from '@/lib/session'
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const session = await requireOwner()
+  if (session instanceof Response) return session
+
   await connectDB()
   const { id } = await params
   const body = await req.json()
@@ -45,6 +49,9 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 }
 
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const session = await requireOwner()
+  if (session instanceof Response) return session
+
   await connectDB()
   const { id } = await params
   const hotel = await Hotel.findByIdAndDelete(id)

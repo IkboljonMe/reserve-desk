@@ -20,7 +20,8 @@ export interface IService extends Document {
   name: string
   icon: string
   description: string
-  hotelId: Types.ObjectId
+  hotelId: Types.ObjectId          // Owner hotel — the one the resource physically belongs to
+  sharedHotelIds: Types.ObjectId[] // Other hotels allowed to book this same (single) resource
   openTime: string   // "HH:mm"
   closeTime: string  // "HH:mm"
   slotDuration: number
@@ -55,6 +56,7 @@ const ServiceSchema = new Schema<IService>(
     icon: { type: String, default: 'concierge' },
     description: { type: String, default: '' },
     hotelId: { type: Schema.Types.ObjectId, ref: 'Hotel' },
+    sharedHotelIds: { type: [{ type: Schema.Types.ObjectId, ref: 'Hotel' }], default: [] },
     openTime: { type: String, required: true, default: '08:00' },
     closeTime: { type: String, required: true, default: '20:00' },
     slotDuration: { type: Number, required: true, default: 60 },
