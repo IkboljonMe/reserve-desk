@@ -13,6 +13,7 @@ export interface BookingInput {
   paid: boolean
   bookingType?: 'client' | 'room' | 'custom' | null
   category?: string
+  variantId?: string
 }
 
 export async function getBookings(dateFrom: string, dateTo: string) {

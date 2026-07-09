@@ -10,7 +10,7 @@ import { getHotels } from '@/lib/api/hotels'
 import { getBookings, createBooking } from '@/lib/api/bookings'
 import { getClients } from '@/lib/api/clients'
 import {
-  Service, Room, Hotel, ClientGroup, Client, PricingPlan, PricingGroup, BookingType, DayBooking,
+  Service, ServiceVariant, Room, Hotel, ClientGroup, Client, PricingPlan, PricingGroup, BookingType, DayBooking,
 } from './types'
 import { serviceAvailableToHotel, extractHotelId, generateTimeSlots, slotEnd } from './utils'
 
@@ -28,6 +28,9 @@ export function useBookingWizard() {
   const [step, setStep] = useState(1)
   const [selectedHotelId, setSelectedHotelId] = useState<string | null>(null)
   const [selectedService, setSelectedService] = useState<Service | null>(null)
+  // Chosen configuration of the service (e.g. "Half pool"). null when the
+  // service has no variants — pricing then comes from the service itself.
+  const [selectedVariant, setSelectedVariant] = useState<ServiceVariant | null>(null)
 
   // Plan step
   const [bookingType, setBookingType] = useState<BookingType | null>(null)
@@ -127,10 +130,17 @@ export function useBookingWizard() {
     return { label: g.category, color: selectedService?.color ?? 'var(--brand-500)' }
   }
 
-  // Category groups available for the current service, filtered to still-valid ones.
-  const clientCats = (selectedService?.pricingGroups ?? [])
+  // Does the chosen service offer variants the guest must pick from first?
+  const hasVariants = (selectedService?.variants?.length ?? 0) > 0
+
+  // Pricing comes from the selected variant when the service has variants,
+  // otherwise straight from the service.
+  const pricingSource: { pricingGroups?: PricingGroup[] } | null = hasVariants ? selectedVariant : selectedService
+
+  // Category groups available for the current pricing source, filtered to still-valid ones.
+  const clientCats = (pricingSource?.pricingGroups ?? [])
     .filter(g => g.target === 'client' && g.rows.length > 0 && clientGroups.some(c => c._id === g.category))
-  const roomCats = (selectedService?.pricingGroups ?? [])
+  const roomCats = (pricingSource?.pricingGroups ?? [])
     .filter(g => g.target === 'room' && g.rows.length > 0)
 
   const activeGroup = bookingType === 'client'
@@ -156,7 +166,8 @@ export function useBookingWizard() {
     : []
 
   const customValid = customDuration >= 15 && customDuration % 15 === 0
-  const planReady = bookingType === 'custom' ? customValid : !!(selectedCategory && selectedPlan)
+  const planReady = (!hasVariants || !!selectedVariant) &&
+    (bookingType === 'custom' ? customValid : !!(selectedCategory && selectedPlan))
 
   // ── Actions ────────────────────────────────────────────────────────────────
 
@@ -174,12 +185,23 @@ export function useBookingWizard() {
   }
 
   function resetPlan() {
+    setSelectedVariant(null)
     setBookingType(null)
     setSelectedCategory('')
     setSelectedPlan(null)
     setSelectedSlot('')
     setCustomDuration(selectedService?.slotDuration || 60)
     setCustomPrice(selectedService?.isFree ? 0 : (selectedService?.price || 0))
+    resetGuest()
+  }
+
+  // Pick a service variant, then reset the pricing choices below it.
+  function chooseVariant(v: ServiceVariant) {
+    setSelectedVariant(v)
+    setBookingType(null)
+    setSelectedCategory('')
+    setSelectedPlan(null)
+    setSelectedSlot('')
     resetGuest()
   }
 
@@ -244,6 +266,7 @@ export function useBookingWizard() {
         paid: activePlan.price === 0 ? false : paid,
         bookingType,
         category: selectedCategory,
+        variantId: selectedVariant?.id,
       })
       showToast(t('bookingCreated'), 'success')
       router.push(`/${lang}/calendar?date=${date}`)
@@ -262,6 +285,8 @@ export function useBookingWizard() {
     // wizard position
     step, setStep,
     selectedHotelId, selectedService,
+    // variant
+    selectedVariant, hasVariants, chooseVariant,
     // plan
     bookingType, selectedCategory, selectedPlan, setSelectedPlan,
     customDuration, setCustomDuration, customPrice, setCustomPrice,

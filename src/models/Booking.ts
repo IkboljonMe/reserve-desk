@@ -32,6 +32,8 @@ export interface IBooking extends Document {
   finished: boolean   // booking fulfilled/completed
   bookingType?: BookingType  // how it was booked: client group, room category, or custom
   category?: string          // client-group id or room-type chosen at booking
+  variantId?: string         // service variant chosen (empty for single-config services)
+  variantName?: string       // snapshot of the variant's name at booking time
   paidAt?: Date | null       // when payment was recorded
   finishedAt?: Date | null   // when it was marked completed
   history: IBookingEvent[]
@@ -68,6 +70,8 @@ const BookingSchema = new Schema<IBooking>(
     finished: { type: Boolean, default: false },
     bookingType: { type: String, enum: ['client', 'room', 'custom'], default: undefined },
     category: { type: String, default: '' },
+    variantId: { type: String, default: '' },
+    variantName: { type: String, default: '' },
     paidAt: { type: Date, default: null },
     finishedAt: { type: Date, default: null },
     history: { type: [BookingEventSchema], default: [] },

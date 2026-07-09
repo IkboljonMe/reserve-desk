@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json()
-    const { serviceId, clientId, customerName, customerPhone, roomNumber, date, startTime, endTime, notes, status, bookingType, category } = body
+    const { serviceId, clientId, customerName, customerPhone, roomNumber, date, startTime, endTime, notes, status, bookingType, category, variantId } = body
 
     if (!serviceId || !customerName || !date || !startTime || !endTime) {
       return Response.json({ error: 'serviceId, customerName, date, startTime, endTime are required' }, { status: 400 })
@@ -117,6 +117,9 @@ export async function POST(req: NextRequest) {
     // may be a different, sharing hotel).
     const bookingHotelId = ownerHotelId
     const bookedByHotelId = session.role === 'owner' ? ownerHotelId : session.hotelId
+
+    // Resolve the chosen variant from the service (authoritative name snapshot).
+    const variant = variantId ? (service.variants ?? []).find(v => v.id === variantId) : null
 
     const [h, m] = endTime.split(':').map(Number)
     const totalM = h * 60 + m + (service.bufferTimeAfter || 0)
@@ -169,6 +172,8 @@ export async function POST(req: NextRequest) {
       finished: false,
       bookingType: bookingType || undefined,
       category: category || '',
+      variantId: variant?.id || '',
+      variantName: variant?.name || '',
       paidAt: paid ? now : null,
       history: history as never,
       createdBy: session.userId,

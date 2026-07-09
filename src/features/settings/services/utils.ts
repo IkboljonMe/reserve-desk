@@ -1,4 +1,4 @@
-import type { Service, PricingPlan, PricingGroup } from './types'
+import type { Service, PricingPlan, PricingGroup, ServiceVariant } from './types'
 
 // Safely extract a plain-string hotel ID regardless of whether hotelId was
 // populated (object) or left as a raw ObjectId string.
@@ -24,6 +24,7 @@ export const EMPTY_FORM = {
   bufferTimeBefore: 0, bufferTimeAfter: 0,
   pricingPlans: [] as PricingPlan[],
   pricingGroups: [] as PricingGroup[],
+  variants: [] as ServiceVariant[],
 }
 export type ServiceForm = typeof EMPTY_FORM
 

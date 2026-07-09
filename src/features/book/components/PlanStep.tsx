@@ -15,9 +15,12 @@ export function PlanStep({ w }: { w: BookingWizard }) {
     selectedService, bookingType, clientCats, roomCats, chooseType, resolveGroupMeta,
     selectedCategory, chooseCategory, planRows, selectedPlan, setSelectedPlan, setSelectedSlot,
     categoryMeta, customDuration, setCustomDuration, customValid, customPrice, setCustomPrice,
-    planReady, setStep,
+    planReady, setStep, hasVariants, selectedVariant, chooseVariant,
   } = w
   if (!selectedService) return null
+
+  // With variants, the guest must pick one before the pricing options appear.
+  const showPlanOptions = !hasVariants || !!selectedVariant
 
   return (
     <div className="card" style={{ animation: 'slideInRight 0.3s ease-out' }}>
@@ -27,6 +30,37 @@ export function PlanStep({ w }: { w: BookingWizard }) {
       </div>
       <ContextBar w={w} />
 
+      {/* Variant selector (only for services that define variants) */}
+      {hasVariants && (
+        <div style={{ marginBottom: showPlanOptions ? '1.5rem' : 0 }}>
+          <label className="form-label" style={{ display: 'block', marginBottom: 8 }}>{t('chooseVariant')}</label>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+            {(selectedService.variants ?? []).map(v => {
+              const active = selectedVariant?.id === v.id
+              const accent = selectedService.color
+              return (
+                <button
+                  key={v.id}
+                  type="button"
+                  onClick={() => chooseVariant(v)}
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 6,
+                    padding: '10px 16px', borderRadius: 10,
+                    border: `2px solid ${active ? accent : 'var(--gray-200)'}`,
+                    background: active ? `${accent}15` : '#fff',
+                    color: active ? accent : 'var(--gray-800)',
+                    fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer',
+                  }}
+                >
+                  {v.name}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {showPlanOptions && (<>
       {/* Type selector */}
       <label className="form-label" style={{ display: 'block', marginBottom: 8 }}>{t('whoIsThisFor')}</label>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem', marginBottom: planReady || bookingType ? '1.5rem' : 0 }}>
@@ -159,6 +193,7 @@ export function PlanStep({ w }: { w: BookingWizard }) {
           <button type="button" className="btn btn-primary" onClick={() => setStep(4)}>{t('continueBtn')}</button>
         </div>
       )}
+      </>)}
     </div>
   )
 }

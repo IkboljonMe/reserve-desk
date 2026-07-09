@@ -3,6 +3,7 @@ import { connectDB } from '@/lib/mongodb'
 import { Service } from '@/models/Service'
 import '@/models/Hotel'
 import { getSession, requireOwner } from '@/lib/session'
+import { sanitizeVariants } from '@/lib/serviceVariants'
 
 export async function GET() {
   const session = await getSession()
@@ -25,7 +26,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json()
-    const { name, icon, description, hotelId, sharedHotelIds, openTime, closeTime, slotDuration, capacity, color, price, isFree, details, bufferTimeBefore, bufferTimeAfter, pricingPlans, pricingGroups } = body
+    const { name, icon, description, hotelId, sharedHotelIds, openTime, closeTime, slotDuration, capacity, color, price, isFree, details, bufferTimeBefore, bufferTimeAfter, pricingPlans, pricingGroups, variants } = body
 
     if (!name || !openTime || !closeTime) {
       return Response.json({ error: 'Name, open time, and close time are required' }, { status: 400 })
@@ -51,6 +52,7 @@ export async function POST(req: NextRequest) {
       bufferTimeAfter: Number(bufferTimeAfter) || 0,
       pricingPlans: Array.isArray(pricingPlans) ? pricingPlans : [],
       pricingGroups: Array.isArray(pricingGroups) ? pricingGroups : [],
+      variants: sanitizeVariants(variants),
       color: color || '#6366f1',
     })
 

@@ -4,6 +4,7 @@
 
 export interface PricingPlan { duration: number; price: number }
 export interface PricingGroup { target: 'room' | 'client'; category: string; rows: PricingPlan[] }
+export interface ServiceVariant { id: string; name: string; pricingPlans?: PricingPlan[]; pricingGroups?: PricingGroup[] }
 
 export interface Service {
   _id: string
@@ -21,6 +22,7 @@ export interface Service {
   bufferTimeAfter?: number
   pricingPlans?: PricingPlan[]
   pricingGroups?: PricingGroup[]
+  variants?: ServiceVariant[]
   color: string
   isActive: boolean
   hotelId: string | { _id: string; name?: string; shortName?: string }

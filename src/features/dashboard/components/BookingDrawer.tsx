@@ -187,6 +187,7 @@ export default function BookingDrawer({
                 </div>
                 <div style={{ fontSize: '0.78rem', color: 'var(--gray-50)' }}>
                   {b.serviceId?.name}
+                  {b.variantName ? ` · ${b.variantName}` : ''}
                   {hotel ? ` · ${hotel.shortName}` : ''}
                 </div>
               </div>

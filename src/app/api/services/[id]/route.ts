@@ -3,6 +3,7 @@ import { connectDB } from '@/lib/mongodb'
 import { Service } from '@/models/Service'
 import '@/models/Hotel'
 import { getSession, requireOwner } from '@/lib/session'
+import { sanitizeVariants } from '@/lib/serviceVariants'
 
 export async function GET(_req: NextRequest, ctx: RouteContext<'/api/services/[id]'>) {
   const session = await getSession()
@@ -47,6 +48,7 @@ export async function PUT(req: NextRequest, ctx: RouteContext<'/api/services/[id
     }),
     ...(Array.isArray(body.pricingPlans) && { pricingPlans: body.pricingPlans }),
     ...(Array.isArray(body.pricingGroups) && { pricingGroups: body.pricingGroups }),
+    ...(Array.isArray(body.variants) && { variants: sanitizeVariants(body.variants) }),
   }
 
   const service = await Service.findByIdAndUpdate(

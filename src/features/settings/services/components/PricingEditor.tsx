@@ -1,39 +1,134 @@
 'use client'
 
+import { useState } from 'react'
 import { Plus, Trash2, Check, ChevronDown, BedDouble, Users } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import { durationError, formatPrice, selectAllOnFocus } from '../utils'
-import type { ServicesPageState } from '../useServicesPage'
+import type { PricingPlan, PricingGroup, ClientGroup } from '../types'
 
-export function PricingEditor({ s }: { s: ServicesPageState }) {
+export interface PricingEditorProps {
+  plans: PricingPlan[]
+  groups: PricingGroup[]
+  onChange: (next: { plans: PricingPlan[]; groups: PricingGroup[] }) => void
+  // Room-type names available for 'room' pricing groups (owner + shared hotels).
+  roomTypeOptions: string[]
+  clientGroups: ClientGroup[]
+  resolveGroupMeta: (g: PricingGroup) => { label: string; color: string }
+  hotelSelected: boolean
+  // Optional card heading override (e.g. "Pricing plans (45 seats)").
+  heading?: string
+  // Legacy flat-price fallback — only supplied by the base (non-variant) editor.
+  flatPrice?: number
+  onFlatPrice?: (n: number) => void
+}
+
+// A self-contained pricing editor: renders a base duration→price list plus
+// per-room-type / per-client-group pricing cards, and edits the passed
+// {plans, groups} value through onChange. Its picker/collapse state is local, so
+// several editors (one per service variant) can coexist independently.
+export function PricingEditor({
+  plans, groups, onChange, roomTypeOptions, clientGroups, resolveGroupMeta,
+  hotelSelected, heading, flatPrice, onFlatPrice,
+}: PricingEditorProps) {
   const { t } = useTranslation()
-  const {
-    form, setForm, resolveGroupMeta, collapsedGroups,
-    updatePricingPlan, removePricingPlan, removePricingGroup, toggleGroupCollapse,
-    addGroupRow, updateGroupRow, removeGroupRow,
-    planPicker, setPlanPicker, pickerCategory, setPickerCategory, confirmAddGroup, pickerOptions,
-  } = s
+
+  const [planPicker, setPlanPicker] = useState<null | 'choose' | 'room' | 'client'>(null)
+  const [pickerCategory, setPickerCategory] = useState('')
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<number>>(new Set())
+
+  const emit = (next: { plans?: PricingPlan[]; groups?: PricingGroup[] }) =>
+    onChange({ plans: next.plans ?? plans, groups: next.groups ?? groups })
+
+  function updatePlan(index: number, key: keyof PricingPlan, value: string) {
+    const next = plans.map((p, i) => i === index ? { ...p, [key]: value === '' ? '' : Number(value) } : p)
+    emit({ plans: next })
+  }
+
+  function removePlan(index: number) {
+    emit({ plans: plans.filter((_, i) => i !== index) })
+  }
+
+  function confirmAddGroup() {
+    if (!planPicker || planPicker === 'choose' || !pickerCategory) return
+    const target = planPicker
+    const existing = groups.findIndex(g => g.target === target && g.category === pickerCategory)
+    if (existing !== -1) {
+      setCollapsedGroups(prev => { const n = new Set(prev); n.delete(existing); return n })
+    } else {
+      emit({ groups: [...groups, { target, category: pickerCategory, rows: [{ duration: 60, price: 0 }] }] })
+    }
+    setPlanPicker(null)
+    setPickerCategory('')
+  }
+
+  function removeGroup(gi: number) {
+    emit({ groups: groups.filter((_, i) => i !== gi) })
+    setCollapsedGroups(prev => {
+      const next = new Set<number>()
+      prev.forEach(i => { if (i < gi) next.add(i); else if (i > gi) next.add(i - 1) })
+      return next
+    })
+  }
+
+  function toggleGroupCollapse(gi: number) {
+    setCollapsedGroups(prev => {
+      const n = new Set(prev)
+      if (n.has(gi)) n.delete(gi); else n.add(gi)
+      return n
+    })
+  }
+
+  function addGroupRow(gi: number) {
+    emit({ groups: groups.map((g, i) => i === gi ? { ...g, rows: [...g.rows, { duration: 60, price: 0 }] } : g) })
+  }
+
+  function updateGroupRow(gi: number, ri: number, key: keyof PricingPlan, value: string) {
+    emit({
+      groups: groups.map((g, i) => {
+        if (i !== gi) return g
+        return { ...g, rows: g.rows.map((r, j) => j === ri ? { ...r, [key]: value === '' ? '' : Number(value) } : r) }
+      }),
+    })
+  }
+
+  function removeGroupRow(gi: number, ri: number) {
+    emit({ groups: groups.map((g, i) => i === gi ? { ...g, rows: g.rows.filter((_, j) => j !== ri) } : g) })
+  }
+
+  function pickerOptions(): { value: string; label: string }[] {
+    if (planPicker === 'room') {
+      return roomTypeOptions
+        .filter(rt => !groups.some(g => g.target === 'room' && g.category === rt))
+        .map(rt => ({ value: rt, label: rt }))
+    }
+    if (planPicker === 'client') {
+      return clientGroups
+        .filter(g => !groups.some(pg => pg.target === 'client' && pg.category === g._id))
+        .map(g => ({ value: g._id, label: g.name }))
+    }
+    return []
+  }
 
   return (
     <div style={{ border: '1px solid var(--brand-100)', borderRadius: 10, padding: 16, background: '#fcfdff' }}>
       <div style={{ marginBottom: '0.875rem' }}>
-        <h3 style={{ fontSize: '0.9rem', color: 'var(--brand-700)', margin: 0 }}>{t('pricingPlans')}</h3>
+        <h3 style={{ fontSize: '0.9rem', color: 'var(--brand-700)', margin: 0 }}>{heading || t('pricingPlans')}</h3>
         <p style={{ fontSize: '0.72rem', color: 'var(--gray-500)', margin: '2px 0 0' }}>
           {t('pricingPlansDesc')}
         </p>
       </div>
 
-      {/* Legacy flat plans (kept editable when a service already has them) */}
-      {form.pricingPlans.length > 0 && (
+      {/* Base duration→price plans */}
+      {plans.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12, paddingBottom: 12, borderBottom: '1px dashed var(--gray-200)' }}>
           <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--gray-500)' }}>{t('generalPlans')}</span>
-          {form.pricingPlans.map((plan, index) => (
+          {plans.map((plan, index) => (
             <div key={index} style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
               <div className="form-group" style={{ flex: 1 }}>
                 <label className="form-label" style={{ marginBottom: 4 }}>{t('durationMin')}</label>
                 <input
                   type="number" className="form-input hide-arrows" value={plan.duration}
-                  onChange={e => updatePricingPlan(index, 'duration', e.target.value)}
+                  onChange={e => updatePlan(index, 'duration', e.target.value)}
                   onFocus={selectAllOnFocus} min={15} step={15} required
                   aria-invalid={durationError(plan.duration)}
                   style={durationError(plan.duration) ? { borderColor: 'var(--danger)', boxShadow: '0 0 0 3px rgba(239,68,68,0.12)' } : undefined}
@@ -46,14 +141,14 @@ export function PricingEditor({ s }: { s: ServicesPageState }) {
                   value={formatPrice(plan.price)}
                   onChange={e => {
                     const digits = e.target.value.replace(/\D/g, '')
-                    updatePricingPlan(index, 'price', digits === '' ? '' : String(Number(digits)))
+                    updatePlan(index, 'price', digits === '' ? '' : String(Number(digits)))
                   }}
-                  onFocus={e => { if (Number(plan.price) === 0) updatePricingPlan(index, 'price', ''); else e.currentTarget.select() }}
-                  onBlur={() => { if (plan.price === '') updatePricingPlan(index, 'price', '0') }}
+                  onFocus={e => { if (Number(plan.price) === 0) updatePlan(index, 'price', ''); else e.currentTarget.select() }}
+                  onBlur={() => { if (plan.price === '') updatePlan(index, 'price', '0') }}
                   placeholder="0" required
                 />
               </div>
-              <button type="button" className="btn btn-ghost btn-sm btn-icon" style={{ marginTop: 22, color: 'var(--danger)' }} onClick={() => removePricingPlan(index)} aria-label={t('removePlanAria', { index: index + 1 })}>
+              <button type="button" className="btn btn-ghost btn-sm btn-icon" style={{ marginTop: 22, color: 'var(--danger)' }} onClick={() => removePlan(index)} aria-label={t('removePlanAria', { index: index + 1 })}>
                 <Trash2 size={14} />
               </button>
             </div>
@@ -62,9 +157,9 @@ export function PricingEditor({ s }: { s: ServicesPageState }) {
       )}
 
       {/* Category-scoped pricing group cards */}
-      {form.pricingGroups.length > 0 && (
+      {groups.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 12 }}>
-          {form.pricingGroups.map((group, gi) => {
+          {groups.map((group, gi) => {
             const meta = resolveGroupMeta(group)
             const collapsed = collapsedGroups.has(gi)
             return (
@@ -81,7 +176,7 @@ export function PricingEditor({ s }: { s: ServicesPageState }) {
                   <span style={{ marginLeft: 'auto', fontSize: '0.7rem', color: 'var(--gray-400)' }}>
                     {group.rows.length} {group.rows.length === 1 ? t('priceLower') : t('pricesWord')}
                   </span>
-                  <button type="button" className="btn btn-ghost btn-sm btn-icon" style={{ color: 'var(--danger)' }} onClick={e => { e.stopPropagation(); removePricingGroup(gi) }} aria-label={t('removeGroupAria', { label: meta.label })}>
+                  <button type="button" className="btn btn-ghost btn-sm btn-icon" style={{ color: 'var(--danger)' }} onClick={e => { e.stopPropagation(); removeGroup(gi) }} aria-label={t('removeGroupAria', { label: meta.label })}>
                     <Trash2 size={13} />
                   </button>
                   <ChevronDown size={15} style={{ color: 'var(--gray-400)', transform: collapsed ? 'rotate(-90deg)' : 'none', transition: 'transform 0.15s' }} />
@@ -157,7 +252,7 @@ export function PricingEditor({ s }: { s: ServicesPageState }) {
       {(planPicker === 'room' || planPicker === 'client') && (() => {
         const opts = pickerOptions()
         const emptyMsg = planPicker === 'room'
-          ? (!form.hotelId ? t('selectHotelFirst') : t('noMoreRoomCats'))
+          ? (!hotelSelected ? t('selectHotelFirst') : t('noMoreRoomCats'))
           : t('noMoreClientGroups')
         return (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -186,11 +281,11 @@ export function PricingEditor({ s }: { s: ServicesPageState }) {
         )
       })()}
 
-      {/* Flat legacy price fallback when nothing else is defined */}
-      {form.pricingPlans.length === 0 && form.pricingGroups.length === 0 && planPicker === null && (
+      {/* Flat legacy price fallback when nothing else is defined (base editor only) */}
+      {onFlatPrice && plans.length === 0 && groups.length === 0 && planPicker === null && (
         <div className="form-group" style={{ marginTop: 12 }}>
           <label className="form-label" style={{ color: 'var(--gray-500)' }}>{t('flatPriceOptional')}</label>
-          <input type="number" className="form-input" value={form.price} onChange={e => setForm(f => ({ ...f, price: Number(e.target.value) }))} />
+          <input type="number" className="form-input" value={flatPrice ?? 0} onChange={e => onFlatPrice(Number(e.target.value))} />
         </div>
       )}
     </div>

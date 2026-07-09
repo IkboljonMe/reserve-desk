@@ -1,6 +1,6 @@
 'use client'
 
-import { Building2, Check, X } from 'lucide-react'
+import { Building2, Check, X, Plus, Trash2, Layers } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import { ServiceIcon } from '@/lib/serviceIcons'
 import IconPicker from '@/components/IconPicker'
@@ -11,7 +11,11 @@ import type { ServicesPageState } from '../useServicesPage'
 
 export function ServiceFormModal({ s }: { s: ServicesPageState }) {
   const { t } = useTranslation()
-  const { showForm, closeForm, editService, form, setForm, hotels, handleSubmit, discardDraft, saving } = s
+  const {
+    showForm, closeForm, editService, form, setForm, hotels, handleSubmit, discardDraft, saving,
+    resolveGroupMeta, roomTypeOptions, clientGroups,
+    setBasePricing, addVariant, removeVariant, updateVariantName, setVariantPricing,
+  } = s
   if (!showForm) return null
 
   return (
@@ -174,8 +178,80 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
               </div>
             </div>
 
-            {/* ── Pricing (grows as categories are added) ── */}
-            <PricingEditor s={s} />
+            {/* ── Pricing: either a single block, or one block per variant ── */}
+            {form.variants.length === 0 ? (
+              <>
+                <PricingEditor
+                  plans={form.pricingPlans}
+                  groups={form.pricingGroups}
+                  onChange={setBasePricing}
+                  roomTypeOptions={roomTypeOptions}
+                  clientGroups={clientGroups}
+                  resolveGroupMeta={resolveGroupMeta}
+                  hotelSelected={!!form.hotelId}
+                  flatPrice={form.price}
+                  onFlatPrice={n => setForm(f => ({ ...f, price: n }))}
+                />
+                <div>
+                  <button type="button" className="btn btn-secondary btn-sm" onClick={addVariant}>
+                    <Layers size={14} /> {t('addVariant')}
+                  </button>
+                  <small style={{ color: 'var(--gray-400)', fontSize: '0.7rem', display: 'block', marginTop: 6 }}>
+                    {t('variantsHint')}
+                  </small>
+                </div>
+              </>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                <div>
+                  <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <Layers size={14} /> {t('serviceVariants')}
+                  </label>
+                  <small style={{ color: 'var(--gray-400)', fontSize: '0.7rem', display: 'block', marginTop: 2 }}>
+                    {t('variantsHint')}
+                  </small>
+                </div>
+
+                {form.variants.map(v => (
+                  <div key={v.id} style={{ border: '1px solid var(--gray-200)', borderRadius: 12, padding: 14, display: 'flex', flexDirection: 'column', gap: 12, background: '#fff' }}>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
+                      <div className="form-group" style={{ flex: 1, margin: 0 }}>
+                        <label className="form-label">{t('variantName')} *</label>
+                        <input
+                          type="text" className="form-input"
+                          value={v.name}
+                          placeholder={t('variantNamePlaceholder')}
+                          onChange={e => updateVariantName(v.id, e.target.value)}
+                          required
+                        />
+                      </div>
+                      <button
+                        type="button" className="btn btn-ghost btn-icon"
+                        style={{ color: 'var(--danger)' }}
+                        onClick={() => removeVariant(v.id)}
+                        aria-label={t('removeVariant', { name: v.name || '' })}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                    <PricingEditor
+                      plans={v.pricingPlans}
+                      groups={v.pricingGroups}
+                      onChange={val => setVariantPricing(v.id, val)}
+                      roomTypeOptions={roomTypeOptions}
+                      clientGroups={clientGroups}
+                      resolveGroupMeta={resolveGroupMeta}
+                      hotelSelected={!!form.hotelId}
+                      heading={t('pricingPlansFor', { name: v.name || t('variant') })}
+                    />
+                  </div>
+                ))}
+
+                <button type="button" className="btn btn-secondary btn-sm" style={{ alignSelf: 'flex-start' }} onClick={addVariant}>
+                  <Plus size={14} /> {t('addVariant')}
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="divider" />

@@ -9,6 +9,12 @@ import {
   extractHotelId, DRAFT_KEY, EMPTY_FORM, durationError, bufferError,
 } from './utils'
 
+// A pricing value edited by a PricingEditor (base pricing or one variant's).
+type PricingValue = { plans: PricingPlan[]; groups: PricingGroup[] }
+
+const newVariantId = () =>
+  (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `v_${Date.now()}_${Math.random().toString(36).slice(2)}`)
+
 export function useServicesPage() {
   const { showToast } = useToast()
   const { getDraft, saveDraft, clearDraft } = useDraft()
@@ -18,12 +24,6 @@ export function useServicesPage() {
   const [hotels, setHotels] = useState<Hotel[]>([])
   const [clientGroups, setClientGroups] = useState<ClientGroup[]>([])
   const [loading, setLoading] = useState(true)
-
-  // Add-plan mini flow: null = idle, 'choose' = pick room/client, then the
-  // chosen target while a category is selected.
-  const [planPicker, setPlanPicker] = useState<null | 'choose' | 'room' | 'client'>(null)
-  const [pickerCategory, setPickerCategory] = useState('')
-  const [collapsedGroups, setCollapsedGroups] = useState<Set<number>>(new Set())
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('')
@@ -72,6 +72,13 @@ export function useServicesPage() {
     return m
   }, [clientGroups])
 
+  // Room-type names available for 'room' pricing groups — the owner hotel's plus
+  // every shared hotel's, so a shared service can price each hotel's categories.
+  const roomTypeOptions = useMemo(() => {
+    const ids = [form.hotelId, ...form.sharedHotelIds]
+    return [...new Set(ids.flatMap(id => hotelMap.get(id)?.roomTypes ?? []))]
+  }, [form.hotelId, form.sharedHotelIds, hotelMap])
+
   // Resolve a pricing group's display label + color.
   const resolveGroupMeta = useMemo(() => (pg: PricingGroup): { label: string; color: string } => {
     if (pg.target === 'client') {
@@ -101,9 +108,6 @@ export function useServicesPage() {
 
   function openAddForm() {
     setEditService(null)
-    setPlanPicker(null)
-    setPickerCategory('')
-    setCollapsedGroups(new Set())
     const draft = getDraft<typeof EMPTY_FORM>(DRAFT_KEY)
     if (draft) {
       setForm({ ...EMPTY_FORM, ...draft })
@@ -116,9 +120,6 @@ export function useServicesPage() {
 
   function openEditForm(svc: Service) {
     setEditService(svc)
-    setPlanPicker(null)
-    setPickerCategory('')
-    setCollapsedGroups(new Set())
     setForm({
       name: svc.name,
       icon: svc.icon || 'Waves',
@@ -136,6 +137,12 @@ export function useServicesPage() {
       bufferTimeAfter: svc.bufferTimeAfter || 0,
       pricingPlans: svc.pricingPlans || [],
       pricingGroups: svc.pricingGroups || [],
+      variants: (svc.variants || []).map(v => ({
+        id: v.id || newVariantId(),
+        name: v.name,
+        pricingPlans: v.pricingPlans || [],
+        pricingGroups: v.pricingGroups || [],
+      })),
       color: svc.color,
     })
     setShowForm(true)
@@ -152,121 +159,68 @@ export function useServicesPage() {
     showToast(t('draftCleared'), 'info')
   }
 
-  function updatePricingPlan(index: number, key: keyof PricingPlan, value: string) {
-    const plans = [...form.pricingPlans]
-    plans[index][key] = value === '' ? '' : Number(value)
-    setForm(f => ({ ...f, pricingPlans: plans }))
+  // ── Pricing (base + per-variant) ────────────────────────────────────────────
+  // The PricingEditor component is self-contained and edits a {plans, groups}
+  // value; here we just persist that value onto the form (base or a variant).
+
+  function setBasePricing(v: PricingValue) {
+    setForm(f => ({ ...f, pricingPlans: v.plans, pricingGroups: v.groups }))
   }
 
-  function removePricingPlan(index: number) {
-    const plans = [...form.pricingPlans]
-    plans.splice(index, 1)
-    setForm(f => ({ ...f, pricingPlans: plans }))
+  function addVariant() {
+    setForm(f => ({
+      ...f,
+      variants: [...f.variants, { id: newVariantId(), name: '', pricingPlans: [], pricingGroups: [] }],
+    }))
   }
 
-  // ── Category-scoped pricing groups ──────────────────────────────────────────
-
-  function confirmAddGroup() {
-    if (!planPicker || planPicker === 'choose' || !pickerCategory) return
-    const target = planPicker
-    // Don't create a duplicate for the same target+category; expand it instead.
-    const existing = form.pricingGroups.findIndex(g => g.target === target && g.category === pickerCategory)
-    if (existing !== -1) {
-      setCollapsedGroups(prev => { const n = new Set(prev); n.delete(existing); return n })
-      showToast(t('categoryHasGroup'), 'info')
-    } else {
-      setForm(f => ({
-        ...f,
-        pricingGroups: [...f.pricingGroups, { target, category: pickerCategory, rows: [{ duration: 60, price: 0 }] }],
-      }))
-    }
-    setPlanPicker(null)
-    setPickerCategory('')
+  function removeVariant(id: string) {
+    setForm(f => ({ ...f, variants: f.variants.filter(v => v.id !== id) }))
   }
 
-  function removePricingGroup(gi: number) {
-    setForm(f => ({ ...f, pricingGroups: f.pricingGroups.filter((_, i) => i !== gi) }))
-    setCollapsedGroups(prev => {
-      const next = new Set<number>()
-      prev.forEach(i => { if (i < gi) next.add(i); else if (i > gi) next.add(i - 1) })
-      return next
-    })
+  function updateVariantName(id: string, name: string) {
+    setForm(f => ({ ...f, variants: f.variants.map(v => v.id === id ? { ...v, name } : v) }))
   }
 
-  function toggleGroupCollapse(gi: number) {
-    setCollapsedGroups(prev => {
-      const n = new Set(prev)
-      if (n.has(gi)) n.delete(gi); else n.add(gi)
-      return n
-    })
+  function setVariantPricing(id: string, val: PricingValue) {
+    setForm(f => ({
+      ...f,
+      variants: f.variants.map(v => v.id === id ? { ...v, pricingPlans: val.plans, pricingGroups: val.groups } : v),
+    }))
   }
 
-  function addGroupRow(gi: number) {
-    setForm(f => {
-      const groups = f.pricingGroups.map((g, i) =>
-        i === gi ? { ...g, rows: [...g.rows, { duration: 60, price: 0 }] } : g
-      )
-      return { ...f, pricingGroups: groups }
-    })
+  // Validate one pricing block (base pricing or a variant's). Returns an error
+  // message to show, or null when valid. Shared by base + every variant.
+  function pricingError(plans: PricingPlan[], groups: PricingGroup[]): string | null {
+    if (form.isFree) return null
+    if (plans.some(p => p.duration === '' || durationError(p.duration))) return t('planDurationError')
+    const emptyGroup = groups.find(g => g.rows.length === 0)
+    if (emptyGroup) return t('addPriceRowError', { label: resolveGroupMeta(emptyGroup).label })
+    if (groups.some(g => g.rows.some(r => r.duration === '' || durationError(r.duration)))) return t('categoryDurationError')
+    return null
   }
 
-  function updateGroupRow(gi: number, ri: number, key: keyof PricingPlan, value: string) {
-    setForm(f => {
-      const groups = f.pricingGroups.map((g, i) => {
-        if (i !== gi) return g
-        const rows = g.rows.map((r, j) => j === ri ? { ...r, [key]: value === '' ? '' : Number(value) } : r)
-        return { ...g, rows }
-      })
-      return { ...f, pricingGroups: groups }
-    })
-  }
-
-  function removeGroupRow(gi: number, ri: number) {
-    setForm(f => {
-      const groups = f.pricingGroups.map((g, i) =>
-        i === gi ? { ...g, rows: g.rows.filter((_, j) => j !== ri) } : g
-      )
-      return { ...f, pricingGroups: groups }
-    })
-  }
-
-  // Available categories for the current picker, excluding ones already added.
-  function pickerOptions(): { value: string; label: string }[] {
-    if (planPicker === 'room') {
-      // Include the owner hotel's room types plus every shared hotel's, so a
-      // shared service can price each participating hotel's categories.
-      const ids = [form.hotelId, ...form.sharedHotelIds]
-      const types = [...new Set(ids.flatMap(id => hotelMap.get(id)?.roomTypes ?? []))]
-      return types
-        .filter(rt => !form.pricingGroups.some(g => g.target === 'room' && g.category === rt))
-        .map(rt => ({ value: rt, label: rt }))
-    }
-    if (planPicker === 'client') {
-      return clientGroups
-        .filter(g => !form.pricingGroups.some(pg => pg.target === 'client' && pg.category === g._id))
-        .map(g => ({ value: g._id, label: g.name }))
-    }
-    return []
-  }
+  const serializePlans = (plans: PricingPlan[]) =>
+    plans.map(p => ({ duration: Number(p.duration) || 0, price: Number(p.price) || 0 }))
+  const serializeGroups = (groups: PricingGroup[]) =>
+    groups.map(g => ({ target: g.target, category: g.category, rows: serializePlans(g.rows) }))
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!form.hotelId) { showToast(t('selectHotelError'), 'error'); return }
-    if (!form.isFree && form.pricingPlans.length > 0) {
-      if (form.pricingPlans.some(p => p.duration === '' || durationError(p.duration))) {
-        showToast(t('planDurationError'), 'error'); return
+
+    if (form.variants.length > 0) {
+      // Variant-based service: validate each variant instead of the base pricing.
+      if (form.variants.some(v => !v.name.trim())) { showToast(t('variantNameRequired'), 'error'); return }
+      for (const v of form.variants) {
+        const err = pricingError(v.pricingPlans, v.pricingGroups)
+        if (err) { showToast(`${v.name}: ${err}`, 'error'); return }
       }
+    } else {
+      const err = pricingError(form.pricingPlans, form.pricingGroups)
+      if (err) { showToast(err, 'error'); return }
     }
-    if (!form.isFree && form.pricingGroups.length > 0) {
-      const emptyGroup = form.pricingGroups.find(g => g.rows.length === 0)
-      if (emptyGroup) {
-        const meta = resolveGroupMeta(emptyGroup)
-        showToast(t('addPriceRowError', { label: meta.label }), 'error'); return
-      }
-      if (form.pricingGroups.some(g => g.rows.some(r => r.duration === '' || durationError(r.duration)))) {
-        showToast(t('categoryDurationError'), 'error'); return
-      }
-    }
+
     if (bufferError(form.bufferTimeBefore) || bufferError(form.bufferTimeAfter)) {
       showToast(t('bufferTimesError'), 'error'); return
     }
@@ -276,11 +230,13 @@ export function useServicesPage() {
       const method = editService ? 'PUT' : 'POST'
       const payload = {
         ...form,
-        pricingPlans: form.pricingPlans.map(p => ({ duration: Number(p.duration) || 0, price: Number(p.price) || 0 })),
-        pricingGroups: form.pricingGroups.map(g => ({
-          target: g.target,
-          category: g.category,
-          rows: g.rows.map(r => ({ duration: Number(r.duration) || 0, price: Number(r.price) || 0 })),
+        pricingPlans: serializePlans(form.pricingPlans),
+        pricingGroups: serializeGroups(form.pricingGroups),
+        variants: form.variants.map(v => ({
+          id: v.id,
+          name: v.name.trim(),
+          pricingPlans: serializePlans(v.pricingPlans),
+          pricingGroups: serializeGroups(v.pricingGroups),
         })),
       }
       const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
@@ -313,13 +269,11 @@ export function useServicesPage() {
 
   return {
     services, hotels, clientGroups, loading,
-    planPicker, setPlanPicker, pickerCategory, setPickerCategory, collapsedGroups,
     searchQuery, setSearchQuery, filterHotel, setFilterHotel, filterStatus, setFilterStatus,
     showForm, editService, form, setForm, saving, deleteConfirm, setDeleteConfirm,
-    hotelMap, resolveGroupMeta, filtered, activeCount, hasActiveFilters,
+    hotelMap, resolveGroupMeta, roomTypeOptions, filtered, activeCount, hasActiveFilters,
     openAddForm, openEditForm, closeForm, discardDraft,
-    updatePricingPlan, removePricingPlan, confirmAddGroup, removePricingGroup,
-    toggleGroupCollapse, addGroupRow, updateGroupRow, removeGroupRow, pickerOptions,
+    setBasePricing, addVariant, removeVariant, updateVariantName, setVariantPricing,
     handleSubmit, toggleActive, handleDelete,
   }
 }

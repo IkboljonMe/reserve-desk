@@ -29,6 +29,7 @@ export interface Booking {
   paid: boolean
   finished: boolean
   bookingType?: 'client' | 'room' | 'custom' | null
+  variantName?: string  // service variant chosen (e.g. "Half pool"), empty for single-config services
   duration?: number
   createdAt?: string
   updatedAt?: string
