@@ -11,15 +11,10 @@ export function ServicesFilterBar({ s }: { s: ServicesPageState }) {
   return (
     <div style={{
       display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap',
-      marginBottom: '1.25rem',
-      padding: '0.75rem 1rem',
-      background: 'var(--surface-card)',
-      border: '1px solid var(--surface-border)',
-      borderRadius: 'var(--radius)',
-      boxShadow: 'var(--shadow-xs)',
+      marginBottom: '1.5rem',
     }}>
       {/* Search */}
-      <div style={{ position: 'relative', flex: '1 1 180px', minWidth: 140 }}>
+      <div style={{ position: 'relative', flex: '0 1 320px', minWidth: 200 }}>
         <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--gray-400)', pointerEvents: 'none' }} />
         <input
           className="form-input"
@@ -31,7 +26,8 @@ export function ServicesFilterBar({ s }: { s: ServicesPageState }) {
         />
       </div>
 
-      <div style={{ width: 1, height: 24, background: 'var(--gray-200)', flexShrink: 0 }} />
+      {/* Filters group, pushed to the right */}
+      <div style={{ width: 1, height: 24, background: 'var(--gray-200)', flexShrink: 0, marginLeft: 'auto' }} />
 
       {/* Hotel filter pills */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
