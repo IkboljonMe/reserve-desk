@@ -18,12 +18,12 @@ export default function DashboardPage() {
       <DashboardHeader s={s} />
 
       {/* Zone A — Income analytics */}
-      <div className="card" style={{ padding: '1.25rem 1.4rem' }}>
+      <div>
         <IncomeAnalytics analytics={s.analytics} loading={s.loading} perService={s.perService} />
       </div>
 
-      {/* Zone B — Bookings explorer */}
-      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+      {/* Zone B — Bookings explorer (separated by a hairline, not a box) */}
+      <div style={{ overflow: 'hidden', borderTop: '1px solid var(--surface-border)', paddingTop: '1.5rem' }}>
         <BookingsToolbar s={s} />
         <BookingsTable s={s} />
       </div>
