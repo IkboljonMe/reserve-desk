@@ -3,6 +3,7 @@ import { connectDB } from '@/lib/mongodb'
 import { Booking } from '@/models/Booking'
 import { Service } from '@/models/Service'
 import { requireDashboard } from '@/lib/session'
+import { notifyNewBooking } from '@/lib/telegram'
 
 // Fields kept when a booking on a shared service belongs to another hotel: the
 // viewer needs to see the slot is occupied, but not the other hotel's guest data.
@@ -180,6 +181,19 @@ export async function POST(req: NextRequest) {
     })
 
     const populated = await Booking.findById(booking._id).populate('serviceId', 'name color').lean()
+
+    notifyNewBooking({
+      hotelId: bookingHotelId,
+      serviceId: populated!.serviceId as unknown as { _id: string; name: string },
+      customerName,
+      roomNumber,
+      date,
+      startTime,
+      endTime,
+      totalPrice: body.totalPrice || 0,
+      paid,
+    })
+
     return Response.json(populated, { status: 201 })
   } catch (err) {
     console.error(err)
