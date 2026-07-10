@@ -50,6 +50,11 @@ A saved guest: `name`, `phone`, `roomNumber`, `floor`, `notes`, `groupId`
 (→ ClientGroup). Groups are colored labels (e.g. VIP) used both to organize
 clients and to select a pricing group at booking time.
 
+The clients table's **history** action opens a per‑client booking history
+(`ClientHistoryModal`) — visits, total spent, outstanding, last visit, and the
+list — backed by `GET /api/bookings?clientId=<id>` (a `clientId` filter on the
+bookings list).
+
 ## Booking (`Booking.ts`)
 The core record.
 

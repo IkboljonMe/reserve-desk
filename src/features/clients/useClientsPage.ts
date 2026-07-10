@@ -20,6 +20,7 @@ export function useClientsPage() {
   const [form, setForm] = useState(EMPTY_FORM)
   const [saving, setSaving] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
+  const [historyClient, setHistoryClient] = useState<Client | null>(null)
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -135,6 +136,7 @@ export function useClientsPage() {
     loading, modalOpen, editClient, form, setForm, saving, deleteConfirm, setDeleteConfirm,
     openAdd, openEdit, closeModal, roomLabel, handleRoomChange, handleSave, handleDelete,
     modalRooms, modalGroups, floorGroups, clientGroup,
+    historyClient, setHistoryClient,
   }
 }
 

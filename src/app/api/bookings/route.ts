@@ -39,6 +39,7 @@ export async function GET(req: NextRequest) {
   const dateFrom = searchParams.get('dateFrom')
   const dateTo = searchParams.get('dateTo')
   const serviceId = searchParams.get('serviceId')
+  const clientId = searchParams.get('clientId')
   const status = searchParams.get('status')
   const limit = searchParams.get('limit')
 
@@ -49,6 +50,7 @@ export async function GET(req: NextRequest) {
     filter.date = dateFrom
   }
   if (serviceId) filter.serviceId = serviceId
+  if (clientId) filter.clientId = clientId
   if (status) filter.status = status
 
   await connectDB()

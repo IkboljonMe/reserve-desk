@@ -14,7 +14,12 @@ Two zones, driven by `useDashboardPage.ts`:
    - **Outstanding** = total − collected.
    - A per‑service breakdown and a bar chart (`IncomeChart`).
    Values animate via `useCountUp`.
-2. **Bookings explorer** — a filterable, sortable table of the range's bookings
+2. **Occupancy** (`OccupancyCard`) — booked time vs. *available* time for the
+   period. Available minutes per service = Σ over each open day (resolved via
+   `hoursForDate`, so weekly schedules & blackout dates count) of
+   `(close − open) × capacity`; utilization = booked ÷ available, capped at 100%.
+   Shows an overall figure, the busiest weekday, and a per‑service bar list.
+3. **Bookings explorer** — a filterable, sortable table of the range's bookings
    with filters (hotels, services, payment, type, state) and search. **Export to
    Excel** (`xlsx`) is available. Clicking a row opens the **booking drawer**.
 
