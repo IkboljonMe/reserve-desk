@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server'
+import { NextRequest, after } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Booking } from '@/models/Booking'
 import { Service } from '@/models/Service'
@@ -182,17 +182,20 @@ export async function POST(req: NextRequest) {
 
     const populated = await Booking.findById(booking._id).populate('serviceId', 'name color').lean()
 
-    notifyNewBooking({
-      hotelId: bookingHotelId,
-      serviceId: populated!.serviceId as unknown as { _id: string; name: string },
-      customerName,
-      roomNumber,
-      date,
-      startTime,
-      endTime,
-      totalPrice: body.totalPrice || 0,
-      paid,
-    })
+    const serviceForNotify = populated!.serviceId as unknown as { _id: string; name: string }
+    after(() =>
+      notifyNewBooking({
+        hotelId: bookingHotelId,
+        serviceId: serviceForNotify,
+        customerName,
+        roomNumber,
+        date,
+        startTime,
+        endTime,
+        totalPrice: body.totalPrice || 0,
+        paid,
+      })
+    )
 
     return Response.json(populated, { status: 201 })
   } catch (err) {

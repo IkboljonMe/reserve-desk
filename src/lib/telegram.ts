@@ -69,6 +69,27 @@ export async function ensureTopicForService(
   return { chatId: config.groupChatId, messageThreadId }
 }
 
+// Removes the forum topic tied to a deleted service, if one exists.
+export async function deleteTopicForService(serviceId: Types.ObjectId | string): Promise<void> {
+  await connectDB()
+  const [config, topic] = await Promise.all([
+    TelegramConfig.findOne().sort({ createdAt: -1 }).lean(),
+    TelegramTopic.findOne({ serviceId }),
+  ])
+  if (!topic) return
+  if (config) {
+    try {
+      await callTelegram('deleteForumTopic', {
+        chat_id: config.groupChatId,
+        message_thread_id: topic.messageThreadId,
+      })
+    } catch (err) {
+      console.error(`Failed to delete Telegram topic for service ${serviceId}`, err)
+    }
+  }
+  await TelegramTopic.deleteOne({ _id: topic._id })
+}
+
 // Creates any missing topics for every (hotel, service) pair. Used right
 // after /login so the group is fully set up without waiting for bookings.
 export async function syncAllTopics(): Promise<void> {

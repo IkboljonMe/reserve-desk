@@ -1,9 +1,10 @@
-import { NextRequest } from 'next/server'
+import { NextRequest, after } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Service } from '@/models/Service'
 import '@/models/Hotel'
 import { getSession, requireOwner } from '@/lib/session'
 import { sanitizeVariants } from '@/lib/serviceVariants'
+import { deleteTopicForService } from '@/lib/telegram'
 
 export async function GET(_req: NextRequest, ctx: RouteContext<'/api/services/[id]'>) {
   const session = await getSession()
@@ -68,5 +69,6 @@ export async function DELETE(_req: NextRequest, ctx: RouteContext<'/api/services
   const { id } = await ctx.params
   await connectDB()
   await Service.findByIdAndDelete(id)
+  after(() => deleteTopicForService(id))
   return Response.json({ success: true })
 }

@@ -1,9 +1,10 @@
-import { NextRequest } from 'next/server'
+import { NextRequest, after } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Service } from '@/models/Service'
 import '@/models/Hotel'
 import { getSession, requireOwner } from '@/lib/session'
 import { sanitizeVariants } from '@/lib/serviceVariants'
+import { ensureTopicForService } from '@/lib/telegram'
 
 export async function GET() {
   const session = await getSession()
@@ -55,6 +56,10 @@ export async function POST(req: NextRequest) {
       variants: sanitizeVariants(variants),
       color: color || '#6366f1',
     })
+
+    if (service.hotelId) {
+      after(() => ensureTopicForService(service.hotelId!, service._id))
+    }
 
     return Response.json(service, { status: 201 })
   } catch (err) {
