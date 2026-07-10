@@ -12,7 +12,7 @@ import { getClients } from '@/lib/api/clients'
 import {
   Service, ServiceVariant, Room, Hotel, ClientGroup, Client, PricingPlan, PricingGroup, BookingType, DayBooking,
 } from './types'
-import { serviceAvailableToHotel, extractHotelId, generateTimeSlots, slotEnd } from './utils'
+import { serviceAvailableToHotel, extractHotelId, generateTimeSlots, slotEnd, toMin } from './utils'
 
 // Sentinel category value meaning "client has no group" — maps to `groupId=none`
 // server-side. There's no configured pricing for it, so price/duration are manual.
@@ -41,7 +41,11 @@ export function useBookingWizard() {
   // Plan section
   const [bookingType, setBookingType] = useState<BookingType | null>(null)
   const [selectedCategory, setSelectedCategory] = useState('') // client group _id, UNGROUPED, or room type
-  const [selectedPlan, setSelectedPlan] = useState<PricingPlan | null>(null)
+  // A configured pricing row, read as an hourly rate. The guest then picks how
+  // many hours (or the whole day) and the total is computed from the rate.
+  const [selectedRate, setSelectedRate] = useState<PricingPlan | null>(null)
+  const [selectedHours, setSelectedHours] = useState(1)
+  const [wholeDay, setWholeDay] = useState(false)
   const [customDuration, setCustomDuration] = useState(60)
   const [customPrice, setCustomPrice] = useState(0)
 
@@ -164,9 +168,23 @@ export function useBookingWizard() {
       : undefined
   const planRows = activeGroup?.rows ?? []
 
+  // Opening window (minutes), how many whole hours fit, and the per-hour rate
+  // derived from the selected row (a row priced for its own duration).
+  const openMin = selectedService ? toMin(selectedService.openTime) : 0
+  const closeMin = selectedService ? toMin(selectedService.closeTime) : 0
+  const dayMinutes = Math.max(0, closeMin - openMin)
+  const maxHours = Math.max(1, Math.floor(dayMinutes / 60))
+  const ratePerHour = selectedRate ? Math.round(selectedRate.price / Math.max(1, selectedRate.duration / 60)) : 0
+
+  // The effective duration + total price. Manual (ungrouped) keeps the typed
+  // values; otherwise total = rate × chosen hours (or the whole open→close day).
   const activePlan: PricingPlan | null = usingManualPrice
     ? { duration: customDuration, price: customPrice }
-    : selectedPlan
+    : selectedRate
+      ? (wholeDay
+          ? { duration: dayMinutes, price: Math.round(ratePerHour * (dayMinutes / 60)) }
+          : { duration: selectedHours * 60, price: ratePerHour * selectedHours })
+      : null
 
   const categoryMeta = isUngroupedClient
     ? { label: t('typeCustom'), color: 'var(--gray-400)' }
@@ -181,9 +199,22 @@ export function useBookingWizard() {
     ? generateTimeSlots(selectedService.openTime, selectedService.closeTime, activePlan.duration)
     : []
 
+  // Only the start times where the whole booking fits without colliding with an
+  // existing booking. The candidate reserves [start-bufferBefore, end+bufferAfter]
+  // and must not overlap any existing booking's [start, end] for this service.
+  const bufBefore = selectedService?.bufferTimeBefore || 0
+  const bufAfter = selectedService?.bufferTimeAfter || 0
+  const availableSlots = activePlan
+    ? timeSlots.filter(slot => {
+        const start = toMin(slot)
+        const end = start + activePlan.duration
+        return !dayBookings.some(b => toMin(b.startTime) < end + bufAfter && toMin(b.endTime) > start - bufBefore)
+      })
+    : []
+
   const customValid = customDuration >= 15 && customDuration % 15 === 0
   const planReady = (!hasVariants || !!selectedVariant) &&
-    (usingManualPrice ? customValid : !!(selectedCategory && selectedPlan))
+    (usingManualPrice ? customValid : !!(selectedCategory && selectedRate))
 
   // Whether guest/room details satisfy what's needed to move to review.
   // Client: needs a name (picked or typed). Room: needs a specific room picked.
@@ -210,7 +241,9 @@ export function useBookingWizard() {
     setSelectedVariant(null)
     setBookingType(null)
     setSelectedCategory('')
-    setSelectedPlan(null)
+    setSelectedRate(null)
+    setSelectedHours(1)
+    setWholeDay(false)
     setSelectedSlot('')
     setCustomDuration(selectedService?.slotDuration || 60)
     setCustomPrice(selectedService?.isFree ? 0 : (selectedService?.price || 0))
@@ -222,7 +255,9 @@ export function useBookingWizard() {
     setSelectedVariant(v)
     setBookingType(null)
     setSelectedCategory('')
-    setSelectedPlan(null)
+    setSelectedRate(null)
+    setSelectedHours(1)
+    setWholeDay(false)
     setSelectedSlot('')
     resetGuest()
   }
@@ -230,20 +265,43 @@ export function useBookingWizard() {
   function chooseType(type: BookingType) {
     setBookingType(type)
     setSelectedCategory('')
-    setSelectedPlan(null)
+    setSelectedRate(null)
+    setSelectedHours(1)
+    setWholeDay(false)
     setSelectedSlot('')
     resetGuest()
   }
 
   function chooseCategory(cat: string) {
     setSelectedCategory(cat)
-    setSelectedPlan(null)
+    setSelectedRate(null)
+    setSelectedHours(1)
+    setWholeDay(false)
     setSelectedSlot('')
     if (cat === UNGROUPED) {
       setCustomDuration(selectedService?.slotDuration || 60)
       setCustomPrice(selectedService?.isFree ? 0 : (selectedService?.price || 0))
     }
     resetGuest()
+  }
+
+  // Pick a rate (hourly), then how many hours — defaulting to 1 hour.
+  function chooseRate(rate: PricingPlan) {
+    setSelectedRate(rate)
+    setSelectedHours(1)
+    setWholeDay(false)
+    setSelectedSlot('')
+  }
+
+  function chooseHours(n: number) {
+    setSelectedHours(n)
+    setWholeDay(false)
+    setSelectedSlot('')
+  }
+
+  function chooseWholeDay() {
+    setWholeDay(true)
+    setSelectedSlot('')
   }
 
   function resetGuest() {
@@ -368,11 +426,13 @@ export function useBookingWizard() {
     // variant
     selectedVariant, hasVariants, chooseVariant,
     // plan
-    bookingType, selectedCategory, selectedPlan, setSelectedPlan,
+    bookingType, selectedCategory,
+    selectedRate, chooseRate, selectedHours, chooseHours, wholeDay, chooseWholeDay,
+    ratePerHour, maxHours,
     customDuration, setCustomDuration, customPrice, setCustomPrice,
     isUngroupedClient, usingManualPrice,
     // when
-    date, setDate, selectedSlot, setSelectedSlot, dayBookings,
+    date, setDate, selectedSlot, setSelectedSlot, dayBookings, availableSlots,
     // guest / room
     selectedClientId, setSelectedClientId, selectedRoomId,
     customerName, setCustomerName, customerPhone, setCustomerPhone,

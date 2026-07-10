@@ -14,7 +14,8 @@ export function PlanSection({ w }: { w: BookingWizard }) {
   const { t } = useTranslation()
   const {
     selectedService, bookingType, clientCats, roomCats, chooseType, resolveGroupMeta,
-    selectedCategory, chooseCategory, planRows, selectedPlan, setSelectedPlan, setSelectedSlot,
+    selectedCategory, chooseCategory, planRows, setSelectedSlot,
+    selectedRate, chooseRate, selectedHours, chooseHours, wholeDay, chooseWholeDay, maxHours, activePlan,
     categoryMeta, customDuration, setCustomDuration, customValid, customPrice, setCustomPrice,
     usingManualPrice, hasVariants, selectedVariant, chooseVariant,
   } = w
@@ -137,35 +138,74 @@ export function PlanSection({ w }: { w: BookingWizard }) {
             )}
           </div>
 
-          {selectedCategory && !usingManualPrice && (
+          {selectedCategory && !usingManualPrice && (() => {
+            const accent = categoryMeta?.color || selectedService.color
+            const pill = (active: boolean) => ({
+              padding: '8px 16px', borderRadius: 10, cursor: 'pointer', minWidth: 64, textAlign: 'center' as const,
+              border: `2px solid ${active ? accent : 'var(--gray-200)'}`,
+              background: active ? `${accent}15` : '#fff',
+              color: active ? accent : 'var(--gray-700)', fontWeight: 700, fontSize: '0.85rem',
+            })
+            return (
             <>
-              <label className="form-label" style={{ display: 'block', marginBottom: 8 }}>{t('chooseDurationPrice')}</label>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+              {/* Rate (per hour) */}
+              <label className="form-label" style={{ display: 'block', marginBottom: 8 }}>{t('chooseRate')}</label>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: selectedRate ? '1.5rem' : 0 }}>
                 {planRows.map((plan, i) => {
-                  const active = selectedPlan?.duration === plan.duration && selectedPlan?.price === plan.price
-                  const accent = categoryMeta?.color || selectedService.color
+                  const perHour = Math.round(Number(plan.price) / Math.max(1, Number(plan.duration) / 60))
+                  const active = selectedRate?.duration === plan.duration && selectedRate?.price === plan.price
                   return (
                     <button
                       key={i}
                       type="button"
-                      onClick={() => { setSelectedPlan(plan); setSelectedSlot('') }}
+                      onClick={() => chooseRate(plan)}
                       style={{
                         padding: '10px 16px', borderRadius: 10,
                         border: `2px solid ${active ? accent : 'var(--gray-200)'}`,
                         background: active ? `${accent}15` : '#fff',
-                        textAlign: 'left', cursor: 'pointer', minWidth: 110,
+                        textAlign: 'left', cursor: 'pointer', minWidth: 130,
                       }}
                     >
-                      <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--gray-800)' }}>{formatDuration(plan.duration)}</div>
-                      <div style={{ fontSize: '0.78rem', color: accent, fontWeight: 600 }}>
-                        {plan.price > 0 ? `${formatUZS(plan.price)} ${t('sum')}` : t('isFree')}
+                      <div style={{ fontSize: '0.9rem', color: accent, fontWeight: 700 }}>
+                        {perHour > 0
+                          ? <>{formatUZS(perHour)} {t('sum')}<span style={{ color: 'var(--gray-400)', fontWeight: 500 }}>{t('perHour')}</span></>
+                          : t('isFree')}
                       </div>
                     </button>
                   )
                 })}
               </div>
+
+              {/* Hours */}
+              {selectedRate && (
+                <>
+                  <label className="form-label" style={{ display: 'block', marginBottom: 8 }}>{t('chooseHours')}</label>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                    {Array.from({ length: maxHours }, (_, i) => i + 1).map(n => (
+                      <button key={n} type="button" onClick={() => chooseHours(n)} style={pill(!wholeDay && selectedHours === n)}>
+                        {formatDuration(n * 60)}
+                      </button>
+                    ))}
+                    <button type="button" onClick={() => chooseWholeDay()} style={pill(wholeDay)}>
+                      {t('wholeDay')}
+                    </button>
+                  </div>
+
+                  {/* Live total */}
+                  {activePlan && (
+                    <div style={{ marginTop: 14, fontSize: '0.875rem', color: 'var(--gray-600)' }}>
+                      {t('total')}:{' '}
+                      <strong style={{ color: accent }}>
+                        {activePlan.price > 0 ? `${formatUZS(activePlan.price)} ${t('sum')}` : t('isFree')}
+                      </strong>
+                      {' · '}{formatDuration(activePlan.duration)}
+                    </div>
+                  )}
+                </>
+              )}
             </>
-          )}
+            )
+          })()}
         </>
       )}
 

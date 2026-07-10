@@ -3,12 +3,12 @@
 import { Clock } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import { nowUZ } from '@/lib/timezone'
-import { formatDuration, toMin } from '../utils'
+import { formatDuration, slotEnd } from '../utils'
 import type { BookingWizard } from '../useBookingWizard'
 
 export function DateTimeSection({ w }: { w: BookingWizard }) {
   const { t } = useTranslation()
-  const { selectedService, activePlan, planReady, guestReady, date, setDate, selectedSlot, setSelectedSlot, timeSlots, dayBookings } = w
+  const { selectedService, activePlan, planReady, guestReady, date, setDate, selectedSlot, setSelectedSlot, availableSlots } = w
   if (!selectedService || !activePlan || !planReady || !guestReady) return null
 
   return (
@@ -29,41 +29,29 @@ export function DateTimeSection({ w }: { w: BookingWizard }) {
       <label className="form-label" style={{ marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: 6 }}>
         <Clock size={14} /> {t('availableSlots', { duration: formatDuration(activePlan.duration) })}
       </label>
-      {timeSlots.length === 0 ? (
+      {availableSlots.length === 0 ? (
         <p style={{ color: 'var(--gray-400)', fontSize: '0.875rem' }}>{t('noSlotsForDuration')}</p>
       ) : (
+        // Only start times where the whole booking fits without colliding with an
+        // existing booking (buffer included) are shown. Each shows its full range.
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-          {timeSlots.map(slot => {
-            // Mirror the server's buffered-overlap rule: the candidate booking
-            // reserves [start - bufferBefore, end + bufferAfter], and must not
-            // overlap any existing booking's raw [start, end] for this service.
-            const before = selectedService.bufferTimeBefore || 0
-            const after = selectedService.bufferTimeAfter || 0
-            const start = toMin(slot)
-            const end = start + activePlan.duration
-            const bufferedStart = start - before
-            const bufferedEnd = end + after
-            const booked = dayBookings.some(b =>
-              toMin(b.startTime) < bufferedEnd && toMin(b.endTime) > bufferedStart
-            )
+          {availableSlots.map(slot => {
             const selected = selectedSlot === slot
             return (
               <button
                 key={slot}
                 type="button"
-                disabled={booked}
                 onClick={() => setSelectedSlot(slot)}
                 style={{
-                  padding: '6px 14px', borderRadius: 8,
+                  padding: '7px 14px', borderRadius: 8,
                   border: `1.5px solid ${selected ? selectedService.color : 'var(--gray-200)'}`,
-                  background: selected ? selectedService.color : booked ? 'var(--gray-100)' : '#fff',
-                  color: selected ? '#fff' : booked ? 'var(--gray-300)' : 'var(--gray-700)',
-                  fontSize: '0.8125rem', fontWeight: selected ? 600 : 400,
-                  cursor: booked ? 'not-allowed' : 'pointer',
-                  textDecoration: booked ? 'line-through' : 'none',
+                  background: selected ? selectedService.color : '#fff',
+                  color: selected ? '#fff' : 'var(--gray-700)',
+                  fontSize: '0.8125rem', fontWeight: selected ? 600 : 500,
+                  cursor: 'pointer', fontVariantNumeric: 'tabular-nums',
                 }}
               >
-                {slot}
+                {slot} → {slotEnd(slot, activePlan.duration)}
               </button>
             )
           })}
