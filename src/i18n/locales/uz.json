@@ -57,6 +57,8 @@
   "hideSidebar": "Yon panelni yashirish",
   "collapseMenu": "Menyuni yig'ish",
   "expandMenu": "Menyuni ochish",
+  "openMenuAria": "Menyuni ochish",
+  "closeMenuAria": "Menyuni yopish",
   "status": "Holat",
   "active": "Faol",
   "inactive": "Faol emas",

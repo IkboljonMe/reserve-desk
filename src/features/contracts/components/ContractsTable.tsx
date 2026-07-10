@@ -4,6 +4,7 @@ import { useTranslation } from '@/i18n'
 import { STATUS_META } from '../constants'
 import { daysLeftOf, fmtDate } from '../utils'
 import { ExpiryPill } from './ExpiryPill'
+import { SkeletonTableRows } from '@/components/ui/Skeleton'
 import type { ContractsPageState } from '../useContractsPage'
 
 export function ContractsTable({ s }: { s: ContractsPageState }) {
@@ -13,9 +14,9 @@ export function ContractsTable({ s }: { s: ContractsPageState }) {
   return (
     <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
       {loading ? (
-        <div style={{ padding: '3rem', display: 'flex', justifyContent: 'center' }}>
-          <div className="spinner spinner-dark" style={{ width: 32, height: 32 }} />
-        </div>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
+          <tbody><SkeletonTableRows rows={6} columns={multiHotel ? 8 : 7} /></tbody>
+        </table>
       ) : visible.length === 0 ? (
         <div className="empty-state">
           <div className="empty-state-icon">

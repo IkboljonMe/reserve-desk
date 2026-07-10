@@ -3,6 +3,7 @@
 import React from 'react'
 import { Service, money } from '@/lib/bookingHelpers'
 import { useCountUp } from '@/hooks/useCountUp'
+import { Skeleton } from '@/components/ui/Skeleton'
 import DashboardKpi from './DashboardKpi'
 import IncomeChart from './IncomeChart'
 
@@ -41,9 +42,7 @@ export default function IncomeAnalytics({ analytics, loading, perService }: Inco
         </div>
         {/* Chart */}
         {loading ? (
-          <div style={{ height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div className="spinner spinner-dark" style={{ width: 26, height: 26 }} />
-          </div>
+          <Skeleton style={{ height: 200 }} />
         ) : (
           <IncomeChart key={`${analytics.data.length}-${analytics.total}`} data={analytics.data} />
         )}

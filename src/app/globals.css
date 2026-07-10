@@ -467,6 +467,41 @@ p  { color: var(--gray-500); text-wrap: pretty; }
   border-top-color: var(--brand-500);
 }
 
+/* ─── Skeleton ─────────────────────────── */
+.skeleton {
+  background: linear-gradient(90deg, var(--gray-100) 25%, var(--gray-200) 37%, var(--gray-100) 63%);
+  background-size: 400% 100%;
+  animation: skeletonShimmer 1.4s ease infinite;
+  border-radius: var(--radius-sm);
+}
+@keyframes skeletonShimmer {
+  0%   { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+    background: var(--gray-100);
+  }
+}
+
+/* ─── Mobile nav ─────────────────────────── */
+.mobile-nav-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.5);
+  z-index: 149;
+  animation: fadeIn 0.18s ease;
+}
+.mobile-topbar {
+  display: none;
+}
+@media (max-width: 768px) {
+  .mobile-topbar {
+    display: flex;
+  }
+}
+
 /* ─── Empty State ─────────────────────────── */
 .empty-state {
   display: flex;

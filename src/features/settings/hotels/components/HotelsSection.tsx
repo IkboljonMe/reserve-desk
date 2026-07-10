@@ -3,6 +3,7 @@
 import { Building2, MapPin, Trash2, Plus, Check, X, BedDouble, Pencil } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import { displayCode } from '../utils'
+import { SkeletonCard } from '@/components/ui/Skeleton'
 import type { HotelsRoomsPageState } from '../useHotelsRoomsPage'
 
 export function HotelsSection({ s }: { s: HotelsRoomsPageState }) {
@@ -28,8 +29,8 @@ export function HotelsSection({ s }: { s: HotelsRoomsPageState }) {
       </div>
 
       {loading ? (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
-          <div className="spinner spinner-dark" style={{ width: 28, height: 28 }} />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '1rem' }}>
+          {Array.from({ length: 3 }).map((_, i) => <SkeletonCard key={i} />)}
         </div>
       ) : hotels.length === 0 ? (
         <div className="card">

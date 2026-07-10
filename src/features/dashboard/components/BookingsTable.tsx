@@ -4,6 +4,7 @@ import { format, parseISO, formatDistanceToNow } from 'date-fns'
 import { useTranslation } from '@/i18n'
 import { svcId, bookingState, money } from '@/lib/bookingHelpers'
 import { CalendarDays, ArrowUpDown, Check } from 'lucide-react'
+import { SkeletonTableRows } from '@/components/ui/Skeleton'
 import { TYPE_META } from '../constants'
 import type { DashboardPageState } from '../useDashboardPage'
 
@@ -12,7 +13,11 @@ export function BookingsTable({ s }: { s: DashboardPageState }) {
   const { loading, rows, hotels, serviceHotel, sortKey, toggleSort, setDetailId } = s
 
   if (loading) {
-    return <div style={{ padding: '3rem', textAlign: 'center' }}><div className="spinner spinner-dark" style={{ width: 28, height: 28, margin: '0 auto' }} /></div>
+    return (
+      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8125rem' }}>
+        <tbody><SkeletonTableRows rows={6} columns={8} /></tbody>
+      </table>
+    )
   }
   if (rows.length === 0) {
     return (

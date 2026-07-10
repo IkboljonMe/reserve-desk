@@ -16,6 +16,9 @@ export default function Sidebar({
   userName = '',
   userEmail = '',
   hotelName = '',
+  mobile = false,
+  mobileOpen = false,
+  onCloseMobile,
 }: {
   collapsed?: boolean
   role?: SessionRole
@@ -23,6 +26,9 @@ export default function Sidebar({
   userName?: string
   userEmail?: string
   hotelName?: string
+  mobile?: boolean
+  mobileOpen?: boolean
+  onCloseMobile?: () => void
 }) {
   const pathname = usePathname()
   const router = useRouter()
@@ -159,7 +165,22 @@ export default function Sidebar({
   const labelTransition = `max-width 0.22s ${ease}, opacity 0.18s ${ease}, margin 0.22s ${ease}`
 
   return (
-    <aside style={{
+    <aside style={mobile ? {
+      position: 'fixed',
+      top: 0,
+      bottom: 0,
+      left: 0,
+      width: EXPANDED_WIDTH,
+      minWidth: EXPANDED_WIDTH,
+      zIndex: 150,
+      background: 'var(--sidebar-bg)',
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'hidden',
+      transform: mobileOpen ? 'translateX(0)' : 'translateX(-100%)',
+      transition: `transform 0.24s ${ease}`,
+      boxShadow: mobileOpen ? '8px 0 30px rgba(0,0,0,0.25)' : 'none',
+    } : {
       width: collapsed ? RAIL_WIDTH : EXPANDED_WIDTH,
       minWidth: collapsed ? RAIL_WIDTH : EXPANDED_WIDTH,
       background: 'var(--sidebar-bg)',
@@ -204,6 +225,28 @@ export default function Sidebar({
             <div style={{ color: '#fff', fontSize: '1.15rem', fontWeight: 800, lineHeight: 1.15, letterSpacing: '-0.02em' }}>Easy Service</div>
             <div style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.7rem', letterSpacing: '0.03em', marginTop: 2 }}>{t('brandTagline')}</div>
           </div>
+
+          {mobile && (
+            <button
+              type="button"
+              onClick={onCloseMobile}
+              aria-label={t('closeMenuAria')}
+              style={{
+                marginLeft: 'auto',
+                width: 32, height: 32, flexShrink: 0,
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                background: 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: 8,
+                color: 'rgba(255,255,255,0.7)',
+                cursor: 'pointer',
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          )}
         </div>
       </div>
 
@@ -498,37 +541,39 @@ export default function Sidebar({
             )}
           </button>
 
-          <button
-            type="button"
-            onClick={onToggle}
-            title={collapsed ? t('expandMenu') : t('collapseMenu')}
-            aria-label={collapsed ? t('expandMenu') : t('collapseMenu')}
-            style={{
-              width: 34, height: 34,
-              flexShrink: 0,
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              background: 'rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: 9,
-              color: 'rgba(255,255,255,0.65)',
-              cursor: 'pointer',
-              transition: 'background 0.15s ease, color 0.15s ease',
-            }}
-            onMouseEnter={e => {
-              (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.12)'
-              ;(e.currentTarget as HTMLElement).style.color = '#fff'
-            }}
-            onMouseLeave={e => {
-              (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)'
-              ;(e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.65)'
-            }}
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-              style={{ transform: collapsed ? 'rotate(180deg)' : 'rotate(0deg)', transition: `transform 0.24s ${ease}` }}
+          {!mobile && (
+            <button
+              type="button"
+              onClick={onToggle}
+              title={collapsed ? t('expandMenu') : t('collapseMenu')}
+              aria-label={collapsed ? t('expandMenu') : t('collapseMenu')}
+              style={{
+                width: 34, height: 34,
+                flexShrink: 0,
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: 9,
+                color: 'rgba(255,255,255,0.65)',
+                cursor: 'pointer',
+                transition: 'background 0.15s ease, color 0.15s ease',
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.12)'
+                ;(e.currentTarget as HTMLElement).style.color = '#fff'
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)'
+                ;(e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.65)'
+              }}
             >
-              <polyline points="15 18 9 12 15 6" />
-            </svg>
-          </button>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                style={{ transform: collapsed ? 'rotate(180deg)' : 'rotate(0deg)', transition: `transform 0.24s ${ease}` }}
+              >
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+            </button>
+          )}
         </div>
       </div>
     </aside>

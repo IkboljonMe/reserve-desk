@@ -4,6 +4,7 @@ import { Search, Plus, ChevronRight } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import { extractHotelId } from '../utils'
 import { ServiceCard } from './ServiceCard'
+import { SkeletonCard } from '@/components/ui/Skeleton'
 import type { ServicesPageState } from '../useServicesPage'
 
 export function ServicesGrid({ s }: { s: ServicesPageState }) {
@@ -16,8 +17,8 @@ export function ServicesGrid({ s }: { s: ServicesPageState }) {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
-        <span className="spinner spinner-dark" style={{ width: 28, height: 28 }} />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '1rem' }}>
+        {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
       </div>
     )
   }

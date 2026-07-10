@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useTranslation } from '@/i18n'
 import { useNotificationsPage } from './useNotificationsPage'
 import { NotificationGroup } from './components/NotificationGroup'
+import { Skeleton } from '@/components/ui/Skeleton'
 
 export default function NotificationsPage() {
   const { t, lang } = useTranslation()
@@ -23,8 +24,16 @@ export default function NotificationsPage() {
       </div>
 
       {loading ? (
-        <div className="card" style={{ padding: '3rem', display: 'flex', justifyContent: 'center' }}>
-          <div className="spinner spinner-dark" style={{ width: 32, height: 32 }} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="card" style={{ padding: '1rem', display: 'flex', alignItems: 'center', gap: 12 }}>
+              <Skeleton style={{ width: 36, height: 36, borderRadius: '50%', flexShrink: 0 }} />
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <Skeleton style={{ height: 12, width: '60%' }} />
+                <Skeleton style={{ height: 10, width: '35%' }} />
+              </div>
+            </div>
+          ))}
         </div>
       ) : items.length === 0 ? (
         <div className="card" style={{ padding: 0, overflow: 'hidden' }}>

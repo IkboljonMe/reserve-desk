@@ -2,6 +2,7 @@
 
 import { Pencil, Trash2, Users } from 'lucide-react'
 import { useTranslation } from '@/i18n'
+import { SkeletonTableRows } from '@/components/ui/Skeleton'
 import type { ClientGroupsPageState } from '../useClientGroupsPage'
 
 export function GroupList({ s }: { s: ClientGroupsPageState }) {
@@ -11,9 +12,9 @@ export function GroupList({ s }: { s: ClientGroupsPageState }) {
   return (
     <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
       {loading ? (
-        <div style={{ padding: '3rem', display: 'flex', justifyContent: 'center' }}>
-          <div className="spinner spinner-dark" style={{ width: 32, height: 32 }} />
-        </div>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <tbody><SkeletonTableRows rows={4} columns={3} /></tbody>
+        </table>
       ) : groups.length === 0 ? (
         <div className="empty-state">
           <div className="empty-state-icon">

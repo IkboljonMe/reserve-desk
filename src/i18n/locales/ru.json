@@ -57,6 +57,8 @@
   "hideSidebar": "Скрыть панель",
   "collapseMenu": "Свернуть меню",
   "expandMenu": "Развернуть меню",
+  "openMenuAria": "Открыть меню",
+  "closeMenuAria": "Закрыть меню",
   "status": "Статус",
   "active": "Активный",
   "inactive": "Неактивный",

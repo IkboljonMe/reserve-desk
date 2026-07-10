@@ -1,6 +1,7 @@
 'use client'
 
 import { useTranslation } from '@/i18n'
+import { SkeletonTableRows } from '@/components/ui/Skeleton'
 import type { ClientsPageState } from '../useClientsPage'
 
 export function ClientsTable({ s }: { s: ClientsPageState }) {
@@ -10,9 +11,9 @@ export function ClientsTable({ s }: { s: ClientsPageState }) {
   return (
     <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
       {loading ? (
-        <div style={{ padding: '3rem', display: 'flex', justifyContent: 'center' }}>
-          <div className="spinner spinner-dark" style={{ width: 32, height: 32 }} />
-        </div>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
+          <tbody><SkeletonTableRows rows={6} columns={7} /></tbody>
+        </table>
       ) : clients.length === 0 ? (
         <div className="empty-state">
           <div className="empty-state-icon">
@@ -28,7 +29,8 @@ export function ClientsTable({ s }: { s: ClientsPageState }) {
           <button className="btn btn-primary" style={{ marginTop: 8 }} onClick={openAdd}>{t('addFirstClient')}</button>
         </div>
       ) : (
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
+        <div style={{ overflowX: 'auto' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem', minWidth: 720 }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--gray-200)', background: 'var(--gray-50)' }}>
               {[['guest', t('guest')], ['group', t('group')], ['room', t('room')], ['floor', t('floor')], ['phone', t('phone')], ['notes', t('notes')], ['actions', '']].map(([key, col]) => (
@@ -124,6 +126,7 @@ export function ClientsTable({ s }: { s: ClientsPageState }) {
             ))}
           </tbody>
         </table>
+        </div>
       )}
     </div>
   )
