@@ -52,7 +52,7 @@ The core record.
   services), `serviceId`, `clientId?`, `customerName`, `customerPhone`,
   `roomNumber`, `variantId?`/`variantName?`.
 - When: `date` (`YYYY-MM-DD`), `startTime`, `endTime`, `bufferedEndTime`,
-  `duration` (minutes).
+  `duration` (minutes), `persons` (party size, default 1).
 - Money/state: `totalPrice`, `paid`, `finished`, `status`
   (`confirmed|pending|cancelled`), `paidAt?`, `finishedAt?`.
 - Classification: `bookingType` (`client|room|custom`), `category` (client‑group

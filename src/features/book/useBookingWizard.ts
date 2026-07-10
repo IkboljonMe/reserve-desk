@@ -61,6 +61,7 @@ export function useBookingWizard() {
   const [customerPhone, setCustomerPhone] = useState('')
   const [roomNumber, setRoomNumber] = useState('')
   const [notes, setNotes] = useState('')
+  const [persons, setPersons] = useState(1)
   const [paid, setPaid] = useState(false)
   const [loading, setLoading] = useState(false)
 
@@ -314,6 +315,7 @@ export function useBookingWizard() {
     setCustomerName('')
     setCustomerPhone('')
     setRoomNumber('')
+    setPersons(1)
     setClientSearch('')
     setClientResults([])
   }
@@ -403,6 +405,7 @@ export function useBookingWizard() {
         startTime: selectedSlot,
         endTime,
         duration: activePlan.duration,
+        persons,
         totalPrice: activePlan.price,
         notes: notes.trim(),
         paid: activePlan.price === 0 ? false : paid,
@@ -440,7 +443,7 @@ export function useBookingWizard() {
     // guest / room
     selectedClientId, setSelectedClientId, selectedRoomId,
     customerName, setCustomerName, customerPhone, setCustomerPhone,
-    roomNumber, setRoomNumber, notes, setNotes, paid, setPaid, loading,
+    roomNumber, setRoomNumber, notes, setNotes, persons, setPersons, paid, setPaid, loading,
     clientSearch, setClientSearch, clientResults, clearClient,
     // add-client modal
     addClientModalOpen, addClientForm, setAddClientForm, savingNewClient,

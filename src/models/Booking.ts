@@ -25,6 +25,7 @@ export interface IBooking extends Document {
   endTime: string     // "HH:mm"
   bufferedEndTime: string
   duration: number    // minutes
+  persons: number     // party size (guests on this booking)
   totalPrice: number
   notes: string
   status: BookingStatus
@@ -68,6 +69,7 @@ const BookingSchema = new Schema<IBooking>(
     endTime: { type: String, required: true },
     bufferedEndTime: { type: String, required: true },
     duration: { type: Number, required: true, default: 60 },
+    persons: { type: Number, required: true, default: 1, min: 1 },
     totalPrice: { type: Number, required: true, default: 0 },
     notes: { type: String, default: '' },
     status: { type: String, enum: ['confirmed', 'pending', 'cancelled'], default: 'confirmed' },

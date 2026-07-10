@@ -33,16 +33,18 @@ export async function PUT(req: NextRequest, ctx: RouteContext<'/api/bookings/[id
   try {
   const now = new Date()
   const events: { action: string; at: Date; by: unknown }[] = []
-  let paidChanged = false
+  // Any change to a field shown in the Telegram message triggers an edit.
+  let notifyChanged = false
 
   // Only stamp timestamps / log events on real transitions.
   if (typeof body.paid === 'boolean' && body.paid !== current.paid) {
-    paidChanged = true
+    notifyChanged = true
     current.paid = body.paid
     if (body.paid) { current.paidAt = now; events.push({ action: 'paid', at: now, by: session.userId }) }
     else { current.paidAt = null; events.push({ action: 'reopened', at: now, by: session.userId }) }
   }
   if (typeof body.finished === 'boolean' && body.finished !== current.finished) {
+    notifyChanged = true
     current.finished = body.finished
     if (body.finished) { current.finishedAt = now; events.push({ action: 'finished', at: now, by: session.userId }) }
     else { current.finishedAt = null; events.push({ action: 'reopened', at: now, by: session.userId }) }
@@ -51,7 +53,10 @@ export async function PUT(req: NextRequest, ctx: RouteContext<'/api/bookings/[id
     current.notes = body.notes
     events.push({ action: 'notes_updated', at: now, by: session.userId })
   }
-  if (typeof body.status === 'string') current.status = body.status
+  if (typeof body.status === 'string' && body.status !== current.status) {
+    notifyChanged = true
+    current.status = body.status
+  }
 
   if (events.length) current.history.push(...(events as never[]))
   await current.save()
@@ -62,9 +67,10 @@ export async function PUT(req: NextRequest, ctx: RouteContext<'/api/bookings/[id
     .populate('history.by', 'email name')
     .lean()
 
-  // The payment status is shown in the Telegram message — edit it in place so
-  // the group stays in sync (never post a duplicate). Best-effort, post-response.
-  if (paidChanged && booking?.tgMessageId != null && booking.tgChatId != null) {
+  // Payment / finished / cancelled are shown in the Telegram message — edit it
+  // in place so the group stays in sync (never post a duplicate). Best-effort,
+  // post-response.
+  if (notifyChanged && booking?.tgMessageId != null && booking.tgChatId != null) {
     const svc = booking.serviceId as unknown as { name?: string } | null
     const creator = booking.createdBy as unknown as { name?: string } | null
     after(() =>
@@ -78,8 +84,11 @@ export async function PUT(req: NextRequest, ctx: RouteContext<'/api/bookings/[id
           date: booking.date,
           startTime: booking.startTime,
           endTime: booking.endTime,
+          persons: booking.persons,
           totalPrice: booking.totalPrice,
           paid: booking.paid,
+          finished: booking.finished,
+          status: booking.status,
           createdByName: creator?.name,
         },
         svc?.name,
@@ -102,6 +111,37 @@ export async function DELETE(_req: NextRequest, ctx: RouteContext<'/api/bookings
 
   const { id } = await ctx.params
   await connectDB()
-  await Booking.findOneAndDelete(bookingIdScope(session, id))
+  const deleted = await Booking.findOneAndDelete(bookingIdScope(session, id))
+    .populate('serviceId', 'name')
+    .populate('createdBy', 'name')
+    .lean()
+
+  // Reflect the removal in Telegram by marking the message cancelled (rather than
+  // leaving a stale "new booking"). Best-effort, post-response.
+  if (deleted?.tgMessageId != null && deleted.tgChatId != null) {
+    const svc = deleted.serviceId as unknown as { name?: string } | null
+    const creator = deleted.createdBy as unknown as { name?: string } | null
+    after(() =>
+      notifyBookingUpdated(
+        { chatId: deleted.tgChatId!, messageId: deleted.tgMessageId!, messageThreadId: deleted.tgThreadId ?? undefined },
+        {
+          hotelId: deleted.hotelId,
+          serviceId: deleted.serviceId as unknown as { _id: string; name: string },
+          customerName: deleted.customerName,
+          roomNumber: deleted.roomNumber,
+          date: deleted.date,
+          startTime: deleted.startTime,
+          endTime: deleted.endTime,
+          persons: deleted.persons,
+          totalPrice: deleted.totalPrice,
+          paid: deleted.paid,
+          status: 'cancelled',
+          createdByName: creator?.name,
+        },
+        svc?.name,
+      )
+    )
+  }
+
   return Response.json({ success: true })
 }

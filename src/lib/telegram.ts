@@ -140,8 +140,11 @@ export interface BookingNotifyData {
   date: string
   startTime: string
   endTime: string
+  persons?: number
   totalPrice: number
   paid: boolean
+  finished?: boolean
+  status?: string          // 'confirmed' | 'pending' | 'cancelled'
   createdByName?: string   // the admin who created the booking ("who booked")
 }
 
@@ -161,13 +164,17 @@ function buildBookingMessage(booking: BookingNotifyData, serviceName?: string): 
   const priceText = booking.totalPrice > 0 ? `${money(booking.totalPrice)} UZS` : 'Бесплатно'
   const paidText = booking.paid ? 'Оплачено ✅' : 'Не оплачено ❌'
   const who = booking.roomNumber ? `${booking.customerName} (номер ${booking.roomNumber})` : booking.customerName
+  const cancelled = booking.status === 'cancelled'
+  const header = cancelled ? '🚫 <b>Отменено</b>' : `🆕 <b>${serviceName ?? 'Новое бронирование'}</b>`
   const lines = [
-    `🆕 <b>${serviceName ?? 'Новое бронирование'}</b>`,
+    header,
     `🕒 ${booking.date} ${booking.startTime}-${booking.endTime}`,
     `👤 ${who}`,
   ]
+  if (booking.persons && booking.persons > 1) lines.push(`👥 ${booking.persons} чел.`)
   if (booking.createdByName) lines.push(`🧑‍💼 Забронировал: ${booking.createdByName}`)
   lines.push(`💰 ${priceText} — ${paidText}`)
+  if (!cancelled && booking.finished) lines.push('✅ Завершено')
   return lines.join('\n')
 }
 

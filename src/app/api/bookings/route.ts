@@ -168,6 +168,7 @@ export async function POST(req: NextRequest) {
       endTime,
       bufferedEndTime,
       duration: body.duration || 60,
+      persons: Math.max(1, Number(body.persons) || 1),
       totalPrice: body.totalPrice || 0,
       notes: notes || '',
       status: status || 'confirmed',
@@ -194,6 +195,7 @@ export async function POST(req: NextRequest) {
         date,
         startTime,
         endTime,
+        persons: Math.max(1, Number(body.persons) || 1),
         totalPrice: body.totalPrice || 0,
         paid,
         createdByName: session.name,   // "who booked"

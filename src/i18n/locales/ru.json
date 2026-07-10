@@ -215,6 +215,7 @@
   "roomNumberField": "Номер комнаты",
   "roomNumberPlaceholder": "напр. FG-101 (необязательно)",
   "notesOptional": "Примечания (необязательно)",
+  "personsCount": "Количество человек",
   "specialRequirements": "Особые пожелания…",
   "freeNoPayment": "Бесплатно — оплата не нужна",
   "toWhom": "Кому",

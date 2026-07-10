@@ -30,18 +30,25 @@ Message shape (Russian, emoji intentional):
 🆕 <b>{service name}</b>
 🕒 {date} {start}-{end}
 👤 {customer} (номер {room})
+👥 {persons} чел.                (only when persons > 1)
 🧑‍💼 Забронировал: {admin name}
 💰 {price} UZS — Оплачено ✅ | Не оплачено ❌
+✅ Завершено                     (when finished)
 ```
 
-Built by `buildBookingMessage()`.
+Cancelled bookings render with a `🚫 <b>Отменено</b>` header. Built by
+`buildBookingMessage()`.
 
-## Editing on update
+## Editing on update / lifecycle
 
-On `PUT /api/bookings/[id]`, when `paid` changes and the booking has a stored
-`tgMessageId`, `notifyBookingUpdated(...)` rebuilds the text and calls
-`editMessageText` — so "Не оплачено ❌" flips to "Оплачено ✅" **in place**. Runs
-via `after()` (post‑response), best‑effort.
+`notifyBookingUpdated(...)` rebuilds the text and calls `editMessageText` so the
+message stays in sync **in place** (never a duplicate). Triggered by:
+
+- `PUT /api/bookings/[id]` when **paid**, **finished**, or **status** changes.
+- `DELETE /api/bookings/[id]` — the message is edited to the cancelled header
+  before the record is removed.
+
+All runs via `after()` (post‑response), best‑effort.
 
 ## Helpers
 
@@ -51,5 +58,4 @@ guards on `TELEGRAM_BOT_TOKEN`.
 
 ## Gaps (backlog)
 
-- Finish/cancel/delete/reschedule don't yet update the message.
-- No "number of persons" line — there's no such field on a booking yet.
+- Reschedule (time/service change) isn't wired to a message edit yet.

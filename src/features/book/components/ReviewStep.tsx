@@ -15,7 +15,7 @@ export function ReviewStep({ w }: { w: BookingWizard }) {
   const {
     hotels, selectedHotelId, selectedService, selectedVariant, bookingType, categoryMeta,
     activePlan, selectedSlot, date, customerName, customerPhone, roomNumber, notes,
-    paid, setPaid, loading, router, confirmBooking, setStep,
+    persons, setPersons, paid, setPaid, loading, router, confirmBooking, setStep,
   } = w
   if (!selectedService || !activePlan || !selectedSlot) return null
 
@@ -76,6 +76,16 @@ export function ReviewStep({ w }: { w: BookingWizard }) {
             <span>{notes}</span>
           </>
         )}
+      </div>
+
+      <div className="form-group" style={{ marginBottom: '1.25rem', maxWidth: 200 }}>
+        <label className="form-label">{t('personsCount')}</label>
+        <input
+          type="number" className="form-input" min={1} step={1}
+          value={persons}
+          onChange={e => setPersons(Math.max(1, parseInt(e.target.value) || 1))}
+          onFocus={e => e.currentTarget.select()}
+        />
       </div>
 
       <div className="form-group" style={{ marginBottom: '1.5rem' }}>

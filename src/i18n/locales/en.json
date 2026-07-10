@@ -215,6 +215,7 @@
   "roomNumberField": "Room Number",
   "roomNumberPlaceholder": "e.g. FG-101 (optional)",
   "notesOptional": "Notes (optional)",
+  "personsCount": "Number of persons",
   "specialRequirements": "Any special requirements…",
   "freeNoPayment": "Free — no payment needed",
   "toWhom": "To whom",
