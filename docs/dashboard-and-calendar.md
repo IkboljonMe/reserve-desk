@@ -52,6 +52,13 @@ remaining balance, but a smaller value books a **deposit**. It calls
 `recordPayment(booking, newCollectedTotal)`, which flips `paid` true only once the
 collected amount covers `totalPrice`.
 
+`EditBookingModal` (opened via **Edit**) reschedules a booking — pick a new date
+and an available start time (computed from the service's hours + that day's
+bookings, excluding itself) — and edits guest details (name/phone/room/persons/
+notes). Saving `PUT`s the changes; the server re‑validates capacity for the new
+slot and returns a 409 (surfaced as a toast) if it's full. A `rescheduled` event
+is logged and the Telegram message is edited in place.
+
 Booking state → label/color is centralized in `lib/bookingHelpers.ts`
 (`bookingState()` → `finished | paid | partial | unpaid | free`, where `partial`
 is a booking with a deposit but a remaining balance); the UI translates via the

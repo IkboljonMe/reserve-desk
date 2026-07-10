@@ -64,6 +64,7 @@ export interface Booking {
   date: string
   startTime: string
   endTime: string
+  persons?: number
   notes: string
   status: string
   totalPrice: number

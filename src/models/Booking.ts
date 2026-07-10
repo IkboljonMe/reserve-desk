@@ -5,7 +5,7 @@ export type BookingType = 'client' | 'room' | 'custom'
 
 // A single audit event in a booking's history.
 export interface IBookingEvent {
-  action: 'created' | 'paid' | 'payment' | 'finished' | 'notes_updated' | 'reopened'
+  action: 'created' | 'paid' | 'payment' | 'finished' | 'notes_updated' | 'reopened' | 'rescheduled'
   at: Date
   by?: Types.ObjectId
   detail?: string

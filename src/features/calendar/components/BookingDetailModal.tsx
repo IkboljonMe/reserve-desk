@@ -1,7 +1,7 @@
 'use client'
 
 import { format, parseISO } from 'date-fns'
-import { X, Check, Clock, MapPin, Phone, User, Trash2, CalendarDays, Wallet, FileText } from 'lucide-react'
+import { X, Check, Clock, MapPin, Phone, User, Trash2, CalendarDays, Wallet, FileText, Pencil } from 'lucide-react'
 import { getServiceIcon } from '@/lib/serviceIcons'
 import { bookingState, money, amountCollected, isPartiallyPaid } from '@/lib/bookingHelpers'
 import { useTranslation } from '@/i18n'
@@ -10,7 +10,7 @@ import type { CalendarPageState } from '../useCalendarPage'
 
 export function BookingDetailModal({ s }: { s: CalendarPageState }) {
   const { t } = useTranslation()
-  const { selectedBooking, setSelectedBooking, deleteConfirm, setDeleteConfirm, setPayConfirm, markFinished, handleDeleteBooking } = s
+  const { selectedBooking, setSelectedBooking, deleteConfirm, setDeleteConfirm, setPayConfirm, setEditBooking, markFinished, handleDeleteBooking } = s
   if (!selectedBooking) return null
 
   const close = () => { setSelectedBooking(null); setDeleteConfirm(null) }
@@ -106,7 +106,14 @@ export function BookingDetailModal({ s }: { s: CalendarPageState }) {
               <Trash2 size={13} /> {t('delete')}
             </button>
           )}
-          <button className="btn btn-secondary btn-sm" onClick={close}>{t('close')}</button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            {!selectedBooking.finished && (
+              <button className="btn btn-secondary btn-sm" onClick={() => { setEditBooking(selectedBooking); setSelectedBooking(null) }}>
+                <Pencil size={13} /> {t('edit')}
+              </button>
+            )}
+            <button className="btn btn-secondary btn-sm" onClick={close}>{t('close')}</button>
+          </div>
         </div>
       </div>
     </div>

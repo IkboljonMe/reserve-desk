@@ -1,8 +1,13 @@
 import { NextRequest, after } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Booking } from '@/models/Booking'
+import { Service } from '@/models/Service'
 import { requireDashboard, bookingIdScope } from '@/lib/session'
 import { notifyBookingUpdated } from '@/lib/telegram'
+
+const pad = (n: number) => n.toString().padStart(2, '0')
+const toMin = (t: string) => { const [h, m] = t.split(':').map(Number); return h * 60 + m }
+const fromMin = (min: number) => `${pad(Math.floor(min / 60))}:${pad(min % 60)}`
 
 export async function GET(_req: NextRequest, ctx: RouteContext<'/api/bookings/[id]'>) {
   const session = await requireDashboard()
@@ -75,6 +80,56 @@ export async function PUT(req: NextRequest, ctx: RouteContext<'/api/bookings/[id
   if (typeof body.status === 'string' && body.status !== current.status) {
     notifyChanged = true
     current.status = body.status
+  }
+
+  // Guest-detail edits. Name/room/persons appear in the Telegram message.
+  if (typeof body.customerName === 'string' && body.customerName.trim() && body.customerName.trim() !== current.customerName) {
+    current.customerName = body.customerName.trim(); notifyChanged = true
+  }
+  if (typeof body.customerPhone === 'string' && body.customerPhone !== current.customerPhone) {
+    current.customerPhone = body.customerPhone
+  }
+  if (typeof body.roomNumber === 'string' && body.roomNumber.trim() !== current.roomNumber) {
+    current.roomNumber = body.roomNumber.trim(); notifyChanged = true
+  }
+  if (typeof body.persons === 'number' && body.persons >= 1 && Math.floor(body.persons) !== current.persons) {
+    current.persons = Math.max(1, Math.floor(body.persons)); notifyChanged = true
+  }
+
+  // Reschedule: date / time / duration. Re-validate capacity, excluding self.
+  const rescheduleKeys = ['date', 'startTime', 'endTime', 'duration'] as const
+  if (rescheduleKeys.some(k => body[k] !== undefined)) {
+    const newDate = typeof body.date === 'string' && body.date ? body.date : current.date
+    const newStart = typeof body.startTime === 'string' && body.startTime ? body.startTime : current.startTime
+    const newEnd = typeof body.endTime === 'string' && body.endTime ? body.endTime : current.endTime
+    const newDuration = typeof body.duration === 'number' && body.duration > 0 ? Math.round(body.duration) : current.duration
+    const moved = newDate !== current.date || newStart !== current.startTime || newEnd !== current.endTime || newDuration !== current.duration
+    if (moved) {
+      const service = await Service.findById(current.serviceId).lean()
+      const bufBefore = service?.bufferTimeBefore || 0
+      const bufAfter = service?.bufferTimeAfter || 0
+      const capacity = service?.capacity || 1
+      const bufferedEndTime = fromMin(toMin(newEnd) + bufAfter)
+      const bufferedStartTime = fromMin(Math.max(0, toMin(newStart) - bufBefore))
+      const overlap = await Booking.countDocuments({
+        serviceId: current.serviceId,
+        date: newDate,
+        status: { $ne: 'cancelled' },
+        _id: { $ne: current._id },
+        startTime: { $lt: bufferedEndTime },
+        endTime: { $gt: bufferedStartTime },
+      })
+      if (overlap >= capacity) {
+        return Response.json({ error: 'This time slot is fully booked for this service' }, { status: 409 })
+      }
+      current.date = newDate
+      current.startTime = newStart
+      current.endTime = newEnd
+      current.duration = newDuration
+      current.bufferedEndTime = bufferedEndTime
+      notifyChanged = true
+      events.push({ action: 'rescheduled', at: now, by: session.userId })
+    }
   }
 
   if (events.length) current.history.push(...(events as never[]))

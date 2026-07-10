@@ -51,6 +51,7 @@ export function useCalendarPage() {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [payConfirm, setPayConfirm] = useState<Booking | null>(null)
+  const [editBooking, setEditBooking] = useState<Booking | null>(null)
 
   // Filters
   const [search, setSearch] = useState('')
@@ -167,6 +168,19 @@ export function useCalendarPage() {
   }
   const markFinished = (b: Booking) => updateBooking(b._id, { finished: true }, t('bookingCompleted'))
 
+  // Save an edit / reschedule. Surfaces the server's conflict message (e.g. a
+  // 409 "fully booked") rather than a generic failure so the user can react.
+  async function saveBookingEdit(id: string, changes: Partial<Booking>) {
+    try {
+      await updateMutation.mutateAsync({ id, data: changes })
+      setSelectedBooking(prev => (prev && prev._id === id ? { ...prev, ...changes } : prev))
+      setEditBooking(null)
+      showToast(t('bookingUpdated'), 'success')
+    } catch (e) {
+      showToast(e instanceof Error && e.message ? e.message : t('updateFailed'), 'error')
+    }
+  }
+
   async function handleDeleteBooking(id: string) {
     try {
       await deleteMutation.mutateAsync(id)
@@ -198,6 +212,7 @@ export function useCalendarPage() {
     services, hotels, selectedServices, setSelectedServices, selectedHotels, setSelectedHotels,
     bookings, loadingBookings, selectedBooking, setSelectedBooking,
     deleteConfirm, setDeleteConfirm, payConfirm, setPayConfirm,
+    editBooking, setEditBooking, saveBookingEdit,
     search, setSearch, statusFilter, setStatusFilter, rowH, serviceHotel,
     navigate, visibleBookings, bookingsForDay, summary,
     markPaid, recordPayment, markFinished, handleDeleteBooking, goToCreate,

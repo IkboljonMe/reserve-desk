@@ -48,6 +48,7 @@ const EVENT_META: Record<string, { labelKey: DictionaryKeys; icon: React.ReactNo
   payment: { labelKey: 'evPayment', icon: <Wallet size={13} />, color: '#0891b2' },
   finished: { labelKey: 'evFinished', icon: <Check size={13} />, color: '#059669' },
   notes_updated: { labelKey: 'evNotesUpdated', icon: <Pencil size={13} />, color: '#64748b' },
+  rescheduled: { labelKey: 'evRescheduled', icon: <CalendarDays size={13} />, color: '#0891b2' },
   reopened: { labelKey: 'evReopened', icon: <RotateCcw size={13} />, color: '#d97706' },
 }
 

@@ -47,7 +47,8 @@ Cancelled bookings render with a `🚫 <b>Отменено</b>` header. Built by
 `notifyBookingUpdated(...)` rebuilds the text and calls `editMessageText` so the
 message stays in sync **in place** (never a duplicate). Triggered by:
 
-- `PUT /api/bookings/[id]` when **paid**, **finished**, or **status** changes.
+- `PUT /api/bookings/[id]` when **paid/deposit**, **finished**, **status**, a
+  **reschedule** (date/time), or an edited **name/room/persons** changes.
 - `DELETE /api/bookings/[id]` — the message is edited to the cancelled header
   before the record is removed.
 
@@ -61,4 +62,6 @@ guards on `TELEGRAM_BOT_TOKEN`.
 
 ## Gaps (backlog)
 
-- Reschedule (time/service change) isn't wired to a message edit yet.
+- Moving a booking to a **different service** isn't supported (its message lives
+  in the original service's topic). Date/time reschedules within the same service
+  edit the message in place.
