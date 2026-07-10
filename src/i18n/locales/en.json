@@ -350,7 +350,7 @@
   "deleteRoomFailed": "Failed to delete room",
   "roomAssigned": "Room assigned",
   "assignRoomFailed": "Failed to assign room",
-  "shortCodeFormat": "Use 2–6 letters or digits (e.g. FG, FGH1)",
+  "shortCodeFormat": "Use 1–5 letters or digits (e.g. F, FG, FGH1)",
   "shortCodeTaken": "\"{code}\" is already used by another hotel",
   "hotelCodeDesc": "Each hotel has a unique compact code used to name its rooms (e.g. FG → FG-202).",
   "addHotel": "Add Hotel",

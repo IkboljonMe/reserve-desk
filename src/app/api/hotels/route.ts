@@ -28,9 +28,9 @@ export async function POST(req: Request) {
 
   if (!name) return NextResponse.json({ error: 'Hotel name is required' }, { status: 400 })
   if (!shortName) return NextResponse.json({ error: 'Short name is required' }, { status: 400 })
-  if (!/^[A-Z0-9]{2,6}$/.test(shortName)) {
+  if (!/^[A-Z0-9]{1,5}$/.test(shortName)) {
     return NextResponse.json(
-      { error: 'Short name must be 2–6 letters or digits (e.g. FG, FGH1)' },
+      { error: 'Short name must be 1–5 letters or digits (e.g. F, FG, FGH1)' },
       { status: 400 }
     )
   }

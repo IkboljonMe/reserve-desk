@@ -350,7 +350,7 @@
   "deleteRoomFailed": "Xonani o'chirib bo'lmadi",
   "roomAssigned": "Xona biriktirildi",
   "assignRoomFailed": "Xonani biriktirib bo'lmadi",
-  "shortCodeFormat": "2–6 harf yoki raqam kiriting (masalan FG, FGH1)",
+  "shortCodeFormat": "1–5 harf yoki raqam kiriting (masalan F, FG, FGH1)",
   "shortCodeTaken": "\"{code}\" boshqa mehmonxonada ishlatilgan",
   "hotelCodeDesc": "Har bir mehmonxonada xonalarni nomlash uchun noyob qisqa kod bo'ladi (masalan FG → FG-202).",
   "addHotel": "Mehmonxona qo'shish",

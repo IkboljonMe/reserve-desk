@@ -43,7 +43,7 @@ export function HotelModal({ s }: { s: HotelsRoomsPageState }) {
                 value={hotelForm.shortName}
                 onChange={e => onShortNameChange(e.target.value)}
                 placeholder={t('shortCodePlaceholder')}
-                maxLength={6}
+                maxLength={5}
                 style={{
                   textTransform: 'uppercase',
                   letterSpacing: '0.08em',
