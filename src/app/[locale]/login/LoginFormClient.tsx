@@ -1,12 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
+import { useTranslation } from '@/i18n'
 
 export default function LoginFormClient() {
   const router = useRouter()
-  const params = useParams()
-  const locale = typeof params.locale === 'string' ? params.locale : 'uz'
+  const { t, lang } = useTranslation()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -24,14 +24,14 @@ export default function LoginFormClient() {
       })
       const data = await res.json()
       if (!res.ok) {
-        setError(data.error || 'Login failed')
+        setError(data.error || t('loginFailed'))
       } else {
         // Owner lands on the cross-hotel dashboard; admins on their calendar.
-        router.push(`/${locale}/${data.role === 'owner' ? 'dashboard' : 'calendar'}`)
+        router.push(`/${lang}/${data.role === 'owner' ? 'dashboard' : 'calendar'}`)
         router.refresh()
       }
     } catch {
-      setError('Network error, please try again')
+      setError(t('networkError'))
     } finally {
       setLoading(false)
     }
@@ -40,7 +40,7 @@ export default function LoginFormClient() {
   return (
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       <div className="form-group">
-        <label className="form-label" style={{ color: 'rgba(255,255,255,0.7)' }}>Email address</label>
+        <label className="form-label" style={{ color: 'rgba(255,255,255,0.7)' }}>{t('emailAddress')}</label>
         <input
           id="email"
           type="email"
@@ -58,7 +58,7 @@ export default function LoginFormClient() {
       </div>
 
       <div className="form-group">
-        <label className="form-label" style={{ color: 'rgba(255,255,255,0.7)' }}>Password</label>
+        <label className="form-label" style={{ color: 'rgba(255,255,255,0.7)' }}>{t('password')}</label>
         <input
           id="password"
           type="password"
@@ -96,7 +96,7 @@ export default function LoginFormClient() {
         style={{ marginTop: '0.25rem', width: '100%' }}
       >
         {loading ? <span className="spinner" /> : null}
-        {loading ? 'Signing in…' : 'Sign in'}
+        {loading ? t('signingIn') : t('signIn')}
       </button>
     </form>
   )

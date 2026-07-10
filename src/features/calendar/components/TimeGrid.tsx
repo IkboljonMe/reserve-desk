@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useRef, useMemo, useEffect } from 'react'
-import { format, startOfWeek, addDays, isSameDay } from 'date-fns'
+import { format, isSameDay } from 'date-fns'
 import { Check, Lock } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import {
@@ -374,7 +374,7 @@ function EventBlock({
   const state = bookingState(b)
   const finished = b.finished
   const unpaid = state.key === 'unpaid'
-  const label = b.roomNumber ? `🏨 ${b.roomNumber}` : b.customerName
+  const label = b.roomNumber || b.customerName
 
   return (
     <div
@@ -400,7 +400,7 @@ function EventBlock({
       <span style={{ position: 'absolute', top: 3, right: 3, zIndex: 2 }}>
         {finished ? (
           <span
-            title="Completed"
+            title={t('completed')}
             style={{
               width: 16,
               height: 16,
@@ -416,8 +416,8 @@ function EventBlock({
           </span>
         ) : canFinish(b) ? (
           <button
-            title="Mark as finished"
-            aria-label="Mark as finished"
+            title={t('markFinishedTitle')}
+            aria-label={t('markFinishedTitle')}
             onClick={e => {
               e.stopPropagation()
               onFinish(b)
@@ -451,7 +451,7 @@ function EventBlock({
           </button>
         ) : (
           <span
-            title="Unpaid"
+            title={t('unpaid')}
             style={{
               width: 9,
               height: 9,

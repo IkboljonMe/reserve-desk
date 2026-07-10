@@ -1,5 +1,6 @@
 'use client'
 
+import { BedDouble } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import { SkeletonTableRows } from '@/components/ui/Skeleton'
 import type { ClientsPageState } from '../useClientsPage'
@@ -87,7 +88,7 @@ export function ClientsTable({ s }: { s: ClientsPageState }) {
                       background: 'var(--brand-100)', color: 'var(--brand-700)',
                       fontWeight: 600, fontSize: '0.8125rem',
                     }}>
-                      🏨 {c.roomNumber}
+                      <BedDouble size={12} /> {c.roomNumber}
                     </span>
                   ) : <span style={{ color: 'var(--gray-300)' }}>—</span>}
                 </td>

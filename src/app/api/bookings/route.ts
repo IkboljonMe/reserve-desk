@@ -183,8 +183,8 @@ export async function POST(req: NextRequest) {
     const populated = await Booking.findById(booking._id).populate('serviceId', 'name color').lean()
 
     const serviceForNotify = populated!.serviceId as unknown as { _id: string; name: string }
-    after(() =>
-      notifyNewBooking({
+    after(async () => {
+      const ref = await notifyNewBooking({
         hotelId: bookingHotelId,
         serviceId: serviceForNotify,
         customerName,
@@ -194,8 +194,16 @@ export async function POST(req: NextRequest) {
         endTime,
         totalPrice: body.totalPrice || 0,
         paid,
+        createdByName: session.name,   // "who booked"
       })
-    )
+      // Remember where the message landed so a later status change can edit it.
+      if (ref) {
+        await Booking.updateOne(
+          { _id: booking._id },
+          { tgChatId: ref.chatId, tgMessageId: ref.messageId, tgThreadId: ref.messageThreadId ?? null },
+        )
+      }
+    })
 
     return Response.json(populated, { status: 201 })
   } catch (err) {

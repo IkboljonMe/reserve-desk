@@ -3,7 +3,7 @@
 import { format, parseISO, formatDistanceToNow } from 'date-fns'
 import { useTranslation } from '@/i18n'
 import { svcId, bookingState, money } from '@/lib/bookingHelpers'
-import { CalendarDays, ArrowUpDown, Check } from 'lucide-react'
+import { CalendarDays, ArrowUpDown, Check, BedDouble } from 'lucide-react'
 import { SkeletonTableRows } from '@/components/ui/Skeleton'
 import { TYPE_META } from '../constants'
 import type { DashboardPageState } from '../useDashboardPage'
@@ -65,7 +65,7 @@ export function BookingsTable({ s }: { s: DashboardPageState }) {
                 <td style={{ padding: '9px 12px', color: 'var(--gray-800)', fontWeight: 500 }}>{b.customerName}</td>
                 <td style={{ padding: '9px 12px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    {b.roomNumber ? <span style={{ color: 'var(--gray-600)' }}>🏨 {b.roomNumber}</span> : <span style={{ color: 'var(--gray-300)' }}>—</span>}
+                    {b.roomNumber ? <span style={{ color: 'var(--gray-600)', display: 'inline-flex', alignItems: 'center', gap: 3 }}><BedDouble size={12} />{b.roomNumber}</span> : <span style={{ color: 'var(--gray-300)' }}>—</span>}
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, padding: '1px 6px', borderRadius: 6, background: `${TYPE_META[type].color}14`, color: TYPE_META[type].color, fontSize: '0.66rem', fontWeight: 700 }}>
                       {TYPE_META[type].icon}{t(TYPE_META[type].labelKey)}
                     </span>

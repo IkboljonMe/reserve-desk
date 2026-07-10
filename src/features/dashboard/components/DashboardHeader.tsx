@@ -4,6 +4,7 @@ import { format } from 'date-fns'
 import { nowUZ } from '@/lib/timezone'
 import { useTranslation } from '@/i18n'
 import { Plus } from 'lucide-react'
+import Button from '@/components/ui/Button'
 import type { PeriodKey } from '../utils'
 import type { DashboardPageState } from '../useDashboardPage'
 
@@ -30,9 +31,9 @@ export function DashboardHeader({ s }: { s: DashboardPageState }) {
             <input type="date" className="form-input" style={{ padding: '5px 8px', fontSize: '0.8rem' }} value={customTo} min={customFrom} onChange={e => setCustomTo(e.target.value)} />
           </div>
         )}
-        <button className="btn btn-primary btn-sm" onClick={() => router.push(`/${lang}/book?date=${format(nowUZ(), 'yyyy-MM-dd')}`)}>
-          <Plus size={14} strokeWidth={2.5} /> {t('newBooking')}
-        </button>
+        <Button variant="primary" size="md" leftIcon={<Plus size={14} strokeWidth={2.5} />} onClick={() => router.push(`/${lang}/book?date=${format(nowUZ(), 'yyyy-MM-dd')}`)}>
+          {t('newBooking')}
+        </Button>
       </div>
     </div>
   )

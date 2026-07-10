@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "../globals.css";
-import { LOCALES } from "@/i18n/config";
+import { LOCALES, isLocale, DEFAULT_LOCALE } from "@/i18n/config";
+import { LanguageProvider } from "@/i18n";
 
 export const metadata: Metadata = {
   title: "Easy Service — Always Available",
@@ -20,10 +21,13 @@ export default async function RootLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  const lang = isLocale(locale) ? locale : DEFAULT_LOCALE;
 
   return (
     <html lang={locale}>
-      <body>{children}</body>
+      <body>
+        <LanguageProvider lang={lang}>{children}</LanguageProvider>
+      </body>
     </html>
   );
 }

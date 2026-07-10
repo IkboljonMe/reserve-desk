@@ -3,9 +3,11 @@
 import { Building2, Wallet } from 'lucide-react'
 import { getServiceIcon } from '@/lib/serviceIcons'
 import { svcId, money } from '@/lib/bookingHelpers'
+import { useTranslation } from '@/i18n'
 import type { CalendarPageState } from '../useCalendarPage'
 
 export function CalendarSidebar({ s }: { s: CalendarPageState }) {
+  const { t } = useTranslation()
   const {
     summary, view, hotels, services, selectedHotels, setSelectedHotels, allHotelsSelected,
     selectedServices, setSelectedServices, allSelected, visibleBookings, serviceHotel,
@@ -18,19 +20,19 @@ export function CalendarSidebar({ s }: { s: CalendarPageState }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
           <div>
             <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--gray-800)', lineHeight: 1 }}>{summary.count}</div>
-            <div style={{ fontSize: '0.7rem', color: 'var(--gray-400)', textTransform: 'uppercase', letterSpacing: '0.04em', marginTop: 2 }}>Bookings</div>
+            <div style={{ fontSize: '0.7rem', color: 'var(--gray-400)', textTransform: 'uppercase', letterSpacing: '0.04em', marginTop: 2 }}>{t('bookings')}</div>
           </div>
           <div style={{ textAlign: 'right' }}>
             <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--brand-600)', lineHeight: 1 }}>{money(summary.revenue)}</div>
-            <div style={{ fontSize: '0.7rem', color: 'var(--gray-400)', textTransform: 'uppercase', letterSpacing: '0.04em', marginTop: 2 }}>UZS this {view}</div>
+            <div style={{ fontSize: '0.7rem', color: 'var(--gray-400)', textTransform: 'uppercase', letterSpacing: '0.04em', marginTop: 2 }}>{t('sum')} · {view === 'day' ? t('day') : view === 'week' ? t('periodWeek') : t('periodMonth')}</div>
           </div>
         </div>
         {summary.revenue > 0 && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.72rem', color: 'var(--gray-500)', borderTop: '1px dashed var(--gray-200)', paddingTop: 8 }}>
             <Wallet size={13} style={{ color: '#10b981' }} />
-            <span style={{ fontWeight: 700, color: '#059669' }}>{money(summary.collected)}</span> collected
+            <span style={{ fontWeight: 700, color: '#059669' }}>{money(summary.collected)}</span> {t('collected')}
             {summary.collected < summary.revenue && (
-              <span style={{ marginLeft: 'auto', fontWeight: 700, color: '#d97706' }}>{money(summary.revenue - summary.collected)} due</span>
+              <span style={{ marginLeft: 'auto', fontWeight: 700, color: '#d97706' }}>{money(summary.revenue - summary.collected)} {t('due')}</span>
             )}
           </div>
         )}
@@ -41,13 +43,13 @@ export function CalendarSidebar({ s }: { s: CalendarPageState }) {
         <div className="card" style={{ padding: '1rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
             <h3 style={{ fontSize: '0.8125rem', margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Building2 size={14} style={{ color: 'var(--gray-400)' }} /> Hotels
+              <Building2 size={14} style={{ color: 'var(--gray-400)' }} /> {t('hotels')}
             </h3>
             <button
               onClick={() => setSelectedHotels(allHotelsSelected ? new Set() : new Set(hotels.map(h => h._id)))}
               style={{ background: 'none', border: 'none', color: 'var(--brand-600)', fontSize: '0.72rem', fontWeight: 600, cursor: 'pointer' }}
             >
-              {allHotelsSelected ? 'Clear' : 'All'}
+              {allHotelsSelected ? t('clear') : t('all')}
             </button>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -94,12 +96,12 @@ export function CalendarSidebar({ s }: { s: CalendarPageState }) {
       {/* Service filter / legend */}
       <div className="card" style={{ padding: '1rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-          <h3 style={{ fontSize: '0.8125rem', margin: 0 }}>Services</h3>
+          <h3 style={{ fontSize: '0.8125rem', margin: 0 }}>{t('services')}</h3>
           <button
             onClick={() => setSelectedServices(allSelected ? new Set() : new Set(services.map(svc => svc._id)))}
             style={{ background: 'none', border: 'none', color: 'var(--brand-600)', fontSize: '0.72rem', fontWeight: 600, cursor: 'pointer' }}
           >
-            {allSelected ? 'Clear' : 'All'}
+            {allSelected ? t('clear') : t('all')}
           </button>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -138,7 +140,7 @@ export function CalendarSidebar({ s }: { s: CalendarPageState }) {
               </button>
             )
           })}
-          {services.length === 0 && <p style={{ fontSize: '0.75rem', color: 'var(--gray-400)' }}>No services yet</p>}
+          {services.length === 0 && <p style={{ fontSize: '0.75rem', color: 'var(--gray-400)' }}>{t('noServicesYet')}</p>}
         </div>
       </div>
     </div>

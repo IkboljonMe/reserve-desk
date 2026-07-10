@@ -20,13 +20,39 @@ async function callTelegram<T = unknown>(method: string, payload: Record<string,
   return data.result as T
 }
 
-export function sendMessage(chatId: number, text: string, messageThreadId?: number) {
-  return callTelegram('sendMessage', {
+// A subset of Telegram's Message object — enough for callers to read message_id.
+export interface TelegramMessage {
+  message_id: number
+}
+
+export function sendMessage(chatId: number, text: string, messageThreadId?: number): Promise<TelegramMessage> {
+  return callTelegram<TelegramMessage>('sendMessage', {
     chat_id: chatId,
     text,
     message_thread_id: messageThreadId,
     parse_mode: 'HTML',
   })
+}
+
+// Edits an already-sent message in place. Best-effort: never throws, so a
+// Telegram hiccup can't block the web request that triggered the update.
+export async function editMessageText(
+  chatId: number,
+  messageId: number,
+  text: string,
+  messageThreadId?: number
+): Promise<void> {
+  try {
+    await callTelegram('editMessageText', {
+      chat_id: chatId,
+      message_id: messageId,
+      message_thread_id: messageThreadId,
+      text,
+      parse_mode: 'HTML',
+    })
+  } catch (err) {
+    console.error('Failed to edit Telegram message', err)
+  }
 }
 
 export function deleteMessage(chatId: number, messageId: number) {
@@ -106,9 +132,7 @@ export async function syncAllTopics(): Promise<void> {
 
 const money = (v: number) => v.toLocaleString('en-US').replace(/,/g, ' ')
 
-// Posts a booking summary to the (hotel, service) topic. Best-effort: never
-// throws, since a Telegram hiccup shouldn't block booking creation.
-export async function notifyNewBooking(booking: {
+export interface BookingNotifyData {
   hotelId: Types.ObjectId | string
   serviceId: Types.ObjectId | string | { _id: Types.ObjectId | string; name: string }
   customerName: string
@@ -118,26 +142,63 @@ export async function notifyNewBooking(booking: {
   endTime: string
   totalPrice: number
   paid: boolean
-}): Promise<void> {
+  createdByName?: string   // the admin who created the booking ("who booked")
+}
+
+// Where a booking's Telegram message lives, so it can be edited later.
+export interface BookingMessageRef {
+  chatId: number
+  messageThreadId?: number
+  messageId: number
+}
+
+const hasName = (v: unknown): v is { _id: Types.ObjectId | string; name: string } =>
+  typeof v === 'object' && v !== null && 'name' in v
+
+// The Russian summary posted to the (hotel, service) topic. Emoji are
+// intentional here — this is the Telegram message, not the web UI.
+function buildBookingMessage(booking: BookingNotifyData, serviceName?: string): string {
+  const priceText = booking.totalPrice > 0 ? `${money(booking.totalPrice)} UZS` : 'Бесплатно'
+  const paidText = booking.paid ? 'Оплачено ✅' : 'Не оплачено ❌'
+  const who = booking.roomNumber ? `${booking.customerName} (номер ${booking.roomNumber})` : booking.customerName
+  const lines = [
+    `🆕 <b>${serviceName ?? 'Новое бронирование'}</b>`,
+    `🕒 ${booking.date} ${booking.startTime}-${booking.endTime}`,
+    `👤 ${who}`,
+  ]
+  if (booking.createdByName) lines.push(`🧑‍💼 Забронировал: ${booking.createdByName}`)
+  lines.push(`💰 ${priceText} — ${paidText}`)
+  return lines.join('\n')
+}
+
+// Posts a booking summary to the (hotel, service) topic and returns where the
+// message landed (so a later update can edit it). Best-effort: never throws,
+// since a Telegram hiccup shouldn't block booking creation. Returns null when
+// Telegram isn't configured or anything fails.
+export async function notifyNewBooking(booking: BookingNotifyData): Promise<BookingMessageRef | null> {
   try {
-    const hasName = (v: unknown): v is { _id: Types.ObjectId | string; name: string } =>
-      typeof v === 'object' && v !== null && 'name' in v
     const serviceId = hasName(booking.serviceId) ? booking.serviceId._id : booking.serviceId
     const serviceName = hasName(booking.serviceId) ? booking.serviceId.name : undefined
     const topic = await ensureTopicForService(booking.hotelId, serviceId)
-    if (!topic) return
+    if (!topic) return null
 
-    const priceText = booking.totalPrice > 0 ? `${money(booking.totalPrice)} UZS` : 'Бесплатно'
-    const paidText = booking.paid ? 'Оплачено ✅' : 'Не оплачено ❌'
-    const who = booking.roomNumber ? `${booking.customerName} (номер ${booking.roomNumber})` : booking.customerName
-    const lines = [
-      `🆕 <b>${serviceName ?? 'Новое бронирование'}</b>`,
-      `🕒 ${booking.date} ${booking.startTime}-${booking.endTime}`,
-      `👤 ${who}`,
-      `💰 ${priceText} — ${paidText}`,
-    ]
-    await sendMessage(topic.chatId, lines.join('\n'), topic.messageThreadId)
+    const text = buildBookingMessage(booking, serviceName)
+    const sent = await sendMessage(topic.chatId, text, topic.messageThreadId)
+    return { chatId: topic.chatId, messageThreadId: topic.messageThreadId, messageId: sent.message_id }
   } catch (err) {
     console.error('Failed to send Telegram booking notification', err)
+    return null
   }
+}
+
+// Edits the booking's existing Telegram message in place so it reflects the
+// current state (e.g. payment status) — never posts a duplicate. Best-effort.
+export async function notifyBookingUpdated(
+  ref: BookingMessageRef,
+  booking: BookingNotifyData,
+  serviceName?: string,
+): Promise<void> {
+  const resolvedName = serviceName ?? (hasName(booking.serviceId) ? booking.serviceId.name : undefined)
+  const text = buildBookingMessage(booking, resolvedName)
+  await editMessageText(ref.chatId, ref.messageId, text, ref.messageThreadId)
 }

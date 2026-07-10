@@ -3,20 +3,12 @@ import { connectDB } from '@/lib/mongodb'
 import { Hotel } from '@/models/Hotel'
 import { ToastProvider } from '@/components/ToastProvider'
 import { DraftProvider } from '@/components/DraftProvider'
-import { LanguageProvider } from '@/i18n'
-import { isLocale, DEFAULT_LOCALE } from '@/i18n/config'
 import QueryProvider from '@/components/QueryProvider'
 import DashboardContainer from '@/components/layout/DashboardContainer'
 
-export default async function DashboardLayout({
-  children,
-  params,
-}: {
-  children: React.ReactNode
-  params: Promise<{ locale: string }>
-}) {
-  const { locale } = await params
-  const lang = isLocale(locale) ? locale : DEFAULT_LOCALE
+// LanguageProvider is supplied by the parent [locale] layout, so the whole app
+// (including login) shares it.
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await requireAuth()
 
   // An admin's account is scoped to a single hotel — surface that hotel's name
@@ -29,16 +21,14 @@ export default async function DashboardLayout({
   }
 
   return (
-    <LanguageProvider lang={lang}>
-      <QueryProvider>
-        <ToastProvider>
-         <DraftProvider>
-          <DashboardContainer userName={session.name} userEmail={session.email} role={session.role} hotelName={hotelName}>
-            {children}
-          </DashboardContainer>
-         </DraftProvider>
-        </ToastProvider>
-      </QueryProvider>
-    </LanguageProvider>
+    <QueryProvider>
+      <ToastProvider>
+       <DraftProvider>
+        <DashboardContainer userName={session.name} userEmail={session.email} role={session.role} hotelName={hotelName}>
+          {children}
+        </DashboardContainer>
+       </DraftProvider>
+      </ToastProvider>
+    </QueryProvider>
   )
 }

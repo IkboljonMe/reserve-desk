@@ -19,7 +19,7 @@ import {
 } from 'lucide-react'
 import { Booking, Hotel, bookingState, money, svcId } from '@/lib/bookingHelpers'
 import { getServiceIcon } from '@/lib/serviceIcons'
-import { useTranslation } from '@/i18n'
+import { useTranslation, type DictionaryKeys } from '@/i18n'
 
 interface Actor {
   _id?: string
@@ -37,15 +37,17 @@ interface BookingEvent {
 const INK_COLLECTED = '#059669'   // darker green for ink/stroke (contrast relief)
 const FILL_COLLECTED = '#10b981'  // green fill
 
+// Resolve an actor's display name; empty string when unknown (callers fall back
+// to a translated "Admin").
 const actorName = (a?: Actor | string) =>
-  !a || typeof a === 'string' ? 'Admin' : a.name || a.email || 'Admin'
+  !a || typeof a === 'string' ? '' : a.name || a.email || ''
 
-const EVENT_META: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
-  created: { label: 'Created', icon: <Plus size={13} />, color: '#6366f1' },
-  paid: { label: 'Marked paid', icon: <Wallet size={13} />, color: '#059669' },
-  finished: { label: 'Completed', icon: <Check size={13} />, color: '#059669' },
-  notes_updated: { label: 'Notes updated', icon: <Pencil size={13} />, color: '#64748b' },
-  reopened: { label: 'Reopened', icon: <RotateCcw size={13} />, color: '#d97706' },
+const EVENT_META: Record<string, { labelKey: DictionaryKeys; icon: React.ReactNode; color: string }> = {
+  created: { labelKey: 'evCreated', icon: <Plus size={13} />, color: '#6366f1' },
+  paid: { labelKey: 'evPaid', icon: <Wallet size={13} />, color: '#059669' },
+  finished: { labelKey: 'evFinished', icon: <Check size={13} />, color: '#059669' },
+  notes_updated: { labelKey: 'evNotesUpdated', icon: <Pencil size={13} />, color: '#64748b' },
+  reopened: { labelKey: 'evReopened', icon: <RotateCcw size={13} />, color: '#d97706' },
 }
 
 interface BookingDrawerProps {
@@ -59,10 +61,10 @@ interface BookingDrawerProps {
   showToast: (m: string, t: 'success' | 'error' | 'info') => void
 }
 
-const TYPE_META: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
-  client: { label: 'Client', icon: <User size={12} />, color: '#3b82f6' },
-  room: { label: 'Room', icon: <BedDouble size={12} />, color: '#10b981' },
-  custom: { label: 'Custom', icon: <Pencil size={12} />, color: '#f59e0b' },
+const TYPE_META: Record<string, { labelKey: DictionaryKeys; icon: React.ReactNode; color: string }> = {
+  client: { labelKey: 'typeClient', icon: <User size={12} />, color: '#3b82f6' },
+  room: { labelKey: 'typeRoom', icon: <BedDouble size={12} />, color: '#10b981' },
+  custom: { labelKey: 'typeCustom', icon: <Pencil size={12} />, color: '#f59e0b' },
 }
 
 export default function BookingDrawer({
@@ -75,7 +77,7 @@ export default function BookingDrawer({
   router,
   showToast,
 }: BookingDrawerProps) {
-  const { lang } = useTranslation()
+  const { lang, t } = useTranslation()
   const [b, setB] = useState<(Booking & { history?: BookingEvent[]; createdAt?: string; updatedAt?: string; createdBy?: Actor | string; bookingType?: string }) | null>(null)
   const [loading, setLoading] = useState(true)
   const [payConfirm, setPayConfirm] = useState(false)
@@ -112,15 +114,15 @@ export default function BookingDrawer({
       setNotesDraft(data.notes || '')
       onChanged(id, changes)
       showToast(msg, 'success')
-    } else showToast('Update failed', 'error')
+    } else showToast(t('updateFailed'), 'error')
   }
 
   async function del() {
     const res = await fetch(`/api/bookings/${id}`, { method: 'DELETE' })
     if (res.ok) {
-      showToast('Booking deleted', 'success')
+      showToast(t('bookingDeleted'), 'success')
       onDeleted(id)
-    } else showToast('Delete failed', 'error')
+    } else showToast(t('deleteFailed'), 'error')
   }
 
   const st = b ? bookingState(b) : null
@@ -191,7 +193,7 @@ export default function BookingDrawer({
                   {hotel ? ` · ${hotel.shortName}` : ''}
                 </div>
               </div>
-              <button className="btn btn-ghost btn-icon" onClick={onClose} aria-label="Close">
+              <button className="btn btn-ghost btn-icon" onClick={onClose} aria-label={t('close')}>
                 <X size={18} />
               </button>
             </div>
@@ -200,19 +202,19 @@ export default function BookingDrawer({
             <div style={{ display: 'flex', gap: 10, marginBottom: '1.1rem' }}>
               <div style={{ flex: 1, padding: '0.7rem 0.85rem', borderRadius: 10, background: st.badge === 'badge-success' ? '#ecfdf5' : st.badge === 'badge-warning' ? '#fffbeb' : '#eff6ff' }}>
                 <div style={{ fontSize: '0.66rem', fontWeight: 700, color: st.color, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  Status
+                  {t('status')}
                 </div>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontWeight: 800, fontSize: '0.95rem', color: st.color, marginTop: 2 }}>
                   {st.key === 'finished' && <Check size={14} />}
-                  {st.label}
+                  {t(st.key)}
                 </div>
               </div>
               <div style={{ flex: 1, padding: '0.7rem 0.85rem', borderRadius: 10, background: 'var(--gray-50)' }}>
                 <div style={{ fontSize: '0.66rem', fontWeight: 700, color: 'var(--gray-400)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  Price
+                  {t('price')}
                 </div>
                 <div style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--gray-800)', marginTop: 2, fontVariantNumeric: 'tabular-nums' }}>
-                  {b.totalPrice > 0 ? `${money(b.totalPrice)} UZS` : 'Free'}
+                  {b.totalPrice > 0 ? `${money(b.totalPrice)} ${t('sum')}` : t('free')}
                 </div>
               </div>
             </div>
@@ -221,46 +223,46 @@ export default function BookingDrawer({
             <div style={{ display: 'flex', gap: 8, marginBottom: '1.25rem' }}>
               {!b.finished && st.key === 'unpaid' && (
                 <button className="btn btn-primary btn-sm" style={{ flex: 1 }} disabled={busy} onClick={() => setPayConfirm(true)}>
-                  <Wallet size={14} /> Mark as Paid
+                  <Wallet size={14} /> {t('markAsPaid')}
                 </button>
               )}
               {!b.finished && st.key !== 'unpaid' && (
-                <button className="btn btn-sm" style={{ flex: 1, background: FILL_COLLECTED, color: '#fff', border: 'none' }} disabled={busy} onClick={() => mutate({ finished: true }, 'Booking completed')}>
-                  <Check size={15} strokeWidth={2.5} /> Mark as Finished
+                <button className="btn btn-sm" style={{ flex: 1, background: FILL_COLLECTED, color: '#fff', border: 'none' }} disabled={busy} onClick={() => mutate({ finished: true }, t('bookingCompleted'))}>
+                  <Check size={15} strokeWidth={2.5} /> {t('markAsFinished')}
                 </button>
               )}
-              <button className="btn btn-secondary btn-sm" onClick={() => router.push(`/${lang}/calendar?date=${b.date}`)} title="Open in calendar">
+              <button className="btn btn-secondary btn-sm" onClick={() => router.push(`/${lang}/calendar?date=${b.date}`)} title={t('openInCalendar')}>
                 <ExternalLink size={14} />
               </button>
             </div>
 
             {/* Details grid */}
-            <Section title="Details">
-              <Field icon={<CalendarDays size={14} />} label="Date" value={format(parseISO(b.date), 'EEEE, MMM d, yyyy')} />
-              <Field icon={<Clock size={14} />} label="Time" value={`${b.startTime} – ${b.endTime} (${b.duration} min)`} />
-              {b.customerPhone && <Field icon={<Phone size={14} />} label="Phone" value={b.customerPhone} />}
-              {b.roomNumber && <Field icon={<BedDouble size={14} />} label="Room" value={b.roomNumber} />}
-              {b.bookingType && <Field icon={TYPE_META[b.bookingType]?.icon} label="Type" value={TYPE_META[b.bookingType]?.label} />}
-              <Field icon={<User size={14} />} label="Booked by" value={actorName(b.createdBy)} />
+            <Section title={t('detailsTitle')}>
+              <Field icon={<CalendarDays size={14} />} label={t('date')} value={format(parseISO(b.date), 'EEEE, MMM d, yyyy')} />
+              <Field icon={<Clock size={14} />} label={t('time')} value={`${b.startTime} – ${b.endTime} (${b.duration} min)`} />
+              {b.customerPhone && <Field icon={<Phone size={14} />} label={t('phone')} value={b.customerPhone} />}
+              {b.roomNumber && <Field icon={<BedDouble size={14} />} label={t('room')} value={b.roomNumber} />}
+              {b.bookingType && TYPE_META[b.bookingType] && <Field icon={TYPE_META[b.bookingType].icon} label={t('type')} value={t(TYPE_META[b.bookingType].labelKey)} />}
+              <Field icon={<User size={14} />} label={t('bookedBy')} value={actorName(b.createdBy) || t('admin')} />
             </Section>
 
             {/* Notes */}
-            <Section title="Notes" action={!editingNotes ? <button className="btn btn-ghost btn-sm" style={{ padding: '2px 6px' }} onClick={() => setEditingNotes(true)}><Pencil size={12} /> Edit</button> : undefined}>
+            <Section title={t('notes')} action={!editingNotes ? <button className="btn btn-ghost btn-sm" style={{ padding: '2px 6px' }} onClick={() => setEditingNotes(true)}><Pencil size={12} /> {t('edit')}</button> : undefined}>
               {editingNotes ? (
                 <div>
-                  <textarea className="form-textarea" value={notesDraft} onChange={e => setNotesDraft(e.target.value)} style={{ minHeight: 70, fontSize: '0.82rem' }} placeholder="Add notes…" />
+                  <textarea className="form-textarea" value={notesDraft} onChange={e => setNotesDraft(e.target.value)} style={{ minHeight: 70, fontSize: '0.82rem' }} placeholder={t('addNotesPlaceholder')} />
                   <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', marginTop: 6 }}>
-                    <button className="btn btn-secondary btn-sm" onClick={() => { setEditingNotes(false); setNotesDraft(b.notes || '') }}>Cancel</button>
-                    <button className="btn btn-primary btn-sm" disabled={busy} onClick={async () => { await mutate({ notes: notesDraft }, 'Notes saved'); setEditingNotes(false) }}>Save</button>
+                    <button className="btn btn-secondary btn-sm" onClick={() => { setEditingNotes(false); setNotesDraft(b.notes || '') }}>{t('cancel')}</button>
+                    <button className="btn btn-primary btn-sm" disabled={busy} onClick={async () => { await mutate({ notes: notesDraft }, t('notesSaved')); setEditingNotes(false) }}>{t('save')}</button>
                   </div>
                 </div>
               ) : (
-                <p style={{ fontSize: '0.82rem', color: b.notes ? 'var(--gray-700)' : 'var(--gray-400)', margin: 0, whiteSpace: 'pre-wrap' }}>{b.notes || 'No notes.'}</p>
+                <p style={{ fontSize: '0.82rem', color: b.notes ? 'var(--gray-700)' : 'var(--gray-400)', margin: 0, whiteSpace: 'pre-wrap' }}>{b.notes || t('noNotes')}</p>
               )}
             </Section>
 
             {/* Timeline */}
-            <Section title="Activity">
+            <Section title={t('activity')}>
               <div style={{ position: 'relative', paddingLeft: 8 }}>
                 {timeline.map((e, i) => {
                   const meta = EVENT_META[e.action] || EVENT_META.notes_updated
@@ -270,10 +272,10 @@ export default function BookingDrawer({
                       {!last && <div style={{ position: 'absolute', left: 11, top: 24, bottom: 0, width: 2, background: 'var(--gray-200)' }} />}
                       <span style={{ width: 24, height: 24, borderRadius: '50%', flexShrink: 0, background: `${meta.color}18`, color: meta.color, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1 }}>{meta.icon}</span>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--gray-800)' }}>{meta.label}</div>
+                        <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--gray-800)' }}>{t(meta.labelKey)}</div>
                         <div style={{ fontSize: '0.72rem', color: 'var(--gray-400)' }}>
                           {format(parseISO(e.at), 'MMM d, yyyy · HH:mm')} · {formatDistanceToNow(parseISO(e.at), { addSuffix: true })}
-                          <span style={{ color: 'var(--gray-300)' }}> · {e.by}</span>
+                          <span style={{ color: 'var(--gray-300)' }}> · {e.by || t('admin')}</span>
                         </div>
                       </div>
                     </div>
@@ -281,7 +283,7 @@ export default function BookingDrawer({
                 })}
                 {b.updatedAt && b.createdAt && new Date(b.updatedAt).getTime() - new Date(b.createdAt).getTime() > 1000 && (
                   <div style={{ fontSize: '0.7rem', color: 'var(--gray-400)', marginTop: 10, paddingLeft: 36 }}>
-                    Last edited {formatDistanceToNow(parseISO(b.updatedAt), { addSuffix: true })}
+                    {t('lastEdited', { time: formatDistanceToNow(parseISO(b.updatedAt), { addSuffix: true }) })}
                   </div>
                 )}
               </div>
@@ -291,12 +293,12 @@ export default function BookingDrawer({
             <div style={{ borderTop: '1px solid var(--surface-border)', paddingTop: 14, marginTop: 6 }}>
               {deleteConfirm ? (
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--danger)', marginRight: 'auto' }}>Delete this booking?</span>
-                  <button className="btn btn-danger btn-sm" onClick={del}>Delete</button>
-                  <button className="btn btn-ghost btn-sm" onClick={() => setDeleteConfirm(false)}>Cancel</button>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--danger)', marginRight: 'auto' }}>{t('deleteThisBooking')}</span>
+                  <button className="btn btn-danger btn-sm" onClick={del}>{t('delete')}</button>
+                  <button className="btn btn-ghost btn-sm" onClick={() => setDeleteConfirm(false)}>{t('cancel')}</button>
                 </div>
               ) : (
-                <button className="btn btn-ghost btn-sm" style={{ color: 'var(--danger)' }} onClick={() => setDeleteConfirm(true)}><Trash2 size={13} /> Delete booking</button>
+                <button className="btn btn-ghost btn-sm" style={{ color: 'var(--danger)' }} onClick={() => setDeleteConfirm(true)}><Trash2 size={13} /> {t('deleteBooking')}</button>
               )}
             </div>
           </div>
@@ -311,26 +313,26 @@ export default function BookingDrawer({
               <span style={{ width: 52, height: 52, borderRadius: '50%', background: '#10b98118', color: INK_COLLECTED, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Wallet size={24} />
               </span>
-              <h2 style={{ margin: 0, fontSize: '1.1rem' }}>Confirm payment</h2>
+              <h2 style={{ margin: 0, fontSize: '1.1rem' }}>{t('confirmPayment')}</h2>
               <p style={{ margin: 0, color: 'var(--gray-600)', fontSize: '0.9rem', lineHeight: 1.5 }}>
-                Did you receive <strong style={{ color: 'var(--gray-900)' }}>{money(b.totalPrice)} UZS</strong> from <strong style={{ color: 'var(--gray-900)' }}>{b.customerName}</strong>?
+                {t('didYouReceive', { amount: `${money(b.totalPrice)} ${t('sum')}`, name: b.customerName })}
               </p>
             </div>
             <div className="divider" />
             <div style={{ display: 'flex', gap: 10 }}>
               <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setPayConfirm(false)}>
-                Back
+                {t('back')}
               </button>
               <button
                 className="btn btn-primary"
                 style={{ flex: 1 }}
                 disabled={busy}
                 onClick={async () => {
-                  await mutate({ paid: true }, 'Marked as paid')
+                  await mutate({ paid: true }, t('markedAsPaid'))
                   setPayConfirm(false)
                 }}
               >
-                <Check size={15} strokeWidth={2.5} /> Yes, received
+                <Check size={15} strokeWidth={2.5} /> {t('yesReceived')}
               </button>
             </div>
           </div>
