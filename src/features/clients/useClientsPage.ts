@@ -50,12 +50,9 @@ export function useClientsPage() {
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { loadData() }, [loadData])
 
-  // When the owner manages several hotels, new records must name a hotel.
-  const multiHotel = hotels.length > 1
-
   function openAdd() {
     setEditClient(null)
-    setForm({ ...EMPTY_FORM, hotelId: hotels[0]?._id || '' })
+    setForm({ ...EMPTY_FORM })
     setModalOpen(true)
   }
 
@@ -117,9 +114,9 @@ export function useClientsPage() {
     }
   }
 
-  // Rooms are per-hotel, so scope the room picker to the record's hotel when the
-  // owner spans several. Client groups are global (shared across all hotels).
-  const modalRooms = multiHotel ? rooms.filter(r => r.hotelId === form.hotelId) : rooms
+  // Clients are a global pool, so the room picker offers every hotel's rooms
+  // (each label carries its hotel code, e.g. "FG-202"). Groups are global too.
+  const modalRooms = rooms
   const modalGroups = groups
 
   // Group by floor for display
@@ -136,7 +133,7 @@ export function useClientsPage() {
   return {
     clients, rooms, hotels, groups, groupFilter, setGroupFilter, search, setSearch,
     loading, modalOpen, editClient, form, setForm, saving, deleteConfirm, setDeleteConfirm,
-    multiHotel, openAdd, openEdit, closeModal, roomLabel, handleRoomChange, handleSave, handleDelete,
+    openAdd, openEdit, closeModal, roomLabel, handleRoomChange, handleSave, handleDelete,
     modalRooms, modalGroups, floorGroups, clientGroup,
   }
 }

@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Client } from '@/models/Client'
-import { requireDashboard, idScope } from '@/lib/session'
+import { requireDashboard } from '@/lib/session'
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireDashboard()
@@ -20,7 +20,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     if (body.groupId !== undefined) update.groupId = body.groupId || null
 
     await connectDB()
-    const client = await Client.findOneAndUpdate(idScope(session, id), update, { new: true }).lean()
+    const client = await Client.findOneAndUpdate({ _id: id }, update, { new: true }).lean()
     if (!client) return Response.json({ error: 'Not found' }, { status: 404 })
     return Response.json(client)
   } catch (err) {
@@ -36,7 +36,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   try {
     const { id } = await params
     await connectDB()
-    await Client.findOneAndDelete(idScope(session, id))
+    await Client.findOneAndDelete({ _id: id })
     return Response.json({ ok: true })
   } catch (err) {
     console.error(err)

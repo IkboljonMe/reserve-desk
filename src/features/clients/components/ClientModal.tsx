@@ -6,7 +6,7 @@ import type { ClientsPageState } from '../useClientsPage'
 export function ClientModal({ s }: { s: ClientsPageState }) {
   const { t } = useTranslation()
   const {
-    modalOpen, editClient, closeModal, handleSave, saving, multiHotel, hotels,
+    modalOpen, editClient, closeModal, handleSave, saving,
     form, setForm, modalGroups, floorGroups, rooms, roomLabel, handleRoomChange,
   } = s
   if (!modalOpen) return null
@@ -23,22 +23,6 @@ export function ClientModal({ s }: { s: ClientsPageState }) {
 
         <form onSubmit={handleSave}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {multiHotel && (
-              <div className="form-group">
-                <label className="form-label">{t('hotel')} *</label>
-                <select
-                  className="form-select"
-                  required
-                  value={form.hotelId}
-                  disabled={!!editClient}
-                  onChange={e => setForm(f => ({ ...f, hotelId: e.target.value, roomNumber: '' }))}
-                >
-                  <option value="" disabled>{t('selectHotel')}</option>
-                  {hotels.map(h => <option key={h._id} value={h._id}>{h.name || h.shortName} ({h.shortName})</option>)}
-                </select>
-              </div>
-            )}
-
             <div className="form-group">
               <label className="form-label">{t('fullName')} *</label>
               <input className="form-input" required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder={t('fullNamePlaceholder')} />
@@ -94,7 +78,7 @@ export function ClientModal({ s }: { s: ClientsPageState }) {
 
             <div className="form-group">
               <label className="form-label">{t('phone')}</label>
-              <input className="form-input" type="tel" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+1 234 567 8900" />
+              <input className="form-input" type="tel" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+998 90 123 45 67" />
             </div>
 
             <div className="form-group">
