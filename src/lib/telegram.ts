@@ -127,11 +127,11 @@ export async function notifyNewBooking(booking: {
     const topic = await ensureTopicForService(booking.hotelId, serviceId)
     if (!topic) return
 
-    const priceText = booking.totalPrice > 0 ? `${money(booking.totalPrice)} UZS` : 'Free'
-    const paidText = booking.paid ? 'Paid ✅' : 'Not paid ❌'
-    const who = booking.roomNumber ? `${booking.customerName} (room ${booking.roomNumber})` : booking.customerName
+    const priceText = booking.totalPrice > 0 ? `${money(booking.totalPrice)} UZS` : 'Бесплатно'
+    const paidText = booking.paid ? 'Оплачено ✅' : 'Не оплачено ❌'
+    const who = booking.roomNumber ? `${booking.customerName} (номер ${booking.roomNumber})` : booking.customerName
     const lines = [
-      `🆕 <b>${serviceName ?? 'New booking'}</b>`,
+      `🆕 <b>${serviceName ?? 'Новое бронирование'}</b>`,
       `🕒 ${booking.date} ${booking.startTime}-${booking.endTime}`,
       `👤 ${who}`,
       `💰 ${priceText} — ${paidText}`,

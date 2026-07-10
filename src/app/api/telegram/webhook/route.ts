@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
         { chatId, userId, step: 'awaiting_email', updatedAt: new Date() },
         { upsert: true }
       )
-      await sendMessage(chatId, 'Please reply with the owner email.', message.message_thread_id)
+      await sendMessage(chatId, 'Пожалуйста, отправьте email владельца.', message.message_thread_id)
       return new Response('OK')
     }
 
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
       session.updatedAt = new Date()
       await session.save()
       await deleteMessage(chatId, message.message_id)
-      await sendMessage(chatId, 'Now reply with the password.', message.message_thread_id)
+      await sendMessage(chatId, 'Теперь отправьте пароль.', message.message_thread_id)
       return new Response('OK')
     }
 
@@ -73,15 +73,15 @@ export async function POST(req: NextRequest) {
       const admin = await Admin.findOne({ email: email.toLowerCase().trim(), role: 'owner' })
       const valid = admin && (await admin.comparePassword(text))
       if (!valid) {
-        await sendMessage(chatId, 'Invalid owner credentials. Send /login to try again.', message.message_thread_id)
+        await sendMessage(chatId, 'Неверные данные владельца. Отправьте /login, чтобы попробовать снова.', message.message_thread_id)
         return new Response('OK')
       }
 
       await TelegramConfig.deleteMany({})
       await TelegramConfig.create({ groupChatId: chatId, loggedInBy: admin._id })
-      await sendMessage(chatId, `Logged in as ${admin.name}. Setting up service topics...`, message.message_thread_id)
+      await sendMessage(chatId, `Вход выполнен как ${admin.name}. Настраиваю темы услуг...`, message.message_thread_id)
       await syncAllTopics()
-      await sendMessage(chatId, 'Done — topics are ready and booking notifications will post here.', message.message_thread_id)
+      await sendMessage(chatId, 'Готово — темы настроены, уведомления о бронированиях будут приходить сюда.', message.message_thread_id)
       return new Response('OK')
     }
 
