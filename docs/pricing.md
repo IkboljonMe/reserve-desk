@@ -43,6 +43,15 @@ duration are entered manually (`customDuration`, `customPrice`) — no rate math
 If a row's price (hence the total) is 0, the booking is treated as free: the
 payment step shows "Free — no payment needed" and `paid` is forced false.
 
+## Deposits / partial payment
+
+The review step's payment selector offers **Unpaid / Deposit / Paid**. A deposit
+captures an `amountPaid` between 0 and the total; the booking is then `paid: false`
+with a remaining balance. Later, `PayConfirmModal` (calendar) or the booking
+drawer can collect more, and `paid` flips true once `amountPaid ≥ totalPrice`.
+Revenue "collected" totals sum `amountPaid`, so deposits show up as real money in
+hand. See [dashboard-and-calendar.md](./dashboard-and-calendar.md).
+
 ## Form ↔ booking alignment
 
 The service pricing editor and the booking math now agree: the editor collects a

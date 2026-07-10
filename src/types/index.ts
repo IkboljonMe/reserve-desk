@@ -67,6 +67,7 @@ export interface Booking {
   notes: string
   status: string
   totalPrice: number
+  amountPaid?: number  // money collected so far; a value < totalPrice is a deposit
   paid: boolean
   finished: boolean
   bookingType?: 'client' | 'room' | 'custom' | null

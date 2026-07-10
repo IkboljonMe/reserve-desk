@@ -63,6 +63,8 @@ export function useBookingWizard() {
   const [notes, setNotes] = useState('')
   const [persons, setPersons] = useState(1)
   const [paid, setPaid] = useState(false)
+  // Deposit taken at booking time (0 = none). `paid` covers the full-payment case.
+  const [amountPaid, setAmountPaid] = useState(0)
   const [loading, setLoading] = useState(false)
 
   // Client search (client booking type)
@@ -316,6 +318,8 @@ export function useBookingWizard() {
     setCustomerPhone('')
     setRoomNumber('')
     setPersons(1)
+    setPaid(false)
+    setAmountPaid(0)
     setClientSearch('')
     setClientResults([])
   }
@@ -409,6 +413,7 @@ export function useBookingWizard() {
         totalPrice: activePlan.price,
         notes: notes.trim(),
         paid: activePlan.price === 0 ? false : paid,
+        amountPaid: activePlan.price === 0 ? 0 : (paid ? activePlan.price : Math.min(amountPaid, activePlan.price)),
         bookingType,
         category: selectedCategory,
         variantId: selectedVariant?.id,
@@ -443,7 +448,8 @@ export function useBookingWizard() {
     // guest / room
     selectedClientId, setSelectedClientId, selectedRoomId,
     customerName, setCustomerName, customerPhone, setCustomerPhone,
-    roomNumber, setRoomNumber, notes, setNotes, persons, setPersons, paid, setPaid, loading,
+    roomNumber, setRoomNumber, notes, setNotes, persons, setPersons, paid, setPaid,
+    amountPaid, setAmountPaid, loading,
     clientSearch, setClientSearch, clientResults, clearClient,
     // add-client modal
     addClientModalOpen, addClientForm, setAddClientForm, savingNewClient,

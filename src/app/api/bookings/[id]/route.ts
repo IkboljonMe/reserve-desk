@@ -32,16 +32,35 @@ export async function PUT(req: NextRequest, ctx: RouteContext<'/api/bookings/[id
 
   try {
   const now = new Date()
-  const events: { action: string; at: Date; by: unknown }[] = []
+  const events: { action: string; at: Date; by: unknown; detail?: string }[] = []
   // Any change to a field shown in the Telegram message triggers an edit.
   let notifyChanged = false
 
+  // Payment updates arrive either as an explicit collected amount (`amountPaid`,
+  // supporting deposits) or a legacy full-paid boolean. Both funnel through a
+  // single target amount, and `paid` is derived from it.
+  const total = current.totalPrice || 0
+  const prevAmount = typeof current.amountPaid === 'number' ? current.amountPaid : (current.paid ? total : 0)
+  let nextAmount: number | null = null
+  if (typeof body.amountPaid === 'number') nextAmount = Math.max(0, Math.min(total, body.amountPaid))
+  else if (typeof body.paid === 'boolean') nextAmount = body.paid ? total : 0
+
   // Only stamp timestamps / log events on real transitions.
-  if (typeof body.paid === 'boolean' && body.paid !== current.paid) {
+  if (nextAmount !== null && nextAmount !== prevAmount) {
     notifyChanged = true
-    current.paid = body.paid
-    if (body.paid) { current.paidAt = now; events.push({ action: 'paid', at: now, by: session.userId }) }
-    else { current.paidAt = null; events.push({ action: 'reopened', at: now, by: session.userId }) }
+    current.amountPaid = nextAmount
+    const nowPaid = total > 0 && nextAmount >= total
+    current.paid = nowPaid
+    if (nowPaid) {
+      current.paidAt = now
+      events.push({ action: 'paid', at: now, by: session.userId })
+    } else if (nextAmount > 0) {
+      current.paidAt = null
+      events.push({ action: 'payment', at: now, by: session.userId, detail: String(nextAmount) })
+    } else {
+      current.paidAt = null
+      events.push({ action: 'reopened', at: now, by: session.userId })
+    }
   }
   if (typeof body.finished === 'boolean' && body.finished !== current.finished) {
     notifyChanged = true
@@ -86,6 +105,7 @@ export async function PUT(req: NextRequest, ctx: RouteContext<'/api/bookings/[id
           endTime: booking.endTime,
           persons: booking.persons,
           totalPrice: booking.totalPrice,
+          amountPaid: booking.amountPaid,
           paid: booking.paid,
           finished: booking.finished,
           status: booking.status,
@@ -134,6 +154,7 @@ export async function DELETE(_req: NextRequest, ctx: RouteContext<'/api/bookings
           endTime: deleted.endTime,
           persons: deleted.persons,
           totalPrice: deleted.totalPrice,
+          amountPaid: deleted.amountPaid,
           paid: deleted.paid,
           status: 'cancelled',
           createdByName: creator?.name,

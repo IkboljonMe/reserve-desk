@@ -17,7 +17,7 @@ import {
   User,
   ExternalLink,
 } from 'lucide-react'
-import { Booking, Hotel, bookingState, money, svcId } from '@/lib/bookingHelpers'
+import { Booking, Hotel, bookingState, money, svcId, amountCollected, amountDue, isPartiallyPaid } from '@/lib/bookingHelpers'
 import { getServiceIcon } from '@/lib/serviceIcons'
 import { useTranslation, type DictionaryKeys } from '@/i18n'
 
@@ -45,6 +45,7 @@ const actorName = (a?: Actor | string) =>
 const EVENT_META: Record<string, { labelKey: DictionaryKeys; icon: React.ReactNode; color: string }> = {
   created: { labelKey: 'evCreated', icon: <Plus size={13} />, color: '#6366f1' },
   paid: { labelKey: 'evPaid', icon: <Wallet size={13} />, color: '#059669' },
+  payment: { labelKey: 'evPayment', icon: <Wallet size={13} />, color: '#0891b2' },
   finished: { labelKey: 'evFinished', icon: <Check size={13} />, color: '#059669' },
   notes_updated: { labelKey: 'evNotesUpdated', icon: <Pencil size={13} />, color: '#64748b' },
   reopened: { labelKey: 'evReopened', icon: <RotateCcw size={13} />, color: '#d97706' },
@@ -216,17 +217,22 @@ export default function BookingDrawer({
                 <div style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--gray-800)', marginTop: 2, fontVariantNumeric: 'tabular-nums' }}>
                   {b.totalPrice > 0 ? `${money(b.totalPrice)} ${t('sum')}` : t('free')}
                 </div>
+                {isPartiallyPaid(b) && (
+                  <div style={{ fontSize: '0.72rem', color: '#0891b2', marginTop: 3, fontVariantNumeric: 'tabular-nums' }}>
+                    {t('collectedOfDue', { paid: money(amountCollected(b)), due: `${money(amountDue(b))} ${t('sum')}` })}
+                  </div>
+                )}
               </div>
             </div>
 
             {/* Actions */}
             <div style={{ display: 'flex', gap: 8, marginBottom: '1.25rem' }}>
-              {!b.finished && st.key === 'unpaid' && (
+              {!b.finished && (st.key === 'unpaid' || st.key === 'partial') && (
                 <button className="btn btn-primary btn-sm" style={{ flex: 1 }} disabled={busy} onClick={() => setPayConfirm(true)}>
-                  <Wallet size={14} /> {t('markAsPaid')}
+                  <Wallet size={14} /> {isPartiallyPaid(b) ? t('collectBalance') : t('markAsPaid')}
                 </button>
               )}
-              {!b.finished && st.key !== 'unpaid' && (
+              {!b.finished && (st.key === 'paid' || st.key === 'free') && (
                 <button className="btn btn-sm" style={{ flex: 1, background: FILL_COLLECTED, color: '#fff', border: 'none' }} disabled={busy} onClick={() => mutate({ finished: true }, t('bookingCompleted'))}>
                   <Check size={15} strokeWidth={2.5} /> {t('markAsFinished')}
                 </button>

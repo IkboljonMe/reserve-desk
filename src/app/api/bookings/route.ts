@@ -23,6 +23,7 @@ function maskBooking(b: Record<string, unknown>) {
     roomNumber: '',
     notes: '',
     totalPrice: 0,
+    amountPaid: 0,
     paid: false,
     finished: false,
     history: [],
@@ -149,10 +150,22 @@ export async function POST(req: NextRequest) {
     }
 
     const now = new Date()
-    const paid = Boolean(body.paid)
+    const total = body.totalPrice || 0
+    // Payment can arrive in full, as a deposit (partial `amountPaid`), or not at
+    // all. `paid` is derived — true only once the collected amount covers the total.
+    let amountPaid = 0
+    if (total > 0) {
+      if (typeof body.amountPaid === 'number') amountPaid = Math.max(0, Math.min(total, body.amountPaid))
+      else if (Boolean(body.paid)) amountPaid = total
+    }
+    const paid = total > 0 && amountPaid >= total
     const history = [
       { action: 'created', at: now, by: session.userId },
-      ...(paid ? [{ action: 'paid', at: now, by: session.userId }] : []),
+      ...(paid
+        ? [{ action: 'paid', at: now, by: session.userId }]
+        : amountPaid > 0
+          ? [{ action: 'payment', at: now, by: session.userId, detail: String(amountPaid) }]
+          : []),
     ]
 
     const booking = await Booking.create({
@@ -169,7 +182,8 @@ export async function POST(req: NextRequest) {
       bufferedEndTime,
       duration: body.duration || 60,
       persons: Math.max(1, Number(body.persons) || 1),
-      totalPrice: body.totalPrice || 0,
+      totalPrice: total,
+      amountPaid,
       notes: notes || '',
       status: status || 'confirmed',
       paid,
@@ -196,7 +210,8 @@ export async function POST(req: NextRequest) {
         startTime,
         endTime,
         persons: Math.max(1, Number(body.persons) || 1),
-        totalPrice: body.totalPrice || 0,
+        totalPrice: total,
+        amountPaid,
         paid,
         createdByName: session.name,   // "who booked"
       })

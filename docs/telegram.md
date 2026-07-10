@@ -36,6 +36,9 @@ Message shape (Russian, emoji intentional):
 ✅ Завершено                     (when finished)
 ```
 
+When only a deposit has been collected, the money line becomes
+`💰 {total} UZS — Частично: {collected} / {total} UZS ⏳`.
+
 Cancelled bookings render with a `🚫 <b>Отменено</b>` header. Built by
 `buildBookingMessage()`.
 

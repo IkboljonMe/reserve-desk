@@ -142,6 +142,7 @@ export interface BookingNotifyData {
   endTime: string
   persons?: number
   totalPrice: number
+  amountPaid?: number      // collected so far; < totalPrice renders as a deposit
   paid: boolean
   finished?: boolean
   status?: string          // 'confirmed' | 'pending' | 'cancelled'
@@ -162,7 +163,14 @@ const hasName = (v: unknown): v is { _id: Types.ObjectId | string; name: string 
 // intentional here — this is the Telegram message, not the web UI.
 function buildBookingMessage(booking: BookingNotifyData, serviceName?: string): string {
   const priceText = booking.totalPrice > 0 ? `${money(booking.totalPrice)} UZS` : 'Бесплатно'
-  const paidText = booking.paid ? 'Оплачено ✅' : 'Не оплачено ❌'
+  // Collected-so-far: a value between 0 and the total is a deposit.
+  const collected = typeof booking.amountPaid === 'number'
+    ? booking.amountPaid
+    : (booking.paid ? booking.totalPrice : 0)
+  const partial = booking.totalPrice > 0 && collected > 0 && collected < booking.totalPrice
+  const paidText = partial
+    ? `Частично: ${money(collected)} / ${money(booking.totalPrice)} UZS ⏳`
+    : booking.paid ? 'Оплачено ✅' : 'Не оплачено ❌'
   const who = booking.roomNumber ? `${booking.customerName} (номер ${booking.roomNumber})` : booking.customerName
   const cancelled = booking.status === 'cancelled'
   const header = cancelled ? '🚫 <b>Отменено</b>' : `🆕 <b>${serviceName ?? 'Новое бронирование'}</b>`

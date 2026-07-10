@@ -3,7 +3,7 @@
 import { format, parseISO } from 'date-fns'
 import { X, Check, Clock, MapPin, Phone, User, Trash2, CalendarDays, Wallet, FileText } from 'lucide-react'
 import { getServiceIcon } from '@/lib/serviceIcons'
-import { bookingState, money } from '@/lib/bookingHelpers'
+import { bookingState, money, amountCollected, isPartiallyPaid } from '@/lib/bookingHelpers'
 import { useTranslation } from '@/i18n'
 import { DetailRow } from './DetailRow'
 import type { CalendarPageState } from '../useCalendarPage'
@@ -58,7 +58,15 @@ export function BookingDetailModal({ s }: { s: CalendarPageState }) {
           <DetailRow
             icon={<Wallet size={15} />}
             label={t('payment')}
-            value={selectedBooking.totalPrice === 0 ? t('freeNoCharge') : selectedBooking.paid ? t('paid') : t('unpaid')}
+            value={
+              selectedBooking.totalPrice === 0
+                ? t('freeNoCharge')
+                : selectedBooking.paid
+                  ? t('paid')
+                  : isPartiallyPaid(selectedBooking)
+                    ? `${money(amountCollected(selectedBooking))} / ${money(selectedBooking.totalPrice)} ${t('sum')}`
+                    : t('unpaid')
+            }
             accent={!selectedBooking.paid && selectedBooking.totalPrice > 0}
             success={selectedBooking.paid}
           />
@@ -72,9 +80,9 @@ export function BookingDetailModal({ s }: { s: CalendarPageState }) {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '0.6rem', marginBottom: '0.85rem', borderRadius: 10, background: '#10b98114', color: '#059669', fontWeight: 700, fontSize: '0.85rem' }}>
             <Check size={16} /> {t('completed')}
           </div>
-        ) : bookingState(selectedBooking).key === 'unpaid' ? (
+        ) : (bookingState(selectedBooking).key === 'unpaid' || bookingState(selectedBooking).key === 'partial') ? (
           <button className="btn btn-primary" style={{ width: '100%', marginBottom: '0.85rem' }} onClick={() => setPayConfirm(selectedBooking)}>
-            <Wallet size={15} /> {t('markAsPaid')}
+            <Wallet size={15} /> {isPartiallyPaid(selectedBooking) ? t('collectBalance') : t('markAsPaid')}
           </button>
         ) : (
           <button

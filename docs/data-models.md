@@ -53,12 +53,16 @@ The core record.
   `roomNumber`, `variantId?`/`variantName?`.
 - When: `date` (`YYYY-MM-DD`), `startTime`, `endTime`, `bufferedEndTime`,
   `duration` (minutes), `persons` (party size, default 1).
-- Money/state: `totalPrice`, `paid`, `finished`, `status`
+- Money/state: `totalPrice`, `amountPaid` (money collected so far — a value
+  between 0 and `totalPrice` is a **deposit**), `paid` (derived: true once
+  `amountPaid ≥ totalPrice`), `finished`, `status`
   (`confirmed|pending|cancelled`), `paidAt?`, `finishedAt?`.
 - Classification: `bookingType` (`client|room|custom`), `category` (client‑group
   id or room type).
-- Audit: `history: { action, at, by }[]` — every create/paid/finished/notes/reopen
-  event, shown in the booking drawer timeline.
+- Audit: `history: { action, at, by, detail? }[]` — every
+  create/paid/payment/finished/notes/reopen event, shown in the booking drawer
+  timeline. A `payment` event records a deposit (its `detail` holds the running
+  collected amount).
 - Telegram link: `tgChatId?`, `tgMessageId?`, `tgThreadId?` — where the booking's
   Telegram message lives, so status changes edit it instead of duplicating.
 - `createdBy` → Admin.

@@ -8,7 +8,7 @@ import {
 } from 'date-fns'
 import { useToast } from '@/components/ToastProvider'
 import { useTranslation } from '@/i18n'
-import { svcId, extractHotelId, bookingState } from '@/lib/bookingHelpers'
+import { svcId, extractHotelId, bookingState, amountCollected } from '@/lib/bookingHelpers'
 import { Booking } from '@/types'
 import { useServicesQuery } from '@/hooks/useServices'
 import { useHotelsQuery } from '@/hooks/useHotels'
@@ -112,7 +112,7 @@ export function useCalendarPage() {
       if (hid && knownHotelIds.has(hid) && !selectedHotels.has(hid)) return false
       if (statusFilter !== 'all') {
         const st = bookingState(b).key
-        if (statusFilter === 'unpaid' && st !== 'unpaid') return false
+        if (statusFilter === 'unpaid' && st !== 'unpaid' && st !== 'partial') return false
         if (statusFilter === 'paid' && !(st === 'paid' || st === 'free')) return false
         if (statusFilter === 'finished' && st !== 'finished') return false
       }
@@ -134,9 +134,7 @@ export function useCalendarPage() {
     const own = visibleBookings.filter(b => !b.masked)
     const count = own.length
     const revenue = own.reduce((sum, b) => sum + (b.totalPrice || 0), 0)
-    const collected = own
-      .filter(b => b.paid || (b.totalPrice || 0) === 0)
-      .reduce((sum, b) => sum + (b.totalPrice || 0), 0)
+    const collected = own.reduce((sum, b) => sum + amountCollected(b), 0)
     return { count, revenue, collected }
   }, [visibleBookings])
 
@@ -157,7 +155,16 @@ export function useCalendarPage() {
     }
   }
 
-  const markPaid = (b: Booking) => updateBooking(b._id, { paid: true }, t('markedAsPaid'))
+  const markPaid = (b: Booking) =>
+    updateBooking(b._id, { paid: true, amountPaid: b.totalPrice || 0 }, t('markedAsPaid'))
+  // Record a (possibly partial) collected total for a booking. `amount` is the
+  // new cumulative amountPaid; paid flips true once it covers the total.
+  const recordPayment = (b: Booking, amount: number) => {
+    const total = b.totalPrice || 0
+    const amt = Math.max(0, Math.min(total, amount))
+    const fully = total > 0 && amt >= total
+    return updateBooking(b._id, { amountPaid: amt, paid: fully }, fully ? t('markedAsPaid') : t('paymentRecorded'))
+  }
   const markFinished = (b: Booking) => updateBooking(b._id, { finished: true }, t('bookingCompleted'))
 
   async function handleDeleteBooking(id: string) {
@@ -193,7 +200,7 @@ export function useCalendarPage() {
     deleteConfirm, setDeleteConfirm, payConfirm, setPayConfirm,
     search, setSearch, statusFilter, setStatusFilter, rowH, serviceHotel,
     navigate, visibleBookings, bookingsForDay, summary,
-    markPaid, markFinished, handleDeleteBooking, goToCreate,
+    markPaid, recordPayment, markFinished, handleDeleteBooking, goToCreate,
     headerLabel, allSelected, allHotelsSelected,
   }
 }
