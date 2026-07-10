@@ -17,19 +17,19 @@ export default function LoginPage() {
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <div style={{
             width: 56, height: 56,
-            borderRadius: 12,
+            borderRadius: 15,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             margin: '0 auto 1rem',
-            overflow: 'hidden',
-            background: '#ffffff',
-            padding: '5px',
-            boxShadow: '0 4px 14px rgba(255, 255, 255, 0.15)',
+            background: 'linear-gradient(135deg, #6366f1 0%, #7c3aed 100%)',
+            boxShadow: '0 10px 26px rgba(99,102,241,0.45)',
             boxSizing: 'border-box',
           }}>
-            <img src="/assets/logo-safir.png" alt="Safir Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="#fff" stroke="#fff" strokeWidth="1" strokeLinejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+            </svg>
           </div>
-          <h1 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.25rem' }}>Safir Hotel Services</h1>
-          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.875rem' }}>Safir Hotel Admin Panel</p>
+          <h1 style={{ color: '#fff', fontSize: '1.6rem', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: '0.25rem' }}>Easy Service</h1>
+          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.875rem' }}>Always Available</p>
         </div>
 
         {/* Card */}

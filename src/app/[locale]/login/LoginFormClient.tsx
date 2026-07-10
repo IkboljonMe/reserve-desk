@@ -45,7 +45,7 @@ export default function LoginFormClient() {
           id="email"
           type="email"
           className="form-input"
-          placeholder="admin@hotel.com"
+          placeholder="example@easy-service.uz"
           value={email}
           onChange={e => setEmail(e.target.value)}
           required

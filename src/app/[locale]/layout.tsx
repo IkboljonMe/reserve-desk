@@ -3,8 +3,8 @@ import "../globals.css";
 import { LOCALES } from "@/i18n/config";
 
 export const metadata: Metadata = {
-  title: "Safir Hotel Services — Hotel Admin",
-  description: "Hotel service reservation management system for staff",
+  title: "Easy Service — Always Available",
+  description: "Service reservation management system for staff",
 };
 
 // Pre-render the locale segment for each supported language.

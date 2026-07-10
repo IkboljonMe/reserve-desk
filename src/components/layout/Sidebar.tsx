@@ -171,26 +171,38 @@ export default function Sidebar({
     }}>
       {/* Brand */}
       <div style={{
-        padding: collapsed ? '1.35rem 0 1.1rem' : '1.35rem 1.25rem 1.1rem',
+        padding: collapsed ? '1.5rem 0 1.35rem' : '1.5rem 1.1rem 1.35rem',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
         transition: `padding 0.24s ${ease}`,
       }}>
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: collapsed ? 0 : 11,
+          gap: collapsed ? 0 : 12,
           justifyContent: collapsed ? 'center' : 'flex-start',
           transition: `gap 0.24s ${ease}`,
         }}>
+          {/* Brand mark — gradient tile with a bolt (nods to "Always Available") */}
+          <div style={{
+            width: 40, height: 40, borderRadius: 12, flexShrink: 0,
+            background: 'var(--brand-gradient)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 6px 16px rgba(99,102,241,0.40)',
+          }}>
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="#fff" stroke="#fff" strokeWidth="1" strokeLinejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+            </svg>
+          </div>
+          {/* Name lockup */}
           <div style={{
             overflow: 'hidden',
-            maxWidth: collapsed ? 0 : 160,
+            maxWidth: collapsed ? 0 : 170,
             opacity: collapsed ? 0 : 1,
             whiteSpace: 'nowrap',
             transition: labelTransition,
           }}>
-            <div style={{ color: '#fff', fontSize: '0.95rem', fontWeight: 700, lineHeight: 1.2, letterSpacing: '-0.01em' }}>easy-service.uz</div>
-            <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.7rem', letterSpacing: '0.02em' }}>{t('brandTagline')}</div>
+            <div style={{ color: '#fff', fontSize: '1.15rem', fontWeight: 800, lineHeight: 1.15, letterSpacing: '-0.02em' }}>Easy Service</div>
+            <div style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.7rem', letterSpacing: '0.03em', marginTop: 2 }}>{t('brandTagline')}</div>
           </div>
         </div>
       </div>
