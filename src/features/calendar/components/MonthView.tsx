@@ -162,8 +162,8 @@ export default function MonthView({
                       <Check size={11} strokeWidth={3} style={{ color: '#10b981', flexShrink: 0 }} />
                     ) : canFinish(b) ? (
                       <button
-                        title="Mark as finished"
-                        aria-label="Mark as finished"
+                        title={t('markFinishedTitle')}
+                        aria-label={t('markFinishedTitle')}
                         onClick={e => {
                           e.stopPropagation()
                           onFinish(b)
@@ -187,7 +187,7 @@ export default function MonthView({
                       </button>
                     ) : (
                       <span
-                        title="Unpaid"
+                        title={t('unpaid')}
                         style={{ width: 7, height: 7, flexShrink: 0, borderRadius: '50%', background: '#f59e0b' }}
                       />
                     )}

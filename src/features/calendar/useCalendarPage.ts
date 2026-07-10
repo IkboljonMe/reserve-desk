@@ -19,7 +19,7 @@ export function useCalendarPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { showToast } = useToast()
-  const { lang } = useTranslation()
+  const { lang, t } = useTranslation()
 
   const [today, setToday] = useState(new Date())
   const [currentDate, setCurrentDate] = useState<Date>(() => {
@@ -153,21 +153,21 @@ export function useCalendarPage() {
       setSelectedBooking(prev => (prev && prev._id === id ? { ...prev, ...changes } : prev))
       showToast(successMsg, 'success')
     } catch {
-      showToast('Update failed', 'error')
+      showToast(t('updateFailed'), 'error')
     }
   }
 
-  const markPaid = (b: Booking) => updateBooking(b._id, { paid: true }, 'Marked as paid')
-  const markFinished = (b: Booking) => updateBooking(b._id, { finished: true }, 'Booking completed')
+  const markPaid = (b: Booking) => updateBooking(b._id, { paid: true }, t('markedAsPaid'))
+  const markFinished = (b: Booking) => updateBooking(b._id, { finished: true }, t('bookingCompleted'))
 
   async function handleDeleteBooking(id: string) {
     try {
       await deleteMutation.mutateAsync(id)
-      showToast('Booking deleted', 'success')
+      showToast(t('bookingDeleted'), 'success')
       setSelectedBooking(null)
       setDeleteConfirm(null)
     } catch {
-      showToast('Failed to delete booking', 'error')
+      showToast(t('deleteFailed'), 'error')
     }
   }
 

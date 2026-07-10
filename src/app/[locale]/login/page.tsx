@@ -1,6 +1,9 @@
 import LoginFormClient from './LoginFormClient'
+import { getT } from '@/i18n/dictionary'
 
-export default function LoginPage() {
+export default async function LoginPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params
+  const t = getT(locale)
   return (
     <main style={{
       minHeight: '100dvh',
@@ -29,7 +32,7 @@ export default function LoginPage() {
             </svg>
           </div>
           <h1 style={{ color: '#fff', fontSize: '1.6rem', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: '0.25rem' }}>Easy Service</h1>
-          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.875rem' }}>Always Available</p>
+          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.875rem' }}>{t('alwaysAvailable')}</p>
         </div>
 
         {/* Card */}
@@ -42,7 +45,7 @@ export default function LoginPage() {
           padding: '2rem',
           boxShadow: '0 24px 60px rgba(0,0,0,0.45)',
         }}>
-          <h2 style={{ color: '#fff', fontSize: '1.125rem', fontWeight: 600, marginBottom: '1.5rem' }}>Sign in to your account</h2>
+          <h2 style={{ color: '#fff', fontSize: '1.125rem', fontWeight: 600, marginBottom: '1.5rem' }}>{t('signInToAccount')}</h2>
           <LoginFormClient />
         </div>
       </div>
