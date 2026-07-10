@@ -3,6 +3,7 @@
 import { format } from 'date-fns'
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react'
 import Dropdown from '@/components/ui/Dropdown'
+import Button from '@/components/ui/Button'
 import { useTranslation } from '@/i18n'
 import type { ViewMode, Density } from '../constants'
 import type { CalendarPageState } from '../useCalendarPage'
@@ -46,9 +47,9 @@ export function CalendarToolbar({ s }: { s: CalendarPageState }) {
         </div>
       )}
 
-      <button className="btn btn-primary btn-sm" onClick={() => goToCreate(format(currentDate, 'yyyy-MM-dd'))}>
-        <Plus size={14} strokeWidth={2.5} /> {t('newShort')}
-      </button>
+      <Button variant="primary" size="md" leftIcon={<Plus size={14} strokeWidth={2.5} />} onClick={() => goToCreate(format(currentDate, 'yyyy-MM-dd'))}>
+        {t('newShort')}
+      </Button>
     </div>
   )
 }

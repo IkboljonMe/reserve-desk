@@ -1,7 +1,7 @@
 'use client'
 
 import { format, parseISO } from 'date-fns'
-import { X, Check, Clock, MapPin, Phone, User, Trash2, CalendarDays, Wallet } from 'lucide-react'
+import { X, Check, Clock, MapPin, Phone, User, Trash2, CalendarDays, Wallet, FileText } from 'lucide-react'
 import { getServiceIcon } from '@/lib/serviceIcons'
 import { bookingState, money } from '@/lib/bookingHelpers'
 import { useTranslation } from '@/i18n'
@@ -48,7 +48,7 @@ export function BookingDetailModal({ s }: { s: CalendarPageState }) {
           </div>
 
           <DetailRow icon={<User size={15} />} label={t('guest')} value={selectedBooking.customerName} />
-          {selectedBooking.roomNumber && <DetailRow icon={<MapPin size={15} />} label={t('room')} value={`🏨 ${selectedBooking.roomNumber}`} accent />}
+          {selectedBooking.roomNumber && <DetailRow icon={<MapPin size={15} />} label={t('room')} value={selectedBooking.roomNumber} accent />}
           {selectedBooking.customerPhone && <DetailRow icon={<Phone size={15} />} label={t('phone')} value={selectedBooking.customerPhone} />}
           <DetailRow icon={<CalendarDays size={15} />} label={t('date')} value={format(parseISO(selectedBooking.date), 'EEEE, MMM d, yyyy')} />
           <DetailRow icon={<Clock size={15} />} label={t('time')} value={`${selectedBooking.startTime} – ${selectedBooking.endTime}`} />
@@ -62,7 +62,7 @@ export function BookingDetailModal({ s }: { s: CalendarPageState }) {
             accent={!selectedBooking.paid && selectedBooking.totalPrice > 0}
             success={selectedBooking.paid}
           />
-          {selectedBooking.notes && <DetailRow icon={<span style={{ fontSize: 14 }}>📝</span>} label={t('notes')} value={selectedBooking.notes} />}
+          {selectedBooking.notes && <DetailRow icon={<FileText size={15} />} label={t('notes')} value={selectedBooking.notes} />}
         </div>
 
         <div className="divider" />

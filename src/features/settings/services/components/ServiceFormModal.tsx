@@ -5,6 +5,7 @@ import { useTranslation } from '@/i18n'
 import { ServiceIcon } from '@/lib/serviceIcons'
 import IconPicker from '@/components/IconPicker'
 import Select from '@/components/Select'
+import { InfoHint } from '@/components/ui/InfoHint'
 import { PRESET_COLORS, bufferError, selectAllOnFocus } from '../utils'
 import { PricingEditor } from './PricingEditor'
 import type { ServicesPageState } from '../useServicesPage'
@@ -44,7 +45,7 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '1rem', alignItems: 'start' }}>
               <div className="form-group">
-                <label className="form-label">{t('name')} *</label>
+                <label className="form-label">{t('name')} *<InfoHint text={t('nameHint')} /></label>
                 <input
                   type="text" className="form-input"
                   value={form.name}
@@ -53,13 +54,13 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
                 />
               </div>
               <div className="form-group">
-                <label className="form-label">{t('icon')} *</label>
+                <label className="form-label">{t('icon')} *<InfoHint text={t('iconHint')} /></label>
                 <IconPicker value={form.icon} onChange={name => setForm(f => ({ ...f, icon: name }))} />
               </div>
             </div>
 
             <div className="form-group">
-              <label className="form-label">{t('hotel')} *</label>
+              <label className="form-label">{t('hotel')} *<InfoHint text={t('hotelHint')} /></label>
               <Select
                 ariaLabel={t('selectHotel')}
                 placeholder={t('selectHotel')}
@@ -77,7 +78,7 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
 
             {form.hotelId && hotels.length > 1 && (
               <div className="form-group">
-                <label className="form-label">{t('sharedWithHotels')}</label>
+                <label className="form-label">{t('sharedWithHotels')}<InfoHint text={t('sharedWithHotelsHint')} /></label>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                   {hotels.filter(h => h._id !== form.hotelId).map(h => {
                     const on = form.sharedHotelIds.includes(h._id)
@@ -106,7 +107,7 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
             )}
 
             <div className="form-group">
-              <label className="form-label">{t('description')}</label>
+              <label className="form-label">{t('description')}<InfoHint text={t('descriptionHint')} /></label>
               <textarea
                 className="form-textarea" style={{ minHeight: 60 }}
                 value={form.description}
@@ -115,7 +116,7 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
             </div>
 
             <div className="form-group">
-              <label className="form-label">{t('details')}</label>
+              <label className="form-label">{t('details')}<InfoHint text={t('detailsHint')} /></label>
               <input type="text" className="form-input" placeholder={t('detailsPlaceholder')} value={form.details} onChange={e => setForm(f => ({ ...f, details: e.target.value }))} />
             </div>
 
@@ -123,18 +124,18 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div className="form-group">
-                <label className="form-label">{t('opensAt')} *</label>
+                <label className="form-label">{t('opensAt')} *<InfoHint text={t('opensAtHint')} /></label>
                 <input type="time" className="form-input" value={form.openTime} onChange={e => setForm(f => ({ ...f, openTime: e.target.value }))} required />
               </div>
               <div className="form-group">
-                <label className="form-label">{t('closesAt')} *</label>
+                <label className="form-label">{t('closesAt')} *<InfoHint text={t('closesAtHint')} /></label>
                 <input type="time" className="form-input" value={form.closeTime} onChange={e => setForm(f => ({ ...f, closeTime: e.target.value }))} required />
               </div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div className="form-group">
-                <label className="form-label">⏪ {t('bufferBefore')}</label>
+                <label className="form-label">{t('bufferBefore')}<InfoHint text={t('bufferBeforeHint')} /></label>
                 <input
                   type="number" className="form-input hide-arrows"
                   min={0} max={120} step={15} placeholder="e.g. 15"
@@ -148,7 +149,7 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
                   : <small style={{ color: 'var(--gray-400)', fontSize: '0.7rem', display: 'block', marginTop: 4 }}>{t('min15IntervalsShort')}</small>}
               </div>
               <div className="form-group">
-                <label className="form-label">⏩ {t('bufferAfter')}</label>
+                <label className="form-label">{t('bufferAfter')}<InfoHint text={t('bufferAfterHint')} /></label>
                 <input
                   type="number" className="form-input hide-arrows"
                   min={0} max={120} step={15} placeholder="e.g. 15"
@@ -164,7 +165,7 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
             </div>
 
             <div className="form-group">
-              <label className="form-label">{t('calendarColor')}</label>
+              <label className="form-label">{t('calendarColor')}<InfoHint text={t('calendarColorHint')} /></label>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 4 }}>
                 {PRESET_COLORS.map(c => (
                   <button

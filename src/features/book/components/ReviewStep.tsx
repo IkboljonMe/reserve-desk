@@ -1,5 +1,6 @@
 'use client'
 
+import { BedDouble } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import { getServiceIcon } from '@/lib/serviceIcons'
 import { chipStyle } from '../styles'
@@ -50,7 +51,7 @@ export function ReviewStep({ w }: { w: BookingWizard }) {
             <span style={chipStyle(`${categoryMeta.color}18`, categoryMeta.color)}>{categoryMeta.label}</span>
           )}
           {bookingType === 'room' && roomNumber && (
-            <span style={chipStyle('var(--gray-100)', 'var(--gray-600)')}>🏨 {roomNumber}</span>
+            <span style={chipStyle('var(--gray-100)', 'var(--gray-600)')}><BedDouble size={12} /> {roomNumber}</span>
           )}
         </span>
 
@@ -87,8 +88,8 @@ export function ReviewStep({ w }: { w: BookingWizard }) {
             value={paid ? 'paid' : 'unpaid'}
             onChange={e => setPaid(e.target.value === 'paid')}
           >
-            <option value="unpaid">🔴 {t('unpaid')}</option>
-            <option value="paid">✓ {t('paid')}</option>
+            <option value="unpaid">{t('unpaid')}</option>
+            <option value="paid">{t('paid')}</option>
           </select>
         )}
       </div>

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useRef, useMemo, useEffect } from 'react'
-import { format, startOfWeek, addDays, isSameDay } from 'date-fns'
+import { format, isSameDay } from 'date-fns'
 import { Check, Lock } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import {
@@ -374,7 +374,7 @@ function EventBlock({
   const state = bookingState(b)
   const finished = b.finished
   const unpaid = state.key === 'unpaid'
-  const label = b.roomNumber ? `🏨 ${b.roomNumber}` : b.customerName
+  const label = b.roomNumber || b.customerName
 
   return (
     <div

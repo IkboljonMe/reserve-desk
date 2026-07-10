@@ -1,7 +1,8 @@
-import { NextRequest } from 'next/server'
+import { NextRequest, after } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Booking } from '@/models/Booking'
 import { requireDashboard, bookingIdScope } from '@/lib/session'
+import { notifyBookingUpdated } from '@/lib/telegram'
 
 export async function GET(_req: NextRequest, ctx: RouteContext<'/api/bookings/[id]'>) {
   const session = await requireDashboard()
@@ -31,9 +32,11 @@ export async function PUT(req: NextRequest, ctx: RouteContext<'/api/bookings/[id
 
   const now = new Date()
   const events: { action: string; at: Date; by: unknown }[] = []
+  let paidChanged = false
 
   // Only stamp timestamps / log events on real transitions.
   if (typeof body.paid === 'boolean' && body.paid !== current.paid) {
+    paidChanged = true
     current.paid = body.paid
     if (body.paid) { current.paidAt = now; events.push({ action: 'paid', at: now, by: session.userId }) }
     else { current.paidAt = null; events.push({ action: 'reopened', at: now, by: session.userId }) }
@@ -57,6 +60,32 @@ export async function PUT(req: NextRequest, ctx: RouteContext<'/api/bookings/[id
     .populate('createdBy', 'email name')
     .populate('history.by', 'email name')
     .lean()
+
+  // The payment status is shown in the Telegram message — edit it in place so
+  // the group stays in sync (never post a duplicate). Best-effort, post-response.
+  if (paidChanged && booking?.tgMessageId != null && booking.tgChatId != null) {
+    const svc = booking.serviceId as unknown as { name?: string } | null
+    const creator = booking.createdBy as unknown as { name?: string } | null
+    after(() =>
+      notifyBookingUpdated(
+        { chatId: booking.tgChatId!, messageId: booking.tgMessageId!, messageThreadId: booking.tgThreadId ?? undefined },
+        {
+          hotelId: booking.hotelId,
+          serviceId: booking.serviceId as unknown as { _id: string; name: string },
+          customerName: booking.customerName,
+          roomNumber: booking.roomNumber,
+          date: booking.date,
+          startTime: booking.startTime,
+          endTime: booking.endTime,
+          totalPrice: booking.totalPrice,
+          paid: booking.paid,
+          createdByName: creator?.name,
+        },
+        svc?.name,
+      )
+    )
+  }
+
   return Response.json(booking)
 }
 

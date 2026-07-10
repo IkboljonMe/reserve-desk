@@ -156,7 +156,7 @@ export default function MonthView({
                   >
                     <span style={{ fontWeight: 700, color, fontVariantNumeric: 'tabular-nums' }}>{b.startTime}</span>
                     <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {b.roomNumber ? `🏨 ${b.roomNumber}` : b.customerName}
+                      {b.roomNumber || b.customerName}
                     </span>
                     {b.finished ? (
                       <Check size={11} strokeWidth={3} style={{ color: '#10b981', flexShrink: 0 }} />

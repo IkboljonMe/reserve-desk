@@ -36,6 +36,11 @@ export interface IBooking extends Document {
   variantName?: string       // snapshot of the variant's name at booking time
   paidAt?: Date | null       // when payment was recorded
   finishedAt?: Date | null   // when it was marked completed
+  // Coordinates of the Telegram message announcing this booking, so status
+  // changes edit that message in place instead of posting a duplicate.
+  tgChatId?: number
+  tgMessageId?: number
+  tgThreadId?: number
   history: IBookingEvent[]
   createdBy: Types.ObjectId
   createdAt: Date
@@ -74,6 +79,9 @@ const BookingSchema = new Schema<IBooking>(
     variantName: { type: String, default: '' },
     paidAt: { type: Date, default: null },
     finishedAt: { type: Date, default: null },
+    tgChatId: { type: Number, default: null },
+    tgMessageId: { type: Number, default: null },
+    tgThreadId: { type: Number, default: null },
     history: { type: [BookingEventSchema], default: [] },
     createdBy: { type: Schema.Types.ObjectId, ref: 'Admin' },
   },

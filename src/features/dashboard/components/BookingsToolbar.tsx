@@ -3,6 +3,7 @@
 import { Search, X, Wallet, Building2 } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import Dropdown from '@/components/ui/Dropdown'
+import Button from '@/components/ui/Button'
 import type { PaymentFilter, TypeFilter, StateFilter } from '../utils'
 import type { DashboardPageState } from '../useDashboardPage'
 import { FilterGroup } from './FilterGroup'
@@ -94,10 +95,10 @@ export function BookingsToolbar({ s }: { s: DashboardPageState }) {
           />
         </div>
         {activeFilterCount > 0 && (
-          <button className="btn btn-ghost btn-sm" style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}
+          <Button variant="ghost" size="md" leftIcon={<X size={13} />} style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}
             onClick={clearFilters}>
-            <X size={13} /> {t('clear')}
-          </button>
+            {t('clear')}
+          </Button>
         )}
       </div>
 

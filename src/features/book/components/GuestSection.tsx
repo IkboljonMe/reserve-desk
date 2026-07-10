@@ -78,8 +78,9 @@ export function GuestSection({ w }: { w: BookingWizard }) {
                       }}>{c.name.charAt(0).toUpperCase()}</div>
                       <div>
                         <div style={{ fontWeight: 600, color: 'var(--gray-800)', fontSize: '0.875rem' }}>{c.name}</div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--gray-400)' }}>
-                          {c.roomNumber ? `🏨 ${c.roomNumber}` : ''}{c.phone ? `${c.roomNumber ? ' · ' : ''}${c.phone}` : ''}
+                        <div style={{ fontSize: '0.75rem', color: 'var(--gray-400)', display: 'flex', alignItems: 'center', gap: 3 }}>
+                          {c.roomNumber && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}><BedDouble size={11} />{c.roomNumber}</span>}
+                          {c.phone && <span>{c.roomNumber ? ' · ' : ''}{c.phone}</span>}
                         </div>
                       </div>
                       <Check size={16} style={{ marginLeft: 'auto', color: 'var(--gray-200)' }} />
