@@ -198,6 +198,7 @@
   "minute15Intervals": "15-minute intervals",
   "multipleOf15": "Must be a multiple of 15",
   "priceUzs": "Price (UZS)",
+  "ratePerHour": "Rate per hour (UZS)",
   "setOneOffPrice": "Set the one-off price",
   "continueBtn": "Continue →",
   "pickDateTime": "Pick Date & Time",

@@ -198,6 +198,7 @@
   "minute15Intervals": "15 daqiqalik oraliqlar",
   "multipleOf15": "15 ga karrali bo'lishi kerak",
   "priceUzs": "Narx (so'm)",
+  "ratePerHour": "Soatlik narx (so'm)",
   "setOneOffPrice": "Bir martalik narxni belgilang",
   "continueBtn": "Davom etish →",
   "pickDateTime": "Sana va vaqtni tanlang",

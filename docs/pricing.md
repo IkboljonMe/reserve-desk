@@ -4,7 +4,11 @@
 
 An admin configures pricing on the **service** (or a service **variant**), as
 `pricingGroups`: one group per **room type** or **client group**, each holding
-`rows: { duration, price }[]`.
+`rows: { duration, price }[]`. The pricing editor enters each row as an explicit
+**rate per hour** (the `Rate per hour` field) and stores it as `duration: 60,
+price: <rate>` — so what the admin types is exactly what the guest is charged per
+hour. (`duration` is retained in the shape only for backward compatibility with
+older, non‑1h rows.)
 
 At booking time the guest picks a category (client group / room type), which
 selects that group's rows.
@@ -15,7 +19,7 @@ Each configured row is read as an **hourly rate**, and the guest then chooses ho
 many hours. In `useBookingWizard.ts`:
 
 ```
-ratePerHour = round(row.price / (row.duration / 60))   // a 1h/300 000 row → 300 000/hr
+ratePerHour = round(row.price / (row.duration / 60))   // duration is 60 → ratePerHour = price
 ```
 
 Then:
@@ -39,11 +43,15 @@ duration are entered manually (`customDuration`, `customPrice`) — no rate math
 If a row's price (hence the total) is 0, the booking is treated as free: the
 payment step shows "Free — no payment needed" and `paid` is forced false.
 
-## ⚠️ Model inconsistency to be aware of
+## Form ↔ booking alignment
 
-The **service form still stores `{duration, price}` rows**, but the booking flow
-now interprets `price` as an hourly rate. An admin who enters "2h / 600 000" will
-have it read as 300 000/hr. Planned fix: change the service pricing editor to
-enter an explicit **hourly rate** (plus optional whole‑day price and min/max
-hours) so the admin's intent matches what the guest is charged. Until then, enter
-pricing rows as **1‑hour rates**.
+The service pricing editor and the booking math now agree: the editor collects a
+**rate per hour** and stores it as a `duration: 60` row, and the booking flow
+reads that row's `price` directly as `ratePerHour`. There is no longer a
+duration/price interpretation gap. Legacy rows whose `duration ≠ 60` are still
+handled correctly by the `price / (duration/60)` derivation.
+
+Not yet implemented: an explicit **whole‑day price** override and **min/max
+hours** per group. Whole‑day currently derives from `rate × dayHours`, and the
+hours picker offers `1h … maxHours` where `maxHours` is how many whole hours fit
+before closing.

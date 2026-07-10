@@ -198,6 +198,7 @@
   "minute15Intervals": "Интервалы по 15 минут",
   "multipleOf15": "Должно быть кратно 15",
   "priceUzs": "Цена (сум)",
+  "ratePerHour": "Цена за час (сум)",
   "setOneOffPrice": "Укажите разовую цену",
   "continueBtn": "Продолжить →",
   "pickDateTime": "Выберите дату и время",
