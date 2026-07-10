@@ -132,18 +132,20 @@ export async function POST(req: NextRequest) {
     const startMin = Math.max(0, totalSM % 60)
     const bufferedStartTime = `${startH.toString().padStart(2, '0')}:${startMin.toString().padStart(2, '0')}`
 
-    // Check for overlapping bookings (same service, same date, overlapping buffered times)
-    const overlapping = await Booking.findOne({
+    // Capacity-aware availability: a service can host up to `capacity` bookings
+    // at once. Count existing (non-cancelled) bookings whose raw [start,end]
+    // overlaps this candidate's buffered window, and reject only once the slot
+    // is full. capacity defaults to 1 (exclusive resource).
+    const overlapCount = await Booking.countDocuments({
       serviceId,
       date,
       status: { $ne: 'cancelled' },
-      $or: [
-        { startTime: { $lt: bufferedEndTime }, endTime: { $gt: bufferedStartTime } },
-      ],
+      startTime: { $lt: bufferedEndTime },
+      endTime: { $gt: bufferedStartTime },
     })
 
-    if (overlapping) {
-      return Response.json({ error: 'This time slot is already booked for this service' }, { status: 409 })
+    if (overlapCount >= (service.capacity || 1)) {
+      return Response.json({ error: 'This time slot is fully booked for this service' }, { status: 409 })
     }
 
     const now = new Date()

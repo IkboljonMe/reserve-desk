@@ -204,11 +204,15 @@ export function useBookingWizard() {
   // and must not overlap any existing booking's [start, end] for this service.
   const bufBefore = selectedService?.bufferTimeBefore || 0
   const bufAfter = selectedService?.bufferTimeAfter || 0
+  // A service can host up to `capacity` concurrent bookings; a start is offered
+  // while fewer than `capacity` existing bookings overlap the candidate window.
+  const capacity = selectedService?.capacity || 1
   const availableSlots = activePlan
     ? timeSlots.filter(slot => {
         const start = toMin(slot)
         const end = start + activePlan.duration
-        return !dayBookings.some(b => toMin(b.startTime) < end + bufAfter && toMin(b.endTime) > start - bufBefore)
+        const overlaps = dayBookings.filter(b => toMin(b.startTime) < end + bufAfter && toMin(b.endTime) > start - bufBefore).length
+        return overlaps < capacity
       })
     : []
 

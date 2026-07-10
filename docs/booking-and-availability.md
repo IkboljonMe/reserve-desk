@@ -52,6 +52,13 @@ Only **available** slots are shown, each rendered as `start → end` (e.g.
 `12:00 → 14:00`). "Whole day" produces a single `open → close` slot, available
 only if the day is otherwise free.
 
+**Capacity:** a service can host up to `Service.capacity` bookings at once. A
+start is offered while *fewer than* `capacity` existing bookings overlap the
+candidate window (`overlaps < capacity`). With the default `capacity = 1` this is
+the exclusive‑resource behavior above; with e.g. `capacity = 5` a pool can take
+five concurrent bookings before a slot is full. The server enforces the same
+rule with `countDocuments` and returns **409** once the slot is full.
+
 Worked example (buffer = 15 min, existing booking 12:00–13:00):
 - 2‑hour start at **11:00** → reserves `[10:45, 13:15]`, which overlaps 12:00–13:00
   → **not offered**.
@@ -66,10 +73,8 @@ double‑book. The client mirrors the same rule for the live UI.
 
 ## Known limitations (see the improvement backlog)
 
-- **Capacity is treated as 1.** `Service.capacity` isn't yet honored — any
-  overlap blocks the slot even for a resource that can host several at once.
 - The overlap compares the candidate's *buffered* window against each existing
   booking's *raw* range; it's symmetric only because all bookings share the
   service buffer.
-- Availability is computed from a per‑day snapshot; conflicts surface as a toast
-  on submit rather than an inline "slot just taken" 409.
+- Availability is computed from a per‑day snapshot; the server returns a 409 on
+  conflict, which the wizard currently surfaces as a toast rather than inline.
