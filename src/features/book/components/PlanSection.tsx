@@ -4,18 +4,19 @@ import { useTranslation } from '@/i18n'
 import { TYPE_META } from '../constants'
 import { optionCardStyle } from '../styles'
 import { formatDuration, formatUZS } from '../utils'
+import { UNGROUPED } from '../useBookingWizard'
 import type { BookingType } from '../types'
-import { BackButton } from './BackButton'
-import { ContextBar } from './ContextBar'
 import type { BookingWizard } from '../useBookingWizard'
 
-export function PlanStep({ w }: { w: BookingWizard }) {
+// "Who is this booking for?" + category (client group / room type) + duration & price.
+// For custom bookings, and for "ungrouped" clients, price/duration are entered manually.
+export function PlanSection({ w }: { w: BookingWizard }) {
   const { t } = useTranslation()
   const {
     selectedService, bookingType, clientCats, roomCats, chooseType, resolveGroupMeta,
     selectedCategory, chooseCategory, planRows, selectedPlan, setSelectedPlan, setSelectedSlot,
     categoryMeta, customDuration, setCustomDuration, customValid, customPrice, setCustomPrice,
-    planReady, setStep, hasVariants, selectedVariant, chooseVariant,
+    usingManualPrice, hasVariants, selectedVariant, chooseVariant,
   } = w
   if (!selectedService) return null
 
@@ -24,13 +25,6 @@ export function PlanStep({ w }: { w: BookingWizard }) {
 
   return (
     <div className="card" style={{ animation: 'slideInRight 0.3s ease-out' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: '1.25rem' }}>
-        <BackButton to={2} onBack={setStep} />
-        <h2 style={{ margin: 0 }}>{t('choosePlan')}</h2>
-      </div>
-      <ContextBar w={w} />
-
-      {/* Variant selector (only for services that define variants) */}
       {hasVariants && (
         <div style={{ marginBottom: showPlanOptions ? '1.5rem' : 0 }}>
           <label className="form-label" style={{ display: 'block', marginBottom: 8 }}>{t('chooseVariant')}</label>
@@ -60,13 +54,14 @@ export function PlanStep({ w }: { w: BookingWizard }) {
         </div>
       )}
 
-      {showPlanOptions && (<>
-      {/* Type selector */}
-      <label className="form-label" style={{ display: 'block', marginBottom: 8 }}>{t('whoIsThisFor')}</label>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem', marginBottom: planReady || bookingType ? '1.5rem' : 0 }}>
+      {!showPlanOptions ? null : (<>
+      <h2 style={{ marginBottom: '1.25rem' }}>{t('whoIsThisFor')}</h2>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem', marginBottom: bookingType ? '1.5rem' : 0 }}>
         {(Object.keys(TYPE_META) as BookingType[]).map(type => {
           const meta = TYPE_META[type]
-          const disabled = (type === 'client' && clientCats.length === 0) || (type === 'room' && roomCats.length === 0)
+          // "Clients" always has the Ungrouped/Custom fallback, so it's never disabled.
+          const disabled = type === 'room' && roomCats.length === 0
           return (
             <button
               key={type}
@@ -94,7 +89,7 @@ export function PlanStep({ w }: { w: BookingWizard }) {
         })}
       </div>
 
-      {/* Category + plan rows (client / room) */}
+      {/* Category (client group / room type) */}
       {(bookingType === 'client' || bookingType === 'room') && (
         <>
           <label className="form-label" style={{ display: 'block', marginBottom: 8 }}>
@@ -123,9 +118,26 @@ export function PlanStep({ w }: { w: BookingWizard }) {
                 </button>
               )
             })}
+            {bookingType === 'client' && (
+              <button
+                type="button"
+                onClick={() => chooseCategory(UNGROUPED)}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  padding: '8px 14px', borderRadius: 999,
+                  border: `2px solid ${selectedCategory === UNGROUPED ? 'var(--gray-400)' : 'var(--gray-200)'}`,
+                  background: selectedCategory === UNGROUPED ? 'var(--gray-100)' : '#fff',
+                  color: selectedCategory === UNGROUPED ? 'var(--gray-700)' : 'var(--gray-500)',
+                  fontWeight: 600, fontSize: '0.8125rem', cursor: 'pointer',
+                }}
+              >
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--gray-400)' }} />
+                {t('typeCustom')}
+              </button>
+            )}
           </div>
 
-          {selectedCategory && (
+          {selectedCategory && !usingManualPrice && (
             <>
               <label className="form-label" style={{ display: 'block', marginBottom: 8 }}>{t('chooseDurationPrice')}</label>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
@@ -157,41 +169,38 @@ export function PlanStep({ w }: { w: BookingWizard }) {
         </>
       )}
 
-      {/* Custom inputs */}
-      {bookingType === 'custom' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', maxWidth: 420 }}>
-          <div className="form-group">
-            <label className="form-label">{t('durationMin')}</label>
-            <input
-              type="number" className="form-input" min={15} step={15}
-              value={customDuration}
-              onChange={e => { setCustomDuration(Number(e.target.value)); setSelectedSlot('') }}
-              onFocus={e => e.currentTarget.select()}
-              aria-invalid={!customValid}
-              style={!customValid ? { borderColor: 'var(--danger)', boxShadow: '0 0 0 3px rgba(239,68,68,0.12)' } : undefined}
-            />
-            <small style={{ color: customValid ? 'var(--gray-400)' : 'var(--danger)', fontSize: '0.7rem', display: 'block', marginTop: 4 }}>
-              {customValid ? t('minute15Intervals') : t('multipleOf15')}
-            </small>
+      {/* Manual duration & price for "Custom" (ungrouped) clients */}
+      {usingManualPrice && (
+        <>
+          <label className="form-label" style={{ display: 'block', marginBottom: 8 }}>{t('chooseDurationPrice')}</label>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', maxWidth: 420 }}>
+            <div className="form-group">
+              <label className="form-label">{t('durationMin')}</label>
+              <input
+                type="number" className="form-input" min={15} step={15}
+                value={customDuration}
+                onChange={e => { setCustomDuration(Number(e.target.value)); setSelectedSlot('') }}
+                onFocus={e => e.currentTarget.select()}
+                aria-invalid={!customValid}
+                style={!customValid ? { borderColor: 'var(--danger)', boxShadow: '0 0 0 3px rgba(239,68,68,0.12)' } : undefined}
+              />
+              <small style={{ color: customValid ? 'var(--gray-400)' : 'var(--danger)', fontSize: '0.7rem', display: 'block', marginTop: 4 }}>
+                {customValid ? t('minute15Intervals') : t('multipleOf15')}
+              </small>
+            </div>
+            <div className="form-group">
+              <label className="form-label">{t('priceUzs')}</label>
+              <input
+                type="text" inputMode="numeric" className="form-input"
+                value={customPrice ? formatUZS(customPrice) : ''}
+                onChange={e => setCustomPrice(Number(e.target.value.replace(/\D/g, '')) || 0)}
+                onFocus={e => e.currentTarget.select()}
+                placeholder="0"
+              />
+              <small style={{ color: 'var(--gray-400)', fontSize: '0.7rem', display: 'block', marginTop: 4 }}>{t('setOneOffPrice')}</small>
+            </div>
           </div>
-          <div className="form-group">
-            <label className="form-label">{t('priceUzs')}</label>
-            <input
-              type="text" inputMode="numeric" className="form-input"
-              value={customPrice ? formatUZS(customPrice) : ''}
-              onChange={e => setCustomPrice(Number(e.target.value.replace(/\D/g, '')) || 0)}
-              onFocus={e => e.currentTarget.select()}
-              placeholder="0"
-            />
-            <small style={{ color: 'var(--gray-400)', fontSize: '0.7rem', display: 'block', marginTop: 4 }}>{t('setOneOffPrice')}</small>
-          </div>
-        </div>
-      )}
-
-      {planReady && (
-        <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
-          <button type="button" className="btn btn-primary" onClick={() => setStep(4)}>{t('continueBtn')}</button>
-        </div>
+        </>
       )}
       </>)}
     </div>

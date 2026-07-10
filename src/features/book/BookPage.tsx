@@ -3,16 +3,13 @@
 import { useTranslation } from '@/i18n'
 import { useBookingWizard } from './useBookingWizard'
 import { StepIndicator } from './components/StepIndicator'
-import { HotelStep } from './components/HotelStep'
-import { ServiceStep } from './components/ServiceStep'
-import { PlanStep } from './components/PlanStep'
-import { DateTimeStep } from './components/DateTimeStep'
-import { ConfirmStep } from './components/ConfirmStep'
+import { SelectStep } from './components/SelectStep'
+import { ReviewStep } from './components/ReviewStep'
 
 export default function BookPage() {
   const { t } = useTranslation()
   const w = useBookingWizard()
-  const { step, selectedHotelId, handleSubmit } = w
+  const { step } = w
 
   return (
     <div style={{ width: '100%' }}>
@@ -25,13 +22,8 @@ export default function BookPage() {
 
       <StepIndicator step={step} />
 
-      <form onSubmit={handleSubmit}>
-        {step === 1 && <HotelStep w={w} />}
-        {step === 2 && selectedHotelId && <ServiceStep w={w} />}
-        {step === 3 && <PlanStep w={w} />}
-        {step === 4 && <DateTimeStep w={w} />}
-        {step === 5 && <ConfirmStep w={w} />}
-      </form>
+      {step === 1 && <SelectStep w={w} />}
+      {step === 2 && <ReviewStep w={w} />}
     </div>
   )
 }

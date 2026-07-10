@@ -14,6 +14,10 @@ import {
 } from './types'
 import { serviceAvailableToHotel, extractHotelId, generateTimeSlots, slotEnd } from './utils'
 
+// Sentinel category value meaning "client has no group" — maps to `groupId=none`
+// server-side. There's no configured pricing for it, so price/duration are manual.
+export const UNGROUPED = 'none'
+
 export function useBookingWizard() {
   const { showToast } = useToast()
   const router = useRouter()
@@ -25,26 +29,28 @@ export function useBookingWizard() {
   const [hotels, setHotels] = useState<Hotel[]>([])
   const [clientGroups, setClientGroups] = useState<ClientGroup[]>([])
 
+  // Only two macro steps: 1 = select everything, 2 = review & confirm.
   const [step, setStep] = useState(1)
+
   const [selectedHotelId, setSelectedHotelId] = useState<string | null>(null)
   const [selectedService, setSelectedService] = useState<Service | null>(null)
   // Chosen configuration of the service (e.g. "Half pool"). null when the
   // service has no variants — pricing then comes from the service itself.
   const [selectedVariant, setSelectedVariant] = useState<ServiceVariant | null>(null)
 
-  // Plan step
+  // Plan section
   const [bookingType, setBookingType] = useState<BookingType | null>(null)
-  const [selectedCategory, setSelectedCategory] = useState('') // client group _id OR room type
+  const [selectedCategory, setSelectedCategory] = useState('') // client group _id, UNGROUPED, or room type
   const [selectedPlan, setSelectedPlan] = useState<PricingPlan | null>(null)
   const [customDuration, setCustomDuration] = useState(60)
   const [customPrice, setCustomPrice] = useState(0)
 
-  // When step
+  // Date & time
   const [date, setDate] = useState(searchParams.get('date') || nowUZ().toISOString().split('T')[0])
   const [selectedSlot, setSelectedSlot] = useState(searchParams.get('time') || '')
   const [dayBookings, setDayBookings] = useState<DayBooking[]>([])
 
-  // Confirm step
+  // Guest / room details
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null)
   const [selectedRoomId, setSelectedRoomId] = useState('')
   const [customerName, setCustomerName] = useState('')
@@ -57,6 +63,11 @@ export function useBookingWizard() {
   // Client search (client booking type)
   const [clientSearch, setClientSearch] = useState('')
   const [clientResults, setClientResults] = useState<Client[]>([])
+
+  // Add-client modal
+  const [addClientModalOpen, setAddClientModalOpen] = useState(false)
+  const [addClientForm, setAddClientForm] = useState({ name: '', phone: '', notes: '' })
+  const [savingNewClient, setSavingNewClient] = useState(false)
 
   const preServiceId = searchParams.get('serviceId')
 
@@ -79,12 +90,10 @@ export function useBookingWizard() {
           const hid = extractHotelId(found.hotelId)
           if (hid) setSelectedHotelId(hid)
           setSelectedService(found)
-          setStep(3)
         }
       } else if (htlList.length === 1) {
-        // Admins are scoped to a single hotel — skip the hotel-picker step.
+        // Admins are scoped to a single hotel — auto-select, no picker shown.
         setSelectedHotelId(htlList[0]._id)
-        setStep(2)
       }
     })
   }, [preServiceId])
@@ -102,9 +111,9 @@ export function useBookingWizard() {
       })
   }, [selectedService, date])
 
-  // Search clients within the chosen group (client booking type)
+  // Search clients within the chosen group (client booking type), including "ungrouped".
   useEffect(() => {
-    if (step !== 5 || bookingType !== 'client' || !selectedCategory) return
+    if (bookingType !== 'client' || !selectedCategory) return
     const timer = setTimeout(async () => {
       try {
         const data = await getClients(selectedCategory, clientSearch.trim())
@@ -114,7 +123,7 @@ export function useBookingWizard() {
       }
     }, 200)
     return () => clearTimeout(timer)
-  }, [step, bookingType, selectedCategory, clientSearch])
+  }, [bookingType, selectedCategory, clientSearch])
 
   // ── Derived ────────────────────────────────────────────────────────────────
 
@@ -143,6 +152,11 @@ export function useBookingWizard() {
   const roomCats = (pricingSource?.pricingGroups ?? [])
     .filter(g => g.target === 'room' && g.rows.length > 0)
 
+  // "Ungrouped" (shown to the guest as "Custom") clients have no configured
+  // pricing group, so duration/price are entered manually.
+  const isUngroupedClient = bookingType === 'client' && selectedCategory === UNGROUPED
+  const usingManualPrice = isUngroupedClient
+
   const activeGroup = bookingType === 'client'
     ? clientCats.find(g => g.category === selectedCategory)
     : bookingType === 'room'
@@ -150,11 +164,13 @@ export function useBookingWizard() {
       : undefined
   const planRows = activeGroup?.rows ?? []
 
-  const activePlan: PricingPlan | null = bookingType === 'custom'
+  const activePlan: PricingPlan | null = usingManualPrice
     ? { duration: customDuration, price: customPrice }
     : selectedPlan
 
-  const categoryMeta = activeGroup ? resolveGroupMeta(activeGroup) : null
+  const categoryMeta = isUngroupedClient
+    ? { label: t('typeCustom'), color: 'var(--gray-400)' }
+    : activeGroup ? resolveGroupMeta(activeGroup) : null
 
   // Rooms of the chosen category in the selected hotel (room booking type)
   const categoryRooms = rooms.filter(r => r.hotelId === selectedHotelId && (r.type || '') === selectedCategory)
@@ -167,7 +183,15 @@ export function useBookingWizard() {
 
   const customValid = customDuration >= 15 && customDuration % 15 === 0
   const planReady = (!hasVariants || !!selectedVariant) &&
-    (bookingType === 'custom' ? customValid : !!(selectedCategory && selectedPlan))
+    (usingManualPrice ? customValid : !!(selectedCategory && selectedPlan))
+
+  // Whether guest/room details satisfy what's needed to move to review.
+  // Client: needs a name (picked or typed). Room: needs a specific room picked.
+  const guestReady = bookingType === 'client'
+    ? !!customerName.trim()
+    : !!selectedRoomId
+
+  const canReview = !!(selectedService && activePlan && selectedSlot && date && planReady && guestReady)
 
   // ── Actions ────────────────────────────────────────────────────────────────
 
@@ -175,13 +199,11 @@ export function useBookingWizard() {
     setSelectedHotelId(id)
     setSelectedService(null)
     resetPlan()
-    setStep(2)
   }
 
   function chooseService(svc: Service) {
     setSelectedService(svc)
     resetPlan()
-    setStep(3)
   }
 
   function resetPlan() {
@@ -210,16 +232,18 @@ export function useBookingWizard() {
     setSelectedCategory('')
     setSelectedPlan(null)
     setSelectedSlot('')
-    if (type === 'custom') {
-      setCustomDuration(selectedService?.slotDuration || 60)
-      setCustomPrice(selectedService?.isFree ? 0 : (selectedService?.price || 0))
-    }
+    resetGuest()
   }
 
   function chooseCategory(cat: string) {
     setSelectedCategory(cat)
     setSelectedPlan(null)
     setSelectedSlot('')
+    if (cat === UNGROUPED) {
+      setCustomDuration(selectedService?.slotDuration || 60)
+      setCustomPrice(selectedService?.isFree ? 0 : (selectedService?.price || 0))
+    }
+    resetGuest()
   }
 
   function resetGuest() {
@@ -239,14 +263,70 @@ export function useBookingWizard() {
     if (c.roomNumber) setRoomNumber(c.roomNumber)
   }
 
+  function clearClient() {
+    setSelectedClientId(null)
+    setCustomerName('')
+    setCustomerPhone('')
+    setRoomNumber('')
+    setClientSearch('')
+  }
+
   function pickRoom(r: Room) {
     setSelectedRoomId(r._id)
     setRoomNumber(roomLabel(r))
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  // ── Add-client modal ─────────────────────────────────────────────────────
+
+  function openAddClientModal() {
+    setAddClientForm({ name: clientSearch.trim(), phone: '', notes: '' })
+    setAddClientModalOpen(true)
+  }
+
+  function closeAddClientModal() {
+    setAddClientModalOpen(false)
+    setAddClientForm({ name: '', phone: '', notes: '' })
+  }
+
+  async function submitAddClient(e: React.FormEvent) {
     e.preventDefault()
-    if (!selectedService || !selectedSlot || !customerName.trim() || !date || !activePlan) return
+    if (!addClientForm.name.trim()) return
+    setSavingNewClient(true)
+    try {
+      const res = await fetch('/api/clients', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: addClientForm.name.trim(),
+          phone: addClientForm.phone.trim(),
+          notes: addClientForm.notes.trim(),
+          groupId: selectedCategory === UNGROUPED ? null : selectedCategory,
+        }),
+      })
+      if (!res.ok) throw new Error()
+      const created = await res.json()
+      pickClient(created)
+      setClientResults(prev => [created, ...prev])
+      showToast(t('clientAdded'), 'success')
+      closeAddClientModal()
+    } catch {
+      showToast(t('saveClientFailed'), 'error')
+    } finally {
+      setSavingNewClient(false)
+    }
+  }
+
+  // ── Submit ────────────────────────────────────────────────────────────────
+
+  function goToReview() {
+    if (!canReview) return
+    setStep(2)
+  }
+
+  async function confirmBooking() {
+    if (!selectedService || !selectedSlot || !date || !activePlan) return
+    // Room bookings without an explicit name fall back to the room label.
+    const finalName = customerName.trim() || (bookingType === 'room' ? roomNumber : t('guest'))
 
     setLoading(true)
     try {
@@ -254,7 +334,7 @@ export function useBookingWizard() {
       await createBooking({
         serviceId: selectedService._id,
         clientId: selectedClientId,
-        customerName: customerName.trim(),
+        customerName: finalName,
         customerPhone: customerPhone.trim(),
         roomNumber: roomNumber.trim(),
         date,
@@ -283,28 +363,32 @@ export function useBookingWizard() {
     // collections
     hotels, clientGroups,
     // wizard position
-    step, setStep,
-    selectedHotelId, selectedService,
+    step, setStep, goToReview, canReview,
+    selectedHotelId, selectedService, chooseHotel,
     // variant
     selectedVariant, hasVariants, chooseVariant,
     // plan
     bookingType, selectedCategory, selectedPlan, setSelectedPlan,
     customDuration, setCustomDuration, customPrice, setCustomPrice,
+    isUngroupedClient, usingManualPrice,
     // when
     date, setDate, selectedSlot, setSelectedSlot, dayBookings,
-    // confirm
+    // guest / room
     selectedClientId, setSelectedClientId, selectedRoomId,
     customerName, setCustomerName, customerPhone, setCustomerPhone,
     roomNumber, setRoomNumber, notes, setNotes, paid, setPaid, loading,
-    clientSearch, setClientSearch, clientResults,
+    clientSearch, setClientSearch, clientResults, clearClient,
+    // add-client modal
+    addClientModalOpen, addClientForm, setAddClientForm, savingNewClient,
+    openAddClientModal, closeAddClientModal, submitAddClient,
     // derived
     hotelServices, clientCats, roomCats, planRows, activePlan,
-    categoryMeta, categoryRooms, timeSlots, customValid, planReady,
+    categoryMeta, categoryRooms, timeSlots, customValid, planReady, guestReady,
     // helpers
     resolveGroupMeta, roomLabel,
     // actions
-    chooseHotel, chooseService, chooseType, chooseCategory,
-    pickClient, pickRoom, handleSubmit,
+    chooseService, chooseType, chooseCategory,
+    pickClient, pickRoom, confirmBooking,
   }
 }
 

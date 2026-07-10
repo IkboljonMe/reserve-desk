@@ -116,7 +116,7 @@ export function RoomsSection({ s }: { s: HotelsRoomsPageState }) {
                     }}>
                       <Layers size={11} /> {t('floor')} {floor}
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 1, background: 'var(--gray-200)' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: 1, background: 'var(--gray-200)' }}>
                       {hotelRooms.filter(r => r.floor === floor).map(room => {
                         const isDragging = draggingRoomId === room._id
                         return (
@@ -131,7 +131,7 @@ export function RoomsSection({ s }: { s: HotelsRoomsPageState }) {
                             transition: 'opacity 0.15s ease',
                           }}
                         >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minWidth: 0 }}>
                             <span
                               draggable
                               onDragStart={e => { setDraggingRoomId(room._id); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', room._id) }}
@@ -152,8 +152,8 @@ export function RoomsSection({ s }: { s: HotelsRoomsPageState }) {
                             }}>
                               <DoorClosed size={16} />
                             </span>
-                            <div style={{ minWidth: 0 }}>
-                              <div style={{ fontWeight: 700, color: 'var(--gray-800)', fontSize: '0.9375rem' }} className="tabular-nums">
+                            <div style={{ minWidth: 0, overflow: 'hidden' }}>
+                              <div style={{ fontWeight: 700, color: 'var(--gray-800)', fontSize: '0.9375rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} className="tabular-nums">
                                 {displayCode(hotel)}-{room.number}
                                 {room.type && (
                                   <span style={{ marginLeft: 8, fontSize: '0.7rem', fontWeight: 600, color: 'var(--brand-600)', background: 'var(--brand-50)', padding: '2px 6px', borderRadius: 6, verticalAlign: 'middle' }}>

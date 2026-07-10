@@ -6,14 +6,11 @@ import { useTranslation } from '@/i18n'
 export function StepIndicator({ step }: { step: number }) {
   const { t } = useTranslation()
   const steps = [
-    { n: 1, label: t('hotel') },
-    { n: 2, label: t('service') },
-    { n: 3, label: t('stepPlan') },
-    { n: 4, label: t('stepDateTime') },
-    { n: 5, label: t('stepConfirm') },
+    { n: 1, label: t('stepSelect') },
+    { n: 2, label: t('stepReview') },
   ]
   return (
-    <div style={{ display: 'flex', gap: 8, marginBottom: '1.75rem' }}>
+    <div style={{ display: 'flex', gap: 8, marginBottom: '1.75rem', maxWidth: 420 }}>
       {steps.map(({ n, label }) => (
         <div key={n} style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1 }}>
           <div style={{
@@ -29,7 +26,7 @@ export function StepIndicator({ step }: { step: number }) {
             color: step === n ? 'var(--gray-800)' : 'var(--gray-400)',
             whiteSpace: 'nowrap',
           }}>{label}</span>
-          {n < 5 && <div style={{ flex: 1, height: 2, background: step > n ? 'var(--brand-500)' : 'var(--gray-200)', borderRadius: 1 }} />}
+          {n < 2 && <div style={{ flex: 1, height: 2, background: step > n ? 'var(--brand-500)' : 'var(--gray-200)', borderRadius: 1 }} />}
         </div>
       ))}
     </div>

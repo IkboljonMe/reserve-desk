@@ -57,7 +57,7 @@ export interface Client {
   floor: number
 }
 
-export type BookingType = 'client' | 'room' | 'custom'
+export type BookingType = 'client' | 'room'
 
 export interface DayBooking {
   startTime: string

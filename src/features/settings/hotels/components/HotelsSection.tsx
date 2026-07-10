@@ -7,7 +7,7 @@ import type { HotelsRoomsPageState } from '../useHotelsRoomsPage'
 
 export function HotelsSection({ s }: { s: HotelsRoomsPageState }) {
   const { t } = useTranslation()
-  const { hotels, loading, seeding, handleSeed, openHotelModal, openEditHotel, roomsByHotel, hotelDeleteConfirm, setHotelDeleteConfirm, handleDeleteHotel } = s
+  const { hotels, loading, openHotelModal, openEditHotel, roomsByHotel, hotelDeleteConfirm, setHotelDeleteConfirm, handleDeleteHotel } = s
 
   return (
     <section>
@@ -21,9 +21,6 @@ export function HotelsSection({ s }: { s: HotelsRoomsPageState }) {
           </p>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
-          <button className="btn btn-secondary" onClick={handleSeed} disabled={seeding}>
-            {seeding ? t('seedingData') : t('seedDemoData')}
-          </button>
           <button className="btn btn-primary" onClick={openHotelModal}>
             <Plus size={15} strokeWidth={2.5} /> {t('addHotel')}
           </button>

@@ -7,7 +7,7 @@ export function ClientModal({ s }: { s: ClientsPageState }) {
   const { t } = useTranslation()
   const {
     modalOpen, editClient, closeModal, handleSave, saving,
-    form, setForm, modalGroups, floorGroups, rooms, roomLabel, handleRoomChange,
+    form, setForm, modalGroups,
   } = s
   if (!modalOpen) return null
 
@@ -43,37 +43,6 @@ export function ClientModal({ s }: { s: ClientsPageState }) {
                   {t('noGroupsYet')}
                 </p>
               )}
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <div className="form-group">
-                <label className="form-label">{t('roomNumberField')}</label>
-                <select
-                  className="form-select"
-                  value={form.roomNumber}
-                  onChange={e => handleRoomChange(e.target.value)}
-                >
-                  <option value="">{t('noRoom')}</option>
-                  {floorGroups.map(floor => (
-                    <optgroup key={floor} label={`${t('floor')} ${floor}`}>
-                      {rooms.filter(r => r.floor === floor).map(r => (
-                        <option key={r._id} value={roomLabel(r)}>{roomLabel(r)}</option>
-                      ))}
-                    </optgroup>
-                  ))}
-                </select>
-              </div>
-              <div className="form-group">
-                <label className="form-label">{t('floor')}</label>
-                <input
-                  className="form-input"
-                  type="number"
-                  min={0}
-                  value={form.floor}
-                  onChange={e => setForm(f => ({ ...f, floor: parseInt(e.target.value) || 0 }))}
-                  placeholder="1"
-                />
-              </div>
             </div>
 
             <div className="form-group">

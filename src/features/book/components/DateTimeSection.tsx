@@ -4,22 +4,16 @@ import { Clock } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import { nowUZ } from '@/lib/timezone'
 import { formatDuration, toMin } from '../utils'
-import { BackButton } from './BackButton'
-import { ContextBar } from './ContextBar'
 import type { BookingWizard } from '../useBookingWizard'
 
-export function DateTimeStep({ w }: { w: BookingWizard }) {
+export function DateTimeSection({ w }: { w: BookingWizard }) {
   const { t } = useTranslation()
-  const { selectedService, activePlan, date, setDate, selectedSlot, setSelectedSlot, timeSlots, dayBookings, setStep } = w
-  if (!selectedService || !activePlan) return null
+  const { selectedService, activePlan, planReady, guestReady, date, setDate, selectedSlot, setSelectedSlot, timeSlots, dayBookings } = w
+  if (!selectedService || !activePlan || !planReady || !guestReady) return null
 
   return (
     <div className="card" style={{ animation: 'slideInRight 0.3s ease-out' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: '1.25rem' }}>
-        <BackButton to={3} onBack={setStep} />
-        <h2 style={{ margin: 0 }}>{t('pickDateTime')}</h2>
-      </div>
-      <ContextBar w={w} />
+      <h2 style={{ marginBottom: '1.25rem' }}>{t('pickDateTime')}</h2>
 
       <div className="form-group" style={{ marginBottom: '1.25rem', maxWidth: 240 }}>
         <label className="form-label">{t('date')}</label>
@@ -73,12 +67,6 @@ export function DateTimeStep({ w }: { w: BookingWizard }) {
               </button>
             )
           })}
-        </div>
-      )}
-
-      {selectedSlot && (
-        <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
-          <button type="button" className="btn btn-primary" onClick={() => setStep(5)}>Continue →</button>
         </div>
       )}
     </div>

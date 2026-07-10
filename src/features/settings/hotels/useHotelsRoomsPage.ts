@@ -49,26 +49,6 @@ export function useHotelsRoomsPage() {
     }
   }, [showToast, t])
 
-  const [seeding, setSeeding] = useState(false)
-
-  async function handleSeed() {
-    setSeeding(true)
-    try {
-      const res = await fetch('/api/seed', { method: 'POST' })
-      const data = await res.json()
-      if (res.ok) {
-        showToast(t('dbSeeded'), 'success')
-        load()
-      } else {
-        showToast(data.error || t('seedFailed'), 'error')
-      }
-    } catch {
-      showToast(t('seedConnectionError'), 'error')
-    } finally {
-      setSeeding(false)
-    }
-  }
-
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { load() }, [load])
   useEffect(() => { roomsRef.current = rooms }, [rooms])
@@ -305,7 +285,7 @@ export function useHotelsRoomsPage() {
   )
 
   return {
-    hotels, rooms, loading, seeding, handleSeed,
+    hotels, rooms, loading,
     // hotel modal
     hotelOpen, setHotelOpen, editHotelId, hotelForm, setHotelForm, savingHotel,
     hotelDeleteConfirm, setHotelDeleteConfirm, roomCategoryInput, setRoomCategoryInput,
