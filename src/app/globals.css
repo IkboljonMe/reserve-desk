@@ -349,6 +349,14 @@ p  { color: var(--gray-500); text-wrap: pretty; }
   padding: 1rem;
   animation: fadeIn 0.18s ease;
 }
+/* Exit — applied by useModalExit() right before unmount */
+.modal-overlay.is-closing {
+  animation: fadeOut 0.16s ease forwards;
+  pointer-events: none;
+}
+.modal-overlay.is-closing .modal {
+  animation: modalOut 0.16s ease forwards;
+}
 .modal {
   background: var(--surface-card);
   border: 1px solid var(--surface-border);
@@ -394,6 +402,8 @@ p  { color: var(--gray-500); text-wrap: pretty; }
 .toast-success { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
 .toast-error   { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
 .toast-info    { background: var(--brand-50); color: var(--brand-700); border: 1px solid var(--brand-100); }
+/* Exit — ToastProvider flags the toast shortly before removing it */
+.toast.toast-leaving { animation: toastOut 0.22s ease forwards; }
 
 /* ─── Color Pill Picker ─────────────────────────── */
 .color-swatch {
