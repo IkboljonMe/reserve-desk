@@ -3,6 +3,7 @@ import { connectDB } from '@/lib/mongodb'
 import { Booking } from '@/models/Booking'
 import { Service } from '@/models/Service'
 import { requireDashboard } from '@/lib/session'
+import { hoursForDate } from '@/lib/serviceHours'
 import { notifyNewBooking } from '@/lib/telegram'
 
 // Fields kept when a booking on a shared service belongs to another hotel: the
@@ -119,6 +120,11 @@ export async function POST(req: NextRequest) {
     // may be a different, sharing hotel).
     const bookingHotelId = ownerHotelId
     const bookedByHotelId = session.role === 'owner' ? ownerHotelId : session.hotelId
+
+    // The service must be open on the requested date (weekday schedule / blackout).
+    if (hoursForDate(service, date).closed) {
+      return Response.json({ error: 'The service is closed on this date' }, { status: 409 })
+    }
 
     // Resolve the chosen variant from the service (authoritative name snapshot).
     const variant = variantId ? (service.variants ?? []).find(v => v.id === variantId) : null

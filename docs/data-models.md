@@ -28,6 +28,12 @@ The bookable resource. Key fields:
 - Ownership: `hotelId` (owner) + `sharedHotelIds[]` (other hotels that may book
   the same single resource).
 - Hours: `openTime`/`closeTime` (`"HH:mm"`), `slotDuration`.
+  - `weeklyHours: { day (0=Sun…6=Sat), open, close, closed }[]` — per‑weekday
+    overrides. Empty means the flat `openTime`/`closeTime` apply every day.
+  - `blackoutDates: "YYYY-MM-DD"[]` — specific dates the service is fully closed.
+  - `src/lib/serviceHours.ts` (`hoursForDate`) resolves these into one
+    `{ open, close, closed }` per date, used by both booking validation and slot
+    generation. See [booking-and-availability.md](./booking-and-availability.md).
 - Capacity & buffers: `capacity` (how many can be booked concurrently — **note:
   the availability check currently treats this as 1**), `bufferTimeBefore`,
   `bufferTimeAfter` (prep/cleaning minutes reserved around each booking).

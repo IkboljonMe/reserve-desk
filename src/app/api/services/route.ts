@@ -4,6 +4,7 @@ import { Service } from '@/models/Service'
 import '@/models/Hotel'
 import { getSession, requireOwner } from '@/lib/session'
 import { sanitizeVariants } from '@/lib/serviceVariants'
+import { sanitizeWeeklyHours, sanitizeBlackoutDates } from '@/lib/serviceHours'
 import { ensureTopicForService } from '@/lib/telegram'
 
 export async function GET() {
@@ -44,6 +45,8 @@ export async function POST(req: NextRequest) {
       hotelId: hotelId || null,
       sharedHotelIds: shared,
       openTime, closeTime,
+      weeklyHours: sanitizeWeeklyHours(body.weeklyHours),
+      blackoutDates: sanitizeBlackoutDates(body.blackoutDates),
       slotDuration: Number(slotDuration) || 60,
       capacity: Number(capacity) || 1,
       price: Number(price) || 0,

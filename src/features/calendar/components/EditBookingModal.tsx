@@ -5,6 +5,7 @@ import { X, CalendarDays, Clock, User, Phone, MapPin, Users, FileText } from 'lu
 import { useTranslation } from '@/i18n'
 import { getBookings } from '@/lib/api/bookings'
 import { generateTimeSlots, slotEnd, toMin } from '@/features/book/utils'
+import { hoursForDate } from '@/lib/serviceHours'
 import type { Booking } from '@/types'
 import type { CalendarPageState } from '../useCalendarPage'
 
@@ -51,15 +52,19 @@ export function EditBookingModal({ s }: { s: CalendarPageState }) {
   const bufBefore = service?.bufferTimeBefore || 0
   const bufAfter = service?.bufferTimeAfter || 0
   const capacity = service?.capacity || 1
-  const allSlots = generateTimeSlots(service?.openTime || '00:00', service?.closeTime || '23:59', duration)
+  const dayHours = service ? hoursForDate(service, date) : { open: '00:00', close: '23:59', closed: false }
+  const allSlots = dayHours.closed ? [] : generateTimeSlots(dayHours.open, dayHours.close, duration)
   const freeSlots = allSlots.filter(slot => {
     const start = toMin(slot)
     const end = start + duration
     const overlaps = dayBookings.filter(x => toMin(x.startTime) < end + bufAfter && toMin(x.endTime) > start - bufBefore).length
     return overlaps < capacity
   })
-  // Always keep the booking's current start time selectable.
-  const startOptions = startTime && !freeSlots.includes(startTime) ? [startTime, ...freeSlots] : freeSlots
+  // Always keep the booking's current start time selectable (unless the day is
+  // closed, in which case nothing is bookable).
+  const startOptions = dayHours.closed
+    ? []
+    : startTime && !freeSlots.includes(startTime) ? [startTime, ...freeSlots] : freeSlots
 
   const endTime = startTime ? slotEnd(startTime, duration) : b.endTime
   const changed =
@@ -101,8 +106,8 @@ export function EditBookingModal({ s }: { s: CalendarPageState }) {
             </div>
             <div className="form-group" style={{ flex: 1 }}>
               <label className="form-label"><Clock size={13} /> {t('time')}</label>
-              <select className="form-select" value={startTime} onChange={e => setStartTime(e.target.value)}>
-                {startOptions.length === 0 && <option value="">{t('noSlotsAvailable')}</option>}
+              <select className="form-select" value={startTime} onChange={e => setStartTime(e.target.value)} disabled={dayHours.closed}>
+                {startOptions.length === 0 && <option value="">{dayHours.closed ? t('serviceClosedOnDate') : t('noSlotsAvailable')}</option>}
                 {startOptions.map(slot => (
                   <option key={slot} value={slot}>{slot} – {slotEnd(slot, duration)}</option>
                 ))}
@@ -144,7 +149,7 @@ export function EditBookingModal({ s }: { s: CalendarPageState }) {
         <div className="divider" />
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
           <button className="btn btn-secondary" onClick={close}>{t('cancel')}</button>
-          <button className="btn btn-primary" disabled={saving || !changed || !startTime} onClick={save}>
+          <button className="btn btn-primary" disabled={saving || !changed || !startTime || dayHours.closed} onClick={save}>
             {saving ? <span className="spinner" /> : null}{t('saveChanges')}
           </button>
         </div>

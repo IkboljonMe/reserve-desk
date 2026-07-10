@@ -3,6 +3,7 @@ import { connectDB } from '@/lib/mongodb'
 import { Booking } from '@/models/Booking'
 import { Service } from '@/models/Service'
 import { requireDashboard, bookingIdScope } from '@/lib/session'
+import { hoursForDate } from '@/lib/serviceHours'
 import { notifyBookingUpdated } from '@/lib/telegram'
 
 const pad = (n: number) => n.toString().padStart(2, '0')
@@ -106,6 +107,9 @@ export async function PUT(req: NextRequest, ctx: RouteContext<'/api/bookings/[id
     const moved = newDate !== current.date || newStart !== current.startTime || newEnd !== current.endTime || newDuration !== current.duration
     if (moved) {
       const service = await Service.findById(current.serviceId).lean()
+      if (service && hoursForDate(service, newDate).closed) {
+        return Response.json({ error: 'The service is closed on this date' }, { status: 409 })
+      }
       const bufBefore = service?.bufferTimeBefore || 0
       const bufAfter = service?.bufferTimeAfter || 0
       const capacity = service?.capacity || 1

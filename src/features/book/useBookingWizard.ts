@@ -13,6 +13,7 @@ import {
   Service, ServiceVariant, Room, Hotel, ClientGroup, Client, PricingPlan, PricingGroup, BookingType, DayBooking,
 } from './types'
 import { serviceAvailableToHotel, extractHotelId, generateTimeSlots, slotEnd, toMin } from './utils'
+import { hoursForDate } from '@/lib/serviceHours'
 
 // Sentinel category value meaning "client has no group" — maps to `groupId=none`
 // server-side. There's no configured pricing for it, so price/duration are manual.
@@ -171,10 +172,14 @@ export function useBookingWizard() {
       : undefined
   const planRows = activeGroup?.rows ?? []
 
+  // The service's effective hours for the chosen date (per-weekday schedule /
+  // blackout dates collapse to one open/close window, or "closed").
+  const dayHours = selectedService ? hoursForDate(selectedService, date) : null
+  const closedOnDate = !!dayHours?.closed
   // Opening window (minutes), how many whole hours fit, and the per-hour rate
   // derived from the selected row (a row priced for its own duration).
-  const openMin = selectedService ? toMin(selectedService.openTime) : 0
-  const closeMin = selectedService ? toMin(selectedService.closeTime) : 0
+  const openMin = dayHours ? toMin(dayHours.open) : 0
+  const closeMin = dayHours ? toMin(dayHours.close) : 0
   const dayMinutes = Math.max(0, closeMin - openMin)
   const maxHours = Math.max(1, Math.floor(dayMinutes / 60))
   const ratePerHour = selectedRate ? Math.round(selectedRate.price / Math.max(1, selectedRate.duration / 60)) : 0
@@ -198,8 +203,8 @@ export function useBookingWizard() {
 
   const roomLabel = (r: Room) => `${hotels.find(h => h._id === r.hotelId)?.shortName || '??'}-${r.number}`
 
-  const timeSlots = selectedService && activePlan
-    ? generateTimeSlots(selectedService.openTime, selectedService.closeTime, activePlan.duration)
+  const timeSlots = selectedService && activePlan && dayHours && !closedOnDate
+    ? generateTimeSlots(dayHours.open, dayHours.close, activePlan.duration)
     : []
 
   // Only the start times where the whole booking fits without colliding with an
@@ -444,7 +449,7 @@ export function useBookingWizard() {
     customDuration, setCustomDuration, customPrice, setCustomPrice,
     isUngroupedClient, usingManualPrice,
     // when
-    date, setDate, selectedSlot, setSelectedSlot, dayBookings, availableSlots,
+    date, setDate, selectedSlot, setSelectedSlot, dayBookings, availableSlots, closedOnDate,
     // guest / room
     selectedClientId, setSelectedClientId, selectedRoomId,
     customerName, setCustomerName, customerPhone, setCustomerPhone,

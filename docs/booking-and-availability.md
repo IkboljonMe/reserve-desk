@@ -25,11 +25,24 @@ Two macro steps (`step` 1 = select, 2 = review):
 `startTime`, `endTime`, `duration`, `totalPrice`, guest fields, `bookingType`,
 `category`, `variantId`.
 
+## Opening hours per date
+
+The service's window for the chosen **date** comes from
+`src/lib/serviceHours.ts › hoursForDate(service, date)`:
+
+1. If `date` is in `blackoutDates` → **closed**.
+2. Else if `weeklyHours` has an entry for that weekday → use it (which may itself
+   be `closed`, or carry its own open/close).
+3. Else fall back to the flat `openTime`/`closeTime`.
+
+When the result is `closed`, the wizard shows "closed on this date" and offers no
+slots. Otherwise the resolved `open`/`close` feed slot generation below.
+
 ## Time‑slot generation
 
-`utils.ts › generateTimeSlots(openTime, closeTime, duration)`:
+`utils.ts › generateTimeSlots(open, close, duration)` (fed the resolved hours):
 
-- Start at `openTime`, snapped up to the next 15‑minute boundary.
+- Start at `open`, snapped up to the next 15‑minute boundary.
 - Step by **15 minutes**; a slot is valid while `start + duration <= close`.
 - Returns the list of candidate **start** times.
 
@@ -69,7 +82,10 @@ Worked example (buffer = 15 min, existing booking 12:00–13:00):
 
 `POST /api/bookings` re‑derives the buffered window from the submitted
 `start/end` and rejects an overlapping booking, so a stale client snapshot can't
-double‑book. The client mirrors the same rule for the live UI.
+double‑book. It also rejects a booking whose date resolves to **closed**
+(`hoursForDate`). `PUT /api/bookings/[id]` runs both checks (overlap + closed) when
+a booking is rescheduled — see [dashboard-and-calendar.md](./dashboard-and-calendar.md).
+The client mirrors the same rules for the live UI.
 
 ## Known limitations (see the improvement backlog)
 

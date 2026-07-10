@@ -1,4 +1,4 @@
-import type { Service, PricingPlan, PricingGroup, ServiceVariant } from './types'
+import type { Service, PricingPlan, PricingGroup, ServiceVariant, DaySchedule } from './types'
 
 // Safely extract a plain-string hotel ID regardless of whether hotelId was
 // populated (object) or left as a raw ObjectId string.
@@ -19,6 +19,8 @@ export const DRAFT_KEY = 'add-service'
 export const EMPTY_FORM = {
   name: '', description: '', hotelId: '', sharedHotelIds: [] as string[], icon: 'Waves',
   openTime: '08:00', closeTime: '20:00',
+  weeklyHours: [] as DaySchedule[],
+  blackoutDates: [] as string[],
   slotDuration: 60, capacity: 1, color: '#6366f1',
   price: 0, isFree: false, details: '',
   bufferTimeBefore: 0, bufferTimeAfter: 0,

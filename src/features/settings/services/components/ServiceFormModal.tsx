@@ -8,6 +8,7 @@ import Select from '@/components/Select'
 import { InfoHint } from '@/components/ui/InfoHint'
 import { PRESET_COLORS, bufferError, selectAllOnFocus } from '../utils'
 import { PricingEditor } from './PricingEditor'
+import { ScheduleEditor } from './ScheduleEditor'
 import type { ServicesPageState } from '../useServicesPage'
 
 export function ServiceFormModal({ s }: { s: ServicesPageState }) {
@@ -163,6 +164,18 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
                   : <small style={{ color: 'var(--gray-400)', fontSize: '0.7rem', display: 'block', marginTop: 4 }}>{t('min15IntervalsShort')}</small>}
               </div>
             </div>
+
+            <ScheduleEditor
+              weeklyHours={form.weeklyHours}
+              blackoutDates={form.blackoutDates}
+              defaultOpen={form.openTime}
+              defaultClose={form.closeTime}
+              onChange={next => setForm(f => ({
+                ...f,
+                ...(next.weeklyHours !== undefined && { weeklyHours: next.weeklyHours }),
+                ...(next.blackoutDates !== undefined && { blackoutDates: next.blackoutDates }),
+              }))}
+            />
 
             <div className="form-group">
               <label className="form-label">{t('calendarColor')}<InfoHint text={t('calendarColorHint')} /></label>
