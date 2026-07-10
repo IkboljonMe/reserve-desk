@@ -30,6 +30,7 @@ export async function PUT(req: NextRequest, ctx: RouteContext<'/api/bookings/[id
   const current = await Booking.findOne(bookingIdScope(session, id))
   if (!current) return Response.json({ error: 'Not found' }, { status: 404 })
 
+  try {
   const now = new Date()
   const events: { action: string; at: Date; by: unknown }[] = []
   let paidChanged = false
@@ -87,6 +88,12 @@ export async function PUT(req: NextRequest, ctx: RouteContext<'/api/bookings/[id
   }
 
   return Response.json(booking)
+  } catch (err) {
+    // Surface a clean error instead of an unhandled 500 (e.g. a validation
+    // error on a legacy record, or a transient DB issue).
+    console.error(`Failed to update booking ${id}`, err)
+    return Response.json({ error: 'Failed to update booking' }, { status: 500 })
+  }
 }
 
 export async function DELETE(_req: NextRequest, ctx: RouteContext<'/api/bookings/[id]'>) {
