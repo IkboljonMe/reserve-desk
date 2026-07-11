@@ -1,6 +1,6 @@
 'use client'
 
-import { Search, X, Wallet, Building2 } from 'lucide-react'
+import { Search, X, Wallet, Building2, Layers, CheckCircle2, Tag } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import Dropdown from '@/components/ui/Dropdown'
 import Button from '@/components/ui/Button'
@@ -42,78 +42,96 @@ export function BookingsToolbar({ s }: { s: DashboardPageState }) {
         </div>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-        {/* Hotels */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
+        {/* 1. Hotels */}
         {hotels.length > 1 && (
-          <FilterGroup icon={<Building2 size={12} />} label={t('hotel')}>
-            <button className={`dash-pill ${allHotelsOn ? 'active' : ''}`} onClick={() => setFHotels(new Set())}>{t('all')}</button>
-            {hotels.map(h => (
-              <button key={h._id} className={`dash-pill ${fHotels.has(h._id) ? 'active' : ''}`}
-                onClick={() => setFHotels(prev => { const n = new Set(prev); if (n.has(h._id)) n.delete(h._id); else n.add(h._id); return n })}>{h.shortName}</button>
-            ))}
-          </FilterGroup>
+          <>
+            <FilterGroup icon={<Building2 size={12} />} label={t('hotel')}>
+              <button className={`dash-pill ${allHotelsOn ? 'active' : ''}`} onClick={() => setFHotels(new Set())}>{t('all')}</button>
+              {hotels.map(h => (
+                <button key={h._id} className={`dash-pill ${fHotels.has(h._id) ? 'active' : ''}`}
+                  onClick={() => setFHotels(prev => { const n = new Set(prev); if (n.has(h._id)) n.delete(h._id); else n.add(h._id); return n })}>{h.shortName}</button>
+              ))}
+            </FilterGroup>
+            <div className="dash-filter-divider" />
+          </>
         )}
-        {/* Payment */}
-        <div style={{ minWidth: 140 }}>
-          <Dropdown
-            value={fPayment}
-            onChange={val => setFPayment(val as PaymentFilter)}
-            options={[
-              { value: 'all', label: t('allPayments') },
-              { value: 'paid', label: t('paid') },
-              { value: 'unpaid', label: t('unpaid') },
-              { value: 'free', label: t('free') },
-            ]}
-            icon={<Wallet size={12} />}
-          />
-        </div>
 
-        {/* Type */}
-        <div style={{ minWidth: 120 }}>
-          <Dropdown
-            value={fType}
-            onChange={val => setFType(val as TypeFilter)}
-            options={[
-              { value: 'all', label: t('allTypes') },
-              { value: 'client', label: t('typeClient') },
-              { value: 'room', label: t('typeRoom') },
-              { value: 'custom', label: t('typeCustom') },
-            ]}
-          />
-        </div>
+        {/* 2. Payment */}
+        <FilterGroup icon={<Wallet size={12} />} label={t('payment')}>
+          <div style={{ minWidth: 160 }}>
+            <Dropdown
+              value={fPayment}
+              onChange={val => setFPayment(val as PaymentFilter)}
+              options={[
+                { value: 'all', label: t('allPayments') },
+                { value: 'paid', label: t('paid') },
+                { value: 'unpaid', label: t('unpaid') },
+                { value: 'free', label: t('free') },
+              ]}
+            />
+          </div>
+        </FilterGroup>
+        <div className="dash-filter-divider" />
 
-        {/* State */}
-        <div style={{ minWidth: 120 }}>
-          <Dropdown
-            value={fState}
-            onChange={val => setFState(val as StateFilter)}
-            options={[
-              { value: 'all', label: t('allStates') },
-              { value: 'active', label: t('active') },
-              { value: 'finished', label: t('finished') },
-            ]}
-          />
-        </div>
+        {/* 3. Type */}
+        <FilterGroup icon={<Layers size={12} />} label={t('type')}>
+          <div style={{ minWidth: 160 }}>
+            <Dropdown
+              value={fType}
+              onChange={val => setFType(val as TypeFilter)}
+              options={[
+                { value: 'all', label: t('allTypes') },
+                { value: 'client', label: t('typeClient') },
+                { value: 'room', label: t('typeRoom') },
+                { value: 'custom', label: t('typeCustom') },
+              ]}
+            />
+          </div>
+        </FilterGroup>
+        <div className="dash-filter-divider" />
+
+        {/* 4. Status */}
+        <FilterGroup icon={<CheckCircle2 size={12} />} label={t('status')}>
+          <div style={{ minWidth: 160 }}>
+            <Dropdown
+              value={fState}
+              onChange={val => setFState(val as StateFilter)}
+              options={[
+                { value: 'all', label: t('allStates') },
+                { value: 'active', label: t('active') },
+                { value: 'finished', label: t('finished') },
+              ]}
+            />
+          </div>
+        </FilterGroup>
+
+        {/* 5. Services */}
+        {services.length > 1 && (
+          <>
+            <div className="dash-filter-divider" />
+            <FilterGroup icon={<Tag size={12} />} label={t('services')}>
+              <button className={`dash-pill ${allServicesOn ? 'active' : ''}`} onClick={() => setFServices(new Set())}>{t('allServices')}</button>
+              {services.map(svc => (
+                <button key={svc._id} className="dash-pill" style={fServices.has(svc._id) ? { background: svc.color, color: '#fff', borderColor: 'transparent' } : {}}
+                  onClick={() => setFServices(prev => { const n = new Set(prev); if (n.has(svc._id)) n.delete(svc._id); else n.add(svc._id); return n })}>
+                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: fServices.has(svc._id) ? '#fff' : svc.color }} />{svc.name}
+                </button>
+              ))}
+            </FilterGroup>
+          </>
+        )}
+
         {activeFilterCount > 0 && (
-          <Button variant="ghost" size="md" leftIcon={<X size={13} />} style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}
-            onClick={clearFilters}>
-            {t('clear')}
-          </Button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <span style={{ fontSize: '0.7rem', visibility: 'hidden' }}>_</span>
+            <Button variant="ghost" size="md" leftIcon={<X size={13} />} style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}
+              onClick={clearFilters}>
+              {t('clear')}
+            </Button>
+          </div>
         )}
       </div>
-
-      {/* Service chips */}
-      {services.length > 1 && (
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-          <button className={`dash-pill ${allServicesOn ? 'active' : ''}`} onClick={() => setFServices(new Set())}>{t('allServices')}</button>
-          {services.map(svc => (
-            <button key={svc._id} className="dash-pill" style={fServices.has(svc._id) ? { background: svc.color, color: '#fff', borderColor: 'transparent' } : {}}
-              onClick={() => setFServices(prev => { const n = new Set(prev); if (n.has(svc._id)) n.delete(svc._id); else n.add(svc._id); return n })}>
-              <span style={{ width: 8, height: 8, borderRadius: '50%', background: fServices.has(svc._id) ? '#fff' : svc.color }} />{svc.name}
-            </button>
-          ))}
-        </div>
-      )}
     </div>
   )
 }

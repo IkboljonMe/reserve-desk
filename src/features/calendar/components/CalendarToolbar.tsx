@@ -13,16 +13,17 @@ export function CalendarToolbar({ s }: { s: CalendarPageState }) {
   const { navigate, setCurrentDate, headerLabel, view, setView, density, setDensity, goToCreate, currentDate } = s
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+    <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.75rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4, paddingBottom: 2 }}>
         <button className="cal-icon-btn" onClick={() => navigate(-1)} aria-label={t('previous')}><ChevronLeft size={16} /></button>
         <button className="cal-pill" onClick={() => setCurrentDate(new Date())} style={{ minWidth: 52, justifyContent: 'center' }}>{t('today')}</button>
         <button className="cal-icon-btn" onClick={() => navigate(1)} aria-label={t('next')}><ChevronRight size={16} /></button>
       </div>
-      <span style={{ fontWeight: 700, color: 'var(--gray-800)', fontSize: '1.0625rem', letterSpacing: '-0.01em' }}>{headerLabel}</span>
+      <span style={{ fontWeight: 700, color: 'var(--gray-800)', fontSize: '1.0625rem', letterSpacing: '-0.01em', paddingBottom: 2 }}>{headerLabel}</span>
 
       <div style={{ marginLeft: 'auto', minWidth: 110 }}>
         <Dropdown
+          label={t('view')}
           value={view}
           onChange={val => setView(val as ViewMode)}
           options={[
@@ -36,6 +37,7 @@ export function CalendarToolbar({ s }: { s: CalendarPageState }) {
       {view !== 'month' && (
         <div style={{ minWidth: 80 }}>
           <Dropdown
+            label={t('density')}
             value={density}
             onChange={val => setDensity(val as Density)}
             options={[
@@ -48,7 +50,7 @@ export function CalendarToolbar({ s }: { s: CalendarPageState }) {
       )}
 
       <Button variant="primary" size="md" leftIcon={<Plus size={14} strokeWidth={2.5} />} onClick={() => goToCreate(format(currentDate, 'yyyy-MM-dd'))}>
-        {t('newShort')}
+        {t('newBooking')}
       </Button>
     </div>
   )

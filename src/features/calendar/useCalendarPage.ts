@@ -8,6 +8,7 @@ import {
 } from 'date-fns'
 import { useToast } from '@/components/ToastProvider'
 import { useTranslation } from '@/i18n'
+import { dateLocale } from '@/lib/dateLocale'
 import { svcId, extractHotelId, bookingState, amountCollected } from '@/lib/bookingHelpers'
 import { Booking } from '@/types'
 import { useServicesQuery } from '@/hooks/useServices'
@@ -195,14 +196,15 @@ export function useCalendarPage() {
   const goToCreate = (dateStr: string, time?: string) =>
     router.push(`/${lang}/book?date=${dateStr}${time ? `&time=${time}` : ''}`)
 
+  const locale = dateLocale(lang)
   const headerLabel = view === 'day'
-    ? format(currentDate, 'EEEE, MMMM d, yyyy')
+    ? format(currentDate, 'EEEE, MMMM d, yyyy', { locale })
     : view === 'week'
       ? (() => {
         const start = startOfWeek(currentDate, { weekStartsOn: 1 })
-        return `${format(start, 'MMM d')} – ${format(addDays(start, 6), 'MMM d, yyyy')}`
+        return `${format(start, 'MMM d', { locale })} – ${format(addDays(start, 6), 'MMM d, yyyy', { locale })}`
       })()
-      : format(currentDate, 'MMMM yyyy')
+      : format(currentDate, 'MMMM yyyy', { locale })
 
   const allSelected = services.length > 0 && selectedServices.size === services.length
   const allHotelsSelected = hotels.length > 0 && selectedHotels.size === hotels.length

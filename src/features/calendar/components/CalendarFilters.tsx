@@ -16,7 +16,7 @@ export function CalendarFilters({ s }: { s: CalendarPageState }) {
         <Search size={14} style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)', color: 'var(--gray-400)', pointerEvents: 'none' }} />
         <input
           className="form-input"
-          style={{ paddingLeft: 32, paddingTop: 7, paddingBottom: 7, fontSize: '0.82rem' }}
+          style={{ paddingLeft: 32, paddingTop: 7, paddingBottom: 7, fontSize: '0.82rem', borderRadius: 8 }}
           placeholder={t('searchGuestRoomPhone')}
           value={search}
           onChange={e => setSearch(e.target.value)}

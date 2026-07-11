@@ -4,6 +4,7 @@ import React, { useRef, useMemo, useEffect } from 'react'
 import { format, isSameDay } from 'date-fns'
 import { Check, Lock } from 'lucide-react'
 import { useTranslation } from '@/i18n'
+import { dateLocale } from '@/lib/dateLocale'
 import {
   Booking,
   toMin,
@@ -75,6 +76,8 @@ export default function TimeGrid({
   onFinish,
   onDayHeaderClick,
 }: TimeGridProps) {
+  const { lang } = useTranslation()
+  const locale = dateLocale(lang)
   const bodyRef = useRef<HTMLDivElement>(null)
   const ppm = rowH / 60
 
@@ -162,7 +165,7 @@ export default function TimeGrid({
                   color: isToday ? 'var(--brand-600)' : isWeekend ? 'var(--gray-300)' : 'var(--gray-400)',
                 }}
               >
-                {format(day, 'EEE')}
+                {format(day, 'EEE', { locale })}
               </div>
               <div
                 style={{
