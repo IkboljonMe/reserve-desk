@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
-import { Hotel } from '@/models/Hotel'
+import { Hotel, HOTEL_SLUG_PATTERN, slugifyHotelName } from '@/models/Hotel'
 import { requireOwner, requireWritable } from '@/lib/session'
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -17,6 +17,10 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   const shortName = typeof body.shortName === 'string' ? body.shortName.trim().toUpperCase() : ''
   const location = typeof body.location === 'string' ? body.location.trim() : ''
   const roomTypes = Array.isArray(body.roomTypes) ? body.roomTypes.map((t: unknown) => String(t).trim()).filter(Boolean) : []
+  // Owner-editable URL slug; an emptied field falls back to the slugified name.
+  const slug = typeof body.slug === 'string' && body.slug.trim()
+    ? body.slug.trim().toLowerCase()
+    : slugifyHotelName(name)
 
   if (!name) return NextResponse.json({ error: 'Hotel name is required' }, { status: 400 })
   if (!shortName) return NextResponse.json({ error: 'Short name is required' }, { status: 400 })
@@ -26,24 +30,32 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       { status: 400 }
     )
   }
+  if (!HOTEL_SLUG_PATTERN.test(slug)) {
+    return NextResponse.json({ error: 'Slug must be lowercase letters, numbers and hyphens' }, { status: 400 })
+  }
 
-  // Enforce uniqueness of the compact code against every *other* hotel in this company.
-  const clash = await Hotel.findOne({ shortName, companyId: session.companyId, _id: { $ne: id } })
+  // Enforce uniqueness of the compact code and slug against every *other*
+  // hotel in this company.
+  const clash = await Hotel.findOne({
+    companyId: session.companyId,
+    _id: { $ne: id },
+    $or: [{ shortName }, { slug }],
+  })
   if (clash) {
-    return NextResponse.json({ error: `Short name "${shortName}" is already taken` }, { status: 409 })
+    return NextResponse.json({ error: 'Short name or slug is already taken by another hotel' }, { status: 409 })
   }
 
   try {
     const hotel = await Hotel.findOneAndUpdate(
       { _id: id, companyId: session.companyId },
-      { name, shortName, location, roomTypes },
+      { name, shortName, slug, location, roomTypes },
       { new: true, runValidators: true }
     )
     if (!hotel) return NextResponse.json({ error: 'Not found' }, { status: 404 })
     return NextResponse.json(hotel)
   } catch (err: unknown) {
     if ((err as { code?: number }).code === 11000) {
-      return NextResponse.json({ error: `Short name "${shortName}" is already taken` }, { status: 409 })
+      return NextResponse.json({ error: 'Short name or slug is already taken by another hotel' }, { status: 409 })
     }
     console.error(err)
     return NextResponse.json({ error: 'Failed to update hotel' }, { status: 500 })

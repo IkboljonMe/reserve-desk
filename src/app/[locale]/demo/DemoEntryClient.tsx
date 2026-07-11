@@ -26,7 +26,7 @@ export default function DemoEntryClient() {
         setError(t('demoUnavailable'))
         return
       }
-      router.push(`/${lang}/secure/admin/${DEMO_SLUG}/dashboard`)
+      router.push(`/${lang}/secure/company/${DEMO_SLUG}/dashboard`)
       router.refresh()
     } catch {
       setError(t('networkError'))

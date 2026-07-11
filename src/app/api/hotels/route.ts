@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
-import { Hotel } from '@/models/Hotel'
+import { Hotel, HOTEL_SLUG_PATTERN } from '@/models/Hotel'
 import { getSession, requireOwner, requireWritable } from '@/lib/session'
 
 export async function GET() {
@@ -31,6 +31,9 @@ export async function POST(req: Request) {
   const shortName = typeof body.shortName === 'string' ? body.shortName.trim().toUpperCase() : ''
   const location = typeof body.location === 'string' ? body.location.trim() : ''
   const roomTypes = Array.isArray(body.roomTypes) ? body.roomTypes.map((t: unknown) => String(t).trim()).filter(Boolean) : []
+  // Optional custom URL slug; the model's pre-save hook derives one from the
+  // name when this is empty.
+  const slug = typeof body.slug === 'string' ? body.slug.trim().toLowerCase() : ''
 
   if (!name) return NextResponse.json({ error: 'Hotel name is required' }, { status: 400 })
   if (!shortName) return NextResponse.json({ error: 'Short name is required' }, { status: 400 })
@@ -40,6 +43,9 @@ export async function POST(req: Request) {
       { status: 400 }
     )
   }
+  if (slug && !HOTEL_SLUG_PATTERN.test(slug)) {
+    return NextResponse.json({ error: 'Slug must be lowercase letters, numbers and hyphens' }, { status: 400 })
+  }
 
   // Enforce uniqueness of the compact code within this company (case-insensitive).
   const existing = await Hotel.findOne({ shortName, companyId: session.companyId })
@@ -48,11 +54,11 @@ export async function POST(req: Request) {
   }
 
   try {
-    const hotel = await Hotel.create({ companyId: session.companyId, name, shortName, location, roomTypes })
+    const hotel = await Hotel.create({ companyId: session.companyId, name, shortName, slug: slug || undefined, location, roomTypes })
     return NextResponse.json(hotel, { status: 201 })
   } catch (err: unknown) {
     if ((err as { code?: number }).code === 11000) {
-      return NextResponse.json({ error: `Short name "${shortName}" is already taken` }, { status: 409 })
+      return NextResponse.json({ error: 'Short name or slug is already taken by another hotel' }, { status: 409 })
     }
     console.error(err)
     return NextResponse.json({ error: 'Failed to create hotel' }, { status: 500 })

@@ -17,11 +17,20 @@ export interface SessionPayload {
   role: SessionRole
   // The tenant this account belongs to; null only for superadmin (global).
   companyId: string | null
-  // The tenant's URL slug (/secure/admin/{slug}/...); null only for superadmin.
+  // The tenant's URL slug (/secure/company/{slug}/...); null only for superadmin.
   companySlug: string | null
   // The hotel an admin is scoped to; null for the owner and for superadmin.
   hotelId: string | null
+  // The hotel's URL slug (/secure/company/{c}/admin/{slug}/...); admin only.
+  hotelSlug: string | null
   expiresAt: Date
+}
+
+// Where a session naturally lands after login (locale-less; caller prefixes it).
+export function sessionHome(session: SessionPayload): string {
+  if (session.role === 'superadmin') return '/secure/superadmin/dashboard'
+  if (session.role === 'owner') return `/secure/company/${session.companySlug}/dashboard`
+  return `/secure/company/${session.companySlug}/admin/${session.hotelSlug}/calendar`
 }
 
 export async function encrypt(payload: SessionPayload) {
@@ -51,9 +60,10 @@ export async function createSession(
   companyId: string | null,
   companySlug: string | null,
   hotelId: string | null,
+  hotelSlug: string | null,
 ) {
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-  const session = await encrypt({ userId, email, name, role, companyId, companySlug, hotelId, expiresAt })
+  const session = await encrypt({ userId, email, name, role, companyId, companySlug, hotelId, hotelSlug, expiresAt })
   const cookieStore = await cookies()
 
   cookieStore.set('session', session, {

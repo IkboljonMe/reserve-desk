@@ -106,8 +106,15 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
                 {key === 'FAQ' ? 'FAQ' : t(key)}
               </a>
             ))}
-            <Link href={L('/demo')} style={{
+            <Link href={L('/login')} style={{
               marginLeft: 6, padding: '8px 16px', borderRadius: 10, textDecoration: 'none',
+              background: '#fff', color: INK, border: '1px solid #e2e8f0',
+              fontSize: '0.875rem', fontWeight: 600,
+            }}>
+              {t('signIn')}
+            </Link>
+            <Link href={L('/demo')} style={{
+              padding: '8px 16px', borderRadius: 10, textDecoration: 'none',
               background: `linear-gradient(135deg, ${ACCENT}, ${ACCENT_DARK})`, color: '#fff',
               fontSize: '0.875rem', fontWeight: 700, boxShadow: '0 4px 12px rgba(79,110,247,0.3)',
             }}>
@@ -385,7 +392,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
           <div style={{ display: 'flex', gap: 18 }}>
             <Link href={L('/demo')} style={{ color: MUTED, fontSize: '0.83rem', textDecoration: 'none' }}>{t('viewDemo')}</Link>
             <a href="#pricing" style={{ color: MUTED, fontSize: '0.83rem', textDecoration: 'none' }}>{t('pricingTitle')}</a>
-            <Link href={L('/secure/superadmin/login')} style={{ color: MUTED, fontSize: '0.83rem', textDecoration: 'none' }}>{t('signIn')}</Link>
+            <Link href={L('/login')} style={{ color: MUTED, fontSize: '0.83rem', textDecoration: 'none' }}>{t('signIn')}</Link>
           </div>
         </div>
       </footer>

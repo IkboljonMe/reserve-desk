@@ -2,7 +2,7 @@ import mongoose, { Schema, Document, Types } from 'mongoose'
 
 export type CompanyPlan = 'standard' | 'pro' | 'vip'
 
-// Slugs that would collide with real routes under /secure/admin/{slug} or
+// Slugs that would collide with real routes under /secure/company/{slug} or
 // with other top-level app paths.
 export const RESERVED_SLUGS = [
   'admin', 'superadmin', 'api', 'login', 'logout', 'dashboard', 'settings',

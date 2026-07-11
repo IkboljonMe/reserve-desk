@@ -4,9 +4,11 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslation } from '@/i18n'
 
-// `slug` is passed for a tenant (owner/admin) login; omitted for the
-// superadmin login, which has no company of its own.
-export default function LoginFormClient({ slug }: { slug?: string }) {
+// One form for every login surface. Area-specific pages pass context the API
+// validates against the account: `slug` (company login page, hotel login
+// page) and `hotelSlug` (hotel login page only). The universal /login page
+// passes neither — the account's own role/company/hotel decide where it goes.
+export default function LoginFormClient({ slug, hotelSlug }: { slug?: string; hotelSlug?: string }) {
   const router = useRouter()
   const { t, lang } = useTranslation()
   const [email, setEmail] = useState('')
@@ -22,7 +24,7 @@ export default function LoginFormClient({ slug }: { slug?: string }) {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, slug }),
+        body: JSON.stringify({ email, password, slug, hotelSlug }),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -30,9 +32,11 @@ export default function LoginFormClient({ slug }: { slug?: string }) {
       } else if (data.role === 'superadmin') {
         router.push(`/${lang}/secure/superadmin/dashboard`)
         router.refresh()
+      } else if (data.role === 'owner') {
+        router.push(`/${lang}/secure/company/${data.slug}/dashboard`)
+        router.refresh()
       } else {
-        // Owner lands on the cross-hotel dashboard; admins on their calendar.
-        router.push(`/${lang}/secure/admin/${data.slug}/${data.role === 'owner' ? 'dashboard' : 'calendar'}`)
+        router.push(`/${lang}/secure/company/${data.slug}/admin/${data.hotelSlug}/calendar`)
         router.refresh()
       }
     } catch {

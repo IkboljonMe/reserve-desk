@@ -12,12 +12,12 @@ interface Props {
   userName: string
   userEmail: string
   role: SessionRole
-  slug: string
+  basePath: string
   hotelName: string
   readOnly?: boolean
 }
 
-export default function DashboardContainer({ children, userName, userEmail, role, slug, hotelName, readOnly }: Props) {
+export default function DashboardContainer({ children, userName, userEmail, role, basePath, hotelName, readOnly }: Props) {
   const [collapsed, setCollapsed] = useState(false)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const isMobile = useIsMobile()
@@ -56,7 +56,7 @@ export default function DashboardContainer({ children, userName, userEmail, role
         <Sidebar
           collapsed={isMobile ? false : collapsed}
           role={role}
-          slug={slug}
+          basePath={basePath}
           onToggle={() => setCollapsed(!collapsed)}
           userName={userName}
           userEmail={userEmail}

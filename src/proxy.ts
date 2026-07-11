@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { decrypt } from '@/lib/session'
+import { decrypt, sessionHome, type SessionPayload } from '@/lib/session'
 import { DEFAULT_LOCALE, LOCALE_COOKIE, isLocale } from '@/i18n/config'
 
 // A request for a static file — its last path segment has an extension, e.g.
@@ -7,8 +7,12 @@ import { DEFAULT_LOCALE, LOCALE_COOKIE, isLocale } from '@/i18n/config'
 const PUBLIC_FILE = /\.[^/]+$/
 
 const SUPERADMIN_LOGIN = '/secure/superadmin/login'
-// Matches /secure/admin/{slug}(/rest...) and captures slug + the trailing path.
-const TENANT_RE = /^\/secure\/admin\/([a-z0-9-]+)(\/.*)?$/
+// /secure/company/{companySlug}(/rest...) — the owner area, which may nest an
+// /admin/{hotelSlug}(/rest...) hotel-admin area inside it.
+const COMPANY_RE = /^\/secure\/company\/([a-z0-9-]+)(\/.*)?$/
+const HOTEL_ADMIN_RE = /^\/admin\/([a-z0-9-]+)(\/.*)?$/
+// Legacy paths from before the /secure/company rename.
+const LEGACY_TENANT_RE = /^\/secure\/admin\/([a-z0-9-]+)(\/.*)?$/
 
 // Pick a locale for a request that arrived without one: remembered choice
 // (cookie) first, then the browser's Accept-Language, then the default.
@@ -43,72 +47,92 @@ export async function proxy(request: NextRequest) {
   const locale = firstSegment
   const rest = pathname.slice(`/${locale}`.length) || '/'
   const to = (path: string) => NextResponse.redirect(new URL(`/${locale}${path}`, request.url))
+  const toHome = (session: SessionPayload) => to(sessionHome(session))
 
-  // The public marketing site and the standalone (localStorage-only, no real
-  // auth) demo are never gated — always pass through untouched.
+  // The marketing site and the demo are always public. A logged-in visitor is
+  // deliberately NOT auto-redirected away from the landing page — they only
+  // re-enter their area via /secure/... or the login button.
   if (rest === '/' || rest === '/demo' || rest.startsWith('/demo/')) {
-    // A logged-in user landing on the bare marketing root gets sent to their
-    // own area instead of seeing the pitch again.
-    if (rest === '/') {
-      const sessionCookie = request.cookies.get('session')?.value
-      const session = sessionCookie ? await decrypt(sessionCookie) : null
-      if (session?.role === 'superadmin') return to('/secure/superadmin/dashboard')
-      if (session?.companySlug) {
-        return to(`/secure/admin/${session.companySlug}/${session.role === 'owner' ? 'dashboard' : 'calendar'}`)
-      }
-    }
     return NextResponse.next()
   }
 
   const sessionCookie = request.cookies.get('session')?.value
   const session = sessionCookie ? await decrypt(sessionCookie) : null
 
-  // --- Superadmin area ------------------------------------------------------
+  // --- Universal login --------------------------------------------------------
+  // Clicking "Sign in" while already authenticated goes straight home.
+  if (rest === '/login') {
+    if (session) return toHome(session)
+    return NextResponse.next()
+  }
+
+  // --- Legacy /secure/admin/{slug} paths → new /secure/company/{slug} --------
+  const legacy = rest.match(LEGACY_TENANT_RE)
+  if (legacy) {
+    return to(`/secure/company/${legacy[1]}${legacy[2] || ''}`)
+  }
+
+  // --- Superadmin area --------------------------------------------------------
   if (rest === SUPERADMIN_LOGIN) {
-    if (session?.role === 'superadmin') return to('/secure/superadmin/dashboard')
+    if (session?.role === 'superadmin') return toHome(session)
+    if (session) return toHome(session)
     return NextResponse.next()
   }
   if (rest === '/secure/superadmin' || rest.startsWith('/secure/superadmin/')) {
     if (session?.role !== 'superadmin') return to(SUPERADMIN_LOGIN)
-    if (rest === '/secure/superadmin') return to('/secure/superadmin/dashboard')
+    if (rest === '/secure/superadmin') return toHome(session)
     return NextResponse.next()
   }
 
-  // --- Tenant area (/secure/admin/{slug}/...) ------------------------------
-  const tenantMatch = rest.match(TENANT_RE)
-  if (tenantMatch) {
-    const slug = tenantMatch[1]
-    const sub = tenantMatch[2] || '/'
-    const home = (s: string) => `/secure/admin/${slug}/${s}`
+  // --- Company area (/secure/company/{slug}/...) ------------------------------
+  const companyMatch = rest.match(COMPANY_RE)
+  if (companyMatch) {
+    const companySlug = companyMatch[1]
+    const sub = companyMatch[2] || '/'
 
-    if (sub === '/login') {
-      // Already signed in? Bounce to wherever they actually belong (which may
-      // be a different slug than the one in this URL).
-      if (session?.companySlug) {
-        return to(`/secure/admin/${session.companySlug}/${session.role === 'owner' ? 'dashboard' : 'calendar'}`)
+    // Nested hotel-admin area: /secure/company/{c}/admin/{h}/...
+    const hotelMatch = sub.match(HOTEL_ADMIN_RE)
+    if (hotelMatch) {
+      const hotelSlug = hotelMatch[1]
+      const hotelSub = hotelMatch[2] || '/'
+      const loginPath = `/secure/company/${companySlug}/admin/${hotelSlug}/login`
+
+      if (hotelSub === '/login') {
+        if (session) return toHome(session)
+        return NextResponse.next()
       }
+      if (!session || session.role !== 'admin') {
+        // Owners (and superadmin) belong elsewhere; guests go to this login.
+        return session ? toHome(session) : to(loginPath)
+      }
+      if (session.companySlug !== companySlug || session.hotelSlug !== hotelSlug) {
+        return toHome(session)
+      }
+      if (hotelSub === '/') return toHome(session)
+      // Hotel admins never get Settings.
+      if (hotelSub.startsWith('/settings')) return toHome(session)
       return NextResponse.next()
     }
 
-    if (!session || (session.role !== 'owner' && session.role !== 'admin')) {
-      return to(home('login'))
+    // Owner area.
+    const loginPath = `/secure/company/${companySlug}/login`
+    if (sub === '/login') {
+      if (session) return toHome(session)
+      return NextResponse.next()
     }
-    // Logged in, but for a different tenant than this URL names — send them
-    // to their own slug instead of leaking whether this one exists.
-    if (session.companySlug !== slug) {
-      return to(`/secure/admin/${session.companySlug}/${session.role === 'owner' ? 'dashboard' : 'calendar'}`)
+    if (!session || session.role !== 'owner') {
+      return session ? toHome(session) : to(loginPath)
     }
-
-    const isOwner = session.role === 'owner'
-    const isSettings = sub.startsWith('/settings')
-
-    if (sub === '/') {
-      return to(home(isOwner ? 'dashboard' : 'calendar'))
+    if (session.companySlug !== companySlug) {
+      return toHome(session)
     }
-    if (!isOwner && isSettings) {
-      return to(home('calendar'))
-    }
+    if (sub === '/') return toHome(session)
     return NextResponse.next()
+  }
+
+  // Anything else under /secure is unknown → send to the universal login.
+  if (rest.startsWith('/secure')) {
+    return session ? toHome(session) : to('/login')
   }
 
   return NextResponse.next()

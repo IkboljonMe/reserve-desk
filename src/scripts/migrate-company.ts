@@ -94,7 +94,7 @@ async function main() {
   console.log(`Backfilled companyId onto ${adminResult.modifiedCount} admin/owner account(s).`)
 
   console.log('✅ Migration complete.')
-  console.log(`   Owners/admins now log in at /secure/admin/${slug}/login`)
+  console.log(`   Owners/admins now log in at /secure/company/${slug}/login`)
 
   await mongoose.disconnect()
 }

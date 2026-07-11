@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { getSession, isCompanyExpired } from '@/lib/session'
 import { connectDB } from '@/lib/mongodb'
+import { Hotel } from '@/models/Hotel'
 import { Company } from '@/models/Company'
 import { ToastProvider } from '@/components/ToastProvider'
 import { DraftProvider } from '@/components/DraftProvider'
@@ -8,27 +9,28 @@ import { BookingModalProvider } from '@/components/BookingModalProvider'
 import QueryProvider from '@/components/QueryProvider'
 import DashboardContainer from '@/components/layout/DashboardContainer'
 
-// The OWNER area: /secure/company/{slug}/... Hotel admins live in the nested
-// /admin/{hotelSlug} subtree with its own layout.
-// LanguageProvider is supplied by the parent [locale] layout, so the whole app
-// (including login) shares it.
-// proxy.ts already blocks unauthenticated/mismatched-tenant access to this
-// tree — the checks here are defense in depth in case this layout is ever
-// reached directly (e.g. a future server action).
-export default async function OwnerDashboardLayout({
+// The HOTEL ADMIN area: /secure/company/{slug}/admin/{hotelSlug}/...
+// Same operational app as the owner's, but scoped to one hotel and without
+// Settings (proxy.ts blocks /settings here; the sidebar hides it by role).
+// proxy.ts already gates this tree — checks here are defense in depth.
+export default async function HotelAdminLayout({
   children,
   params,
 }: {
   children: React.ReactNode
-  params: Promise<{ locale: string; slug: string }>
+  params: Promise<{ locale: string; slug: string; hotelSlug: string }>
 }) {
-  const { locale, slug } = await params
+  const { locale, slug, hotelSlug } = await params
   const session = await getSession()
-  if (!session || session.role !== 'owner' || session.companySlug !== slug) {
-    redirect(`/${locale}/secure/company/${slug}/login`)
+  if (
+    !session || session.role !== 'admin' ||
+    session.companySlug !== slug || session.hotelSlug !== hotelSlug
+  ) {
+    redirect(`/${locale}/secure/company/${slug}/admin/${hotelSlug}/login`)
   }
 
   await connectDB()
+  const hotel = await Hotel.findById(session.hotelId).select('name').lean<{ name: string }>()
   const company = await Company.findById(session.companyId).select('expiresAt').lean<{ expiresAt: Date }>()
   const readOnly = !!company && isCompanyExpired(company.expiresAt)
 
@@ -41,8 +43,8 @@ export default async function OwnerDashboardLayout({
            userName={session.name}
            userEmail={session.email}
            role={session.role}
-           basePath={`/secure/company/${slug}`}
-           hotelName=""
+           basePath={`/secure/company/${slug}/admin/${hotelSlug}`}
+           hotelName={hotel?.name ?? ''}
            readOnly={readOnly}
          >
            {children}

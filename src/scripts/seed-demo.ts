@@ -169,7 +169,7 @@ async function main() {
   })
 
   console.log('✅ Demo tenant seeded.')
-  console.log(`   Dashboard: /secure/admin/${DEMO_SLUG}/dashboard`)
+  console.log(`   Dashboard: /secure/company/${DEMO_SLUG}/dashboard`)
   console.log(`   Owner: ${DEMO_OWNER_EMAIL} / ${DEMO_OWNER_PASSWORD}`)
 
   await mongoose.disconnect()

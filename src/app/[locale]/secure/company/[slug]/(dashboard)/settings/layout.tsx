@@ -16,8 +16,8 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
   const { t, lang } = useTranslation()
   const { slug } = useParams<{ slug: string }>()
   // Prefix an app path with the active locale + tenant slug, e.g.
-  // '/settings/admins' -> '/uz/secure/admin/safir/settings/admins'.
-  const localized = (href: string) => `/${lang}/secure/admin/${slug}${href}`
+  // '/settings/admins' -> '/uz/secure/company/safir/settings/admins'.
+  const localized = (href: string) => `/${lang}/secure/company/${slug}${href}`
   return (
     <div>
       <div className="page-header">
