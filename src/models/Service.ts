@@ -29,6 +29,7 @@ export interface IServiceVariant {
 
 export interface IService extends Document {
   _id: Types.ObjectId
+  companyId: Types.ObjectId
   name: string
   icon: string
   description: string
@@ -72,6 +73,7 @@ const ServiceVariantSchema = new Schema<IServiceVariant>({
 
 const ServiceSchema = new Schema<IService>(
   {
+    companyId: { type: Schema.Types.ObjectId, ref: 'Company', required: true },
     name: { type: String, required: true, trim: true },
     icon: { type: String, default: 'concierge' },
     description: { type: String, default: '' },

@@ -1,7 +1,7 @@
 import { NextRequest, after } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Booking } from '@/models/Booking'
-import { requireDashboard, bookingIdScope } from '@/lib/session'
+import { requireDashboard, requireWritable, bookingIdScope } from '@/lib/session'
 import { notifyBookingUpdated } from '@/lib/telegram'
 
 export async function GET(_req: NextRequest, ctx: RouteContext<'/api/bookings/[id]'>) {
@@ -22,6 +22,8 @@ export async function GET(_req: NextRequest, ctx: RouteContext<'/api/bookings/[i
 export async function PUT(req: NextRequest, ctx: RouteContext<'/api/bookings/[id]'>) {
   const session = await requireDashboard()
   if (session instanceof Response) return session
+  const blocked = await requireWritable(session)
+  if (blocked) return blocked
 
   const { id } = await ctx.params
   const body = await req.json()
@@ -92,6 +94,8 @@ export async function PUT(req: NextRequest, ctx: RouteContext<'/api/bookings/[id
 export async function DELETE(_req: NextRequest, ctx: RouteContext<'/api/bookings/[id]'>) {
   const session = await requireDashboard()
   if (session instanceof Response) return session
+  const blocked = await requireWritable(session)
+  if (blocked) return blocked
 
   const { id } = await ctx.params
   await connectDB()

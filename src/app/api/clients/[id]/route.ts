@@ -1,11 +1,13 @@
 import { NextRequest } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Client } from '@/models/Client'
-import { requireDashboard } from '@/lib/session'
+import { requireDashboard, requireWritable } from '@/lib/session'
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireDashboard()
   if (session instanceof Response) return session
+  const blocked = await requireWritable(session)
+  if (blocked) return blocked
 
   try {
     const { id } = await params
@@ -20,7 +22,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     if (body.groupId !== undefined) update.groupId = body.groupId || null
 
     await connectDB()
-    const client = await Client.findOneAndUpdate({ _id: id }, update, { new: true }).lean()
+    const client = await Client.findOneAndUpdate({ _id: id, companyId: session.companyId }, update, { new: true }).lean()
     if (!client) return Response.json({ error: 'Not found' }, { status: 404 })
     return Response.json(client)
   } catch (err) {
@@ -32,11 +34,13 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireDashboard()
   if (session instanceof Response) return session
+  const blocked = await requireWritable(session)
+  if (blocked) return blocked
 
   try {
     const { id } = await params
     await connectDB()
-    await Client.findOneAndDelete({ _id: id })
+    await Client.findOneAndDelete({ _id: id, companyId: session.companyId })
     return Response.json({ ok: true })
   } catch (err) {
     console.error(err)

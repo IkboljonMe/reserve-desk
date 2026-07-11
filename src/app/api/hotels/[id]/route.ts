@@ -1,11 +1,13 @@
 import { NextResponse } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Hotel } from '@/models/Hotel'
-import { requireOwner } from '@/lib/session'
+import { requireOwner, requireWritable } from '@/lib/session'
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireOwner()
   if (session instanceof Response) return session
+  const blocked = await requireWritable(session)
+  if (blocked) return blocked
 
   await connectDB()
   const { id } = await params
@@ -14,7 +16,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   const name = typeof body.name === 'string' ? body.name.trim() : ''
   const shortName = typeof body.shortName === 'string' ? body.shortName.trim().toUpperCase() : ''
   const location = typeof body.location === 'string' ? body.location.trim() : ''
-  const roomTypes = Array.isArray(body.roomTypes) ? body.roomTypes.map((t: any) => String(t).trim()).filter(Boolean) : []
+  const roomTypes = Array.isArray(body.roomTypes) ? body.roomTypes.map((t: unknown) => String(t).trim()).filter(Boolean) : []
 
   if (!name) return NextResponse.json({ error: 'Hotel name is required' }, { status: 400 })
   if (!shortName) return NextResponse.json({ error: 'Short name is required' }, { status: 400 })
@@ -25,15 +27,15 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     )
   }
 
-  // Enforce uniqueness of the compact code against every *other* hotel.
-  const clash = await Hotel.findOne({ shortName, _id: { $ne: id } })
+  // Enforce uniqueness of the compact code against every *other* hotel in this company.
+  const clash = await Hotel.findOne({ shortName, companyId: session.companyId, _id: { $ne: id } })
   if (clash) {
     return NextResponse.json({ error: `Short name "${shortName}" is already taken` }, { status: 409 })
   }
 
   try {
-    const hotel = await Hotel.findByIdAndUpdate(
-      id,
+    const hotel = await Hotel.findOneAndUpdate(
+      { _id: id, companyId: session.companyId },
       { name, shortName, location, roomTypes },
       { new: true, runValidators: true }
     )
@@ -51,10 +53,12 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireOwner()
   if (session instanceof Response) return session
+  const blocked = await requireWritable(session)
+  if (blocked) return blocked
 
   await connectDB()
   const { id } = await params
-  const hotel = await Hotel.findByIdAndDelete(id)
+  const hotel = await Hotel.findOneAndDelete({ _id: id, companyId: session.companyId })
   if (!hotel) return NextResponse.json({ error: 'Not found' }, { status: 404 })
   return NextResponse.json({ success: true })
 }

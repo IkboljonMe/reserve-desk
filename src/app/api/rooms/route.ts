@@ -2,14 +2,18 @@ import { NextRequest } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Room } from '@/models/Room'
 import { Hotel } from '@/models/Hotel'
-import { getSession, requireOwner } from '@/lib/session'
+import { getSession, requireOwner, requireWritable } from '@/lib/session'
 
 export async function GET() {
   const session = await getSession()
-  if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!session || session.role === 'superadmin' || !session.companyId) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  }
 
-  // Owner sees every hotel's rooms; an admin only their own hotel's.
-  const filter = session.role === 'owner' ? {} : { hotelId: session.hotelId }
+  // Owner sees every hotel's rooms in their company; an admin only their own hotel's.
+  const filter = session.role === 'owner'
+    ? { companyId: session.companyId }
+    : { companyId: session.companyId, hotelId: session.hotelId }
 
   await connectDB()
   const rooms = await Room.find(filter).sort({ floor: 1, order: 1, number: 1 }).lean()
@@ -19,6 +23,8 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   const session = await requireOwner()
   if (session instanceof Response) return session
+  const blocked = await requireWritable(session)
+  if (blocked) return blocked
 
   try {
     const body = await req.json()
@@ -33,12 +39,12 @@ export async function POST(req: NextRequest) {
 
     await connectDB()
 
-    const hotel = await Hotel.findById(hotelId)
+    const hotel = await Hotel.findOne({ _id: hotelId, companyId: session.companyId })
     if (!hotel) {
       return Response.json({ error: 'Hotel not found' }, { status: 404 })
     }
 
-    const room = await Room.create({ hotelId, number: String(number).trim(), floor, type: String(type || '').trim(), description })
+    const room = await Room.create({ companyId: session.companyId, hotelId, number: String(number).trim(), floor, type: String(type || '').trim(), description })
     return Response.json(room, { status: 201 })
   } catch (err: unknown) {
     if ((err as { code?: number }).code === 11000) {

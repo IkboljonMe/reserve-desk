@@ -12,6 +12,7 @@ const RAIL_WIDTH = 72
 export default function Sidebar({
   collapsed = false,
   role = 'admin',
+  slug,
   onToggle,
   userName = '',
   userEmail = '',
@@ -22,6 +23,7 @@ export default function Sidebar({
 }: {
   collapsed?: boolean
   role?: SessionRole
+  slug: string
   onToggle?: () => void
   userName?: string
   userEmail?: string
@@ -36,13 +38,14 @@ export default function Sidebar({
   const [notifCount, setNotifCount] = useState(0)
   const [loggingOut, setLoggingOut] = useState(false)
 
-  // Prefix an app path with the active locale, e.g. '/calendar' -> '/uz/calendar'.
-  const localized = (href: string) => `/${lang}${href}`
+  // Prefix an app path with the active locale + tenant slug, e.g.
+  // '/calendar' -> '/uz/secure/admin/safir-group-mchj/calendar'.
+  const localized = (href: string) => `/${lang}/secure/admin/${slug}${href}`
 
   async function handleLogout() {
     setLoggingOut(true)
     await fetch('/api/auth/logout', { method: 'POST' })
-    router.push(localized('/login'))
+    router.push(`/${lang}/secure/admin/${slug}/login`)
     router.refresh()
   }
 

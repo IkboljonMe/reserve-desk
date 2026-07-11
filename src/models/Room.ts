@@ -2,6 +2,7 @@ import mongoose, { Schema, Document, Types } from 'mongoose'
 
 export interface IRoom extends Document {
   _id: Types.ObjectId
+  companyId: Types.ObjectId
   hotelId: Types.ObjectId  // Hotel this room belongs to
   number: string           // Room's own number, e.g. "202" (displayed as "FG-202")
   floor: number            // 1, 2, 3 …
@@ -14,6 +15,7 @@ export interface IRoom extends Document {
 
 const RoomSchema = new Schema<IRoom>(
   {
+    companyId: { type: Schema.Types.ObjectId, ref: 'Company', required: true },
     hotelId: { type: Schema.Types.ObjectId, ref: 'Hotel', required: true },
     number: { type: String, required: true, trim: true },
     floor: { type: Number, required: true, default: 1 },

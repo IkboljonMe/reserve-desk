@@ -1,11 +1,13 @@
 import { NextRequest } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Contract } from '@/models/Contract'
-import { requireDashboard, idScope } from '@/lib/session'
+import { requireDashboard, requireWritable, idScope } from '@/lib/session'
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireDashboard()
   if (session instanceof Response) return session
+  const blocked = await requireWritable(session)
+  if (blocked) return blocked
 
   try {
     const { id } = await params
@@ -44,6 +46,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireDashboard()
   if (session instanceof Response) return session
+  const blocked = await requireWritable(session)
+  if (blocked) return blocked
 
   try {
     const { id } = await params
@@ -70,6 +74,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireDashboard()
   if (session instanceof Response) return session
+  const blocked = await requireWritable(session)
+  if (blocked) return blocked
 
   try {
     const { id } = await params

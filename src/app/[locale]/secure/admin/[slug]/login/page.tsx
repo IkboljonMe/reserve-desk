@@ -1,8 +1,8 @@
-import LoginFormClient from './LoginFormClient'
+import LoginFormClient from '@/components/auth/LoginFormClient'
 import { getT } from '@/i18n/dictionary'
 
-export default async function LoginPage({ params }: { params: Promise<{ locale: string }> }) {
-  const { locale } = await params
+export default async function LoginPage({ params }: { params: Promise<{ locale: string; slug: string }> }) {
+  const { locale, slug } = await params
   const t = getT(locale)
   return (
     <main style={{
@@ -46,7 +46,7 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
           boxShadow: '0 24px 60px rgba(0,0,0,0.45)',
         }}>
           <h2 style={{ color: '#fff', fontSize: '1.125rem', fontWeight: 600, marginBottom: '1.5rem' }}>{t('signInToAccount')}</h2>
-          <LoginFormClient />
+          <LoginFormClient slug={slug} />
         </div>
       </div>
     </main>

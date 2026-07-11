@@ -12,10 +12,12 @@ interface Props {
   userName: string
   userEmail: string
   role: SessionRole
+  slug: string
   hotelName: string
+  readOnly?: boolean
 }
 
-export default function DashboardContainer({ children, userName, userEmail, role, hotelName }: Props) {
+export default function DashboardContainer({ children, userName, userEmail, role, slug, hotelName, readOnly }: Props) {
   const [collapsed, setCollapsed] = useState(false)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const isMobile = useIsMobile()
@@ -54,6 +56,7 @@ export default function DashboardContainer({ children, userName, userEmail, role
         <Sidebar
           collapsed={isMobile ? false : collapsed}
           role={role}
+          slug={slug}
           onToggle={() => setCollapsed(!collapsed)}
           userName={userName}
           userEmail={userEmail}
@@ -88,6 +91,20 @@ export default function DashboardContainer({ children, userName, userEmail, role
             </button>
             <div style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--gray-800)', letterSpacing: '-0.01em' }}>Easy Service</div>
           </div>
+
+          {readOnly && (
+            <div style={{
+              padding: '0.6rem 1rem',
+              background: '#fef3c7',
+              borderBottom: '1px solid #fde68a',
+              color: '#92400e',
+              fontSize: '0.85rem',
+              fontWeight: 600,
+              textAlign: 'center',
+            }}>
+              {t('planExpiredBanner')}
+            </div>
+          )}
 
           <main style={{ flex: 1, overflow: 'auto', padding: isMobile ? '1.1rem' : '1.75rem 2rem', background: 'var(--surface-card)' }}>
             {children}

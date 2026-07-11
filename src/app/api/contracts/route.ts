@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Contract } from '@/models/Contract'
-import { requireDashboard, hotelScope, writeHotelId } from '@/lib/session'
+import { requireDashboard, requireWritable, hotelScope, writeHotelId } from '@/lib/session'
 
 export async function GET(req: NextRequest) {
   const session = await requireDashboard()
@@ -32,6 +32,8 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const session = await requireDashboard()
   if (session instanceof Response) return session
+  const blocked = await requireWritable(session)
+  if (blocked) return blocked
 
   try {
     const body = await req.json()
@@ -44,6 +46,7 @@ export async function POST(req: NextRequest) {
 
     await connectDB()
     const contract = await Contract.create({
+      companyId: session.companyId,
       hotelId,
       organizationName: body.organizationName,
       inn: body.inn || '',

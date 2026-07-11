@@ -2,6 +2,7 @@ import mongoose, { Schema, Document, Types } from 'mongoose'
 
 export interface IClient extends Document {
   _id: Types.ObjectId
+  companyId: Types.ObjectId // Tenant this client belongs to (shared pool within the company)
   hotelId?: Types.ObjectId  // Legacy: clients are now a single global pool, not per-hotel
   name: string
   phone: string
@@ -15,6 +16,7 @@ export interface IClient extends Document {
 
 const ClientSchema = new Schema<IClient>(
   {
+    companyId: { type: Schema.Types.ObjectId, ref: 'Company', required: true, index: true },
     hotelId: { type: Schema.Types.ObjectId, ref: 'Hotel', required: false, index: true },
     name: { type: String, required: true, trim: true },
     phone: { type: String, default: '', trim: true },

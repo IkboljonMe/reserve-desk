@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useParams } from 'next/navigation'
 import { useTranslation, DictionaryKeys } from '@/i18n'
 
 const TABS: { labelKey: DictionaryKeys; href: string }[] = [
@@ -13,7 +13,9 @@ const TABS: { labelKey: DictionaryKeys; href: string }[] = [
 
 export default function SettingsLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const { t } = useTranslation()
+  const { t, lang } = useTranslation()
+  const { slug } = useParams<{ slug: string }>()
+  const prefix = `/${lang}/secure/admin/${slug}`
   return (
     <div>
       <div className="page-header">
@@ -27,11 +29,12 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
         paddingBottom: 0,
       }}>
         {TABS.map(tab => {
-          const isActive = tab.href === '/settings' ? pathname === '/settings' : pathname.startsWith(tab.href)
+          const href = `${prefix}${tab.href}`
+          const isActive = pathname.startsWith(href)
           return (
             <Link
               key={tab.href}
-              href={tab.href}
+              href={href}
               style={{
                 padding: '8px 16px',
                 borderBottom: isActive ? '2px solid var(--brand-500)' : '2px solid transparent',

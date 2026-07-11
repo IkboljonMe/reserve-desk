@@ -7,6 +7,7 @@ export type ContractStatus = 'awaiting' | 'signed' | 'terminated'
 
 export interface IContract extends Document {
   _id: Types.ObjectId
+  companyId: Types.ObjectId
   hotelId: Types.ObjectId  // Hotel this contract belongs to
   organizationName: string
   inn: string
@@ -28,6 +29,7 @@ export interface IContract extends Document {
 
 const ContractSchema = new Schema<IContract>(
   {
+    companyId: { type: Schema.Types.ObjectId, ref: 'Company', required: true, index: true },
     hotelId: { type: Schema.Types.ObjectId, ref: 'Hotel', required: true, index: true },
     organizationName: { type: String, required: true, trim: true },
     inn: { type: String, default: '', trim: true },

@@ -1,21 +1,25 @@
 import { NextRequest } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { ClientGroup } from '@/models/ClientGroup'
-import { getSession, requireOwner } from '@/lib/session'
+import { getSession, requireOwner, requireWritable } from '@/lib/session'
 
 export async function GET() {
   const session = await getSession()
-  if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!session || session.role === 'superadmin' || !session.companyId) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  }
 
-  // Client groups are global — one shared set for every hotel.
+  // Client groups are shared across every hotel within a company.
   await connectDB()
-  const groups = await ClientGroup.find().sort({ order: 1, name: 1 }).lean()
+  const groups = await ClientGroup.find({ companyId: session.companyId }).sort({ order: 1, name: 1 }).lean()
   return Response.json(groups)
 }
 
 export async function POST(req: NextRequest) {
   const session = await requireOwner()
   if (session instanceof Response) return session
+  const blocked = await requireWritable(session)
+  if (blocked) return blocked
 
   try {
     const body = await req.json()
@@ -27,6 +31,7 @@ export async function POST(req: NextRequest) {
 
     await connectDB()
     const group = await ClientGroup.create({
+      companyId: session.companyId,
       name: name.trim(),
       color: color || '#6366f1',
       order: Number(order) || 0,

@@ -1,11 +1,13 @@
 import { NextRequest } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Room } from '@/models/Room'
-import { requireOwner } from '@/lib/session'
+import { requireOwner, requireWritable } from '@/lib/session'
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireOwner()
   if (session instanceof Response) return session
+  const blocked = await requireWritable(session)
+  if (blocked) return blocked
 
   try {
     const { id } = await params
@@ -19,7 +21,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     if (typeof body.description === 'string') update.description = body.description
 
     await connectDB()
-    const room = await Room.findByIdAndUpdate(id, update, { new: true, runValidators: true }).lean()
+    const room = await Room.findOneAndUpdate({ _id: id, companyId: session.companyId }, update, { new: true, runValidators: true }).lean()
     if (!room) return Response.json({ error: 'Room not found' }, { status: 404 })
     return Response.json(room)
   } catch (err: unknown) {
@@ -34,11 +36,13 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireOwner()
   if (session instanceof Response) return session
+  const blocked = await requireWritable(session)
+  if (blocked) return blocked
 
   try {
     const { id } = await params
     await connectDB()
-    await Room.findByIdAndDelete(id)
+    await Room.findOneAndDelete({ _id: id, companyId: session.companyId })
     return Response.json({ ok: true })
   } catch (err) {
     console.error(err)

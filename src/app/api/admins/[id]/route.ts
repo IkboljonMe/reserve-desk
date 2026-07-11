@@ -2,11 +2,13 @@ import { NextRequest } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Admin } from '@/models/Admin'
 import { Hotel } from '@/models/Hotel'
-import { requireOwner } from '@/lib/session'
+import { requireOwner, requireWritable } from '@/lib/session'
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireOwner()
   if (session instanceof Response) return session
+  const blocked = await requireWritable(session)
+  if (blocked) return blocked
 
   try {
     const { id } = await params
@@ -18,12 +20,12 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     if (typeof body.name === 'string' && body.name.trim()) update.name = body.name.trim()
     if (typeof body.email === 'string' && body.email.trim()) update.email = body.email.toLowerCase().trim()
     if (body.hotelId) {
-      const hotel = await Hotel.findById(body.hotelId)
+      const hotel = await Hotel.findOne({ _id: body.hotelId, companyId: session.companyId })
       if (!hotel) return Response.json({ error: 'Hotel not found' }, { status: 404 })
       update.hotelId = body.hotelId
     }
 
-    const admin = await Admin.findOne({ _id: id, role: 'admin' })
+    const admin = await Admin.findOne({ _id: id, role: 'admin', companyId: session.companyId })
     if (!admin) return Response.json({ error: 'Not found' }, { status: 404 })
 
     Object.assign(admin, update)
@@ -50,10 +52,12 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireOwner()
   if (session instanceof Response) return session
+  const blocked = await requireWritable(session)
+  if (blocked) return blocked
 
   const { id } = await params
   await connectDB()
   // Never allow deleting the owner via this endpoint.
-  await Admin.findOneAndDelete({ _id: id, role: 'admin' })
+  await Admin.findOneAndDelete({ _id: id, role: 'admin', companyId: session.companyId })
   return Response.json({ ok: true })
 }

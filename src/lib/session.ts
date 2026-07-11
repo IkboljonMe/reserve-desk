@@ -2,18 +2,24 @@ import 'server-only'
 import { SignJWT, jwtVerify } from 'jose'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { connectDB } from '@/lib/mongodb'
+import { Company } from '@/models/Company'
 
 const SESSION_SECRET = process.env.SESSION_SECRET!
 const encodedKey = new TextEncoder().encode(SESSION_SECRET)
 
-export type SessionRole = 'owner' | 'admin'
+export type SessionRole = 'superadmin' | 'owner' | 'admin'
 
 export interface SessionPayload {
   userId: string
   email: string
   name: string
   role: SessionRole
-  // The hotel an admin is scoped to; null for the owner.
+  // The tenant this account belongs to; null only for superadmin (global).
+  companyId: string | null
+  // The tenant's URL slug (/secure/admin/{slug}/...); null only for superadmin.
+  companySlug: string | null
+  // The hotel an admin is scoped to; null for the owner and for superadmin.
   hotelId: string | null
   expiresAt: Date
 }
@@ -42,10 +48,12 @@ export async function createSession(
   email: string,
   name: string,
   role: SessionRole,
+  companyId: string | null,
+  companySlug: string | null,
   hotelId: string | null,
 ) {
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-  const session = await encrypt({ userId, email, name, role, hotelId, expiresAt })
+  const session = await encrypt({ userId, email, name, role, companyId, companySlug, hotelId, expiresAt })
   const cookieStore = await cookies()
 
   cookieStore.set('session', session, {
@@ -81,58 +89,103 @@ export async function requireAuth(): Promise<SessionPayload> {
 //   const s = await requireAdmin(); if (s instanceof Response) return s
 
 // An admin session always has a concrete hotelId (unlike the owner's null).
-export type AdminSession = SessionPayload & { hotelId: string }
+export type AdminSession = SessionPayload & { hotelId: string; companyId: string }
+// An owner/admin session always has a concrete companyId (unlike superadmin's null).
+export type TenantSession = SessionPayload & { companyId: string }
 
 export async function requireAdmin(): Promise<AdminSession | Response> {
   const session = await getSession()
   if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
-  if (session.role !== 'admin' || !session.hotelId) {
+  if (session.role !== 'admin' || !session.hotelId || !session.companyId) {
     return Response.json({ error: 'Forbidden' }, { status: 403 })
   }
   return session as AdminSession
 }
 
-export async function requireOwner(): Promise<SessionPayload | Response> {
+export async function requireOwner(): Promise<TenantSession | Response> {
   const session = await getSession()
   if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
-  if (session.role !== 'owner') {
+  if (session.role !== 'owner' || !session.companyId) {
+    return Response.json({ error: 'Forbidden' }, { status: 403 })
+  }
+  return session as TenantSession
+}
+
+export async function requireSuperadmin(): Promise<SessionPayload | Response> {
+  const session = await getSession()
+  if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  if (session.role !== 'superadmin') {
     return Response.json({ error: 'Forbidden' }, { status: 403 })
   }
   return session
 }
 
-// Any authenticated user (owner or admin). Operational pages use this together
-// with hotelScope()/writeHotelId() so the owner sees/acts across all hotels
-// while an admin stays confined to their own.
-export async function requireDashboard(): Promise<SessionPayload | Response> {
+// Any authenticated tenant user (owner or admin — excludes superadmin).
+// Operational pages use this together with hotelScope()/writeHotelId() so the
+// owner sees/acts across all their company's hotels while an admin stays
+// confined to their own.
+export async function requireDashboard(): Promise<TenantSession | Response> {
   const session = await getSession()
   if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
-  return session
+  if (session.role === 'superadmin' || !session.companyId) {
+    return Response.json({ error: 'Forbidden' }, { status: 403 })
+  }
+  return session as TenantSession
 }
 
-// Mongo filter for list/read queries: empty (all hotels) for the owner, or the
-// admin's single hotel.
-export function hotelScope(session: SessionPayload): Record<string, unknown> {
-  return session.role === 'owner' ? {} : { hotelId: session.hotelId }
+// Whether a company's plan expiry date has passed. Kept as a plain function
+// (not inlined at each call site) so the impure `Date.now()` read doesn't
+// happen directly inside a component's render body.
+export function isCompanyExpired(expiresAt: Date): boolean {
+  return expiresAt.getTime() < Date.now()
+}
+
+// Blocks writes for a tenant whose plan has expired. Call from every
+// POST/PUT/PATCH/DELETE handler right after the role guard. Read (GET) routes
+// are never blocked — an expired company stays browsable, just not editable.
+export async function requireWritable(session: TenantSession): Promise<Response | null> {
+  await connectDB()
+  const company = await Company.findById(session.companyId).select('expiresAt').lean<{ expiresAt: Date }>()
+  if (company && isCompanyExpired(company.expiresAt)) {
+    return Response.json(
+      { error: 'Your plan has expired. The account is read-only until it is renewed — contact support.' },
+      { status: 403 }
+    )
+  }
+  return null
+}
+
+// Mongo filter for list/read queries: every hotel in the tenant's company for
+// the owner, or the admin's single hotel. Always scoped to the tenant.
+export function hotelScope(session: TenantSession): Record<string, unknown> {
+  return session.role === 'owner'
+    ? { companyId: session.companyId }
+    : { companyId: session.companyId, hotelId: session.hotelId }
 }
 
 // Same idea but for targeting one document by id.
-export function idScope(session: SessionPayload, id: string): Record<string, unknown> {
-  return session.role === 'owner' ? { _id: id } : { _id: id, hotelId: session.hotelId }
+export function idScope(session: TenantSession, id: string): Record<string, unknown> {
+  return session.role === 'owner'
+    ? { _id: id, companyId: session.companyId }
+    : { _id: id, companyId: session.companyId, hotelId: session.hotelId }
 }
 
 // Booking-specific id scope. A booking is attributed to the service owner hotel
 // (hotelId) but may have been made by a different, sharing hotel (bookedByHotelId).
 // An admin may manage a booking their hotel owns OR one their hotel made.
-export function bookingIdScope(session: SessionPayload, id: string): Record<string, unknown> {
-  if (session.role === 'owner') return { _id: id }
-  return { _id: id, $or: [{ hotelId: session.hotelId }, { bookedByHotelId: session.hotelId }] }
+export function bookingIdScope(session: TenantSession, id: string): Record<string, unknown> {
+  if (session.role === 'owner') return { _id: id, companyId: session.companyId }
+  return {
+    _id: id,
+    companyId: session.companyId,
+    $or: [{ hotelId: session.hotelId }, { bookedByHotelId: session.hotelId }],
+  }
 }
 
 // Resolve which hotel a newly-created record belongs to. Admins always use their
 // own hotel; the owner must name one (from the request body). Returns null when
 // the owner failed to supply a valid hotel.
-export function writeHotelId(session: SessionPayload, bodyHotelId: unknown): string | null {
+export function writeHotelId(session: TenantSession, bodyHotelId: unknown): string | null {
   if (session.role !== 'owner') return session.hotelId
   return typeof bodyHotelId === 'string' && bodyHotelId ? bodyHotelId : null
 }

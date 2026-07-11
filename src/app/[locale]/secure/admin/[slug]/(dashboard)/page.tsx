@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation'
 
-export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
-  const { locale } = await params
-  redirect(`/${locale}/dashboard`)
+// Reached only if proxy.ts somehow lets a bare /secure/admin/{slug} request
+// through without already redirecting to dashboard/calendar.
+export default async function HomePage({ params }: { params: Promise<{ locale: string; slug: string }> }) {
+  const { locale, slug } = await params
+  redirect(`/${locale}/secure/admin/${slug}/dashboard`)
 }

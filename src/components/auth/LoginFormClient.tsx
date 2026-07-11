@@ -4,7 +4,9 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslation } from '@/i18n'
 
-export default function LoginFormClient() {
+// `slug` is passed for a tenant (owner/admin) login; omitted for the
+// superadmin login, which has no company of its own.
+export default function LoginFormClient({ slug }: { slug?: string }) {
   const router = useRouter()
   const { t, lang } = useTranslation()
   const [email, setEmail] = useState('')
@@ -20,14 +22,17 @@ export default function LoginFormClient() {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, slug }),
       })
       const data = await res.json()
       if (!res.ok) {
         setError(data.error || t('loginFailed'))
+      } else if (data.role === 'superadmin') {
+        router.push(`/${lang}/secure/superadmin/dashboard`)
+        router.refresh()
       } else {
         // Owner lands on the cross-hotel dashboard; admins on their calendar.
-        router.push(`/${lang}/${data.role === 'owner' ? 'dashboard' : 'calendar'}`)
+        router.push(`/${lang}/secure/admin/${data.slug}/${data.role === 'owner' ? 'dashboard' : 'calendar'}`)
         router.refresh()
       }
     } catch {

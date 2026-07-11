@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Admin } from '@/models/Admin'
 import { Hotel } from '@/models/Hotel'
-import { requireOwner } from '@/lib/session'
+import { requireOwner, requireWritable } from '@/lib/session'
 
 // Owner-only management of hotel admins. Each admin is bound to exactly one hotel.
 export async function GET() {
@@ -10,7 +10,7 @@ export async function GET() {
   if (session instanceof Response) return session
 
   await connectDB()
-  const admins = await Admin.find({ role: 'admin' })
+  const admins = await Admin.find({ role: 'admin', companyId: session.companyId })
     .select('-password')
     .populate('hotelId', 'name shortName')
     .sort({ createdAt: -1 })
@@ -21,6 +21,8 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   const session = await requireOwner()
   if (session instanceof Response) return session
+  const blocked = await requireWritable(session)
+  if (blocked) return blocked
 
   try {
     const body = await req.json()
@@ -41,7 +43,7 @@ export async function POST(req: NextRequest) {
 
     await connectDB()
 
-    const hotel = await Hotel.findById(hotelId)
+    const hotel = await Hotel.findOne({ _id: hotelId, companyId: session.companyId })
     if (!hotel) return Response.json({ error: 'Hotel not found' }, { status: 404 })
 
     const existing = await Admin.findOne({ email })
@@ -50,7 +52,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Password is hashed by the Admin model's pre-save hook.
-    const admin = await Admin.create({ name, email, password, role: 'admin', hotelId })
+    const admin = await Admin.create({ name, email, password, role: 'admin', companyId: session.companyId, hotelId })
     const { password: _pw, ...safe } = admin.toObject()
     return Response.json(safe, { status: 201 })
   } catch (err) {

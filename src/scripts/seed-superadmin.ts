@@ -1,10 +1,11 @@
+// Creates (or leaves untouched, if one already exists) the single superadmin
+// account used to log in at /secure/superadmin. Unlike the old seed-owner.ts,
+// this NEVER drops the database — it only upserts one document.
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import mongoose from 'mongoose'
 import { Admin } from '../models/Admin'
 
-// The project uses .env.local for prod credentials, but tsx does not load it
-// automatically like Next does — parse it by hand before connecting.
 function loadEnvLocal() {
   try {
     const raw = readFileSync(resolve(process.cwd(), '.env.local'), 'utf8')
@@ -25,42 +26,41 @@ function loadEnvLocal() {
   }
 }
 
-const OWNER_EMAIL = 'owner@easy-service.uz'
-const OWNER_PASSWORD = 'ProjectOwnerEasyService'
-const OWNER_NAME = 'Project Owner'
+const SUPERADMIN_EMAIL = process.env.SUPERADMIN_EMAIL || 'superadmin@easy-service.uz'
+const SUPERADMIN_PASSWORD = process.env.SUPERADMIN_PASSWORD || 'ChangeMeSuperAdmin!'
+const SUPERADMIN_NAME = 'Easy Service Superadmin'
 
 async function main() {
   loadEnvLocal()
 
   const uri = process.env.MONGODB_URI
-  if (!uri) {
-    throw new Error('MONGODB_URI is not set (checked .env.local and process.env)')
-  }
+  if (!uri) throw new Error('MONGODB_URI is not set (checked .env.local and process.env)')
 
   console.log('Connecting to MongoDB…')
   await mongoose.connect(uri)
 
-  const dbName = mongoose.connection.db?.databaseName
-  console.log(`⚠️  Wiping ALL data from database "${dbName}"…`)
-  await mongoose.connection.dropDatabase()
-  console.log('   Database dropped.')
+  const existing = await Admin.findOne({ role: 'superadmin' })
+  if (existing) {
+    console.log(`Superadmin already exists (${existing.email}). Nothing to do.`)
+    await mongoose.disconnect()
+    return
+  }
 
-  console.log(`Seeding owner ${OWNER_EMAIL}…`)
-  // Password is hashed by the Admin model's pre-save hook.
   await Admin.create({
-    name: OWNER_NAME,
-    email: OWNER_EMAIL,
-    password: OWNER_PASSWORD,
-    role: 'owner',
+    name: SUPERADMIN_NAME,
+    email: SUPERADMIN_EMAIL,
+    password: SUPERADMIN_PASSWORD,
+    role: 'superadmin',
+    companyId: null,
     hotelId: null,
   })
 
-  console.log('✅ Owner created.')
-  console.log('   Email:', OWNER_EMAIL)
-  console.log('   Password:', OWNER_PASSWORD)
+  console.log('✅ Superadmin created.')
+  console.log('   Email:', SUPERADMIN_EMAIL)
+  console.log('   Password:', SUPERADMIN_PASSWORD)
+  console.log('   Set SUPERADMIN_EMAIL / SUPERADMIN_PASSWORD env vars to control these.')
 
   await mongoose.disconnect()
-  console.log('Done.')
 }
 
 main().catch(async (err) => {

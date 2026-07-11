@@ -2,7 +2,7 @@ import { NextRequest, after } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Booking } from '@/models/Booking'
 import { Service } from '@/models/Service'
-import { requireDashboard } from '@/lib/session'
+import { requireDashboard, requireWritable } from '@/lib/session'
 import { notifyNewBooking } from '@/lib/telegram'
 
 // Fields kept when a booking on a shared service belongs to another hotel: the
@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
   const status = searchParams.get('status')
   const limit = searchParams.get('limit')
 
-  const filter: Record<string, unknown> = {}
+  const filter: Record<string, unknown> = { companyId: session.companyId }
   if (dateFrom && dateTo) {
     filter.date = { $gte: dateFrom, $lte: dateTo }
   } else if (dateFrom) {
@@ -56,6 +56,7 @@ export async function GET(req: NextRequest) {
   // resource's occupancy is visible), then we mask the ones that aren't theirs.
   if (session.role !== 'owner') {
     const accessible = await Service.find({
+      companyId: session.companyId,
       $or: [{ hotelId: session.hotelId }, { sharedHotelIds: session.hotelId }],
     }).select('_id').lean()
     filter.$or = [
@@ -90,6 +91,8 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const session = await requireDashboard()
   if (session instanceof Response) return session
+  const blocked = await requireWritable(session)
+  if (blocked) return blocked
 
   try {
     const body = await req.json()
@@ -100,7 +103,7 @@ export async function POST(req: NextRequest) {
     }
 
     await connectDB()
-    const service = await Service.findById(serviceId).lean()
+    const service = await Service.findOne({ _id: serviceId, companyId: session.companyId }).lean()
     if (!service) return Response.json({ error: 'Service not found' }, { status: 404 })
     // Admins may book services their hotel owns OR that are shared with them;
     // the owner may book any service.
@@ -154,6 +157,7 @@ export async function POST(req: NextRequest) {
     ]
 
     const booking = await Booking.create({
+      companyId: session.companyId,
       hotelId: bookingHotelId,
       bookedByHotelId: bookedByHotelId ?? undefined,
       serviceId,

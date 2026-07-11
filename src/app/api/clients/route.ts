@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Client } from '@/models/Client'
 import '@/models/ClientGroup'
-import { requireDashboard } from '@/lib/session'
+import { requireDashboard, requireWritable } from '@/lib/session'
 
 export async function GET(req: NextRequest) {
   const session = await requireDashboard()
@@ -14,8 +14,8 @@ export async function GET(req: NextRequest) {
 
   await connectDB()
 
-  // Clients are a single global pool shared across all hotels.
-  const filter: Record<string, unknown> = {}
+  // Clients are a single pool shared across every hotel in the company.
+  const filter: Record<string, unknown> = { companyId: session.companyId }
   if (search) {
     filter.$or = [
       { name: { $regex: search, $options: 'i' } },
@@ -37,6 +37,8 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const session = await requireDashboard()
   if (session instanceof Response) return session
+  const blocked = await requireWritable(session)
+  if (blocked) return blocked
 
   try {
     const body = await req.json()
@@ -45,7 +47,7 @@ export async function POST(req: NextRequest) {
     if (!name) return Response.json({ error: 'Name is required' }, { status: 400 })
 
     await connectDB()
-    const client = await Client.create({ name, phone, roomNumber, floor, notes, groupId: groupId || null })
+    const client = await Client.create({ companyId: session.companyId, name, phone, roomNumber, floor, notes, groupId: groupId || null })
     return Response.json(client, { status: 201 })
   } catch (err) {
     console.error(err)

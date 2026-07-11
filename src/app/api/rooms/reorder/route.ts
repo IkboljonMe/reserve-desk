@@ -1,13 +1,15 @@
 import { NextRequest } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Room } from '@/models/Room'
-import { requireOwner } from '@/lib/session'
+import { requireOwner, requireWritable } from '@/lib/session'
 
 // Persist a new manual ordering for a set of rooms. The client sends the room
 // ids in their desired sequence; each gets order = its index in the list.
 export async function PUT(req: NextRequest) {
   const session = await requireOwner()
   if (session instanceof Response) return session
+  const blocked = await requireWritable(session)
+  if (blocked) return blocked
 
   try {
     const body = await req.json()
@@ -19,7 +21,7 @@ export async function PUT(req: NextRequest) {
     await connectDB()
     await Room.bulkWrite(
       (ids as string[]).map((id, index) => ({
-        updateOne: { filter: { _id: id }, update: { $set: { order: index } } },
+        updateOne: { filter: { _id: id, companyId: session.companyId }, update: { $set: { order: index } } },
       }))
     )
     return Response.json({ ok: true })

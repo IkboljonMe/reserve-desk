@@ -2,19 +2,21 @@ import { NextRequest, after } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Service } from '@/models/Service'
 import '@/models/Hotel'
-import { getSession, requireOwner } from '@/lib/session'
+import { getSession, requireOwner, requireWritable } from '@/lib/session'
 import { sanitizeVariants } from '@/lib/serviceVariants'
 import { ensureTopicForService } from '@/lib/telegram'
 
 export async function GET() {
   const session = await getSession()
-  if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!session || session.role === 'superadmin' || !session.companyId) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  }
 
-  // Owner sees every hotel's services; an admin sees services their hotel owns
-  // OR that another hotel has shared with them.
+  // Owner sees every hotel's services in their company; an admin sees services
+  // their hotel owns OR that another hotel has shared with them.
   const filter = session.role === 'owner'
-    ? {}
-    : { $or: [{ hotelId: session.hotelId }, { sharedHotelIds: session.hotelId }] }
+    ? { companyId: session.companyId }
+    : { companyId: session.companyId, $or: [{ hotelId: session.hotelId }, { sharedHotelIds: session.hotelId }] }
 
   await connectDB()
   const services = await Service.find(filter).populate('hotelId').sort({ createdAt: -1 }).lean()
@@ -24,6 +26,8 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   const session = await requireOwner()
   if (session instanceof Response) return session
+  const blocked = await requireWritable(session)
+  if (blocked) return blocked
 
   try {
     const body = await req.json()
@@ -40,6 +44,7 @@ export async function POST(req: NextRequest) {
 
     await connectDB()
     const service = await Service.create({
+      companyId: session.companyId,
       name, icon, description,
       hotelId: hotelId || null,
       sharedHotelIds: shared,

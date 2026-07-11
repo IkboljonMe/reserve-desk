@@ -2,17 +2,19 @@ import { NextRequest, after } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Service } from '@/models/Service'
 import '@/models/Hotel'
-import { getSession, requireOwner } from '@/lib/session'
+import { getSession, requireOwner, requireWritable } from '@/lib/session'
 import { sanitizeVariants } from '@/lib/serviceVariants'
 import { deleteTopicForService } from '@/lib/telegram'
 
 export async function GET(_req: NextRequest, ctx: RouteContext<'/api/services/[id]'>) {
   const session = await getSession()
-  if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!session || session.role === 'superadmin' || !session.companyId) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  }
 
   const { id } = await ctx.params
   await connectDB()
-  const service = await Service.findById(id).populate('hotelId').lean()
+  const service = await Service.findOne({ _id: id, companyId: session.companyId }).populate('hotelId').lean()
   if (!service) return Response.json({ error: 'Not found' }, { status: 404 })
   // Admins can read services their hotel owns OR that are shared with them.
   if (session.role !== 'owner') {
@@ -28,6 +30,8 @@ export async function GET(_req: NextRequest, ctx: RouteContext<'/api/services/[i
 export async function PUT(req: NextRequest, ctx: RouteContext<'/api/services/[id]'>) {
   const session = await requireOwner()
   if (session instanceof Response) return session
+  const blocked = await requireWritable(session)
+  if (blocked) return blocked
 
   const { id } = await ctx.params
   const body = await req.json()
@@ -52,8 +56,8 @@ export async function PUT(req: NextRequest, ctx: RouteContext<'/api/services/[id
     ...(Array.isArray(body.variants) && { variants: sanitizeVariants(body.variants) }),
   }
 
-  const service = await Service.findByIdAndUpdate(
-    id,
+  const service = await Service.findOneAndUpdate(
+    { _id: id, companyId: session.companyId },
     parsedBody,
     { new: true, runValidators: true }
   ).lean()
@@ -65,10 +69,13 @@ export async function PUT(req: NextRequest, ctx: RouteContext<'/api/services/[id
 export async function DELETE(_req: NextRequest, ctx: RouteContext<'/api/services/[id]'>) {
   const session = await requireOwner()
   if (session instanceof Response) return session
+  const blocked = await requireWritable(session)
+  if (blocked) return blocked
 
   const { id } = await ctx.params
   await connectDB()
-  await Service.findByIdAndDelete(id)
+  const deleted = await Service.findOneAndDelete({ _id: id, companyId: session.companyId })
+  if (!deleted) return Response.json({ error: 'Not found' }, { status: 404 })
   after(() => deleteTopicForService(id))
   return Response.json({ success: true })
 }
