@@ -10,6 +10,19 @@ const pad = (n: number) => n.toString().padStart(2, '0')
 const toMin = (t: string) => { const [h, m] = t.split(':').map(Number); return h * 60 + m }
 const fromMin = (min: number) => `${pad(Math.floor(min / 60))}:${pad(min % 60)}`
 
+// Coerces/validates the optional menu-item list from a request body — drops
+// rows without a name and clamps qty/price to sane ranges.
+function sanitizeMenuItems(input: unknown): { name: string; qty: number; price: number }[] {
+  if (!Array.isArray(input)) return []
+  return input
+    .filter((it): it is Record<string, unknown> => !!it && typeof it === 'object' && typeof it.name === 'string' && it.name.trim() !== '')
+    .map(it => ({
+      name: String(it.name).trim(),
+      qty: Math.max(1, Math.round(Number(it.qty) || 1)),
+      price: Math.max(0, Number(it.price) || 0),
+    }))
+}
+
 export async function GET(_req: NextRequest, ctx: RouteContext<'/api/bookings/[id]'>) {
   const session = await requireDashboard()
   if (session instanceof Response) return session
@@ -79,8 +92,11 @@ export async function PUT(req: NextRequest, ctx: RouteContext<'/api/bookings/[id
     events.push({ action: 'notes_updated', at: now, by: session.userId })
   }
   // Menu/order request is shown in the Telegram message, so a change edits it in place.
-  if (typeof body.menu === 'string' && body.menu !== current.menu) {
-    current.menu = body.menu; notifyChanged = true
+  if (body.menuItems !== undefined) {
+    const nextItems = sanitizeMenuItems(body.menuItems)
+    if (JSON.stringify(nextItems) !== JSON.stringify(current.menuItems)) {
+      current.menuItems = nextItems as never; notifyChanged = true
+    }
   }
   if (typeof body.menuReadyTime === 'string' && body.menuReadyTime !== current.menuReadyTime) {
     current.menuReadyTime = body.menuReadyTime; notifyChanged = true
@@ -162,6 +178,7 @@ export async function PUT(req: NextRequest, ctx: RouteContext<'/api/bookings/[id
       notifyBookingUpdated(
         { chatId: booking.tgChatId!, messageId: booking.tgMessageId!, messageThreadId: booking.tgThreadId ?? undefined },
         {
+          bookingId: String(booking._id),
           hotelId: booking.hotelId,
           serviceId: booking.serviceId as unknown as { _id: string; name: string },
           customerName: booking.customerName,
@@ -175,7 +192,8 @@ export async function PUT(req: NextRequest, ctx: RouteContext<'/api/bookings/[id
           paid: booking.paid,
           finished: booking.finished,
           status: booking.status,
-          menu: booking.menu,
+          notes: booking.notes,
+          menuItems: booking.menuItems,
           menuReadyTime: booking.menuReadyTime,
           createdByName: creator?.name,
         },
@@ -213,6 +231,7 @@ export async function DELETE(_req: NextRequest, ctx: RouteContext<'/api/bookings
       notifyBookingUpdated(
         { chatId: deleted.tgChatId!, messageId: deleted.tgMessageId!, messageThreadId: deleted.tgThreadId ?? undefined },
         {
+          bookingId: String(deleted._id),
           hotelId: deleted.hotelId,
           serviceId: deleted.serviceId as unknown as { _id: string; name: string },
           customerName: deleted.customerName,
@@ -224,7 +243,8 @@ export async function DELETE(_req: NextRequest, ctx: RouteContext<'/api/bookings
           totalPrice: deleted.totalPrice,
           amountPaid: deleted.amountPaid,
           paid: deleted.paid,
-          menu: deleted.menu,
+          notes: deleted.notes,
+          menuItems: deleted.menuItems,
           menuReadyTime: deleted.menuReadyTime,
           status: 'cancelled',
           createdByName: creator?.name,

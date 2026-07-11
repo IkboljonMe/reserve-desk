@@ -61,9 +61,13 @@ The core record.
 - Who/what: `hotelId` (owner hotel the revenue is attributed to),
   `bookedByHotelId` (the hotel that actually made it — differs for shared
   services), `serviceId`, `clientId?`, `customerName`, `customerPhone`,
-  `roomNumber`, `variantId?`/`variantName?`, `notes` (free-text), `menu` +
-  `menuReadyTime` (optional food/order request and its "HH:mm" ready-by time —
-  e.g. for a SPA & Pool event — shown in the Telegram message when set).
+  `roomNumber`, `variantId?`/`variantName?`, `notes` (free-text), `menuItems`
+  (optional itemized food/order request — `{ name, qty, price }[]` — e.g. for
+  a SPA & Pool event) + `menuReadyTime` ("HH:mm" ready-by time). When
+  `menuItems` is non-empty it's shown as its own itemized "✅ Заказ принят"
+  message in Telegram (`buildOrderMessage()` in `src/lib/telegram.ts`), with a
+  10% service fee computed from the items — that fee is Telegram-display-only
+  and never touches `totalPrice`/`amountPaid`.
 - When: `date` (`YYYY-MM-DD`), `startTime`, `endTime`, `bufferedEndTime`,
   `duration` (minutes), `persons` (party size, default 1).
 - Money/state: `totalPrice`, `amountPaid` (money collected so far — a value

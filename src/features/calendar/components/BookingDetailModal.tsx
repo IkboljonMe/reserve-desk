@@ -71,11 +71,14 @@ export function BookingDetailModal({ s }: { s: CalendarPageState }) {
             success={selectedBooking.paid}
           />
           {selectedBooking.notes && <DetailRow icon={<FileText size={15} />} label={t('notes')} value={selectedBooking.notes} />}
-          {selectedBooking.menu && (
+          {selectedBooking.menuItems && selectedBooking.menuItems.length > 0 && (
             <DetailRow
               icon={<UtensilsCrossed size={15} />}
               label={t('menu')}
-              value={selectedBooking.menu + (selectedBooking.menuReadyTime ? ` · ${t('menuReadyTime')} ${selectedBooking.menuReadyTime}` : '')}
+              value={
+                selectedBooking.menuItems.map(it => `${it.qty}x ${it.name}`).join(', ') +
+                (selectedBooking.menuReadyTime ? ` · ${t('menuReadyTime')} ${selectedBooking.menuReadyTime}` : '')
+              }
             />
           )}
         </div>

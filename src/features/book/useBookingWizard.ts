@@ -10,7 +10,7 @@ import { getBookings } from '@/lib/api/bookings'
 import { getClients } from '@/lib/api/clients'
 import { useCreateBookingMutation } from '@/hooks/useBookings'
 import {
-  Service, ServiceVariant, Room, Hotel, ClientGroup, Client, PricingPlan, PricingGroup, BookingType, DayBooking,
+  Service, ServiceVariant, Room, Hotel, ClientGroup, Client, PricingPlan, PricingGroup, BookingType, DayBooking, MenuItem,
 } from './types'
 import { serviceAvailableToHotel, generateTimeSlots, slotEnd, toMin } from './utils'
 import { hoursForDate } from '@/lib/serviceHours'
@@ -74,7 +74,7 @@ export function useBookingWizard({
   const [roomNumber, setRoomNumber] = useState('')
   const [notes, setNotes] = useState('')
   // Optional food/order request (e.g. for a SPA & Pool event) + when it should be ready.
-  const [menu, setMenu] = useState('')
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([])
   const [menuReadyTime, setMenuReadyTime] = useState('')
   const [persons, setPersons] = useState(1)
   const [paid, setPaid] = useState(false)
@@ -238,6 +238,12 @@ export function useBookingWizard({
 
   const canReview = !!(selectedService && activePlan && selectedSlot && date && planReady && guestReady)
 
+  // Live preview of the menu/order total — mirrors the Telegram message's math
+  // (src/lib/telegram.ts › MENU_SERVICE_FEE_RATE must stay in sync).
+  const menuSubtotal = menuItems.reduce((sum, it) => sum + it.qty * it.price, 0)
+  const menuServiceFee = Math.round(menuSubtotal * 0.1)
+  const menuTotal = menuSubtotal + menuServiceFee
+
   // ── Slide navigation ──────────────────────────────────────────────────────
 
   // The hotel slide only exists when there's actually a choice to make.
@@ -387,6 +393,20 @@ export function useBookingWizard({
     setRoomNumber(roomLabel(r))
   }
 
+  // ── Menu / order items ───────────────────────────────────────────────────
+
+  function addMenuItem() {
+    setMenuItems(items => [...items, { name: '', qty: 1, price: 0 }])
+  }
+
+  function updateMenuItem(index: number, patch: Partial<MenuItem>) {
+    setMenuItems(items => items.map((it, i) => (i === index ? { ...it, ...patch } : it)))
+  }
+
+  function removeMenuItem(index: number) {
+    setMenuItems(items => items.filter((_, i) => i !== index))
+  }
+
   // ── Add-client modal ─────────────────────────────────────────────────────
 
   function openAddClientModal() {
@@ -449,7 +469,7 @@ export function useBookingWizard({
         persons,
         totalPrice: activePlan.price,
         notes: notes.trim(),
-        menu: menu.trim(),
+        menuItems: menuItems.filter(it => it.name.trim()).map(it => ({ ...it, name: it.name.trim() })),
         menuReadyTime,
         paid: activePlan.price === 0 ? false : paid,
         amountPaid: activePlan.price === 0 ? 0 : (paid ? activePlan.price : Math.min(amountPaid, activePlan.price)),
@@ -485,7 +505,9 @@ export function useBookingWizard({
     // guest / room
     selectedClientId, setSelectedClientId, selectedRoomId,
     customerName, setCustomerName, customerPhone, setCustomerPhone,
-    roomNumber, setRoomNumber, notes, setNotes, menu, setMenu, menuReadyTime, setMenuReadyTime,
+    roomNumber, setRoomNumber, notes, setNotes,
+    menuItems, addMenuItem, updateMenuItem, removeMenuItem, menuReadyTime, setMenuReadyTime,
+    menuSubtotal, menuServiceFee, menuTotal,
     persons, setPersons, paid, setPaid,
     amountPaid, setAmountPaid, loading: createMutation.isPending,
     clientSearch, setClientSearch, clientResults, clearClient,
