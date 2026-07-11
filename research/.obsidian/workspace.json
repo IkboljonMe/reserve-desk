@@ -1,0 +1,212 @@
+{
+  "main": {
+    "id": "8f594995f0a30b95",
+    "type": "split",
+    "children": [
+      {
+        "id": "fa30f0d390f35cdb",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "38b68d17976825fe",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "2026-07-11-mehmonxona-boshqaruv-tizimlari-raqobatchilar/Uzbekiston/Nizi Solutions.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Nizi Solutions"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "d007a3643d451174",
+    "type": "split",
+    "children": [
+      {
+        "id": "12faef620cc52759",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "2e45096ce55af2b5",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "a9489084ea9d0c11",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "2dd3096b05e9bb8d",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "528018c4f14ebff7",
+    "type": "split",
+    "children": [
+      {
+        "id": "2f3035649a3d12b9",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "1309753299690c1d",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "2026-07-11-mehmonxona-boshqaruv-tizimlari-raqobatchilar/Uzbekiston/Nizi Solutions.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for Nizi Solutions"
+            }
+          },
+          {
+            "id": "54c848e2ccbbfb56",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "2026-07-11-mehmonxona-boshqaruv-tizimlari-raqobatchilar/Uzbekiston/Nizi Solutions.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from Nizi Solutions"
+            }
+          },
+          {
+            "id": "77ff6a7fb3986b08",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "c36155921c5451d0",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "6aa99849f8ba0246",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "2026-07-11-mehmonxona-boshqaruv-tizimlari-raqobatchilar/Uzbekiston/Nizi Solutions.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of Nizi Solutions"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "38b68d17976825fe",
+  "lastOpenFiles": [
+    "2026-07-11-mehmonxona-boshqaruv-tizimlari-raqobatchilar/Uzbekiston/MyBooking.uz.md",
+    "2026-07-11-mehmonxona-boshqaruv-tizimlari-raqobatchilar/Uzbekiston/Exely.md",
+    "2026-07-11-mehmonxona-boshqaruv-tizimlari-raqobatchilar/Uzbekiston/Bnovo.md",
+    "2026-07-11-mehmonxona-boshqaruv-tizimlari-raqobatchilar/Xulosa.md",
+    "2026-07-11-mehmonxona-boshqaruv-tizimlari-raqobatchilar/Xulosa.md.tmp.2378838.73ebfff3d44c",
+    "2026-07-11-mehmonxona-boshqaruv-tizimlari-raqobatchilar/MOC.md",
+    "2026-07-11-mehmonxona-boshqaruv-tizimlari-raqobatchilar/MOC.md.tmp.2378838.8de2e7c8cfb6",
+    "2026-07-11-mehmonxona-boshqaruv-tizimlari-raqobatchilar/Dunyo/InnRoad.md",
+    "2026-07-11-mehmonxona-boshqaruv-tizimlari-raqobatchilar/Dunyo/InnRoad.md.tmp.2378838.b292b801c6fe",
+    "2026-07-11-mehmonxona-boshqaruv-tizimlari-raqobatchilar/Dunyo/QloApps.md",
+    "2026-07-11-mehmonxona-boshqaruv-tizimlari-raqobatchilar/Dunyo/QloApps.md.tmp.2378838.1fd4374e58b7",
+    "2026-07-11-mehmonxona-boshqaruv-tizimlari-raqobatchilar/Dunyo/Little Hotelier.md",
+    "2026-07-11-mehmonxona-boshqaruv-tizimlari-raqobatchilar/Dunyo/Little Hotelier.md.tmp.2378838.6b11b0ec75a7",
+    "2026-07-11-mehmonxona-boshqaruv-tizimlari-raqobatchilar/Dunyo/Hotelogix.md",
+    "2026-07-11-mehmonxona-boshqaruv-tizimlari-raqobatchilar/Dunyo/Hotelogix.md.tmp.2378838.b0897f3080bf",
+    "2026-07-11-mehmonxona-boshqaruv-tizimlari-raqobatchilar/Uzbekiston/E-MEHMON.md",
+    "2026-07-11-mehmonxona-boshqaruv-tizimlari-raqobatchilar/Dunyo/eZee Absolute.md",
+    "2026-07-11-mehmonxona-boshqaruv-tizimlari-raqobatchilar/Dunyo/eZee Absolute.md.tmp.2378838.f5a2fd371474",
+    "2026-07-11-mehmonxona-boshqaruv-tizimlari-raqobatchilar/Uzbekiston/Shelter.md",
+    "2026-07-11-mehmonxona-boshqaruv-tizimlari-raqobatchilar/Uzbekiston/Shelter.md.tmp.2378838.7296b4b1ac3c",
+    "2026-07-11-mehmonxona-boshqaruv-tizimlari-raqobatchilar/Uzbekiston/Bnovo.md.tmp.2378838.14a988ed879d",
+    "2026-07-11-mehmonxona-boshqaruv-tizimlari-raqobatchilar/Uzbekiston/TravelLine.md",
+    "2026-07-11-mehmonxona-boshqaruv-tizimlari-raqobatchilar/Uzbekiston/TravelLine.md.tmp.2378838.be80e90d7e2c"
+  ]
+}
