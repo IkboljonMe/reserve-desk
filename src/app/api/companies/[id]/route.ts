@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Company, RESERVED_SLUGS, SLUG_PATTERN } from '@/models/Company'
 import { Hotel } from '@/models/Hotel'
+import { Admin } from '@/models/Admin'
 import { requireSuperadmin } from '@/lib/session'
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -63,5 +64,8 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
 
   const company = await Company.findByIdAndDelete(id)
   if (!company) return Response.json({ error: 'Not found' }, { status: 404 })
+  // A hotel-less company can still have owner/admin accounts — remove them so
+  // their emails are freed and no orphaned logins remain.
+  await Admin.deleteMany({ companyId: id })
   return Response.json({ ok: true })
 }
