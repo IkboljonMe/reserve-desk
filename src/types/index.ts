@@ -68,7 +68,7 @@ export interface Booking {
   endTime: string
   persons?: number
   notes: string
-  menu?: string
+  menuItems?: { name: string; qty: number; price: number }[]
   menuReadyTime?: string
   status: string
   totalPrice: number

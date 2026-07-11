@@ -23,7 +23,7 @@ function maskBooking(b: Record<string, unknown>) {
     customerPhone: '',
     roomNumber: '',
     notes: '',
-    menu: '',
+    menuItems: [],
     menuReadyTime: '',
     totalPrice: 0,
     amountPaid: 0,
@@ -31,6 +31,19 @@ function maskBooking(b: Record<string, unknown>) {
     finished: false,
     history: [],
   }
+}
+
+// Coerces/validates the optional menu-item list from a request body — drops
+// rows without a name and clamps qty/price to sane ranges.
+function sanitizeMenuItems(input: unknown): { name: string; qty: number; price: number }[] {
+  if (!Array.isArray(input)) return []
+  return input
+    .filter((it): it is Record<string, unknown> => !!it && typeof it === 'object' && typeof it.name === 'string' && it.name.trim() !== '')
+    .map(it => ({
+      name: String(it.name).trim(),
+      qty: Math.max(1, Math.round(Number(it.qty) || 1)),
+      price: Math.max(0, Number(it.price) || 0),
+    }))
 }
 
 export async function GET(req: NextRequest) {
@@ -99,7 +112,8 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json()
-    const { serviceId, clientId, customerName, customerPhone, roomNumber, date, startTime, endTime, notes, menu, menuReadyTime, status, bookingType, category, variantId } = body
+    const { serviceId, clientId, customerName, customerPhone, roomNumber, date, startTime, endTime, notes, menuReadyTime, status, bookingType, category, variantId } = body
+    const menuItems = sanitizeMenuItems(body.menuItems)
 
     if (!serviceId || !customerName || !date || !startTime || !endTime) {
       return Response.json({ error: 'serviceId, customerName, date, startTime, endTime are required' }, { status: 400 })
@@ -195,7 +209,7 @@ export async function POST(req: NextRequest) {
       totalPrice: total,
       amountPaid,
       notes: notes || '',
-      menu: menu || '',
+      menuItems,
       menuReadyTime: menuReadyTime || '',
       status: status || 'confirmed',
       paid,
@@ -214,6 +228,7 @@ export async function POST(req: NextRequest) {
     const serviceForNotify = populated!.serviceId as unknown as { _id: string; name: string }
     after(async () => {
       const ref = await notifyNewBooking({
+        bookingId: String(booking._id),
         hotelId: bookingHotelId,
         serviceId: serviceForNotify,
         customerName,
@@ -225,7 +240,8 @@ export async function POST(req: NextRequest) {
         totalPrice: total,
         amountPaid,
         paid,
-        menu,
+        notes: notes || '',
+        menuItems,
         menuReadyTime,
         createdByName: session.name,   // "who booked"
       })

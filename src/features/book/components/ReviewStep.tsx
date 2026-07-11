@@ -15,7 +15,7 @@ export function ReviewStep({ w }: { w: BookingWizard }) {
   const {
     hotels, selectedHotelId, selectedService, selectedVariant, bookingType, categoryMeta,
     activePlan, selectedSlot, date, customerName, customerPhone, roomNumber, notes,
-    menu, menuReadyTime,
+    menuItems, menuReadyTime, menuSubtotal, menuServiceFee, menuTotal,
     persons, setPersons, paid, setPaid, amountPaid, setAmountPaid,
   } = w
   if (!selectedService || !activePlan || !selectedSlot) return null
@@ -75,13 +75,35 @@ export function ReviewStep({ w }: { w: BookingWizard }) {
           </>
         )}
 
-        {menu && (
+        {menuItems.length > 0 && (
           <>
             <strong style={{ color: 'var(--gray-800)' }}>{t('menu')}</strong>
-            <span>{menu}{menuReadyTime && ` · ${t('menuReadyTime')} ${menuReadyTime}`}</span>
+            <span>
+              {formatUZS(menuTotal)} {t('sum')}
+              {menuReadyTime && ` · ${t('menuReadyTime')} ${menuReadyTime}`}
+            </span>
           </>
         )}
       </div>
+
+      {menuItems.length > 0 && (
+        <div style={{
+          background: 'var(--gray-50)', border: '1px solid var(--gray-200)', borderRadius: 10,
+          padding: '0.85rem 1rem', marginBottom: '1.25rem', fontSize: '0.82rem', color: 'var(--gray-600)',
+        }}>
+          {menuItems.map((it, i) => (
+            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+              <span>{it.qty}x {it.name}</span>
+              <span>{formatUZS(it.qty * it.price)}</span>
+            </div>
+          ))}
+          <div style={{ borderTop: '1px dashed var(--gray-200)', marginTop: 6, paddingTop: 6 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>{t('menuSubtotal')}</span><span>{formatUZS(menuSubtotal)}</span></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>{t('menuServiceFee')}</span><span>{formatUZS(menuServiceFee)}</span></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, color: 'var(--gray-800)' }}><span>{t('menuTotal')}</span><span>{formatUZS(menuTotal)}</span></div>
+          </div>
+        </div>
+      )}
 
       <div className="form-group" style={{ marginBottom: '1.25rem', maxWidth: 200 }}>
         <label className="form-label">{t('personsCount')}</label>

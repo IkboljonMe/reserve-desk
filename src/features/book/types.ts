@@ -61,6 +61,9 @@ export interface Client {
 
 export type BookingType = 'client' | 'room'
 
+// A line item in the optional food/order request (e.g. for a SPA & Pool event).
+export interface MenuItem { name: string; qty: number; price: number }
+
 export interface DayBooking {
   startTime: string
   bufferedEndTime?: string

@@ -25,8 +25,11 @@ entirely for single-hotel admins, who are auto-scoped):
    - `custom` — one‑off, manual duration + price.
    - **Rate + hours** — see [pricing.md](./pricing.md).
 4. **Guest** (`GuestSection`) — guest/room details (name, phone, room number,
-   notes), plus an optional `menu`/`menuReadyTime` field for a food/order
-   request (e.g. for a SPA & Pool event) and when it should be ready.
+   notes), plus an optional itemized `menuItems` order (name + qty + price per
+   row, via the shared `MenuItemsEditor` — `src/components/ui/MenuItemsEditor.tsx`)
+   for a food/order request (e.g. for a SPA & Pool event) and a `menuReadyTime`
+   for when it should be ready. A live subtotal / 10% service fee / total
+   preview mirrors what the Telegram message will show.
 5. **Date & time** (`DateTimeSection`) — a date input plus the available start‑time slots.
 6. **Review** (`ReviewStep`) — read‑only summary, headcount, payment toggle, confirm.
 
@@ -39,11 +42,17 @@ navigation involved.
 
 `confirmBooking()` posts to `POST /api/bookings` with `serviceId`, `date`,
 `startTime`, `endTime`, `duration`, `totalPrice`, guest fields (including
-`menu`/`menuReadyTime`), `bookingType`, `category`, `variantId`. When set,
-`menu`/`menuReadyTime` are also included in the Telegram notification
-(`buildBookingMessage()` in `src/lib/telegram.ts`) and editing them later
-(via the calendar's edit modal or the dashboard's booking drawer) edits that
-Telegram message in place, same as other guest-detail changes.
+`menuItems`/`menuReadyTime`), `bookingType`, `category`, `variantId`. The
+server re-sanitizes `menuItems` (drops rows without a name, clamps
+qty/price — `sanitizeMenuItems()` in both booking API routes).
+
+When `menuItems` is non-empty, the booking gets a distinct, itemized Telegram
+message (`buildOrderMessage()` in `src/lib/telegram.ts` — "✅ Заказ принят"
+with per-item lines, a 10% service fee, and a total) instead of the plain
+"🆕 New booking" summary; bookings without menu items are unaffected. Editing
+the menu later (via the calendar's edit modal or the dashboard's booking
+drawer, both using the same `MenuItemsEditor`) edits that Telegram message in
+place, same as other guest-detail changes.
 
 ## Opening hours per date
 

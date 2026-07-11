@@ -12,7 +12,7 @@ export interface BookingInput {
   totalPrice: number
   amountPaid?: number
   notes: string
-  menu?: string
+  menuItems?: { name: string; qty: number; price: number }[]
   menuReadyTime?: string
   paid: boolean
   bookingType?: 'client' | 'room' | 'custom' | null

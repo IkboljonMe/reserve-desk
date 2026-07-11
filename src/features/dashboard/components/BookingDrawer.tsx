@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import { Booking, Hotel, bookingState, money, svcId, amountCollected, amountDue, isPartiallyPaid } from '@/lib/bookingHelpers'
 import { getServiceIcon } from '@/lib/serviceIcons'
+import { MenuItemsEditor, type MenuItem } from '@/components/ui/MenuItemsEditor'
 import { useTranslation, type DictionaryKeys } from '@/i18n'
 
 interface Actor {
@@ -87,7 +88,7 @@ export default function BookingDrawer({
   const [editingNotes, setEditingNotes] = useState(false)
   const [notesDraft, setNotesDraft] = useState('')
   const [editingMenu, setEditingMenu] = useState(false)
-  const [menuDraft, setMenuDraft] = useState('')
+  const [menuDraft, setMenuDraft] = useState<MenuItem[]>([])
   const [menuReadyTimeDraft, setMenuReadyTimeDraft] = useState('')
   const [busy, setBusy] = useState(false)
 
@@ -97,7 +98,7 @@ export default function BookingDrawer({
     if (res.ok) {
       setB(data)
       setNotesDraft(data.notes || '')
-      setMenuDraft(data.menu || '')
+      setMenuDraft(data.menuItems || [])
       setMenuReadyTimeDraft(data.menuReadyTime || '')
     }
     setLoading(false)
@@ -119,7 +120,7 @@ export default function BookingDrawer({
       const data = await res.json()
       setB(data)
       setNotesDraft(data.notes || '')
-      setMenuDraft(data.menu || '')
+      setMenuDraft(data.menuItems || [])
       setMenuReadyTimeDraft(data.menuReadyTime || '')
       onChanged(id, changes)
       showToast(msg, 'success')
@@ -279,19 +280,24 @@ export default function BookingDrawer({
             <Section title={t('menu')} action={!editingMenu ? <button className="btn btn-ghost btn-sm" style={{ padding: '2px 6px' }} onClick={() => setEditingMenu(true)}><Pencil size={12} /> {t('edit')}</button> : undefined}>
               {editingMenu ? (
                 <div>
-                  <textarea className="form-textarea" value={menuDraft} onChange={e => setMenuDraft(e.target.value)} style={{ minHeight: 70, fontSize: '0.82rem' }} placeholder={t('addMenuPlaceholder')} />
-                  <div style={{ marginTop: 8 }}>
-                    <label className="form-label" style={{ fontSize: '0.78rem' }}>{t('menuReadyTime')}</label>
-                    <input type="time" className="form-input" style={{ maxWidth: 140 }} value={menuReadyTimeDraft} onChange={e => setMenuReadyTimeDraft(e.target.value)} />
-                  </div>
+                  <MenuItemsEditor
+                    items={menuDraft}
+                    onAdd={() => setMenuDraft(items => [...items, { name: '', qty: 1, price: 0 }])}
+                    onUpdate={(i, patch) => setMenuDraft(items => items.map((it, idx) => (idx === i ? { ...it, ...patch } : it)))}
+                    onRemove={i => setMenuDraft(items => items.filter((_, idx) => idx !== i))}
+                    readyTime={menuReadyTimeDraft}
+                    onReadyTimeChange={setMenuReadyTimeDraft}
+                  />
                   <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', marginTop: 6 }}>
-                    <button className="btn btn-secondary btn-sm" onClick={() => { setEditingMenu(false); setMenuDraft(b.menu || ''); setMenuReadyTimeDraft(b.menuReadyTime || '') }}>{t('cancel')}</button>
-                    <button className="btn btn-primary btn-sm" disabled={busy} onClick={async () => { await mutate({ menu: menuDraft, menuReadyTime: menuReadyTimeDraft }, t('menuSaved')); setEditingMenu(false) }}>{t('save')}</button>
+                    <button className="btn btn-secondary btn-sm" onClick={() => { setEditingMenu(false); setMenuDraft(b.menuItems || []); setMenuReadyTimeDraft(b.menuReadyTime || '') }}>{t('cancel')}</button>
+                    <button className="btn btn-primary btn-sm" disabled={busy} onClick={async () => { await mutate({ menuItems: menuDraft.filter(it => it.name.trim()), menuReadyTime: menuReadyTimeDraft }, t('menuSaved')); setEditingMenu(false) }}>{t('save')}</button>
                   </div>
                 </div>
               ) : (
-                <p style={{ fontSize: '0.82rem', color: b.menu ? 'var(--gray-700)' : 'var(--gray-400)', margin: 0, whiteSpace: 'pre-wrap' }}>
-                  {b.menu ? `${b.menu}${b.menuReadyTime ? ` · ${t('menuReadyTime')} ${b.menuReadyTime}` : ''}` : t('noMenu')}
+                <p style={{ fontSize: '0.82rem', color: b.menuItems?.length ? 'var(--gray-700)' : 'var(--gray-400)', margin: 0, whiteSpace: 'pre-wrap' }}>
+                  {b.menuItems?.length
+                    ? `${b.menuItems.map(it => `${it.qty}x ${it.name}`).join(', ')}${b.menuReadyTime ? ` · ${t('menuReadyTime')} ${b.menuReadyTime}` : ''}`
+                    : t('noMenu')}
                 </p>
               )}
             </Section>

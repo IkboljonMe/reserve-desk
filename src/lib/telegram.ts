@@ -1,8 +1,10 @@
+import { format } from 'date-fns'
 import { connectDB } from '@/lib/mongodb'
 import { Hotel } from '@/models/Hotel'
 import { Service } from '@/models/Service'
 import { TelegramConfig } from '@/models/TelegramConfig'
 import { TelegramTopic } from '@/models/TelegramTopic'
+import { nowUZ } from '@/lib/timezone'
 import type { Types } from 'mongoose'
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN
@@ -132,7 +134,14 @@ export async function syncAllTopics(): Promise<void> {
 
 const money = (v: number) => v.toLocaleString('en-US').replace(/,/g, ' ')
 
+export interface BookingMenuItem {
+  name: string
+  qty: number
+  price: number
+}
+
 export interface BookingNotifyData {
+  bookingId?: string
   hotelId: Types.ObjectId | string
   serviceId: Types.ObjectId | string | { _id: Types.ObjectId | string; name: string }
   customerName: string
@@ -146,10 +155,16 @@ export interface BookingNotifyData {
   paid: boolean
   finished?: boolean
   status?: string          // 'confirmed' | 'pending' | 'cancelled'
-  menu?: string            // free-text order/menu request (e.g. food for the event)
-  menuReadyTime?: string   // "HH:mm" — when the order should be ready
+  notes?: string
+  menuItems?: BookingMenuItem[]  // optional food/order request (e.g. for a SPA & Pool event)
+  menuReadyTime?: string         // "HH:mm" — when the order should be ready
   createdByName?: string   // the admin who created the booking ("who booked")
 }
+
+// Informational only — shown in the order message, doesn't affect the
+// booking's actual totalPrice/payment (src/components/ui/MenuItemsEditor.tsx
+// and useBookingWizard.ts's live preview must stay in sync with this rate).
+const MENU_SERVICE_FEE_RATE = 0.1
 
 // Where a booking's Telegram message lives, so it can be edited later.
 export interface BookingMessageRef {
@@ -183,10 +198,45 @@ function buildBookingMessage(booking: BookingNotifyData, serviceName?: string): 
   ]
   if (booking.persons && booking.persons > 1) lines.push(`👥 ${booking.persons} чел.`)
   if (booking.createdByName) lines.push(`🧑‍💼 Забронировал: ${booking.createdByName}`)
-  if (booking.menu) lines.push(`🍽 ${booking.menu}${booking.menuReadyTime ? ` (к ${booking.menuReadyTime})` : ''}`)
   lines.push(`💰 ${priceText} — ${paidText}`)
   if (!cancelled && booking.finished) lines.push('✅ Завершено')
   return lines.join('\n')
+}
+
+// Spacious, itemized order summary used when a booking has menu items
+// attached (e.g. food for a SPA & Pool event) — spans multiple blank-line
+// separated sections so it stays easy to scan on a phone.
+function buildOrderMessage(booking: BookingNotifyData, hotelName: string): string {
+  const cancelled = booking.status === 'cancelled'
+  const header = cancelled ? '🚫 <b>Отменено</b>' : '✅ <b>Заказ принят</b>'
+  const items = booking.menuItems ?? []
+  const subtotal = items.reduce((sum, it) => sum + it.qty * it.price, 0)
+  const fee = Math.round(subtotal * MENU_SERVICE_FEE_RATE)
+  const total = subtotal + fee
+  const itemLines = items.map(it => `${it.qty}x ${it.name} - ${money(it.qty * it.price)} so'm`)
+  const timeStr = format(nowUZ(), 'dd.MM.yyyy, HH:mm:ss')
+
+  const lines = [header, '', `🆔 Заказ: #${booking.bookingId ?? ''}`, `🏢 Заведение: ${hotelName}`]
+  if (booking.roomNumber) lines.push(`🛏️ Номер: ${booking.roomNumber}`)
+  lines.push('')
+  if (booking.createdByName) lines.push(`👤 Принял: ${booking.createdByName}`)
+  lines.push('', 'Детали заказа:', ...itemLines, '')
+  lines.push(`🔧 Сервисный сбор (10%): ${money(fee)} сум`)
+  lines.push(`💵 Итоговая сумма: ${money(total)} сум`, '')
+  lines.push(`✍️ Примечание: ${booking.notes?.trim() || 'Нет'}`, '')
+  lines.push(`⏰ Время: ${timeStr}`)
+  return lines.join('\n')
+}
+
+// Picks the right template and, for an itemized order, resolves the hotel's
+// display name (not carried on BookingNotifyData itself).
+async function buildMessage(booking: BookingNotifyData, serviceName?: string): Promise<string> {
+  if (booking.menuItems && booking.menuItems.length > 0) {
+    await connectDB()
+    const hotel = await Hotel.findById(booking.hotelId).select('name shortName').lean()
+    return buildOrderMessage(booking, hotel?.name || hotel?.shortName || '')
+  }
+  return buildBookingMessage(booking, serviceName)
 }
 
 // Posts a booking summary to the (hotel, service) topic and returns where the
@@ -200,7 +250,7 @@ export async function notifyNewBooking(booking: BookingNotifyData): Promise<Book
     const topic = await ensureTopicForService(booking.hotelId, serviceId)
     if (!topic) return null
 
-    const text = buildBookingMessage(booking, serviceName)
+    const text = await buildMessage(booking, serviceName)
     const sent = await sendMessage(topic.chatId, text, topic.messageThreadId)
     return { chatId: topic.chatId, messageThreadId: topic.messageThreadId, messageId: sent.message_id }
   } catch (err) {
@@ -217,6 +267,6 @@ export async function notifyBookingUpdated(
   serviceName?: string,
 ): Promise<void> {
   const resolvedName = serviceName ?? (hasName(booking.serviceId) ? booking.serviceId.name : undefined)
-  const text = buildBookingMessage(booking, resolvedName)
+  const text = await buildMessage(booking, resolvedName)
   await editMessageText(ref.chatId, ref.messageId, text, ref.messageThreadId)
 }

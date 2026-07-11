@@ -3,6 +3,7 @@
 import { BedDouble, Check, Search, UserPlus, X } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import { useIsMobile } from '@/hooks/useIsMobile'
+import { MenuItemsEditor } from '@/components/ui/MenuItemsEditor'
 import { AddClientModal } from './AddClientModal'
 import type { BookingWizard } from '../useBookingWizard'
 
@@ -16,7 +17,7 @@ export function GuestSection({ w }: { w: BookingWizard }) {
     categoryRooms, selectedRoomId, pickRoom, roomLabel,
     customerName, setCustomerName, customerPhone, setCustomerPhone,
     roomNumber, setRoomNumber, notes, setNotes,
-    menu, setMenu, menuReadyTime, setMenuReadyTime,
+    menuItems, addMenuItem, updateMenuItem, removeMenuItem, menuReadyTime, setMenuReadyTime,
     openAddClientModal,
   } = w
   if (!planReady) return null
@@ -187,25 +188,14 @@ export function GuestSection({ w }: { w: BookingWizard }) {
       </div>
 
       {/* Optional food/order request — e.g. for a SPA & Pool event. */}
-      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 140px', gap: '1rem' }}>
-        <div className="form-group">
-          <label className="form-label">{t('menuOptional')}</label>
-          <textarea
-            className="form-textarea" placeholder={t('menuPlaceholder')}
-            value={menu}
-            onChange={e => setMenu(e.target.value)}
-            style={{ minHeight: 64 }}
-          />
-        </div>
-        <div className="form-group">
-          <label className="form-label">{t('menuReadyTime')}</label>
-          <input
-            type="time" className="form-input"
-            value={menuReadyTime}
-            onChange={e => setMenuReadyTime(e.target.value)}
-          />
-        </div>
-      </div>
+      <MenuItemsEditor
+        items={menuItems}
+        onAdd={addMenuItem}
+        onUpdate={updateMenuItem}
+        onRemove={removeMenuItem}
+        readyTime={menuReadyTime}
+        onReadyTimeChange={setMenuReadyTime}
+      />
     </div>
   )
 }

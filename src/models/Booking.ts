@@ -3,6 +3,13 @@ import mongoose, { Schema, Document, Types } from 'mongoose'
 export type BookingStatus = 'confirmed' | 'pending' | 'cancelled'
 export type BookingType = 'client' | 'room' | 'custom'
 
+// A single line item in an optional food/order request (e.g. for a SPA & Pool event).
+export interface IBookingMenuItem {
+  name: string
+  qty: number
+  price: number  // per-unit price
+}
+
 // A single audit event in a booking's history.
 export interface IBookingEvent {
   action: 'created' | 'paid' | 'payment' | 'finished' | 'notes_updated' | 'reopened' | 'rescheduled'
@@ -29,8 +36,8 @@ export interface IBooking extends Document {
   totalPrice: number
   amountPaid: number  // money actually collected so far (0..totalPrice); < total is a deposit
   notes: string
-  menu: string          // free-text order/menu request (e.g. food for a SPA & Pool event)
-  menuReadyTime: string // "HH:mm" — when the order should be ready
+  menuItems: IBookingMenuItem[]  // optional food/order request (e.g. for a SPA & Pool event)
+  menuReadyTime: string          // "HH:mm" — when the order should be ready
   status: BookingStatus
   paid: boolean       // fully paid (amountPaid >= totalPrice); free bookings need no payment
   finished: boolean   // booking fulfilled/completed
@@ -58,6 +65,12 @@ const BookingEventSchema = new Schema<IBookingEvent>({
   detail: { type: String },
 }, { _id: false })
 
+const BookingMenuItemSchema = new Schema<IBookingMenuItem>({
+  name: { type: String, required: true, trim: true },
+  qty: { type: Number, default: 1, min: 1 },
+  price: { type: Number, default: 0, min: 0 },
+}, { _id: false })
+
 const BookingSchema = new Schema<IBooking>(
   {
     hotelId: { type: Schema.Types.ObjectId, ref: 'Hotel', required: true, index: true },
@@ -76,7 +89,7 @@ const BookingSchema = new Schema<IBooking>(
     totalPrice: { type: Number, required: true, default: 0 },
     amountPaid: { type: Number, default: 0, min: 0 },
     notes: { type: String, default: '' },
-    menu: { type: String, default: '' },
+    menuItems: { type: [BookingMenuItemSchema], default: [] },
     menuReadyTime: { type: String, default: '' },
     status: { type: String, enum: ['confirmed', 'pending', 'cancelled'], default: 'confirmed' },
     paid: { type: Boolean, default: false },
