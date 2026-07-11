@@ -8,7 +8,7 @@ import type { BookingWizard } from '../useBookingWizard'
 
 export function DateTimeSection({ w }: { w: BookingWizard }) {
   const { t } = useTranslation()
-  const { selectedService, activePlan, planReady, guestReady, date, setDate, selectedSlot, setSelectedSlot, availableSlots } = w
+  const { selectedService, activePlan, planReady, guestReady, date, setDate, selectedSlot, setSelectedSlot, availableSlots, closedOnDate } = w
   if (!selectedService || !activePlan || !planReady || !guestReady) return null
 
   return (
@@ -29,7 +29,9 @@ export function DateTimeSection({ w }: { w: BookingWizard }) {
       <label className="form-label" style={{ marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: 6 }}>
         <Clock size={14} /> {t('availableSlots', { duration: formatDuration(activePlan.duration) })}
       </label>
-      {availableSlots.length === 0 ? (
+      {closedOnDate ? (
+        <p style={{ color: 'var(--danger)', fontSize: '0.875rem' }}>{t('serviceClosedOnDate')}</p>
+      ) : availableSlots.length === 0 ? (
         <p style={{ color: 'var(--gray-400)', fontSize: '0.875rem' }}>{t('noSlotsForDuration')}</p>
       ) : (
         // Only start times where the whole booking fits without colliding with an

@@ -76,7 +76,7 @@ export function BookingsTable({ s }: { s: DashboardPageState }) {
                 </td>
                 <td style={{ padding: '9px 12px' }}>
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 20, fontSize: '0.7rem', fontWeight: 700, background: st.bg, color: st.color }}>
-                    {st.key === 'finished' && <Check size={11} />}{st.label}
+                    {st.key === 'finished' && <Check size={11} />}{t(st.key)}
                   </span>
                 </td>
                 <td style={{ padding: '9px 12px', color: 'var(--gray-400)', fontSize: '0.72rem', whiteSpace: 'nowrap' }}>

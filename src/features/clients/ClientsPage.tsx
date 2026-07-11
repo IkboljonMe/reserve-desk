@@ -5,6 +5,7 @@ import { useClientsPage } from './useClientsPage'
 import { ClientsFilters } from './components/ClientsFilters'
 import { ClientsTable } from './components/ClientsTable'
 import { ClientModal } from './components/ClientModal'
+import { ClientHistoryModal } from './components/ClientHistoryModal'
 
 export default function ClientsPage() {
   const { t } = useTranslation()
@@ -26,6 +27,7 @@ export default function ClientsPage() {
       <ClientsFilters s={s} />
       <ClientsTable s={s} />
       <ClientModal s={s} />
+      {s.historyClient && <ClientHistoryModal key={s.historyClient._id} s={s} />}
     </div>
   )
 }

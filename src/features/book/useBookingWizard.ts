@@ -13,6 +13,7 @@ import {
   Service, ServiceVariant, Room, Hotel, ClientGroup, Client, PricingPlan, PricingGroup, BookingType, DayBooking,
 } from './types'
 import { serviceAvailableToHotel, extractHotelId, generateTimeSlots, slotEnd, toMin } from './utils'
+import { hoursForDate } from '@/lib/serviceHours'
 
 // Sentinel category value meaning "client has no group" — maps to `groupId=none`
 // server-side. There's no configured pricing for it, so price/duration are manual.
@@ -61,7 +62,10 @@ export function useBookingWizard() {
   const [customerPhone, setCustomerPhone] = useState('')
   const [roomNumber, setRoomNumber] = useState('')
   const [notes, setNotes] = useState('')
+  const [persons, setPersons] = useState(1)
   const [paid, setPaid] = useState(false)
+  // Deposit taken at booking time (0 = none). `paid` covers the full-payment case.
+  const [amountPaid, setAmountPaid] = useState(0)
   const [loading, setLoading] = useState(false)
 
   // Client search (client booking type)
@@ -168,10 +172,14 @@ export function useBookingWizard() {
       : undefined
   const planRows = activeGroup?.rows ?? []
 
+  // The service's effective hours for the chosen date (per-weekday schedule /
+  // blackout dates collapse to one open/close window, or "closed").
+  const dayHours = selectedService ? hoursForDate(selectedService, date) : null
+  const closedOnDate = !!dayHours?.closed
   // Opening window (minutes), how many whole hours fit, and the per-hour rate
   // derived from the selected row (a row priced for its own duration).
-  const openMin = selectedService ? toMin(selectedService.openTime) : 0
-  const closeMin = selectedService ? toMin(selectedService.closeTime) : 0
+  const openMin = dayHours ? toMin(dayHours.open) : 0
+  const closeMin = dayHours ? toMin(dayHours.close) : 0
   const dayMinutes = Math.max(0, closeMin - openMin)
   const maxHours = Math.max(1, Math.floor(dayMinutes / 60))
   const ratePerHour = selectedRate ? Math.round(selectedRate.price / Math.max(1, selectedRate.duration / 60)) : 0
@@ -195,8 +203,8 @@ export function useBookingWizard() {
 
   const roomLabel = (r: Room) => `${hotels.find(h => h._id === r.hotelId)?.shortName || '??'}-${r.number}`
 
-  const timeSlots = selectedService && activePlan
-    ? generateTimeSlots(selectedService.openTime, selectedService.closeTime, activePlan.duration)
+  const timeSlots = selectedService && activePlan && dayHours && !closedOnDate
+    ? generateTimeSlots(dayHours.open, dayHours.close, activePlan.duration)
     : []
 
   // Only the start times where the whole booking fits without colliding with an
@@ -204,11 +212,15 @@ export function useBookingWizard() {
   // and must not overlap any existing booking's [start, end] for this service.
   const bufBefore = selectedService?.bufferTimeBefore || 0
   const bufAfter = selectedService?.bufferTimeAfter || 0
+  // A service can host up to `capacity` concurrent bookings; a start is offered
+  // while fewer than `capacity` existing bookings overlap the candidate window.
+  const capacity = selectedService?.capacity || 1
   const availableSlots = activePlan
     ? timeSlots.filter(slot => {
         const start = toMin(slot)
         const end = start + activePlan.duration
-        return !dayBookings.some(b => toMin(b.startTime) < end + bufAfter && toMin(b.endTime) > start - bufBefore)
+        const overlaps = dayBookings.filter(b => toMin(b.startTime) < end + bufAfter && toMin(b.endTime) > start - bufBefore).length
+        return overlaps < capacity
       })
     : []
 
@@ -310,6 +322,9 @@ export function useBookingWizard() {
     setCustomerName('')
     setCustomerPhone('')
     setRoomNumber('')
+    setPersons(1)
+    setPaid(false)
+    setAmountPaid(0)
     setClientSearch('')
     setClientResults([])
   }
@@ -399,9 +414,11 @@ export function useBookingWizard() {
         startTime: selectedSlot,
         endTime,
         duration: activePlan.duration,
+        persons,
         totalPrice: activePlan.price,
         notes: notes.trim(),
         paid: activePlan.price === 0 ? false : paid,
+        amountPaid: activePlan.price === 0 ? 0 : (paid ? activePlan.price : Math.min(amountPaid, activePlan.price)),
         bookingType,
         category: selectedCategory,
         variantId: selectedVariant?.id,
@@ -432,11 +449,12 @@ export function useBookingWizard() {
     customDuration, setCustomDuration, customPrice, setCustomPrice,
     isUngroupedClient, usingManualPrice,
     // when
-    date, setDate, selectedSlot, setSelectedSlot, dayBookings, availableSlots,
+    date, setDate, selectedSlot, setSelectedSlot, dayBookings, availableSlots, closedOnDate,
     // guest / room
     selectedClientId, setSelectedClientId, selectedRoomId,
     customerName, setCustomerName, customerPhone, setCustomerPhone,
-    roomNumber, setRoomNumber, notes, setNotes, paid, setPaid, loading,
+    roomNumber, setRoomNumber, notes, setNotes, persons, setPersons, paid, setPaid,
+    amountPaid, setAmountPaid, loading,
     clientSearch, setClientSearch, clientResults, clearClient,
     // add-client modal
     addClientModalOpen, addClientForm, setAddClientForm, savingNewClient,

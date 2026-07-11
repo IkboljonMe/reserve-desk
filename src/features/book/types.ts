@@ -13,6 +13,8 @@ export interface Service {
   location: string
   openTime: string
   closeTime: string
+  weeklyHours?: { day: number; open: string; close: string; closed: boolean }[]
+  blackoutDates?: string[]
   slotDuration: number
   capacity: number
   price?: number

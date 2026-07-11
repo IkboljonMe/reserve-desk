@@ -1,6 +1,7 @@
 'use client'
 
 import IncomeAnalytics from './components/IncomeAnalytics'
+import { OccupancyCard } from './components/OccupancyCard'
 import BookingDrawer from './components/BookingDrawer'
 import { useDashboardPage } from './useDashboardPage'
 import { DashboardStyles } from './components/DashboardStyles'
@@ -21,6 +22,9 @@ export default function DashboardPage() {
       <div>
         <IncomeAnalytics analytics={s.analytics} loading={s.loading} perService={s.perService} />
       </div>
+
+      {/* Occupancy */}
+      {!s.loading && <OccupancyCard s={s} />}
 
       {/* Zone B — Bookings explorer (separated by a hairline, not a box) */}
       <div style={{ overflow: 'hidden', borderTop: '1px solid var(--surface-border)', paddingTop: '1.5rem' }}>

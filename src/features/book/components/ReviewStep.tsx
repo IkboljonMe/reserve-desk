@@ -15,7 +15,7 @@ export function ReviewStep({ w }: { w: BookingWizard }) {
   const {
     hotels, selectedHotelId, selectedService, selectedVariant, bookingType, categoryMeta,
     activePlan, selectedSlot, date, customerName, customerPhone, roomNumber, notes,
-    paid, setPaid, loading, router, confirmBooking, setStep,
+    persons, setPersons, paid, setPaid, amountPaid, setAmountPaid, loading, router, confirmBooking, setStep,
   } = w
   if (!selectedService || !activePlan || !selectedSlot) return null
 
@@ -78,19 +78,54 @@ export function ReviewStep({ w }: { w: BookingWizard }) {
         )}
       </div>
 
+      <div className="form-group" style={{ marginBottom: '1.25rem', maxWidth: 200 }}>
+        <label className="form-label">{t('personsCount')}</label>
+        <input
+          type="number" className="form-input" min={1} step={1}
+          value={persons}
+          onChange={e => setPersons(Math.max(1, parseInt(e.target.value) || 1))}
+          onFocus={e => e.currentTarget.select()}
+        />
+      </div>
+
       <div className="form-group" style={{ marginBottom: '1.5rem' }}>
         <label className="form-label">{t('payment')}</label>
         {activePlan.price === 0 ? (
           <div style={{ ...chipStyle('#3b82f618', '#2563eb'), padding: '8px 12px' }}>{t('freeNoPayment')}</div>
         ) : (
-          <select
-            className="form-select" style={{ maxWidth: 200 }}
-            value={paid ? 'paid' : 'unpaid'}
-            onChange={e => setPaid(e.target.value === 'paid')}
-          >
-            <option value="unpaid">{t('unpaid')}</option>
-            <option value="paid">{t('paid')}</option>
-          </select>
+          <>
+            <select
+              className="form-select" style={{ maxWidth: 200 }}
+              value={paid ? 'paid' : amountPaid > 0 ? 'deposit' : 'unpaid'}
+              onChange={e => {
+                const v = e.target.value
+                if (v === 'paid') { setPaid(true); setAmountPaid(activePlan.price) }
+                else if (v === 'deposit') { setPaid(false); setAmountPaid(Math.round(activePlan.price / 2)) }
+                else { setPaid(false); setAmountPaid(0) }
+              }}
+            >
+              <option value="unpaid">{t('unpaid')}</option>
+              <option value="deposit">{t('deposit')}</option>
+              <option value="paid">{t('paid')}</option>
+            </select>
+            {!paid && amountPaid > 0 && (
+              <div style={{ marginTop: 10, maxWidth: 200 }}>
+                <label className="form-label" style={{ fontSize: '0.78rem' }}>{t('depositAmount')}</label>
+                <input
+                  type="text" inputMode="numeric" className="form-input"
+                  value={formatUZS(amountPaid)}
+                  onChange={e => {
+                    const digits = e.target.value.replace(/\D/g, '')
+                    setAmountPaid(Math.min(activePlan.price, Number(digits) || 0))
+                  }}
+                  onFocus={e => e.currentTarget.select()}
+                />
+                <p style={{ fontSize: '0.75rem', color: 'var(--gray-500)', margin: '6px 0 0' }}>
+                  {t('balanceDueAfter', { amount: `${formatUZS(Math.max(0, activePlan.price - amountPaid))} ${t('sum')}` })}
+                </p>
+              </div>
+            )}
+          </>
         )}
       </div>
 

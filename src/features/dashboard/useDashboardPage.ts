@@ -8,7 +8,8 @@ import {
 import { nowUZ } from '@/lib/timezone'
 import { useToast } from '@/components/ToastProvider'
 import { useTranslation } from '@/i18n'
-import { svcId, extractHotelId, bookingState } from '@/lib/bookingHelpers'
+import { svcId, extractHotelId, bookingState, amountCollected, toMin } from '@/lib/bookingHelpers'
+import { hoursForDate, weekdayOf } from '@/lib/serviceHours'
 import { useQueryClient } from '@tanstack/react-query'
 import { Booking } from '@/types'
 import { useServicesQuery } from '@/hooks/useServices'
@@ -84,7 +85,7 @@ export function useDashboardPage() {
       if (fHotels.size && !(hid && fHotels.has(hid))) return false
       const st = bookingState(b).key
       if (fPayment === 'paid' && st !== 'paid') return false
-      if (fPayment === 'unpaid' && st !== 'unpaid') return false
+      if (fPayment === 'unpaid' && st !== 'unpaid' && st !== 'partial') return false
       if (fPayment === 'free' && st !== 'free') return false
       if (fType !== 'all' && (b.bookingType || 'custom') !== fType) return false
       if (fState === 'active' && b.finished) return false
@@ -161,7 +162,7 @@ export function useDashboardPage() {
       const s = format(bk.start, 'yyyy-MM-dd'), e = format(bk.end, 'yyyy-MM-dd')
       const inBucket = bookings.filter(b => b.date >= s && b.date <= e)
       const expected = inBucket.reduce((tot, b) => tot + (b.totalPrice || 0), 0)
-      const collected = inBucket.filter(b => b.paid).reduce((tot, b) => tot + (b.totalPrice || 0), 0)
+      const collected = inBucket.reduce((tot, b) => tot + amountCollected(b), 0)
       return {
         label: byWeek ? format(bk.start, 'MMM d') : format(bk.start, span <= 8 ? 'EEE d' : 'MMM d'),
         expected, collected, count: inBucket.length,
@@ -169,7 +170,7 @@ export function useDashboardPage() {
     })
 
     const total = bookings.reduce((tot, b) => tot + (b.totalPrice || 0), 0)
-    const collected = bookings.filter(b => b.paid).reduce((tot, b) => tot + (b.totalPrice || 0), 0)
+    const collected = bookings.reduce((tot, b) => tot + amountCollected(b), 0)
     return { data, byWeek, total, collected, due: total - collected, count: bookings.length }
   }, [bookings, range.from, range.to])
 
@@ -182,6 +183,39 @@ export function useDashboardPage() {
       .filter(x => x.total > 0)
       .sort((a, b) => b.total - a.total)
   }, [bookings, services])
+
+  // Occupancy: booked time vs. the service's *available* time in the range.
+  // Available minutes = Σ over each open day (per weekly schedule / blackouts) of
+  // (close − open) × capacity. Utilization = booked ÷ available (capped at 100%).
+  const occupancy = useMemo(() => {
+    const days = eachDayOfInterval({ start: parseISO(range.from), end: parseISO(range.to) })
+      .map(d => format(d, 'yyyy-MM-dd'))
+    const bookedByService = new Map<string, number>()
+    const dowCount = [0, 0, 0, 0, 0, 0, 0]
+    bookings.forEach(b => {
+      bookedByService.set(svcId(b), (bookedByService.get(svcId(b)) || 0) + (b.duration || 0))
+      if (b.date) dowCount[weekdayOf(b.date)]++
+    })
+    const perSvc = services.map(s => {
+      const cap = s.capacity || 1
+      let availMin = 0
+      for (const day of days) {
+        const h = hoursForDate(s, day)
+        if (h.closed) continue
+        availMin += Math.max(0, toMin(h.close) - toMin(h.open)) * cap
+      }
+      const bookedMin = bookedByService.get(s._id) || 0
+      const util = availMin > 0 ? Math.min(1, bookedMin / availMin) : 0
+      return { svc: s, bookedMin, availMin, util }
+    })
+      .filter(x => x.availMin > 0 || x.bookedMin > 0)
+      .sort((a, b) => b.util - a.util)
+    const totalAvail = perSvc.reduce((sum, x) => sum + x.availMin, 0)
+    const totalBooked = perSvc.reduce((sum, x) => sum + x.bookedMin, 0)
+    const overall = totalAvail > 0 ? Math.min(1, totalBooked / totalAvail) : 0
+    const peakDow = dowCount.some(c => c > 0) ? dowCount.indexOf(Math.max(...dowCount)) : null
+    return { perSvc, overall, peakDow, totalBooked, totalAvail }
+  }, [bookings, services, range.from, range.to])
 
   const allHotelsOn = fHotels.size === 0
   const allServicesOn = fServices.size === 0
@@ -205,7 +239,7 @@ export function useDashboardPage() {
     fPayment, setFPayment, fType, setFType, fState, setFState, sortKey, sortDir,
     detailId, setDetailId, serviceHotel,
     patchLocal, handleDeleted, exportToExcel, toggleSort, clearFilters,
-    rows, analytics, perService,
+    rows, analytics, perService, occupancy,
     allHotelsOn, allServicesOn, activeFilterCount,
   }
 }

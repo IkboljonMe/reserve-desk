@@ -5,6 +5,15 @@ export interface IPricingPlan {
   price: number
 }
 
+// Per-weekday opening hours override (0 = Sunday … 6 = Saturday). See
+// `src/lib/serviceHours.ts` for how these + blackoutDates resolve per date.
+export interface IDaySchedule {
+  day: number
+  open: string
+  close: string
+  closed: boolean
+}
+
 // A pricing group scopes a set of duration/price rows to a specific room
 // category or client group. `target` is what kind of category it applies to;
 // `category` holds the room-type name (for 'room') or the ClientGroup _id
@@ -34,8 +43,10 @@ export interface IService extends Document {
   description: string
   hotelId: Types.ObjectId          // Owner hotel — the one the resource physically belongs to
   sharedHotelIds: Types.ObjectId[] // Other hotels allowed to book this same (single) resource
-  openTime: string   // "HH:mm"
+  openTime: string   // "HH:mm" — default hours, applied to any day without an override
   closeTime: string  // "HH:mm"
+  weeklyHours: IDaySchedule[]  // per-weekday overrides (empty → flat hours every day)
+  blackoutDates: string[]      // "YYYY-MM-DD" dates the service is closed
   slotDuration: number
   capacity: number
   price: number
@@ -63,6 +74,13 @@ const PricingGroupSchema = new Schema<IPricingGroup>({
   rows: { type: [PricingPlanSchema], default: [] },
 }, { _id: false })
 
+const DayScheduleSchema = new Schema<IDaySchedule>({
+  day: { type: Number, required: true, min: 0, max: 6 },
+  open: { type: String, default: '08:00' },
+  close: { type: String, default: '20:00' },
+  closed: { type: Boolean, default: false },
+}, { _id: false })
+
 const ServiceVariantSchema = new Schema<IServiceVariant>({
   id: { type: String, required: true },
   name: { type: String, required: true, trim: true },
@@ -79,6 +97,8 @@ const ServiceSchema = new Schema<IService>(
     sharedHotelIds: { type: [{ type: Schema.Types.ObjectId, ref: 'Hotel' }], default: [] },
     openTime: { type: String, required: true, default: '08:00' },
     closeTime: { type: String, required: true, default: '20:00' },
+    weeklyHours: { type: [DayScheduleSchema], default: [] },
+    blackoutDates: { type: [String], default: [] },
     slotDuration: { type: Number, required: true, default: 60 },
     capacity: { type: Number, required: true, default: 1 },
     price: { type: Number, default: 0 },

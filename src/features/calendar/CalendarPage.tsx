@@ -8,6 +8,7 @@ import { CalendarGrid } from './components/CalendarGrid'
 import { CalendarSidebar } from './components/CalendarSidebar'
 import { BookingDetailModal } from './components/BookingDetailModal'
 import { PayConfirmModal } from './components/PayConfirmModal'
+import { EditBookingModal } from './components/EditBookingModal'
 
 export default function CalendarPage() {
   const s = useCalendarPage()
@@ -28,6 +29,7 @@ export default function CalendarPage() {
 
       <BookingDetailModal s={s} />
       <PayConfirmModal s={s} />
+      {s.editBooking && <EditBookingModal key={s.editBooking._id} s={s} />}
     </div>
   )
 }

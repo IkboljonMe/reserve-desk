@@ -28,6 +28,8 @@ export interface Service {
   location?: string
   openTime?: string
   closeTime?: string
+  weeklyHours?: { day: number; open: string; close: string; closed: boolean }[]
+  blackoutDates?: string[]
   slotDuration?: number
   capacity?: number
   price?: number
@@ -64,9 +66,11 @@ export interface Booking {
   date: string
   startTime: string
   endTime: string
+  persons?: number
   notes: string
   status: string
   totalPrice: number
+  amountPaid?: number  // money collected so far; a value < totalPrice is a deposit
   paid: boolean
   finished: boolean
   bookingType?: 'client' | 'room' | 'custom' | null

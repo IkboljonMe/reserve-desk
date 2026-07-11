@@ -29,6 +29,13 @@ export interface ServiceVariant {
   pricingGroups: PricingGroup[]
 }
 
+export interface DaySchedule {
+  day: number   // 0 = Sunday … 6 = Saturday
+  open: string
+  close: string
+  closed: boolean
+}
+
 export interface Service {
   _id: string
   name: string
@@ -38,6 +45,8 @@ export interface Service {
   sharedHotelIds?: string[]
   openTime: string
   closeTime: string
+  weeklyHours?: DaySchedule[]
+  blackoutDates?: string[]
   slotDuration: number
   capacity: number
   price?: number
