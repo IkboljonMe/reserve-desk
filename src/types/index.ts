@@ -68,6 +68,8 @@ export interface Booking {
   endTime: string
   persons?: number
   notes: string
+  menu?: string
+  menuReadyTime?: string
   status: string
   totalPrice: number
   amountPaid?: number  // money collected so far; a value < totalPrice is a deposit

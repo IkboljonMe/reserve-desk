@@ -30,7 +30,7 @@ export function useDashboardPage() {
   const services = useMemo(() => servicesRaw.filter(s => s.isActive), [servicesRaw])
 
   // Period
-  const [period, setPeriod] = useState<PeriodKey>('month')
+  const [period, setPeriod] = useState<PeriodKey>('week')
   const [customFrom, setCustomFrom] = useState(format(subDays(nowUZ(), 29), 'yyyy-MM-dd'))
   const [customTo, setCustomTo] = useState(format(nowUZ(), 'yyyy-MM-dd'))
   const range = useMemo(() => periodRange(period, customFrom, customTo), [period, customFrom, customTo])

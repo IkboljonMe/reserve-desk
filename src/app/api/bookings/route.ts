@@ -23,6 +23,8 @@ function maskBooking(b: Record<string, unknown>) {
     customerPhone: '',
     roomNumber: '',
     notes: '',
+    menu: '',
+    menuReadyTime: '',
     totalPrice: 0,
     amountPaid: 0,
     paid: false,
@@ -97,7 +99,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json()
-    const { serviceId, clientId, customerName, customerPhone, roomNumber, date, startTime, endTime, notes, status, bookingType, category, variantId } = body
+    const { serviceId, clientId, customerName, customerPhone, roomNumber, date, startTime, endTime, notes, menu, menuReadyTime, status, bookingType, category, variantId } = body
 
     if (!serviceId || !customerName || !date || !startTime || !endTime) {
       return Response.json({ error: 'serviceId, customerName, date, startTime, endTime are required' }, { status: 400 })
@@ -193,6 +195,8 @@ export async function POST(req: NextRequest) {
       totalPrice: total,
       amountPaid,
       notes: notes || '',
+      menu: menu || '',
+      menuReadyTime: menuReadyTime || '',
       status: status || 'confirmed',
       paid,
       finished: false,
@@ -221,6 +225,8 @@ export async function POST(req: NextRequest) {
         totalPrice: total,
         amountPaid,
         paid,
+        menu,
+        menuReadyTime,
         createdByName: session.name,   // "who booked"
       })
       // Remember where the message landed so a later status change can edit it.

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { X, CalendarDays, Clock, User, Phone, MapPin, Users, FileText } from 'lucide-react'
+import { X, CalendarDays, Clock, User, Phone, MapPin, Users, FileText, UtensilsCrossed } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import { getBookings } from '@/lib/api/bookings'
 import { generateTimeSlots, slotEnd, toMin } from '@/features/book/utils'
@@ -28,6 +28,8 @@ export function EditBookingModal({ s }: { s: CalendarPageState }) {
   const [room, setRoom] = useState(b?.roomNumber ?? '')
   const [persons, setPersons] = useState(b?.persons ?? 1)
   const [notes, setNotes] = useState(b?.notes ?? '')
+  const [menu, setMenu] = useState(b?.menu ?? '')
+  const [menuReadyTime, setMenuReadyTime] = useState(b?.menuReadyTime ?? '')
   const [dayBookings, setDayBookings] = useState<DayRow[]>([])
   const [saving, setSaving] = useState(false)
 
@@ -70,7 +72,8 @@ export function EditBookingModal({ s }: { s: CalendarPageState }) {
   const changed =
     date !== b.date || startTime !== b.startTime || name.trim() !== b.customerName ||
     phone.trim() !== (b.customerPhone || '') || room.trim() !== (b.roomNumber || '') ||
-    persons !== (b.persons || 1) || notes.trim() !== (b.notes || '')
+    persons !== (b.persons || 1) || notes.trim() !== (b.notes || '') ||
+    menu.trim() !== (b.menu || '') || menuReadyTime !== (b.menuReadyTime || '')
 
   const close = () => setEditBooking(null)
 
@@ -86,6 +89,8 @@ export function EditBookingModal({ s }: { s: CalendarPageState }) {
       roomNumber: room.trim(),
       persons,
       notes: notes.trim(),
+      menu: menu.trim(),
+      menuReadyTime,
     } as Partial<Booking>)
     setSaving(false)
   }
@@ -143,6 +148,17 @@ export function EditBookingModal({ s }: { s: CalendarPageState }) {
           <div className="form-group">
             <label className="form-label"><FileText size={13} /> {t('notes')}</label>
             <textarea className="form-input" rows={2} value={notes} onChange={e => setNotes(e.target.value)} />
+          </div>
+
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <div className="form-group" style={{ flex: 1 }}>
+              <label className="form-label"><UtensilsCrossed size={13} /> {t('menuOptional')}</label>
+              <textarea className="form-input" rows={2} placeholder={t('menuPlaceholder')} value={menu} onChange={e => setMenu(e.target.value)} />
+            </div>
+            <div className="form-group" style={{ width: 120, flexShrink: 0 }}>
+              <label className="form-label">{t('menuReadyTime')}</label>
+              <input type="time" className="form-input" value={menuReadyTime} onChange={e => setMenuReadyTime(e.target.value)} />
+            </div>
           </div>
         </div>
 

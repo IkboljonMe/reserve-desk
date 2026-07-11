@@ -73,6 +73,9 @@ export function useBookingWizard({
   const [customerPhone, setCustomerPhone] = useState('')
   const [roomNumber, setRoomNumber] = useState('')
   const [notes, setNotes] = useState('')
+  // Optional food/order request (e.g. for a SPA & Pool event) + when it should be ready.
+  const [menu, setMenu] = useState('')
+  const [menuReadyTime, setMenuReadyTime] = useState('')
   const [persons, setPersons] = useState(1)
   const [paid, setPaid] = useState(false)
   // Deposit taken at booking time (0 = none). `paid` covers the full-payment case.
@@ -446,6 +449,8 @@ export function useBookingWizard({
         persons,
         totalPrice: activePlan.price,
         notes: notes.trim(),
+        menu: menu.trim(),
+        menuReadyTime,
         paid: activePlan.price === 0 ? false : paid,
         amountPaid: activePlan.price === 0 ? 0 : (paid ? activePlan.price : Math.min(amountPaid, activePlan.price)),
         bookingType,
@@ -480,7 +485,8 @@ export function useBookingWizard({
     // guest / room
     selectedClientId, setSelectedClientId, selectedRoomId,
     customerName, setCustomerName, customerPhone, setCustomerPhone,
-    roomNumber, setRoomNumber, notes, setNotes, persons, setPersons, paid, setPaid,
+    roomNumber, setRoomNumber, notes, setNotes, menu, setMenu, menuReadyTime, setMenuReadyTime,
+    persons, setPersons, paid, setPaid,
     amountPaid, setAmountPaid, loading: createMutation.isPending,
     clientSearch, setClientSearch, clientResults, clearClient,
     // add-client modal

@@ -15,6 +15,7 @@ export function ReviewStep({ w }: { w: BookingWizard }) {
   const {
     hotels, selectedHotelId, selectedService, selectedVariant, bookingType, categoryMeta,
     activePlan, selectedSlot, date, customerName, customerPhone, roomNumber, notes,
+    menu, menuReadyTime,
     persons, setPersons, paid, setPaid, amountPaid, setAmountPaid,
   } = w
   if (!selectedService || !activePlan || !selectedSlot) return null
@@ -71,6 +72,13 @@ export function ReviewStep({ w }: { w: BookingWizard }) {
           <>
             <strong style={{ color: 'var(--gray-800)' }}>{t('notesOptional')}</strong>
             <span>{notes}</span>
+          </>
+        )}
+
+        {menu && (
+          <>
+            <strong style={{ color: 'var(--gray-800)' }}>{t('menu')}</strong>
+            <span>{menu}{menuReadyTime && ` · ${t('menuReadyTime')} ${menuReadyTime}`}</span>
           </>
         )}
       </div>

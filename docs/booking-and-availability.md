@@ -24,7 +24,9 @@ entirely for single-hotel admins, who are auto-scoped):
    - `room` — pick a room **type**, then the specific room.
    - `custom` — one‑off, manual duration + price.
    - **Rate + hours** — see [pricing.md](./pricing.md).
-4. **Guest** (`GuestSection`) — guest/room details (name, phone, room number, notes).
+4. **Guest** (`GuestSection`) — guest/room details (name, phone, room number,
+   notes), plus an optional `menu`/`menuReadyTime` field for a food/order
+   request (e.g. for a SPA & Pool event) and when it should be ready.
 5. **Date & time** (`DateTimeSection`) — a date input plus the available start‑time slots.
 6. **Review** (`ReviewStep`) — read‑only summary, headcount, payment toggle, confirm.
 
@@ -36,8 +38,12 @@ via react-query cache invalidation once the modal closes — there's no page
 navigation involved.
 
 `confirmBooking()` posts to `POST /api/bookings` with `serviceId`, `date`,
-`startTime`, `endTime`, `duration`, `totalPrice`, guest fields, `bookingType`,
-`category`, `variantId`.
+`startTime`, `endTime`, `duration`, `totalPrice`, guest fields (including
+`menu`/`menuReadyTime`), `bookingType`, `category`, `variantId`. When set,
+`menu`/`menuReadyTime` are also included in the Telegram notification
+(`buildBookingMessage()` in `src/lib/telegram.ts`) and editing them later
+(via the calendar's edit modal or the dashboard's booking drawer) edits that
+Telegram message in place, same as other guest-detail changes.
 
 ## Opening hours per date
 

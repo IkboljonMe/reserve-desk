@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import Dropdown from '@/components/ui/Dropdown'
 import { useTranslation } from '@/i18n'
+import { useIsMobile } from '@/hooks/useIsMobile'
 
 export type ContractStatus = 'awaiting' | 'signed' | 'terminated'
 
@@ -70,6 +71,8 @@ export default function ContractModal({
   saving,
 }: ContractModalProps) {
   const { t } = useTranslation()
+  const isMobile = useIsMobile()
+  const twoCol: React.CSSProperties = { display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1rem' }
   const [form, setForm] = useState(EMPTY_FORM)
 
   // Only the owner spans multiple hotels; a new contract must then name one.
@@ -150,7 +153,7 @@ export default function ContractModal({
               <input className="form-input" required value={form.organizationName} onChange={e => setForm(f => ({ ...f, organizationName: e.target.value }))} placeholder={t('orgNamePlaceholder')} />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div style={twoCol}>
               <div className="form-group">
                 <label className="form-label">{t('inn')}</label>
                 <input className="form-input" value={form.inn} onChange={e => setForm(f => ({ ...f, inn: e.target.value }))} placeholder="207 324 986" />
@@ -161,7 +164,7 @@ export default function ContractModal({
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div style={twoCol}>
               <div className="form-group">
                 <label className="form-label">{t('representativeAccountant')}</label>
                 <input className="form-input" value={form.representativeName} onChange={e => setForm(f => ({ ...f, representativeName: e.target.value }))} placeholder={t('fullNamePlaceholder')} />
@@ -172,7 +175,7 @@ export default function ContractModal({
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div style={twoCol}>
               <div className="form-group">
                 <label className="form-label">{t('signDate')}</label>
                 <input className="form-input" type="date" value={form.signDate} onChange={e => setForm(f => ({ ...f, signDate: e.target.value }))} />
