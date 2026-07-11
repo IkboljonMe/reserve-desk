@@ -78,6 +78,13 @@ export async function PUT(req: NextRequest, ctx: RouteContext<'/api/bookings/[id
     current.notes = body.notes
     events.push({ action: 'notes_updated', at: now, by: session.userId })
   }
+  // Menu/order request is shown in the Telegram message, so a change edits it in place.
+  if (typeof body.menu === 'string' && body.menu !== current.menu) {
+    current.menu = body.menu; notifyChanged = true
+  }
+  if (typeof body.menuReadyTime === 'string' && body.menuReadyTime !== current.menuReadyTime) {
+    current.menuReadyTime = body.menuReadyTime; notifyChanged = true
+  }
   if (typeof body.status === 'string' && body.status !== current.status) {
     notifyChanged = true
     current.status = body.status
@@ -168,6 +175,8 @@ export async function PUT(req: NextRequest, ctx: RouteContext<'/api/bookings/[id
           paid: booking.paid,
           finished: booking.finished,
           status: booking.status,
+          menu: booking.menu,
+          menuReadyTime: booking.menuReadyTime,
           createdByName: creator?.name,
         },
         svc?.name,
@@ -215,6 +224,8 @@ export async function DELETE(_req: NextRequest, ctx: RouteContext<'/api/bookings
           totalPrice: deleted.totalPrice,
           amountPaid: deleted.amountPaid,
           paid: deleted.paid,
+          menu: deleted.menu,
+          menuReadyTime: deleted.menuReadyTime,
           status: 'cancelled',
           createdByName: creator?.name,
         },

@@ -12,7 +12,10 @@ export function AddClientModal({ w }: { w: BookingWizard }) {
   if (!addClientModalOpen) return null
 
   return (
-    <div className="modal-overlay" onClick={closeAddClientModal}>
+    // Nested inside the booking wizard modal — a higher z-index guarantees it
+    // stacks above that modal regardless of any stacking context its own
+    // open/close animation may be establishing at the moment this opens.
+    <div className="modal-overlay" onClick={closeAddClientModal} style={{ zIndex: 110 }}>
       <div className="modal" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <h2>{t('addClient')}</h2>

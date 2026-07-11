@@ -61,7 +61,9 @@ The core record.
 - Who/what: `hotelId` (owner hotel the revenue is attributed to),
   `bookedByHotelId` (the hotel that actually made it — differs for shared
   services), `serviceId`, `clientId?`, `customerName`, `customerPhone`,
-  `roomNumber`, `variantId?`/`variantName?`.
+  `roomNumber`, `variantId?`/`variantName?`, `notes` (free-text), `menu` +
+  `menuReadyTime` (optional food/order request and its "HH:mm" ready-by time —
+  e.g. for a SPA & Pool event — shown in the Telegram message when set).
 - When: `date` (`YYYY-MM-DD`), `startTime`, `endTime`, `bufferedEndTime`,
   `duration` (minutes), `persons` (party size, default 1).
 - Money/state: `totalPrice`, `amountPaid` (money collected so far — a value

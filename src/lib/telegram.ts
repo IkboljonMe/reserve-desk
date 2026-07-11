@@ -146,6 +146,8 @@ export interface BookingNotifyData {
   paid: boolean
   finished?: boolean
   status?: string          // 'confirmed' | 'pending' | 'cancelled'
+  menu?: string            // free-text order/menu request (e.g. food for the event)
+  menuReadyTime?: string   // "HH:mm" — when the order should be ready
   createdByName?: string   // the admin who created the booking ("who booked")
 }
 
@@ -181,6 +183,7 @@ function buildBookingMessage(booking: BookingNotifyData, serviceName?: string): 
   ]
   if (booking.persons && booking.persons > 1) lines.push(`👥 ${booking.persons} чел.`)
   if (booking.createdByName) lines.push(`🧑‍💼 Забронировал: ${booking.createdByName}`)
+  if (booking.menu) lines.push(`🍽 ${booking.menu}${booking.menuReadyTime ? ` (к ${booking.menuReadyTime})` : ''}`)
   lines.push(`💰 ${priceText} — ${paidText}`)
   if (!cancelled && booking.finished) lines.push('✅ Завершено')
   return lines.join('\n')

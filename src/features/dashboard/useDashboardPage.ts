@@ -6,6 +6,7 @@ import {
   format, parseISO, eachDayOfInterval, eachWeekOfInterval, addDays, subDays, differenceInCalendarDays,
 } from 'date-fns'
 import { nowUZ } from '@/lib/timezone'
+import { dateLocale } from '@/lib/dateLocale'
 import { useToast } from '@/components/ToastProvider'
 import { useTranslation } from '@/i18n'
 import { svcId, extractHotelId, bookingState, amountCollected, toMin } from '@/lib/bookingHelpers'
@@ -21,14 +22,15 @@ import { periodRange, PaymentFilter, TypeFilter, StateFilter, PeriodKey, SortKey
 export function useDashboardPage() {
   const router = useRouter()
   const { showToast } = useToast()
-  const { t } = useTranslation()
+  const { t, lang } = useTranslation()
+  const locale = dateLocale(lang)
 
   const { data: servicesRaw = [] } = useServicesQuery()
   const { data: hotels = [] } = useHotelsQuery()
   const services = useMemo(() => servicesRaw.filter(s => s.isActive), [servicesRaw])
 
   // Period
-  const [period, setPeriod] = useState<PeriodKey>('month')
+  const [period, setPeriod] = useState<PeriodKey>('week')
   const [customFrom, setCustomFrom] = useState(format(subDays(nowUZ(), 29), 'yyyy-MM-dd'))
   const [customTo, setCustomTo] = useState(format(nowUZ(), 'yyyy-MM-dd'))
   const range = useMemo(() => periodRange(period, customFrom, customTo), [period, customFrom, customTo])
@@ -164,7 +166,7 @@ export function useDashboardPage() {
       const expected = inBucket.reduce((tot, b) => tot + (b.totalPrice || 0), 0)
       const collected = inBucket.reduce((tot, b) => tot + amountCollected(b), 0)
       return {
-        label: byWeek ? format(bk.start, 'MMM d') : format(bk.start, span <= 8 ? 'EEE d' : 'MMM d'),
+        label: byWeek ? format(bk.start, 'MMM d', { locale }) : format(bk.start, span <= 8 ? 'EEE d' : 'MMM d', { locale }),
         expected, collected, count: inBucket.length,
       }
     })
@@ -172,7 +174,7 @@ export function useDashboardPage() {
     const total = bookings.reduce((tot, b) => tot + (b.totalPrice || 0), 0)
     const collected = bookings.reduce((tot, b) => tot + amountCollected(b), 0)
     return { data, byWeek, total, collected, due: total - collected, count: bookings.length }
-  }, [bookings, range.from, range.to])
+  }, [bookings, range.from, range.to, locale])
 
   // Income per service (breakdown)
   const perService = useMemo(() => {

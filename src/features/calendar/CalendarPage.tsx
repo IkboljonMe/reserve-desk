@@ -14,11 +14,11 @@ export default function CalendarPage() {
   const s = useCalendarPage()
 
   return (
-    <div style={{ display: 'flex', gap: '1.25rem', height: '100%', minHeight: 0 }}>
+    <div className="cal-shell">
       <CalendarStyles />
 
       {/* ── Main column ── */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, minHeight: 0 }}>
+      <div className="cal-main-col">
         <CalendarToolbar s={s} />
         <CalendarFilters s={s} />
         <CalendarGrid s={s} />

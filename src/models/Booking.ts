@@ -29,6 +29,8 @@ export interface IBooking extends Document {
   totalPrice: number
   amountPaid: number  // money actually collected so far (0..totalPrice); < total is a deposit
   notes: string
+  menu: string          // free-text order/menu request (e.g. food for a SPA & Pool event)
+  menuReadyTime: string // "HH:mm" — when the order should be ready
   status: BookingStatus
   paid: boolean       // fully paid (amountPaid >= totalPrice); free bookings need no payment
   finished: boolean   // booking fulfilled/completed
@@ -74,6 +76,8 @@ const BookingSchema = new Schema<IBooking>(
     totalPrice: { type: Number, required: true, default: 0 },
     amountPaid: { type: Number, default: 0, min: 0 },
     notes: { type: String, default: '' },
+    menu: { type: String, default: '' },
+    menuReadyTime: { type: String, default: '' },
     status: { type: String, enum: ['confirmed', 'pending', 'cancelled'], default: 'confirmed' },
     paid: { type: Boolean, default: false },
     finished: { type: Boolean, default: false },

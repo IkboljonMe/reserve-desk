@@ -1,13 +1,15 @@
 'use client'
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import {
   format, startOfWeek, addDays, addWeeks, subWeeks, startOfMonth, endOfMonth,
   parseISO, addMonths, subMonths,
 } from 'date-fns'
 import { useToast } from '@/components/ToastProvider'
+import { useBookingModal } from '@/components/BookingModalProvider'
 import { useTranslation } from '@/i18n'
+import { dateLocale } from '@/lib/dateLocale'
 import { svcId, extractHotelId, bookingState, amountCollected } from '@/lib/bookingHelpers'
 import { Booking } from '@/types'
 import { useServicesQuery } from '@/hooks/useServices'
@@ -16,9 +18,9 @@ import { useBookingsQuery, useUpdateBookingMutation, useDeleteBookingMutation } 
 import { ViewMode, StatusFilter, Density, ROW_HEIGHTS } from './constants'
 
 export function useCalendarPage() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const { showToast } = useToast()
+  const { openBookingModal } = useBookingModal()
   const { lang, t } = useTranslation()
 
   const [today, setToday] = useState(new Date())
@@ -193,16 +195,17 @@ export function useCalendarPage() {
   }
 
   const goToCreate = (dateStr: string, time?: string) =>
-    router.push(`/${lang}/book?date=${dateStr}${time ? `&time=${time}` : ''}`)
+    openBookingModal({ date: dateStr, time })
 
+  const locale = dateLocale(lang)
   const headerLabel = view === 'day'
-    ? format(currentDate, 'EEEE, MMMM d, yyyy')
+    ? format(currentDate, 'EEEE, MMMM d, yyyy', { locale })
     : view === 'week'
       ? (() => {
         const start = startOfWeek(currentDate, { weekStartsOn: 1 })
-        return `${format(start, 'MMM d')} – ${format(addDays(start, 6), 'MMM d, yyyy')}`
+        return `${format(start, 'MMM d', { locale })} – ${format(addDays(start, 6), 'MMM d, yyyy', { locale })}`
       })()
-      : format(currentDate, 'MMMM yyyy')
+      : format(currentDate, 'MMMM yyyy', { locale })
 
   const allSelected = services.length > 0 && selectedServices.size === services.length
   const allHotelsSelected = hotels.length > 0 && selectedHotels.size === hotels.length

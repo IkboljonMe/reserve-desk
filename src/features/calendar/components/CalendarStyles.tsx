@@ -17,9 +17,20 @@ export function CalendarStyles() {
         transition:box-shadow .12s, transform .12s, filter .12s; box-sizing:border-box; }
       .cal-event:hover { box-shadow:0 6px 16px rgba(0,0,0,0.14); transform:translateY(-1px); z-index:5; filter:saturate(1.15); }
       .cal-icon-btn { display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px;
-        border-radius:8px; border:1px solid var(--gray-200); background:var(--surface-card); color:var(--gray-600);
+        border-radius:50%; border:1px solid var(--gray-200); background:var(--surface-card); color:var(--gray-600);
         cursor:pointer; transition:all .15s; }
       .cal-icon-btn:hover { border-color:var(--brand-400); color:var(--brand-600); background:var(--brand-50); }
+
+      /* Page shell: main column + sidebar, stacking on narrow screens instead of squeezing side by side */
+      .cal-shell { display:flex; gap:1.25rem; height:100%; min-height:0; }
+      .cal-main-col { flex:1; display:flex; flex-direction:column; min-width:0; min-height:0; }
+      .cal-sidebar { width:232px; flex-shrink:0; display:flex; flex-direction:column; gap:0.9rem; overflow:auto; }
+      .cal-grid-card { flex:1; overflow:auto; padding:0; position:relative; min-height:0; }
+      @media (max-width: 860px) {
+        .cal-shell { flex-direction:column; height:auto; }
+        .cal-sidebar { width:100%; overflow:visible; }
+        .cal-grid-card { flex:none; min-height:70vh; }
+      }
     `}</style>
   )
 }

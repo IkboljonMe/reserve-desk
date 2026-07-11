@@ -33,14 +33,20 @@ export function BookingsTable({ s }: { s: DashboardPageState }) {
       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8125rem' }}>
         <thead>
           <tr style={{ position: 'sticky', top: 0, background: 'var(--gray-50)', zIndex: 1, borderBottom: '1px solid var(--gray-200)' }}>
-            <th className="dash-th" style={{ cursor: 'pointer' }} onClick={() => toggleSort('date')}>{t('colDateTime')} <ArrowUpDown size={11} style={{ opacity: sortKey === 'date' ? 1 : 0.3 }} /></th>
+            <th className="dash-th" style={{ cursor: 'pointer' }} onClick={() => toggleSort('date')}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>{t('colDateTime')} <ArrowUpDown size={11} style={{ opacity: sortKey === 'date' ? 1 : 0.3 }} /></span>
+            </th>
             <th className="dash-th">{t('service')}</th>
             <th className="dash-th">{t('hotel')}</th>
             <th className="dash-th">{t('guest')}</th>
             <th className="dash-th">{t('roomType')}</th>
-            <th className="dash-th" style={{ cursor: 'pointer' }} onClick={() => toggleSort('price')}>{t('price')} <ArrowUpDown size={11} style={{ opacity: sortKey === 'price' ? 1 : 0.3 }} /></th>
+            <th className="dash-th" style={{ cursor: 'pointer' }} onClick={() => toggleSort('price')}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>{t('price')} <ArrowUpDown size={11} style={{ opacity: sortKey === 'price' ? 1 : 0.3 }} /></span>
+            </th>
             <th className="dash-th">{t('status')}</th>
-            <th className="dash-th" style={{ cursor: 'pointer' }} onClick={() => toggleSort('created')}>{t('created')} <ArrowUpDown size={11} style={{ opacity: sortKey === 'created' ? 1 : 0.3 }} /></th>
+            <th className="dash-th" style={{ cursor: 'pointer' }} onClick={() => toggleSort('created')}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>{t('created')} <ArrowUpDown size={11} style={{ opacity: sortKey === 'created' ? 1 : 0.3 }} /></span>
+            </th>
           </tr>
         </thead>
         <tbody>

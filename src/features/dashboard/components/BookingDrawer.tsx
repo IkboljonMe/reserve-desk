@@ -86,6 +86,9 @@ export default function BookingDrawer({
   const [deleteConfirm, setDeleteConfirm] = useState(false)
   const [editingNotes, setEditingNotes] = useState(false)
   const [notesDraft, setNotesDraft] = useState('')
+  const [editingMenu, setEditingMenu] = useState(false)
+  const [menuDraft, setMenuDraft] = useState('')
+  const [menuReadyTimeDraft, setMenuReadyTimeDraft] = useState('')
   const [busy, setBusy] = useState(false)
 
   const fetchDetail = useCallback(async () => {
@@ -94,6 +97,8 @@ export default function BookingDrawer({
     if (res.ok) {
       setB(data)
       setNotesDraft(data.notes || '')
+      setMenuDraft(data.menu || '')
+      setMenuReadyTimeDraft(data.menuReadyTime || '')
     }
     setLoading(false)
   }, [id])
@@ -114,6 +119,8 @@ export default function BookingDrawer({
       const data = await res.json()
       setB(data)
       setNotesDraft(data.notes || '')
+      setMenuDraft(data.menu || '')
+      setMenuReadyTimeDraft(data.menuReadyTime || '')
       onChanged(id, changes)
       showToast(msg, 'success')
     } else showToast(t('updateFailed'), 'error')
@@ -265,6 +272,27 @@ export default function BookingDrawer({
                 </div>
               ) : (
                 <p style={{ fontSize: '0.82rem', color: b.notes ? 'var(--gray-700)' : 'var(--gray-400)', margin: 0, whiteSpace: 'pre-wrap' }}>{b.notes || t('noNotes')}</p>
+              )}
+            </Section>
+
+            {/* Menu / order */}
+            <Section title={t('menu')} action={!editingMenu ? <button className="btn btn-ghost btn-sm" style={{ padding: '2px 6px' }} onClick={() => setEditingMenu(true)}><Pencil size={12} /> {t('edit')}</button> : undefined}>
+              {editingMenu ? (
+                <div>
+                  <textarea className="form-textarea" value={menuDraft} onChange={e => setMenuDraft(e.target.value)} style={{ minHeight: 70, fontSize: '0.82rem' }} placeholder={t('addMenuPlaceholder')} />
+                  <div style={{ marginTop: 8 }}>
+                    <label className="form-label" style={{ fontSize: '0.78rem' }}>{t('menuReadyTime')}</label>
+                    <input type="time" className="form-input" style={{ maxWidth: 140 }} value={menuReadyTimeDraft} onChange={e => setMenuReadyTimeDraft(e.target.value)} />
+                  </div>
+                  <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', marginTop: 6 }}>
+                    <button className="btn btn-secondary btn-sm" onClick={() => { setEditingMenu(false); setMenuDraft(b.menu || ''); setMenuReadyTimeDraft(b.menuReadyTime || '') }}>{t('cancel')}</button>
+                    <button className="btn btn-primary btn-sm" disabled={busy} onClick={async () => { await mutate({ menu: menuDraft, menuReadyTime: menuReadyTimeDraft }, t('menuSaved')); setEditingMenu(false) }}>{t('save')}</button>
+                  </div>
+                </div>
+              ) : (
+                <p style={{ fontSize: '0.82rem', color: b.menu ? 'var(--gray-700)' : 'var(--gray-400)', margin: 0, whiteSpace: 'pre-wrap' }}>
+                  {b.menu ? `${b.menu}${b.menuReadyTime ? ` · ${t('menuReadyTime')} ${b.menuReadyTime}` : ''}` : t('noMenu')}
+                </p>
               )}
             </Section>
 

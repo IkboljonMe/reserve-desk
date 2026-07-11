@@ -40,15 +40,15 @@ export function OccupancyCard({ s }: { s: DashboardPageState }) {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {o.perSvc.map(({ svc, util, bookedMin, availMin }) => (
-            <div key={svc._id} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <span style={{ width: 130, fontSize: '0.8rem', color: 'var(--gray-700)', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={svc.name}>
+            <div key={svc._id} className="dash-occ-row">
+              <span className="dash-occ-name" style={{ fontSize: '0.8rem', color: 'var(--gray-700)', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={svc.name}>
                 {svc.name}
               </span>
-              <div style={{ flex: 1, height: 8, borderRadius: 6, background: 'var(--gray-100)', overflow: 'hidden' }}>
+              <div className="dash-occ-bar" style={{ height: 8, borderRadius: 6, background: 'var(--gray-100)', overflow: 'hidden' }}>
                 <div style={{ width: pct(util), height: '100%', background: svc.color || 'var(--brand-500)', borderRadius: 6, transition: 'width 0.4s ease' }} />
               </div>
-              <span style={{ width: 44, textAlign: 'right', fontSize: '0.78rem', fontWeight: 700, color: 'var(--gray-800)', fontVariantNumeric: 'tabular-nums' }}>{pct(util)}</span>
-              <span style={{ width: 92, textAlign: 'right', fontSize: '0.72rem', color: 'var(--gray-400)', fontVariantNumeric: 'tabular-nums' }}>
+              <span style={{ width: 44, flexShrink: 0, textAlign: 'right', fontSize: '0.78rem', fontWeight: 700, color: 'var(--gray-800)', fontVariantNumeric: 'tabular-nums' }}>{pct(util)}</span>
+              <span className="dash-occ-hours" style={{ textAlign: 'right', fontSize: '0.72rem', color: 'var(--gray-400)', fontVariantNumeric: 'tabular-nums' }}>
                 {t('hoursBookedOfAvail', { booked: hrs(bookedMin), avail: hrs(availMin) })}
               </span>
             </div>

@@ -1,7 +1,7 @@
 'use client'
 
 import { format, parseISO } from 'date-fns'
-import { X, Check, Clock, MapPin, Phone, User, Trash2, CalendarDays, Wallet, FileText, Pencil } from 'lucide-react'
+import { X, Check, Clock, MapPin, Phone, User, Trash2, CalendarDays, Wallet, FileText, Pencil, UtensilsCrossed } from 'lucide-react'
 import { getServiceIcon } from '@/lib/serviceIcons'
 import { bookingState, money, amountCollected, isPartiallyPaid } from '@/lib/bookingHelpers'
 import { useTranslation } from '@/i18n'
@@ -71,6 +71,13 @@ export function BookingDetailModal({ s }: { s: CalendarPageState }) {
             success={selectedBooking.paid}
           />
           {selectedBooking.notes && <DetailRow icon={<FileText size={15} />} label={t('notes')} value={selectedBooking.notes} />}
+          {selectedBooking.menu && (
+            <DetailRow
+              icon={<UtensilsCrossed size={15} />}
+              label={t('menu')}
+              value={selectedBooking.menu + (selectedBooking.menuReadyTime ? ` · ${t('menuReadyTime')} ${selectedBooking.menuReadyTime}` : '')}
+            />
+          )}
         </div>
 
         <div className="divider" />

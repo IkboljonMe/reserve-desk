@@ -13,7 +13,9 @@ const TABS: { labelKey: DictionaryKeys; href: string }[] = [
 
 export default function SettingsLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const { t } = useTranslation()
+  const { t, lang } = useTranslation()
+  // Prefix an app path with the active locale, e.g. '/settings/admins' -> '/uz/settings/admins'.
+  const localized = (href: string) => `/${lang}${href}`
   return (
     <div>
       <div className="page-header">
@@ -27,11 +29,12 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
         paddingBottom: 0,
       }}>
         {TABS.map(tab => {
-          const isActive = tab.href === '/settings' ? pathname === '/settings' : pathname.startsWith(tab.href)
+          const href = localized(tab.href)
+          const isActive = pathname === href || pathname.startsWith(`${href}/`)
           return (
             <Link
               key={tab.href}
-              href={tab.href}
+              href={href}
               style={{
                 padding: '8px 16px',
                 borderBottom: isActive ? '2px solid var(--brand-500)' : '2px solid transparent',
