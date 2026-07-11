@@ -128,6 +128,8 @@ export function useServicesPage() {
       sharedHotelIds: (svc.sharedHotelIds || []).map(h => (typeof h === 'string' ? h : (h as { _id: string })._id)),
       openTime: svc.openTime,
       closeTime: svc.closeTime,
+      weeklyHours: svc.weeklyHours || [],
+      blackoutDates: svc.blackoutDates || [],
       slotDuration: svc.slotDuration,
       capacity: svc.capacity,
       price: svc.price || 0,

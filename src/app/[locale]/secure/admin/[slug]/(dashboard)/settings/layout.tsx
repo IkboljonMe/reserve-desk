@@ -15,7 +15,9 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
   const pathname = usePathname()
   const { t, lang } = useTranslation()
   const { slug } = useParams<{ slug: string }>()
-  const prefix = `/${lang}/secure/admin/${slug}`
+  // Prefix an app path with the active locale + tenant slug, e.g.
+  // '/settings/admins' -> '/uz/secure/admin/safir/settings/admins'.
+  const localized = (href: string) => `/${lang}/secure/admin/${slug}${href}`
   return (
     <div>
       <div className="page-header">
@@ -29,8 +31,8 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
         paddingBottom: 0,
       }}>
         {TABS.map(tab => {
-          const href = `${prefix}${tab.href}`
-          const isActive = pathname.startsWith(href)
+          const href = localized(tab.href)
+          const isActive = pathname === href || pathname.startsWith(`${href}/`)
           return (
             <Link
               key={tab.href}

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Plus, Trash2, Check, ChevronDown, BedDouble, Users } from 'lucide-react'
 import { useTranslation } from '@/i18n'
-import { durationError, formatPrice, selectAllOnFocus } from '../utils'
+import { formatPrice } from '../utils'
 import type { PricingPlan, PricingGroup, ClientGroup } from '../types'
 
 export interface PricingEditorProps {
@@ -125,17 +125,7 @@ export function PricingEditor({
           {plans.map((plan, index) => (
             <div key={index} style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
               <div className="form-group" style={{ flex: 1 }}>
-                <label className="form-label" style={{ marginBottom: 4 }}>{t('durationMin')}</label>
-                <input
-                  type="number" className="form-input hide-arrows" value={plan.duration}
-                  onChange={e => updatePlan(index, 'duration', e.target.value)}
-                  onFocus={selectAllOnFocus} min={15} step={15} required
-                  aria-invalid={durationError(plan.duration)}
-                  style={durationError(plan.duration) ? { borderColor: 'var(--danger)', boxShadow: '0 0 0 3px rgba(239,68,68,0.12)' } : undefined}
-                />
-              </div>
-              <div className="form-group" style={{ flex: 1 }}>
-                <label className="form-label" style={{ marginBottom: 4 }}>{t('priceUzs')}</label>
+                <label className="form-label" style={{ marginBottom: 4 }}>{t('ratePerHour')}</label>
                 <input
                   type="text" inputMode="numeric" className="form-input price-input"
                   value={formatPrice(plan.price)}
@@ -188,17 +178,7 @@ export function PricingEditor({
                     {group.rows.map((row, ri) => (
                       <div key={ri} style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
                         <div className="form-group" style={{ flex: 1 }}>
-                          <label className="form-label" style={{ marginBottom: 4 }}>{t('durationMin')}</label>
-                          <input
-                            type="number" className="form-input hide-arrows" value={row.duration}
-                            onChange={e => updateGroupRow(gi, ri, 'duration', e.target.value)}
-                            onFocus={selectAllOnFocus} min={15} step={15} required
-                            aria-invalid={durationError(row.duration)}
-                            style={durationError(row.duration) ? { borderColor: 'var(--danger)', boxShadow: '0 0 0 3px rgba(239,68,68,0.12)' } : undefined}
-                          />
-                        </div>
-                        <div className="form-group" style={{ flex: 1 }}>
-                          <label className="form-label" style={{ marginBottom: 4 }}>{t('priceUzs')}</label>
+                          <label className="form-label" style={{ marginBottom: 4 }}>{t('ratePerHour')}</label>
                           <input
                             type="text" inputMode="numeric" className="form-input price-input"
                             value={formatPrice(row.price)}

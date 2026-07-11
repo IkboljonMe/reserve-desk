@@ -8,8 +8,12 @@ export interface BookingInput {
   startTime: string
   endTime: string
   duration: number
+  persons?: number
   totalPrice: number
+  amountPaid?: number
   notes: string
+  menuItems?: { name: string; qty: number; price: number }[]
+  menuReadyTime?: string
   paid: boolean
   bookingType?: 'client' | 'room' | 'custom' | null
   category?: string

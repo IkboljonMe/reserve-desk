@@ -3,7 +3,8 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useTranslation, LANGUAGES, LanguageCode } from '@/i18n'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, type CSSProperties, type MouseEvent } from 'react'
+import { useBookingModal } from '@/components/BookingModalProvider'
 import type { SessionRole } from '@/lib/session'
 
 const EXPANDED_WIDTH = 232
@@ -35,6 +36,7 @@ export default function Sidebar({
   const pathname = usePathname()
   const router = useRouter()
   const { t, lang, setLang } = useTranslation()
+  const { openBookingModal } = useBookingModal()
   const [notifCount, setNotifCount] = useState(0)
   const [loggingOut, setLoggingOut] = useState(false)
 
@@ -272,90 +274,109 @@ export default function Sidebar({
           {t('menu')}
         </div>
         {visibleItems.map((item) => {
-          const isActive = pathname.startsWith(localized(item.href))
+          // "New Booking" opens the wizard modal in place rather than navigating
+          // to a route, so it's never the "active" nav item and needs no href.
+          const isBookingItem = item.href === '/book'
+          const isActive = !isBookingItem && pathname.startsWith(localized(item.href))
           const badge = 'badge' in item ? (item.badge ?? 0) : 0
+
+          const itemStyle: CSSProperties = {
+            position: 'relative',
+            display: 'flex',
+            alignItems: 'center',
+            gap: collapsed ? 0 : 11,
+            justifyContent: collapsed ? 'center' : 'flex-start',
+            width: '100%',
+            padding: collapsed ? '10px 0' : '9px 11px',
+            border: 'none',
+            background: isActive ? 'linear-gradient(135deg, rgba(79,110,247,0.28), rgba(124,58,237,0.22))' : 'transparent',
+            borderRadius: 10,
+            textDecoration: 'none',
+            color: isActive ? '#fff' : 'var(--sidebar-text)',
+            boxShadow: isActive ? 'inset 0 0 0 1px rgba(124,146,255,0.25)' : 'none',
+            transition: `background 0.15s ease, gap 0.24s ${ease}, padding 0.24s ${ease}`,
+            fontSize: '0.875rem',
+            fontWeight: isActive ? 600 : 500,
+            fontFamily: 'inherit',
+            cursor: 'pointer',
+          }
+          const itemHoverHandlers = {
+            onMouseEnter: (e: MouseEvent<HTMLElement>) => {
+              if (!isActive) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.06)'
+            },
+            onMouseLeave: (e: MouseEvent<HTMLElement>) => {
+              if (!isActive) (e.currentTarget as HTMLElement).style.background = 'transparent'
+            },
+          }
+
+          const itemContent = (
+            <>
+              {isActive && !collapsed && (
+                <span style={{
+                  position: 'absolute', left: -7, top: '50%', transform: 'translateY(-50%)',
+                  width: 3, height: 18, borderRadius: 4, background: 'var(--sidebar-active)',
+                }} />
+              )}
+              <span style={{ position: 'relative', display: 'inline-flex', flexShrink: 0, color: isActive ? '#fff' : 'var(--sidebar-text)' }}>
+                {item.icon}
+                {/* Collapsed rail: badge shrinks to a dot on the icon corner. */}
+                {collapsed && badge > 0 && (
+                  <span style={{
+                    position: 'absolute', top: -4, right: -4,
+                    minWidth: 8, height: 8,
+                    borderRadius: 9,
+                    background: 'var(--danger)',
+                    boxShadow: '0 0 0 2px var(--sidebar-bg)',
+                  }} />
+                )}
+              </span>
+              <span style={{
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                overflow: 'hidden',
+                maxWidth: collapsed ? 0 : 200,
+                opacity: collapsed ? 0 : 1,
+                whiteSpace: 'nowrap',
+                transition: labelTransition,
+              }}>
+                <span style={{ flex: 1, textAlign: 'left' }}>{item.label}</span>
+                {badge > 0 && (
+                  <span style={{
+                    marginLeft: 8,
+                    minWidth: 18, height: 18, padding: '0 5px',
+                    borderRadius: 9,
+                    background: 'var(--danger)',
+                    color: '#fff',
+                    fontSize: '0.68rem', fontWeight: 700,
+                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                    boxShadow: '0 2px 6px rgba(239,68,68,0.45)',
+                  }}>
+                    {badge > 99 ? '99+' : badge}
+                  </span>
+                )}
+                {item.href === '/settings' && (
+                  <span style={{ marginLeft: 8, color: 'rgba(255,255,255,0.5)', display: 'inline-flex', transform: isActive ? 'rotate(0deg)' : 'rotate(-90deg)', transition: 'transform 0.2s ease' }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </span>
+                )}
+              </span>
+            </>
+          )
 
           return (
             <div key={item.href}>
-              <Link
-                href={localized(item.href)}
-                title={collapsed ? item.label : undefined}
-                style={{
-                  position: 'relative',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: collapsed ? 0 : 11,
-                  justifyContent: collapsed ? 'center' : 'flex-start',
-                  padding: collapsed ? '10px 0' : '9px 11px',
-                  borderRadius: 10,
-                  textDecoration: 'none',
-                  color: isActive ? '#fff' : 'var(--sidebar-text)',
-                  background: isActive ? 'linear-gradient(135deg, rgba(79,110,247,0.28), rgba(124,58,237,0.22))' : 'transparent',
-                  boxShadow: isActive ? 'inset 0 0 0 1px rgba(124,146,255,0.25)' : 'none',
-                  transition: `background 0.15s ease, gap 0.24s ${ease}, padding 0.24s ${ease}`,
-                  fontSize: '0.875rem',
-                  fontWeight: isActive ? 600 : 500,
-                }}
-                onMouseEnter={e => {
-                  if (!isActive) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.06)'
-                }}
-                onMouseLeave={e => {
-                  if (!isActive) (e.currentTarget as HTMLElement).style.background = 'transparent'
-                }}
-              >
-                {isActive && !collapsed && (
-                  <span style={{
-                    position: 'absolute', left: -7, top: '50%', transform: 'translateY(-50%)',
-                    width: 3, height: 18, borderRadius: 4, background: 'var(--sidebar-active)',
-                  }} />
-                )}
-                <span style={{ position: 'relative', display: 'inline-flex', flexShrink: 0, color: isActive ? '#fff' : 'var(--sidebar-text)' }}>
-                  {item.icon}
-                  {/* Collapsed rail: badge shrinks to a dot on the icon corner. */}
-                  {collapsed && badge > 0 && (
-                    <span style={{
-                      position: 'absolute', top: -4, right: -4,
-                      minWidth: 8, height: 8,
-                      borderRadius: 9,
-                      background: 'var(--danger)',
-                      boxShadow: '0 0 0 2px var(--sidebar-bg)',
-                    }} />
-                  )}
-                </span>
-                <span style={{
-                  flex: 1,
-                  display: 'flex',
-                  alignItems: 'center',
-                  overflow: 'hidden',
-                  maxWidth: collapsed ? 0 : 200,
-                  opacity: collapsed ? 0 : 1,
-                  whiteSpace: 'nowrap',
-                  transition: labelTransition,
-                }}>
-                  <span style={{ flex: 1 }}>{item.label}</span>
-                  {badge > 0 && (
-                    <span style={{
-                      marginLeft: 8,
-                      minWidth: 18, height: 18, padding: '0 5px',
-                      borderRadius: 9,
-                      background: 'var(--danger)',
-                      color: '#fff',
-                      fontSize: '0.68rem', fontWeight: 700,
-                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                      boxShadow: '0 2px 6px rgba(239,68,68,0.45)',
-                    }}>
-                      {badge > 99 ? '99+' : badge}
-                    </span>
-                  )}
-                  {item.href === '/settings' && (
-                    <span style={{ marginLeft: 8, color: 'rgba(255,255,255,0.5)', display: 'inline-flex', transform: isActive ? 'rotate(0deg)' : 'rotate(-90deg)', transition: 'transform 0.2s ease' }}>
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <polyline points="6 9 12 15 18 9"/>
-                      </svg>
-                    </span>
-                  )}
-                </span>
-              </Link>
+              {isBookingItem ? (
+                <button type="button" title={collapsed ? item.label : undefined} style={itemStyle} onClick={() => openBookingModal()} {...itemHoverHandlers}>
+                  {itemContent}
+                </button>
+              ) : (
+                <Link href={localized(item.href)} title={collapsed ? item.label : undefined} style={itemStyle} {...itemHoverHandlers}>
+                  {itemContent}
+                </Link>
+              )}
 
               {/* Sub-items for settings — only shown when expanded */}
               {item.children && isActive && !collapsed && (

@@ -5,6 +5,7 @@ import { Hotel } from '@/models/Hotel'
 import { Company } from '@/models/Company'
 import { ToastProvider } from '@/components/ToastProvider'
 import { DraftProvider } from '@/components/DraftProvider'
+import { BookingModalProvider } from '@/components/BookingModalProvider'
 import QueryProvider from '@/components/QueryProvider'
 import DashboardContainer from '@/components/layout/DashboardContainer'
 
@@ -43,9 +44,11 @@ export default async function DashboardLayout({
     <QueryProvider>
       <ToastProvider>
        <DraftProvider>
-        <DashboardContainer userName={session.name} userEmail={session.email} role={session.role} slug={slug} hotelName={hotelName} readOnly={readOnly}>
-          {children}
-        </DashboardContainer>
+        <BookingModalProvider>
+         <DashboardContainer userName={session.name} userEmail={session.email} role={session.role} slug={slug} hotelName={hotelName} readOnly={readOnly}>
+           {children}
+         </DashboardContainer>
+        </BookingModalProvider>
        </DraftProvider>
       </ToastProvider>
     </QueryProvider>

@@ -1,4 +1,10 @@
+import dns from 'node:dns'
 import mongoose from 'mongoose'
+
+// Windows sometimes reports 127.0.0.1 as the system DNS server even when
+// nothing listens there, which breaks the SRV lookup mongodb+srv:// needs.
+// Force known-good resolvers so the lookup doesn't depend on that.
+dns.setServers(['1.1.1.1', '8.8.8.8'])
 
 const MONGODB_URI = process.env.MONGODB_URI!
 

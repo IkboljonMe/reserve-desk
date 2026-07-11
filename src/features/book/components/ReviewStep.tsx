@@ -5,27 +5,25 @@ import { useTranslation } from '@/i18n'
 import { getServiceIcon } from '@/lib/serviceIcons'
 import { chipStyle } from '../styles'
 import { formatDuration, formatUZS, slotEnd } from '../utils'
-import { BackButton } from './BackButton'
 import type { BookingWizard } from '../useBookingWizard'
 
-// Step 2: nothing but a read-only summary of everything picked in step 1,
-// plus the payment status and the final "Confirm Booking" action.
+// Slide: a read-only summary of everything picked in the previous slides,
+// plus headcount and payment status. Back/Confirm live in the modal's shared
+// footer, not here.
 export function ReviewStep({ w }: { w: BookingWizard }) {
-  const { t, lang } = useTranslation()
+  const { t } = useTranslation()
   const {
     hotels, selectedHotelId, selectedService, selectedVariant, bookingType, categoryMeta,
     activePlan, selectedSlot, date, customerName, customerPhone, roomNumber, notes,
-    paid, setPaid, loading, router, confirmBooking, setStep,
+    menuItems, menuReadyTime, menuSubtotal, menuServiceFee, menuTotal,
+    persons, setPersons, paid, setPaid, amountPaid, setAmountPaid,
   } = w
   if (!selectedService || !activePlan || !selectedSlot) return null
 
   return (
-    <div className="card" style={{ animation: 'slideInRight 0.3s ease-out' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: '1.25rem' }}>
-        <BackButton to={1} onBack={setStep} />
-        <h2 style={{ margin: 0 }}>{t('confirmBooking')}</h2>
-      </div>
-      <p style={{ color: 'var(--gray-500)', fontSize: '0.875rem', marginTop: -8, marginBottom: '1.25rem' }}>{t('reviewYourBooking')}</p>
+    <div>
+      <h2 style={{ marginBottom: 4 }}>{t('confirmBooking')}</h2>
+      <p style={{ color: 'var(--gray-500)', fontSize: '0.875rem', marginTop: 0, marginBottom: '1.25rem' }}>{t('reviewYourBooking')}</p>
 
       {/* Order summary */}
       <div style={{
@@ -76,36 +74,86 @@ export function ReviewStep({ w }: { w: BookingWizard }) {
             <span>{notes}</span>
           </>
         )}
+
+        {menuItems.length > 0 && (
+          <>
+            <strong style={{ color: 'var(--gray-800)' }}>{t('menu')}</strong>
+            <span>
+              {formatUZS(menuTotal)} {t('sum')}
+              {menuReadyTime && ` · ${t('menuReadyTime')} ${menuReadyTime}`}
+            </span>
+          </>
+        )}
       </div>
 
-      <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+      {menuItems.length > 0 && (
+        <div style={{
+          background: 'var(--gray-50)', border: '1px solid var(--gray-200)', borderRadius: 10,
+          padding: '0.85rem 1rem', marginBottom: '1.25rem', fontSize: '0.82rem', color: 'var(--gray-600)',
+        }}>
+          {menuItems.map((it, i) => (
+            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+              <span>{it.qty}x {it.name}</span>
+              <span>{formatUZS(it.qty * it.price)}</span>
+            </div>
+          ))}
+          <div style={{ borderTop: '1px dashed var(--gray-200)', marginTop: 6, paddingTop: 6 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>{t('menuSubtotal')}</span><span>{formatUZS(menuSubtotal)}</span></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>{t('menuServiceFee')}</span><span>{formatUZS(menuServiceFee)}</span></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, color: 'var(--gray-800)' }}><span>{t('menuTotal')}</span><span>{formatUZS(menuTotal)}</span></div>
+          </div>
+        </div>
+      )}
+
+      <div className="form-group" style={{ marginBottom: '1.25rem', maxWidth: 200 }}>
+        <label className="form-label">{t('personsCount')}</label>
+        <input
+          type="number" className="form-input" min={1} step={1}
+          value={persons}
+          onChange={e => setPersons(Math.max(1, parseInt(e.target.value) || 1))}
+          onFocus={e => e.currentTarget.select()}
+        />
+      </div>
+
+      <div className="form-group" style={{ marginBottom: 0 }}>
         <label className="form-label">{t('payment')}</label>
         {activePlan.price === 0 ? (
           <div style={{ ...chipStyle('#3b82f618', '#2563eb'), padding: '8px 12px' }}>{t('freeNoPayment')}</div>
         ) : (
-          <select
-            className="form-select" style={{ maxWidth: 200 }}
-            value={paid ? 'paid' : 'unpaid'}
-            onChange={e => setPaid(e.target.value === 'paid')}
-          >
-            <option value="unpaid">{t('unpaid')}</option>
-            <option value="paid">{t('paid')}</option>
-          </select>
+          <>
+            <select
+              className="form-select" style={{ maxWidth: 200 }}
+              value={paid ? 'paid' : amountPaid > 0 ? 'deposit' : 'unpaid'}
+              onChange={e => {
+                const v = e.target.value
+                if (v === 'paid') { setPaid(true); setAmountPaid(activePlan.price) }
+                else if (v === 'deposit') { setPaid(false); setAmountPaid(Math.round(activePlan.price / 2)) }
+                else { setPaid(false); setAmountPaid(0) }
+              }}
+            >
+              <option value="unpaid">{t('unpaid')}</option>
+              <option value="deposit">{t('deposit')}</option>
+              <option value="paid">{t('paid')}</option>
+            </select>
+            {!paid && amountPaid > 0 && (
+              <div style={{ marginTop: 10, maxWidth: 200 }}>
+                <label className="form-label" style={{ fontSize: '0.78rem' }}>{t('depositAmount')}</label>
+                <input
+                  type="text" inputMode="numeric" className="form-input"
+                  value={formatUZS(amountPaid)}
+                  onChange={e => {
+                    const digits = e.target.value.replace(/\D/g, '')
+                    setAmountPaid(Math.min(activePlan.price, Number(digits) || 0))
+                  }}
+                  onFocus={e => e.currentTarget.select()}
+                />
+                <p style={{ fontSize: '0.75rem', color: 'var(--gray-500)', margin: '6px 0 0' }}>
+                  {t('balanceDueAfter', { amount: `${formatUZS(Math.max(0, activePlan.price - amountPaid))} ${t('sum')}` })}
+                </p>
+              </div>
+            )}
+          </>
         )}
-      </div>
-
-      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
-        <button type="button" className="btn btn-secondary" onClick={() => router.push(`/${lang}/calendar`)}>{t('cancel')}</button>
-        <button
-          id="confirm-booking-btn"
-          type="button"
-          className="btn btn-primary"
-          disabled={loading}
-          onClick={confirmBooking}
-        >
-          {loading ? <span className="spinner" /> : null}
-          {loading ? t('creating') : t('confirmBooking')}
-        </button>
       </div>
     </div>
   )

@@ -3,9 +3,16 @@ import mongoose, { Schema, Document, Types } from 'mongoose'
 export type BookingStatus = 'confirmed' | 'pending' | 'cancelled'
 export type BookingType = 'client' | 'room' | 'custom'
 
+// A single line item in an optional food/order request (e.g. for a SPA & Pool event).
+export interface IBookingMenuItem {
+  name: string
+  qty: number
+  price: number  // per-unit price
+}
+
 // A single audit event in a booking's history.
 export interface IBookingEvent {
-  action: 'created' | 'paid' | 'finished' | 'notes_updated' | 'reopened'
+  action: 'created' | 'paid' | 'payment' | 'finished' | 'notes_updated' | 'reopened' | 'rescheduled'
   at: Date
   by?: Types.ObjectId
   detail?: string
@@ -26,10 +33,14 @@ export interface IBooking extends Document {
   endTime: string     // "HH:mm"
   bufferedEndTime: string
   duration: number    // minutes
+  persons: number     // party size (guests on this booking)
   totalPrice: number
+  amountPaid: number  // money actually collected so far (0..totalPrice); < total is a deposit
   notes: string
+  menuItems: IBookingMenuItem[]  // optional food/order request (e.g. for a SPA & Pool event)
+  menuReadyTime: string          // "HH:mm" — when the order should be ready
   status: BookingStatus
-  paid: boolean       // payment received (free bookings need no payment)
+  paid: boolean       // fully paid (amountPaid >= totalPrice); free bookings need no payment
   finished: boolean   // booking fulfilled/completed
   bookingType?: BookingType  // how it was booked: client group, room category, or custom
   category?: string          // client-group id or room-type chosen at booking
@@ -55,6 +66,12 @@ const BookingEventSchema = new Schema<IBookingEvent>({
   detail: { type: String },
 }, { _id: false })
 
+const BookingMenuItemSchema = new Schema<IBookingMenuItem>({
+  name: { type: String, required: true, trim: true },
+  qty: { type: Number, default: 1, min: 1 },
+  price: { type: Number, default: 0, min: 0 },
+}, { _id: false })
+
 const BookingSchema = new Schema<IBooking>(
   {
     companyId: { type: Schema.Types.ObjectId, ref: 'Company', required: true, index: true },
@@ -70,8 +87,12 @@ const BookingSchema = new Schema<IBooking>(
     endTime: { type: String, required: true },
     bufferedEndTime: { type: String, required: true },
     duration: { type: Number, required: true, default: 60 },
+    persons: { type: Number, required: true, default: 1, min: 1 },
     totalPrice: { type: Number, required: true, default: 0 },
+    amountPaid: { type: Number, default: 0, min: 0 },
     notes: { type: String, default: '' },
+    menuItems: { type: [BookingMenuItemSchema], default: [] },
+    menuReadyTime: { type: String, default: '' },
     status: { type: String, enum: ['confirmed', 'pending', 'cancelled'], default: 'confirmed' },
     paid: { type: Boolean, default: false },
     finished: { type: Boolean, default: false },

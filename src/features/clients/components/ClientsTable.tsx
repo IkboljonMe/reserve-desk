@@ -1,13 +1,13 @@
 'use client'
 
-import { BedDouble } from 'lucide-react'
+import { BedDouble, History } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import { SkeletonTableRows } from '@/components/ui/Skeleton'
 import type { ClientsPageState } from '../useClientsPage'
 
 export function ClientsTable({ s }: { s: ClientsPageState }) {
   const { t } = useTranslation()
-  const { clients, loading, openAdd, openEdit, deleteConfirm, setDeleteConfirm, handleDelete, clientGroup } = s
+  const { clients, loading, openAdd, openEdit, deleteConfirm, setDeleteConfirm, handleDelete, clientGroup, setHistoryClient } = s
 
   return (
     <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
@@ -103,6 +103,9 @@ export function ClientsTable({ s }: { s: ClientsPageState }) {
                 </td>
                 <td style={{ padding: '12px 16px' }}>
                   <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                    <button className="btn btn-ghost btn-sm btn-icon" onClick={() => setHistoryClient(c)} title={t('bookingHistory')} aria-label={t('bookingHistory')}>
+                      <History size={14} />
+                    </button>
                     <button className="btn btn-ghost btn-sm btn-icon" onClick={() => openEdit(c)} title={t('edit')} aria-label={t('editClientAria')}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>

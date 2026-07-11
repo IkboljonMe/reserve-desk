@@ -14,7 +14,7 @@ export function CalendarSidebar({ s }: { s: CalendarPageState }) {
   } = s
 
   return (
-    <div style={{ width: 232, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '0.9rem', overflow: 'auto' }}>
+    <div className="cal-sidebar">
       {/* Range summary */}
       <div className="card" style={{ padding: '0.9rem 1rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>

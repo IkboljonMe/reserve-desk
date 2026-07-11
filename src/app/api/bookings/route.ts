@@ -3,6 +3,7 @@ import { connectDB } from '@/lib/mongodb'
 import { Booking } from '@/models/Booking'
 import { Service } from '@/models/Service'
 import { requireDashboard, requireWritable } from '@/lib/session'
+import { hoursForDate } from '@/lib/serviceHours'
 import { notifyNewBooking } from '@/lib/telegram'
 
 // Fields kept when a booking on a shared service belongs to another hotel: the
@@ -22,11 +23,27 @@ function maskBooking(b: Record<string, unknown>) {
     customerPhone: '',
     roomNumber: '',
     notes: '',
+    menuItems: [],
+    menuReadyTime: '',
     totalPrice: 0,
+    amountPaid: 0,
     paid: false,
     finished: false,
     history: [],
   }
+}
+
+// Coerces/validates the optional menu-item list from a request body — drops
+// rows without a name and clamps qty/price to sane ranges.
+function sanitizeMenuItems(input: unknown): { name: string; qty: number; price: number }[] {
+  if (!Array.isArray(input)) return []
+  return input
+    .filter((it): it is Record<string, unknown> => !!it && typeof it === 'object' && typeof it.name === 'string' && it.name.trim() !== '')
+    .map(it => ({
+      name: String(it.name).trim(),
+      qty: Math.max(1, Math.round(Number(it.qty) || 1)),
+      price: Math.max(0, Number(it.price) || 0),
+    }))
 }
 
 export async function GET(req: NextRequest) {
@@ -37,6 +54,7 @@ export async function GET(req: NextRequest) {
   const dateFrom = searchParams.get('dateFrom')
   const dateTo = searchParams.get('dateTo')
   const serviceId = searchParams.get('serviceId')
+  const clientId = searchParams.get('clientId')
   const status = searchParams.get('status')
   const limit = searchParams.get('limit')
 
@@ -47,6 +65,7 @@ export async function GET(req: NextRequest) {
     filter.date = dateFrom
   }
   if (serviceId) filter.serviceId = serviceId
+  if (clientId) filter.clientId = clientId
   if (status) filter.status = status
 
   await connectDB()
@@ -96,7 +115,8 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json()
-    const { serviceId, clientId, customerName, customerPhone, roomNumber, date, startTime, endTime, notes, status, bookingType, category, variantId } = body
+    const { serviceId, clientId, customerName, customerPhone, roomNumber, date, startTime, endTime, notes, menuReadyTime, status, bookingType, category, variantId } = body
+    const menuItems = sanitizeMenuItems(body.menuItems)
 
     if (!serviceId || !customerName || !date || !startTime || !endTime) {
       return Response.json({ error: 'serviceId, customerName, date, startTime, endTime are required' }, { status: 400 })
@@ -122,6 +142,11 @@ export async function POST(req: NextRequest) {
     const bookingHotelId = ownerHotelId
     const bookedByHotelId = session.role === 'owner' ? ownerHotelId : session.hotelId
 
+    // The service must be open on the requested date (weekday schedule / blackout).
+    if (hoursForDate(service, date).closed) {
+      return Response.json({ error: 'The service is closed on this date' }, { status: 409 })
+    }
+
     // Resolve the chosen variant from the service (authoritative name snapshot).
     const variant = variantId ? (service.variants ?? []).find(v => v.id === variantId) : null
 
@@ -135,25 +160,39 @@ export async function POST(req: NextRequest) {
     const startMin = Math.max(0, totalSM % 60)
     const bufferedStartTime = `${startH.toString().padStart(2, '0')}:${startMin.toString().padStart(2, '0')}`
 
-    // Check for overlapping bookings (same service, same date, overlapping buffered times)
-    const overlapping = await Booking.findOne({
+    // Capacity-aware availability: a service can host up to `capacity` bookings
+    // at once. Count existing (non-cancelled) bookings whose raw [start,end]
+    // overlaps this candidate's buffered window, and reject only once the slot
+    // is full. capacity defaults to 1 (exclusive resource).
+    const overlapCount = await Booking.countDocuments({
       serviceId,
       date,
       status: { $ne: 'cancelled' },
-      $or: [
-        { startTime: { $lt: bufferedEndTime }, endTime: { $gt: bufferedStartTime } },
-      ],
+      startTime: { $lt: bufferedEndTime },
+      endTime: { $gt: bufferedStartTime },
     })
 
-    if (overlapping) {
-      return Response.json({ error: 'This time slot is already booked for this service' }, { status: 409 })
+    if (overlapCount >= (service.capacity || 1)) {
+      return Response.json({ error: 'This time slot is fully booked for this service' }, { status: 409 })
     }
 
     const now = new Date()
-    const paid = Boolean(body.paid)
+    const total = body.totalPrice || 0
+    // Payment can arrive in full, as a deposit (partial `amountPaid`), or not at
+    // all. `paid` is derived — true only once the collected amount covers the total.
+    let amountPaid = 0
+    if (total > 0) {
+      if (typeof body.amountPaid === 'number') amountPaid = Math.max(0, Math.min(total, body.amountPaid))
+      else if (Boolean(body.paid)) amountPaid = total
+    }
+    const paid = total > 0 && amountPaid >= total
     const history = [
       { action: 'created', at: now, by: session.userId },
-      ...(paid ? [{ action: 'paid', at: now, by: session.userId }] : []),
+      ...(paid
+        ? [{ action: 'paid', at: now, by: session.userId }]
+        : amountPaid > 0
+          ? [{ action: 'payment', at: now, by: session.userId, detail: String(amountPaid) }]
+          : []),
     ]
 
     const booking = await Booking.create({
@@ -170,8 +209,12 @@ export async function POST(req: NextRequest) {
       endTime,
       bufferedEndTime,
       duration: body.duration || 60,
-      totalPrice: body.totalPrice || 0,
+      persons: Math.max(1, Number(body.persons) || 1),
+      totalPrice: total,
+      amountPaid,
       notes: notes || '',
+      menuItems,
+      menuReadyTime: menuReadyTime || '',
       status: status || 'confirmed',
       paid,
       finished: false,
@@ -189,6 +232,7 @@ export async function POST(req: NextRequest) {
     const serviceForNotify = populated!.serviceId as unknown as { _id: string; name: string }
     after(async () => {
       const ref = await notifyNewBooking({
+        bookingId: String(booking._id),
         hotelId: bookingHotelId,
         serviceId: serviceForNotify,
         customerName,
@@ -196,8 +240,13 @@ export async function POST(req: NextRequest) {
         date,
         startTime,
         endTime,
-        totalPrice: body.totalPrice || 0,
+        persons: Math.max(1, Number(body.persons) || 1),
+        totalPrice: total,
+        amountPaid,
         paid,
+        notes: notes || '',
+        menuItems,
+        menuReadyTime,
         createdByName: session.name,   // "who booked"
       })
       // Remember where the message landed so a later status change can edit it.

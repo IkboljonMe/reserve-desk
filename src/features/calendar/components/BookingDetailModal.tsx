@@ -1,16 +1,16 @@
 'use client'
 
 import { format, parseISO } from 'date-fns'
-import { X, Check, Clock, MapPin, Phone, User, Trash2, CalendarDays, Wallet, FileText } from 'lucide-react'
+import { X, Check, Clock, MapPin, Phone, User, Trash2, CalendarDays, Wallet, FileText, Pencil, UtensilsCrossed } from 'lucide-react'
 import { getServiceIcon } from '@/lib/serviceIcons'
-import { bookingState, money } from '@/lib/bookingHelpers'
+import { bookingState, money, amountCollected, isPartiallyPaid } from '@/lib/bookingHelpers'
 import { useTranslation } from '@/i18n'
 import { DetailRow } from './DetailRow'
 import type { CalendarPageState } from '../useCalendarPage'
 
 export function BookingDetailModal({ s }: { s: CalendarPageState }) {
   const { t } = useTranslation()
-  const { selectedBooking, setSelectedBooking, deleteConfirm, setDeleteConfirm, setPayConfirm, markFinished, handleDeleteBooking } = s
+  const { selectedBooking, setSelectedBooking, deleteConfirm, setDeleteConfirm, setPayConfirm, setEditBooking, markFinished, handleDeleteBooking } = s
   if (!selectedBooking) return null
 
   const close = () => { setSelectedBooking(null); setDeleteConfirm(null) }
@@ -58,11 +58,29 @@ export function BookingDetailModal({ s }: { s: CalendarPageState }) {
           <DetailRow
             icon={<Wallet size={15} />}
             label={t('payment')}
-            value={selectedBooking.totalPrice === 0 ? t('freeNoCharge') : selectedBooking.paid ? t('paid') : t('unpaid')}
+            value={
+              selectedBooking.totalPrice === 0
+                ? t('freeNoCharge')
+                : selectedBooking.paid
+                  ? t('paid')
+                  : isPartiallyPaid(selectedBooking)
+                    ? `${money(amountCollected(selectedBooking))} / ${money(selectedBooking.totalPrice)} ${t('sum')}`
+                    : t('unpaid')
+            }
             accent={!selectedBooking.paid && selectedBooking.totalPrice > 0}
             success={selectedBooking.paid}
           />
           {selectedBooking.notes && <DetailRow icon={<FileText size={15} />} label={t('notes')} value={selectedBooking.notes} />}
+          {selectedBooking.menuItems && selectedBooking.menuItems.length > 0 && (
+            <DetailRow
+              icon={<UtensilsCrossed size={15} />}
+              label={t('menu')}
+              value={
+                selectedBooking.menuItems.map(it => `${it.qty}x ${it.name}`).join(', ') +
+                (selectedBooking.menuReadyTime ? ` · ${t('menuReadyTime')} ${selectedBooking.menuReadyTime}` : '')
+              }
+            />
+          )}
         </div>
 
         <div className="divider" />
@@ -72,9 +90,9 @@ export function BookingDetailModal({ s }: { s: CalendarPageState }) {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '0.6rem', marginBottom: '0.85rem', borderRadius: 10, background: '#10b98114', color: '#059669', fontWeight: 700, fontSize: '0.85rem' }}>
             <Check size={16} /> {t('completed')}
           </div>
-        ) : bookingState(selectedBooking).key === 'unpaid' ? (
+        ) : (bookingState(selectedBooking).key === 'unpaid' || bookingState(selectedBooking).key === 'partial') ? (
           <button className="btn btn-primary" style={{ width: '100%', marginBottom: '0.85rem' }} onClick={() => setPayConfirm(selectedBooking)}>
-            <Wallet size={15} /> {t('markAsPaid')}
+            <Wallet size={15} /> {isPartiallyPaid(selectedBooking) ? t('collectBalance') : t('markAsPaid')}
           </button>
         ) : (
           <button
@@ -98,7 +116,14 @@ export function BookingDetailModal({ s }: { s: CalendarPageState }) {
               <Trash2 size={13} /> {t('delete')}
             </button>
           )}
-          <button className="btn btn-secondary btn-sm" onClick={close}>{t('close')}</button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            {!selectedBooking.finished && (
+              <button className="btn btn-secondary btn-sm" onClick={() => { setEditBooking(selectedBooking); setSelectedBooking(null) }}>
+                <Pencil size={13} /> {t('edit')}
+              </button>
+            )}
+            <button className="btn btn-secondary btn-sm" onClick={close}>{t('close')}</button>
+          </div>
         </div>
       </div>
     </div>

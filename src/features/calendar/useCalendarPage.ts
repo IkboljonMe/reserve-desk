@@ -1,14 +1,16 @@
 'use client'
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import {
   format, startOfWeek, addDays, addWeeks, subWeeks, startOfMonth, endOfMonth,
   parseISO, addMonths, subMonths,
 } from 'date-fns'
 import { useToast } from '@/components/ToastProvider'
+import { useBookingModal } from '@/components/BookingModalProvider'
 import { useTranslation } from '@/i18n'
-import { svcId, extractHotelId, bookingState } from '@/lib/bookingHelpers'
+import { dateLocale } from '@/lib/dateLocale'
+import { svcId, extractHotelId, bookingState, amountCollected } from '@/lib/bookingHelpers'
 import { Booking } from '@/types'
 import { useServicesQuery } from '@/hooks/useServices'
 import { useHotelsQuery } from '@/hooks/useHotels'
@@ -16,9 +18,9 @@ import { useBookingsQuery, useUpdateBookingMutation, useDeleteBookingMutation } 
 import { ViewMode, StatusFilter, Density, ROW_HEIGHTS } from './constants'
 
 export function useCalendarPage() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const { showToast } = useToast()
+  const { openBookingModal } = useBookingModal()
   const { lang, t } = useTranslation()
 
   const [today, setToday] = useState(new Date())
@@ -51,6 +53,7 @@ export function useCalendarPage() {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [payConfirm, setPayConfirm] = useState<Booking | null>(null)
+  const [editBooking, setEditBooking] = useState<Booking | null>(null)
 
   // Filters
   const [search, setSearch] = useState('')
@@ -112,7 +115,7 @@ export function useCalendarPage() {
       if (hid && knownHotelIds.has(hid) && !selectedHotels.has(hid)) return false
       if (statusFilter !== 'all') {
         const st = bookingState(b).key
-        if (statusFilter === 'unpaid' && st !== 'unpaid') return false
+        if (statusFilter === 'unpaid' && st !== 'unpaid' && st !== 'partial') return false
         if (statusFilter === 'paid' && !(st === 'paid' || st === 'free')) return false
         if (statusFilter === 'finished' && st !== 'finished') return false
       }
@@ -134,9 +137,7 @@ export function useCalendarPage() {
     const own = visibleBookings.filter(b => !b.masked)
     const count = own.length
     const revenue = own.reduce((sum, b) => sum + (b.totalPrice || 0), 0)
-    const collected = own
-      .filter(b => b.paid || (b.totalPrice || 0) === 0)
-      .reduce((sum, b) => sum + (b.totalPrice || 0), 0)
+    const collected = own.reduce((sum, b) => sum + amountCollected(b), 0)
     return { count, revenue, collected }
   }, [visibleBookings])
 
@@ -157,8 +158,30 @@ export function useCalendarPage() {
     }
   }
 
-  const markPaid = (b: Booking) => updateBooking(b._id, { paid: true }, t('markedAsPaid'))
+  const markPaid = (b: Booking) =>
+    updateBooking(b._id, { paid: true, amountPaid: b.totalPrice || 0 }, t('markedAsPaid'))
+  // Record a (possibly partial) collected total for a booking. `amount` is the
+  // new cumulative amountPaid; paid flips true once it covers the total.
+  const recordPayment = (b: Booking, amount: number) => {
+    const total = b.totalPrice || 0
+    const amt = Math.max(0, Math.min(total, amount))
+    const fully = total > 0 && amt >= total
+    return updateBooking(b._id, { amountPaid: amt, paid: fully }, fully ? t('markedAsPaid') : t('paymentRecorded'))
+  }
   const markFinished = (b: Booking) => updateBooking(b._id, { finished: true }, t('bookingCompleted'))
+
+  // Save an edit / reschedule. Surfaces the server's conflict message (e.g. a
+  // 409 "fully booked") rather than a generic failure so the user can react.
+  async function saveBookingEdit(id: string, changes: Partial<Booking>) {
+    try {
+      await updateMutation.mutateAsync({ id, data: changes })
+      setSelectedBooking(prev => (prev && prev._id === id ? { ...prev, ...changes } : prev))
+      setEditBooking(null)
+      showToast(t('bookingUpdated'), 'success')
+    } catch (e) {
+      showToast(e instanceof Error && e.message ? e.message : t('updateFailed'), 'error')
+    }
+  }
 
   async function handleDeleteBooking(id: string) {
     try {
@@ -172,16 +195,17 @@ export function useCalendarPage() {
   }
 
   const goToCreate = (dateStr: string, time?: string) =>
-    router.push(`/${lang}/book?date=${dateStr}${time ? `&time=${time}` : ''}`)
+    openBookingModal({ date: dateStr, time })
 
+  const locale = dateLocale(lang)
   const headerLabel = view === 'day'
-    ? format(currentDate, 'EEEE, MMMM d, yyyy')
+    ? format(currentDate, 'EEEE, MMMM d, yyyy', { locale })
     : view === 'week'
       ? (() => {
         const start = startOfWeek(currentDate, { weekStartsOn: 1 })
-        return `${format(start, 'MMM d')} – ${format(addDays(start, 6), 'MMM d, yyyy')}`
+        return `${format(start, 'MMM d', { locale })} – ${format(addDays(start, 6), 'MMM d, yyyy', { locale })}`
       })()
-      : format(currentDate, 'MMMM yyyy')
+      : format(currentDate, 'MMMM yyyy', { locale })
 
   const allSelected = services.length > 0 && selectedServices.size === services.length
   const allHotelsSelected = hotels.length > 0 && selectedHotels.size === hotels.length
@@ -191,9 +215,10 @@ export function useCalendarPage() {
     services, hotels, selectedServices, setSelectedServices, selectedHotels, setSelectedHotels,
     bookings, loadingBookings, selectedBooking, setSelectedBooking,
     deleteConfirm, setDeleteConfirm, payConfirm, setPayConfirm,
+    editBooking, setEditBooking, saveBookingEdit,
     search, setSearch, statusFilter, setStatusFilter, rowH, serviceHotel,
     navigate, visibleBookings, bookingsForDay, summary,
-    markPaid, markFinished, handleDeleteBooking, goToCreate,
+    markPaid, recordPayment, markFinished, handleDeleteBooking, goToCreate,
     headerLabel, allSelected, allHotelsSelected,
   }
 }
