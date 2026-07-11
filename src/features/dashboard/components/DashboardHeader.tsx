@@ -4,6 +4,7 @@ import { format } from 'date-fns'
 import { useEffect, useRef, useState } from 'react'
 import { nowUZ } from '@/lib/timezone'
 import { dateLocale } from '@/lib/dateLocale'
+import { useBookingModal } from '@/components/BookingModalProvider'
 import { useTranslation } from '@/i18n'
 import { Calendar as CalendarIcon, Plus } from 'lucide-react'
 import Button from '@/components/ui/Button'
@@ -15,7 +16,8 @@ import type { DashboardPageState } from '../useDashboardPage'
 export function DashboardHeader({ s }: { s: DashboardPageState }) {
   const { t, lang } = useTranslation()
   const locale = dateLocale(lang)
-  const { period, setPeriod, customFrom, setCustomFrom, customTo, setCustomTo, router } = s
+  const { openBookingModal } = useBookingModal()
+  const { period, setPeriod, customFrom, setCustomFrom, customTo, setCustomTo } = s
   const [pickerOpen, setPickerOpen] = useState(false)
   // Draft selection while the popover is open. Kept separate from customFrom/customTo
   // so `to` can stay genuinely null between the two picks — collapsing it into a
@@ -89,7 +91,7 @@ export function DashboardHeader({ s }: { s: DashboardPageState }) {
             )}
           </div>
         )}
-        <Button variant="primary" size="md" leftIcon={<Plus size={14} strokeWidth={2.5} />} onClick={() => router.push(`/${lang}/book?date=${format(nowUZ(), 'yyyy-MM-dd')}`)}>
+        <Button variant="primary" size="md" leftIcon={<Plus size={14} strokeWidth={2.5} />} onClick={() => openBookingModal({ date: format(nowUZ(), 'yyyy-MM-dd') })}>
           {t('newBooking')}
         </Button>
       </div>

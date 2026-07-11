@@ -12,7 +12,7 @@ export function DateTimeSection({ w }: { w: BookingWizard }) {
   if (!selectedService || !activePlan || !planReady || !guestReady) return null
 
   return (
-    <div className="card" style={{ animation: 'slideInRight 0.3s ease-out' }}>
+    <div>
       <h2 style={{ marginBottom: '1.25rem' }}>{t('pickDateTime')}</h2>
 
       <div className="form-group" style={{ marginBottom: '1.25rem', maxWidth: 240 }}>

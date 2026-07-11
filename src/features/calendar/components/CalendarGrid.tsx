@@ -9,7 +9,7 @@ export function CalendarGrid({ s }: { s: CalendarPageState }) {
   const { loadingBookings, view, currentDate, today, bookingsForDay, setSelectedBooking, markFinished, setCurrentDate, setView, rowH, goToCreate } = s
 
   return (
-    <div className="card" style={{ flex: 1, overflow: 'auto', padding: 0, position: 'relative', minHeight: 0 }}>
+    <div className="card cal-grid-card">
       {loadingBookings && (
         <div style={{
           position: 'absolute', inset: 0, background: 'rgba(255,255,255,0.45)',

@@ -1,25 +1,39 @@
 # Booking flow & availability
 
-The new‑booking screen lives in `src/features/book/`. All state is in the one
-hook `useBookingWizard.ts`; the sections are presentational.
+"New Booking" is a modal (`BookingModal`, `src/features/book/`), not a routed
+page — `/book` now just redirects to `/calendar`. It's opened from the
+sidebar, the dashboard header, or the calendar (toolbar button or clicking an
+empty slot) via `useBookingModal()` (`src/components/BookingModalProvider.tsx`),
+which mounts the modal app-wide so any page can trigger it and pass a
+`date`/`time` prefill. All wizard state is in the one hook
+`useBookingWizard.ts`; each slide component is presentational.
 
 ## The wizard
 
-Two macro steps (`step` 1 = select, 2 = review):
+One slide per concern, navigated with Back/Next in the modal's footer
+(`slides` / `slideIndex` in the hook — `hotel` is dropped from the sequence
+entirely for single-hotel admins, who are auto-scoped):
 
-1. **Select** (`SelectStep` → `PlanSection` → `GuestSection` → `DateTimeSection`):
-   - **Hotel** — auto‑selected for admins (single hotel); a picker for the owner.
-   - **Service** — the hotel's active services (owned or shared to it).
+1. **Hotel** (`HotelStep`) — auto‑selected for admins (single hotel); a picker for the owner.
+2. **Service** (`ServiceStep`) — the hotel's active services (owned or shared to it).
    - **Variant** — if the service has `variants`, pick one first; its pricing
      replaces the service's own.
-   - **Who is it for?** (`bookingType`):
-     - `client` — pick a client **group** (VIP…), or "Custom" (ungrouped, manual
-       price). Then search/pick or add a saved client.
-     - `room` — pick a room **type**, then the specific room.
-     - `custom` — one‑off, manual duration + price.
+3. **Plan** (`PlanSection`) — **who is it for?** (`bookingType`):
+   - `client` — pick a client **group** (VIP…), or "Custom" (ungrouped, manual
+     price). Then search/pick or add a saved client.
+   - `room` — pick a room **type**, then the specific room.
+   - `custom` — one‑off, manual duration + price.
    - **Rate + hours** — see [pricing.md](./pricing.md).
-   - **Date & time** — a date input plus the available start‑time slots.
-2. **Review** (`ReviewStep`) — read‑only summary, payment toggle, confirm.
+4. **Guest** (`GuestSection`) — guest/room details (name, phone, room number, notes).
+5. **Date & time** (`DateTimeSection`) — a date input plus the available start‑time slots.
+6. **Review** (`ReviewStep`) — read‑only summary, headcount, payment toggle, confirm.
+
+Each slide gates the "Next" button on its own validity (`slideValid` in the
+hook); `Hotel`/`Service` auto-advance on a single tap since there's nothing
+else to fill in on those slides. `confirmBooking()` uses
+`useCreateBookingMutation()` so the dashboard/calendar underneath refreshes
+via react-query cache invalidation once the modal closes — there's no page
+navigation involved.
 
 `confirmBooking()` posts to `POST /api/bookings` with `serviceId`, `date`,
 `startTime`, `endTime`, `duration`, `totalPrice`, guest fields, `bookingType`,

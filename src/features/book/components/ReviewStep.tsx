@@ -5,27 +5,24 @@ import { useTranslation } from '@/i18n'
 import { getServiceIcon } from '@/lib/serviceIcons'
 import { chipStyle } from '../styles'
 import { formatDuration, formatUZS, slotEnd } from '../utils'
-import { BackButton } from './BackButton'
 import type { BookingWizard } from '../useBookingWizard'
 
-// Step 2: nothing but a read-only summary of everything picked in step 1,
-// plus the payment status and the final "Confirm Booking" action.
+// Slide: a read-only summary of everything picked in the previous slides,
+// plus headcount and payment status. Back/Confirm live in the modal's shared
+// footer, not here.
 export function ReviewStep({ w }: { w: BookingWizard }) {
-  const { t, lang } = useTranslation()
+  const { t } = useTranslation()
   const {
     hotels, selectedHotelId, selectedService, selectedVariant, bookingType, categoryMeta,
     activePlan, selectedSlot, date, customerName, customerPhone, roomNumber, notes,
-    persons, setPersons, paid, setPaid, amountPaid, setAmountPaid, loading, router, confirmBooking, setStep,
+    persons, setPersons, paid, setPaid, amountPaid, setAmountPaid,
   } = w
   if (!selectedService || !activePlan || !selectedSlot) return null
 
   return (
-    <div className="card" style={{ animation: 'slideInRight 0.3s ease-out' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: '1.25rem' }}>
-        <BackButton to={1} onBack={setStep} />
-        <h2 style={{ margin: 0 }}>{t('confirmBooking')}</h2>
-      </div>
-      <p style={{ color: 'var(--gray-500)', fontSize: '0.875rem', marginTop: -8, marginBottom: '1.25rem' }}>{t('reviewYourBooking')}</p>
+    <div>
+      <h2 style={{ marginBottom: 4 }}>{t('confirmBooking')}</h2>
+      <p style={{ color: 'var(--gray-500)', fontSize: '0.875rem', marginTop: 0, marginBottom: '1.25rem' }}>{t('reviewYourBooking')}</p>
 
       {/* Order summary */}
       <div style={{
@@ -88,7 +85,7 @@ export function ReviewStep({ w }: { w: BookingWizard }) {
         />
       </div>
 
-      <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+      <div className="form-group" style={{ marginBottom: 0 }}>
         <label className="form-label">{t('payment')}</label>
         {activePlan.price === 0 ? (
           <div style={{ ...chipStyle('#3b82f618', '#2563eb'), padding: '8px 12px' }}>{t('freeNoPayment')}</div>
@@ -127,20 +124,6 @@ export function ReviewStep({ w }: { w: BookingWizard }) {
             )}
           </>
         )}
-      </div>
-
-      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
-        <button type="button" className="btn btn-secondary" onClick={() => router.push(`/${lang}/calendar`)}>{t('cancel')}</button>
-        <button
-          id="confirm-booking-btn"
-          type="button"
-          className="btn btn-primary"
-          disabled={loading}
-          onClick={confirmBooking}
-        >
-          {loading ? <span className="spinner" /> : null}
-          {loading ? t('creating') : t('confirmBooking')}
-        </button>
       </div>
     </div>
   )

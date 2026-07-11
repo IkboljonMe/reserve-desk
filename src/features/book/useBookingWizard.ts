@@ -1,37 +1,48 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useToast } from '@/components/ToastProvider'
-import { useRouter, useSearchParams } from 'next/navigation'
 import { useTranslation } from '@/i18n'
 import { nowUZ } from '@/lib/timezone'
 import { getServices } from '@/lib/api/services'
 import { getHotels } from '@/lib/api/hotels'
-import { getBookings, createBooking } from '@/lib/api/bookings'
+import { getBookings } from '@/lib/api/bookings'
 import { getClients } from '@/lib/api/clients'
+import { useCreateBookingMutation } from '@/hooks/useBookings'
 import {
   Service, ServiceVariant, Room, Hotel, ClientGroup, Client, PricingPlan, PricingGroup, BookingType, DayBooking,
 } from './types'
-import { serviceAvailableToHotel, extractHotelId, generateTimeSlots, slotEnd, toMin } from './utils'
+import { serviceAvailableToHotel, generateTimeSlots, slotEnd, toMin } from './utils'
 import { hoursForDate } from '@/lib/serviceHours'
 
 // Sentinel category value meaning "client has no group" — maps to `groupId=none`
 // server-side. There's no configured pricing for it, so price/duration are manual.
 export const UNGROUPED = 'none'
 
-export function useBookingWizard() {
+// One slide per concern. "hotel" is dropped from the sequence entirely when
+// there's nothing to choose (single-hotel admins are auto-scoped).
+const SLIDE_KEYS = ['hotel', 'service', 'plan', 'guest', 'datetime', 'review'] as const
+export type SlideKey = typeof SLIDE_KEYS[number]
+
+export function useBookingWizard({
+  initialDate,
+  initialTime,
+  onClose,
+}: {
+  initialDate?: string
+  initialTime?: string
+  onClose: () => void
+}) {
   const { showToast } = useToast()
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const { t, lang } = useTranslation()
+  const { t } = useTranslation()
+  const createMutation = useCreateBookingMutation()
 
   const [services, setServices] = useState<Service[]>([])
   const [rooms, setRooms] = useState<Room[]>([])
   const [hotels, setHotels] = useState<Hotel[]>([])
   const [clientGroups, setClientGroups] = useState<ClientGroup[]>([])
 
-  // Only two macro steps: 1 = select everything, 2 = review & confirm.
-  const [step, setStep] = useState(1)
+  const [slideIndex, setSlideIndex] = useState(0)
 
   const [selectedHotelId, setSelectedHotelId] = useState<string | null>(null)
   const [selectedService, setSelectedService] = useState<Service | null>(null)
@@ -51,8 +62,8 @@ export function useBookingWizard() {
   const [customPrice, setCustomPrice] = useState(0)
 
   // Date & time
-  const [date, setDate] = useState(searchParams.get('date') || nowUZ().toISOString().split('T')[0])
-  const [selectedSlot, setSelectedSlot] = useState(searchParams.get('time') || '')
+  const [date, setDate] = useState(initialDate || nowUZ().toISOString().split('T')[0])
+  const [selectedSlot, setSelectedSlot] = useState(initialTime || '')
   const [dayBookings, setDayBookings] = useState<DayBooking[]>([])
 
   // Guest / room details
@@ -66,7 +77,6 @@ export function useBookingWizard() {
   const [paid, setPaid] = useState(false)
   // Deposit taken at booking time (0 = none). `paid` covers the full-payment case.
   const [amountPaid, setAmountPaid] = useState(0)
-  const [loading, setLoading] = useState(false)
 
   // Client search (client booking type)
   const [clientSearch, setClientSearch] = useState('')
@@ -76,8 +86,6 @@ export function useBookingWizard() {
   const [addClientModalOpen, setAddClientModalOpen] = useState(false)
   const [addClientForm, setAddClientForm] = useState({ name: '', phone: '', notes: '' })
   const [savingNewClient, setSavingNewClient] = useState(false)
-
-  const preServiceId = searchParams.get('serviceId')
 
   useEffect(() => {
     Promise.all([
@@ -92,19 +100,10 @@ export function useBookingWizard() {
       setHotels(Array.isArray(htls) ? htls : [])
       setClientGroups(Array.isArray(grps) ? grps : [])
       const htlList = Array.isArray(htls) ? htls : []
-      if (preServiceId) {
-        const found = active.find((s: Service) => s._id === preServiceId)
-        if (found) {
-          const hid = extractHotelId(found.hotelId)
-          if (hid) setSelectedHotelId(hid)
-          setSelectedService(found)
-        }
-      } else if (htlList.length === 1) {
-        // Admins are scoped to a single hotel — auto-select, no picker shown.
-        setSelectedHotelId(htlList[0]._id)
-      }
+      // Admins are scoped to a single hotel — auto-select, no picker shown.
+      if (htlList.length === 1) setSelectedHotelId(htlList[0]._id)
     })
-  }, [preServiceId])
+  }, [])
 
   // Load existing bookings for the day (for slot availability)
   useEffect(() => {
@@ -236,17 +235,53 @@ export function useBookingWizard() {
 
   const canReview = !!(selectedService && activePlan && selectedSlot && date && planReady && guestReady)
 
+  // ── Slide navigation ──────────────────────────────────────────────────────
+
+  // The hotel slide only exists when there's actually a choice to make.
+  const slides = useMemo<SlideKey[]>(
+    () => SLIDE_KEYS.filter(k => k !== 'hotel' || hotels.length > 1),
+    [hotels.length],
+  )
+  const currentSlide: SlideKey = slides[slideIndex] ?? 'service'
+
+  const slideValid: Record<SlideKey, boolean> = {
+    hotel: !!selectedHotelId,
+    service: !!selectedService,
+    plan: planReady,
+    guest: guestReady,
+    datetime: !!selectedSlot,
+    review: canReview,
+  }
+  const canGoNext = currentSlide !== 'review' && slideValid[currentSlide]
+
+  function goNext() {
+    if (currentSlide === 'review' || !slideValid[currentSlide]) return
+    setSlideIndex(i => Math.min(slides.length - 1, i + 1))
+  }
+
+  function goBack() {
+    setSlideIndex(i => Math.max(0, i - 1))
+  }
+
+  // Jump back to an earlier, already-completed slide (e.g. from the progress dots).
+  function goToSlide(key: SlideKey) {
+    const idx = slides.indexOf(key)
+    if (idx >= 0 && idx <= slideIndex) setSlideIndex(idx)
+  }
+
   // ── Actions ────────────────────────────────────────────────────────────────
 
   function chooseHotel(id: string) {
     setSelectedHotelId(id)
     setSelectedService(null)
     resetPlan()
+    setSlideIndex(i => Math.min(slides.length - 1, i + 1))
   }
 
   function chooseService(svc: Service) {
     setSelectedService(svc)
     resetPlan()
+    setSlideIndex(i => Math.min(slides.length - 1, i + 1))
   }
 
   function resetPlan() {
@@ -391,20 +426,14 @@ export function useBookingWizard() {
 
   // ── Submit ────────────────────────────────────────────────────────────────
 
-  function goToReview() {
-    if (!canReview) return
-    setStep(2)
-  }
-
   async function confirmBooking() {
     if (!selectedService || !selectedSlot || !date || !activePlan) return
     // Room bookings without an explicit name fall back to the room label.
     const finalName = customerName.trim() || (bookingType === 'room' ? roomNumber : t('guest'))
 
-    setLoading(true)
     try {
       const endTime = slotEnd(selectedSlot, activePlan.duration)
-      await createBooking({
+      await createMutation.mutateAsync({
         serviceId: selectedService._id,
         clientId: selectedClientId,
         customerName: finalName,
@@ -424,21 +453,19 @@ export function useBookingWizard() {
         variantId: selectedVariant?.id,
       })
       showToast(t('bookingCreated'), 'success')
-      router.push(`/${lang}/calendar?date=${date}`)
+      onClose()
     } catch (err) {
       const msg = err instanceof Error ? err.message : ''
       showToast(msg || t('createBookingFailed'), 'error')
-    } finally {
-      setLoading(false)
     }
   }
 
   return {
-    router,
+    onClose,
     // collections
     hotels, clientGroups,
     // wizard position
-    step, setStep, goToReview, canReview,
+    slides, slideIndex, currentSlide, canGoNext, goNext, goBack, goToSlide, canReview,
     selectedHotelId, selectedService, chooseHotel,
     // variant
     selectedVariant, hasVariants, chooseVariant,
@@ -454,7 +481,7 @@ export function useBookingWizard() {
     selectedClientId, setSelectedClientId, selectedRoomId,
     customerName, setCustomerName, customerPhone, setCustomerPhone,
     roomNumber, setRoomNumber, notes, setNotes, persons, setPersons, paid, setPaid,
-    amountPaid, setAmountPaid, loading,
+    amountPaid, setAmountPaid, loading: createMutation.isPending,
     clientSearch, setClientSearch, clientResults, clearClient,
     // add-client modal
     addClientModalOpen, addClientForm, setAddClientForm, savingNewClient,

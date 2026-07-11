@@ -19,7 +19,7 @@ export function GuestSection({ w }: { w: BookingWizard }) {
   if (!planReady) return null
 
   return (
-    <div className="card" style={{ animation: 'slideInRight 0.3s ease-out' }}>
+    <div>
       {/* CLIENT: search saved clients in group, or add a new one */}
       {bookingType === 'client' && (
         <div className="form-group" style={{ marginBottom: '1.25rem' }}>

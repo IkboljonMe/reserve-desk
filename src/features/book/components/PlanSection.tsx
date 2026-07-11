@@ -25,7 +25,7 @@ export function PlanSection({ w }: { w: BookingWizard }) {
   const showPlanOptions = !hasVariants || !!selectedVariant
 
   return (
-    <div className="card" style={{ animation: 'slideInRight 0.3s ease-out' }}>
+    <div>
       {hasVariants && (
         <div style={{ marginBottom: showPlanOptions ? '1.5rem' : 0 }}>
           <label className="form-label" style={{ display: 'block', marginBottom: 8 }}>{t('chooseVariant')}</label>

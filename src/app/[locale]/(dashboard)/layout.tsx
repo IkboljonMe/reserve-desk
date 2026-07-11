@@ -3,6 +3,7 @@ import { connectDB } from '@/lib/mongodb'
 import { Hotel } from '@/models/Hotel'
 import { ToastProvider } from '@/components/ToastProvider'
 import { DraftProvider } from '@/components/DraftProvider'
+import { BookingModalProvider } from '@/components/BookingModalProvider'
 import QueryProvider from '@/components/QueryProvider'
 import DashboardContainer from '@/components/layout/DashboardContainer'
 
@@ -24,9 +25,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
     <QueryProvider>
       <ToastProvider>
        <DraftProvider>
-        <DashboardContainer userName={session.name} userEmail={session.email} role={session.role} hotelName={hotelName}>
-          {children}
-        </DashboardContainer>
+        <BookingModalProvider>
+         <DashboardContainer userName={session.name} userEmail={session.email} role={session.role} hotelName={hotelName}>
+           {children}
+         </DashboardContainer>
+        </BookingModalProvider>
        </DraftProvider>
       </ToastProvider>
     </QueryProvider>

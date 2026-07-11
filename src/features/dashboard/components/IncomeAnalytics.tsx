@@ -33,7 +33,7 @@ export default function IncomeAnalytics({ analytics, loading, perService }: Inco
   const count = useCountUp(analytics.count)
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 260px', gap: '1.5rem', alignItems: 'stretch' }}>
+    <div className="dash-analytics-grid">
       <div style={{ minWidth: 0 }}>
         {/* KPI strip */}
         <div style={{ display: 'flex', gap: 22, flexWrap: 'wrap', marginBottom: '1.1rem' }}>
@@ -60,7 +60,7 @@ export default function IncomeAnalytics({ analytics, loading, perService }: Inco
       </div>
 
       {/* Income by service */}
-      <div style={{ borderLeft: '1px solid var(--surface-border)', paddingLeft: '1.4rem' }}>
+      <div className="dash-analytics-side">
         <h3 style={{ fontSize: '0.8rem', margin: '0 0 0.9rem' }}>{t('incomeByService')}</h3>
         {perService.length === 0 ? (
           <p style={{ fontSize: '0.78rem', color: 'var(--gray-400)' }}>{t('noIncomeInPeriod')}</p>

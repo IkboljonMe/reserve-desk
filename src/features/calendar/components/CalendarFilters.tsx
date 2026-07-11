@@ -3,11 +3,13 @@
 import { Search, X } from 'lucide-react'
 import Dropdown from '@/components/ui/Dropdown'
 import { useTranslation } from '@/i18n'
+import { useIsMobile } from '@/hooks/useIsMobile'
 import type { StatusFilter } from '../constants'
 import type { CalendarPageState } from '../useCalendarPage'
 
 export function CalendarFilters({ s }: { s: CalendarPageState }) {
   const { t } = useTranslation()
+  const isMobile = useIsMobile()
   const { search, setSearch, statusFilter, setStatusFilter } = s
 
   return (
@@ -28,18 +30,21 @@ export function CalendarFilters({ s }: { s: CalendarPageState }) {
         )}
       </div>
 
-      <div style={{ minWidth: 140 }}>
-        <Dropdown
-          value={statusFilter}
-          onChange={val => setStatusFilter(val as StatusFilter)}
-          options={[
-            { value: 'all', label: t('allStatuses') },
-            { value: 'unpaid', label: t('unpaid') },
-            { value: 'paid', label: t('paid') },
-            { value: 'finished', label: t('finished') },
-          ]}
-        />
-      </div>
+      {/* On mobile this dropdown moves up into CalendarToolbar's compact stack, next to view/density. */}
+      {!isMobile && (
+        <div style={{ minWidth: 140 }}>
+          <Dropdown
+            value={statusFilter}
+            onChange={val => setStatusFilter(val as StatusFilter)}
+            options={[
+              { value: 'all', label: t('allStatuses') },
+              { value: 'unpaid', label: t('unpaid') },
+              { value: 'paid', label: t('paid') },
+              { value: 'finished', label: t('finished') },
+            ]}
+          />
+        </div>
+      )}
     </div>
   )
 }
