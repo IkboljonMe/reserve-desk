@@ -11,6 +11,8 @@ date: 2026-07-12
 - [[VPS-Setup-and-Cloudflare]] — domain, wildcard subdomains, SSL, firewall, process management, request flow
 - [[MongoDB-Strategy]] — Atlas vs self-hosted, security, backups, environment separation
 - [[Backend-and-Telegram-Bot]] — splitting the bot into its own service, webhook vs polling, order-notification flow
+- [[API-Design]] — honest assessment of the current API (pros/cons, incl. the TelegramConfig multi-tenant bug), conventions for the new v1 (auth, errors, pagination, idempotency), migration phases
+- [[API-Endpoints-Reference]] — the living contract: every v1 endpoint (app + bot service) with auth, request/response shapes, and error codes — edit this doc first when an endpoint changes
 
 ## The shape of the system (high level)
 
