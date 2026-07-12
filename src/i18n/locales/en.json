@@ -252,7 +252,6 @@
   "specialRequirements": "Any special requirements…",
   "menuOptional": "Menu / order (optional)",
   "menuPlaceholder": "e.g. Fruit platter",
-  "menu": "Menu",
   "menuReadyTime": "Ready by",
   "addMenuPlaceholder": "Add menu / order…",
   "noMenu": "No menu request.",
@@ -725,5 +724,10 @@
   "demoPoint4": "Settings: hotels, rooms, services, staff accounts — everything an owner controls",
   "demoEnterOwner": "Enter Owner Demo",
   "demoUnavailable": "The demo is being refreshed — please try again in a minute.",
-  "demoResetNote": "This is a shared sandbox — its data is periodically reset. Anything you create here is visible to other visitors."
+  "demoResetNote": "This is a shared sandbox — its data is periodically reset. Anything you create here is visible to other visitors.",
+  "universalLoginHint": "Sign in — we'll take you to your workspace",
+  "hotelSlug": "Hotel URL slug",
+  "hotelSlugPlaceholder": "tashkent-grand-hotel",
+  "hotelSlugHint": "Admins of this hotel sign in at …/admin/{slug}/login. Leave empty to use the hotel name.",
+  "hotelSlugTaken": "Another hotel already uses this slug"
 }

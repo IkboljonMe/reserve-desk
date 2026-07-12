@@ -252,7 +252,6 @@
   "specialRequirements": "Maxsus talablar…",
   "menuOptional": "Menyu / buyurtma (ixtiyoriy)",
   "menuPlaceholder": "masalan: Fruit assorti",
-  "menu": "Menyu",
   "menuReadyTime": "Tayyor bo'lish vaqti",
   "addMenuPlaceholder": "Menyu / buyurtma qo'shish…",
   "noMenu": "Buyurtma ko'rsatilmagan.",
@@ -725,5 +724,10 @@
   "demoPoint4": "Sozlamalar: mehmonxonalar, xonalar, xizmatlar, xodim hisoblari — egasi boshqaradigan hamma narsa",
   "demoEnterOwner": "Egasi demo'siga kirish",
   "demoUnavailable": "Demo yangilanmoqda — bir daqiqadan so'ng qayta urinib ko'ring.",
-  "demoResetNote": "Bu umumiy sinov maydoni — ma'lumotlari vaqti-vaqti bilan tozalanadi. Bu yerda yaratganingiz boshqa tashrifchilarga ham ko'rinadi."
+  "demoResetNote": "Bu umumiy sinov maydoni — ma'lumotlari vaqti-vaqti bilan tozalanadi. Bu yerda yaratganingiz boshqa tashrifchilarga ham ko'rinadi.",
+  "universalLoginHint": "Kiring — sizni o'z ish maydoningizga olib boramiz",
+  "hotelSlug": "Mehmonxona URL slug'i",
+  "hotelSlugPlaceholder": "tashkent-grand-hotel",
+  "hotelSlugHint": "Bu mehmonxona adminlari …/admin/{slug}/login orqali kiradi. Bo'sh qoldirsangiz, mehmonxona nomidan olinadi.",
+  "hotelSlugTaken": "Bu slug boshqa mehmonxonada ishlatilgan"
 }

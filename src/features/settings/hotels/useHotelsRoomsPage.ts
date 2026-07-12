@@ -16,7 +16,7 @@ export function useHotelsRoomsPage() {
   // Hotel modal
   const [hotelOpen, setHotelOpen] = useState(false)
   const [editHotelId, setEditHotelId] = useState<string | null>(null)
-  const [hotelForm, setHotelForm] = useState({ name: '', shortName: '', location: '', roomTypes: [] as string[] })
+  const [hotelForm, setHotelForm] = useState({ name: '', shortName: '', slug: '', location: '', roomTypes: [] as string[] })
   const [shortNameTouched, setShortNameTouched] = useState(false)
   const [savingHotel, setSavingHotel] = useState(false)
   const [hotelDeleteConfirm, setHotelDeleteConfirm] = useState<string | null>(null)
@@ -63,7 +63,7 @@ export function useHotelsRoomsPage() {
 
   function openHotelModal() {
     setEditHotelId(null)
-    setHotelForm({ name: '', shortName: '', location: '', roomTypes: [] })
+    setHotelForm({ name: '', shortName: '', slug: '', location: '', roomTypes: [] })
     setRoomCategoryInput('')
     setShortNameTouched(false)
     setHotelOpen(true)
@@ -71,7 +71,7 @@ export function useHotelsRoomsPage() {
 
   function openEditHotel(hotel: Hotel) {
     setEditHotelId(hotel._id)
-    setHotelForm({ name: hotel.name, shortName: displayCode(hotel), location: hotel.location || '', roomTypes: hotel.roomTypes || [] })
+    setHotelForm({ name: hotel.name, shortName: displayCode(hotel), slug: hotel.slug || '', location: hotel.location || '', roomTypes: hotel.roomTypes || [] })
     setRoomCategoryInput('')
     setShortNameTouched(true) // don't auto-overwrite an existing code from the name
     setHotelOpen(true)
@@ -90,6 +90,21 @@ export function useHotelsRoomsPage() {
     setShortNameTouched(true)
     setHotelForm(f => ({ ...f, shortName: value.toUpperCase().replace(/[^A-Z0-9]/g, '') }))
   }
+
+  // Owner-editable URL slug; keystrokes are normalized to slug characters.
+  // Left empty, the server derives it from the hotel name.
+  function onSlugChange(value: string) {
+    setHotelForm(f => ({ ...f, slug: value.toLowerCase().replace(/[^a-z0-9-]/g, '') }))
+  }
+
+  const slugError = useMemo(() => {
+    const v = hotelForm.slug.trim()
+    if (!v) return null // empty → server default from name
+    if (hotels.some(h => h._id !== editHotelId && h.slug === v)) {
+      return t('hotelSlugTaken')
+    }
+    return null
+  }, [hotelForm.slug, hotels, editHotelId, t])
 
   // Live validation of the compact code.
   const shortNameError = useMemo(() => {
@@ -112,7 +127,7 @@ export function useHotelsRoomsPage() {
        finalForm.roomTypes.push(pendingCat)
     }
 
-    if (!finalForm.name.trim() || !finalForm.shortName.trim() || shortNameError) return
+    if (!finalForm.name.trim() || !finalForm.shortName.trim() || shortNameError || slugError) return
     if (finalForm.roomTypes.length === 0) {
       showToast(t('addAtLeastOneCategory'), 'error')
       return
@@ -289,7 +304,7 @@ export function useHotelsRoomsPage() {
     // hotel modal
     hotelOpen, setHotelOpen, editHotelId, hotelForm, setHotelForm, savingHotel,
     hotelDeleteConfirm, setHotelDeleteConfirm, roomCategoryInput, setRoomCategoryInput,
-    openHotelModal, openEditHotel, onHotelNameChange, onShortNameChange, shortNameError,
+    openHotelModal, openEditHotel, onHotelNameChange, onShortNameChange, shortNameError, onSlugChange, slugError,
     handleSubmitHotel, handleDeleteHotel,
     // room modal
     roomOpen, setRoomOpen, editRoomId, roomForm, setRoomForm, savingRoom,

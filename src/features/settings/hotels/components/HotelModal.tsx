@@ -8,7 +8,8 @@ export function HotelModal({ s }: { s: HotelsRoomsPageState }) {
   const { t } = useTranslation()
   const {
     hotelOpen, setHotelOpen, editHotelId, handleSubmitHotel, hotelForm, setHotelForm,
-    onHotelNameChange, onShortNameChange, shortNameError, roomCategoryInput, setRoomCategoryInput, savingHotel,
+    onHotelNameChange, onShortNameChange, shortNameError, onSlugChange, slugError,
+    roomCategoryInput, setRoomCategoryInput, savingHotel,
   } = s
   if (!hotelOpen) return null
 
@@ -62,6 +63,25 @@ export function HotelModal({ s }: { s: HotelsRoomsPageState }) {
             </div>
 
             <div className="form-group">
+              <label className="form-label">{t('hotelSlug')}</label>
+              <input
+                className="form-input"
+                value={hotelForm.slug}
+                onChange={e => onSlugChange(e.target.value)}
+                placeholder={t('hotelSlugPlaceholder')}
+                style={slugError ? { borderColor: 'var(--danger)', boxShadow: '0 0 0 3px rgba(239,68,68,0.12)' } : undefined}
+                aria-invalid={!!slugError}
+              />
+              {slugError ? (
+                <small className="form-error" style={{ display: 'block', marginTop: 4 }}>{slugError}</small>
+              ) : (
+                <small style={{ color: 'var(--gray-400)', fontSize: '0.72rem', display: 'block', marginTop: 4 }}>
+                  {t('hotelSlugHint', { slug: hotelForm.slug || '…' })}
+                </small>
+              )}
+            </div>
+
+            <div className="form-group">
               <label className="form-label">{t('location')}</label>
               <input
                 className="form-input"
@@ -109,7 +129,7 @@ export function HotelModal({ s }: { s: HotelsRoomsPageState }) {
           <div className="divider" />
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
             <button type="button" className="btn btn-secondary" onClick={() => setHotelOpen(false)}>{t('cancel')}</button>
-            <button type="submit" className="btn btn-primary" disabled={savingHotel || !!shortNameError}>
+            <button type="submit" className="btn btn-primary" disabled={savingHotel || !!shortNameError || !!slugError}>
               {savingHotel ? <span className="spinner" /> : null}
               {savingHotel ? (editHotelId ? t('saving') : t('adding')) : (editHotelId ? t('save') : t('addHotel'))}
             </button>
