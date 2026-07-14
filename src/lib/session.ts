@@ -27,10 +27,14 @@ export interface SessionPayload {
 }
 
 // Where a session naturally lands after login (locale-less; caller prefixes it).
-export function sessionHome(session: SessionPayload): string {
-  if (session.role === 'superadmin') return '/secure/superadmin/dashboard'
-  if (session.role === 'owner') return `/secure/company/${session.companySlug}/dashboard`
-  return `/secure/company/${session.companySlug}/admin/${session.hotelSlug}/calendar`
+export function sessionHome(session: SessionPayload, subdomain: string | null = null): string {
+  if (session.role === 'superadmin') {
+    return subdomain === 'admin' ? '/dashboard' : '/secure/superadmin/dashboard'
+  }
+  if (session.role === 'owner') {
+    return subdomain === 'app' ? '/dashboard' : `/secure/company/${session.companySlug}/dashboard`
+  }
+  return subdomain === 'app' ? `/admin/${session.hotelSlug}/calendar` : `/secure/company/${session.companySlug}/admin/${session.hotelSlug}/calendar`
 }
 
 export async function encrypt(payload: SessionPayload) {
@@ -61,18 +65,28 @@ export async function createSession(
   companySlug: string | null,
   hotelId: string | null,
   hotelSlug: string | null,
+  isolatedDomain: boolean = false
 ) {
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
   const session = await encrypt({ userId, email, name, role, companyId, companySlug, hotelId, hotelSlug, expiresAt })
   const cookieStore = await cookies()
+  
+  // Set the cookie at the base domain level so it is accessible across subdomains
+  const rootDomain = process.env.NODE_ENV === 'production' ? '.smartix.uz' : '.smartix.test'
 
-  cookieStore.set('session', session, {
+  const cookieOptions: any = {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     expires: expiresAt,
     sameSite: 'lax',
     path: '/',
-  })
+  }
+  
+  if (!isolatedDomain) {
+    cookieOptions.domain = rootDomain
+  }
+
+  cookieStore.set('session', session, cookieOptions)
 }
 
 export async function getSession(): Promise<SessionPayload | null> {
@@ -84,7 +98,13 @@ export async function getSession(): Promise<SessionPayload | null> {
 
 export async function deleteSession() {
   const cookieStore = await cookies()
-  cookieStore.delete('session')
+  const domain = process.env.NODE_ENV === 'production' ? '.smartix.uz' : '.smartix.test'
+  
+  // Next.js standard cookie deletion only targets the immediate host footprint.
+  // Since we rely on wildcard cross-tenant `.smartix.test` domain cookies, we
+  // must overwrite them with an impossible maxAge using the explicit domain property.
+  cookieStore.set('session', '', { maxAge: 0, domain, path: '/' })
+  cookieStore.set('session', '', { maxAge: 0, path: '/' })
 }
 
 export async function requireAuth(): Promise<SessionPayload> {

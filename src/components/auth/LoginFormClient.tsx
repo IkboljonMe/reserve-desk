@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslation } from '@/i18n'
+import { getClientSubdomain } from '@/lib/subdomain'
 
 // One form for every login surface. Area-specific pages pass context the API
 // validates against the account: `slug` (company login page, hotel login
@@ -29,17 +30,27 @@ export default function LoginFormClient({ slug, hotelSlug }: { slug?: string; ho
       const data = await res.json()
       if (!res.ok) {
         setError(data.error || t('loginFailed'))
-      } else if (data.role === 'superadmin') {
-        router.push(`/${lang}/secure/superadmin/dashboard`)
-        router.refresh()
-      } else if (data.role === 'owner') {
-        router.push(`/${lang}/secure/company/${data.slug}/dashboard`)
-        router.refresh()
       } else {
-        router.push(`/${lang}/secure/company/${data.slug}/admin/${data.hotelSlug}/calendar`)
-        router.refresh()
+        // Cross-domain redirection
+        const currentHost = window.location.host
+        const isLocal = currentHost.includes('localhost') || currentHost.includes('.test') || currentHost.includes('172.')
+        const protocol = isLocal ? 'http' : 'https'
+        // Strip any existing subdomain to get the base domain string
+        const baseDomain = currentHost.replace(/^(app|admin|demo|[\w-]+)\.smartix/, 'smartix')
+        
+        // We know they are on the root domain because proxy forces them there for login.
+        let destUrl = ''
+        if (data.role === 'superadmin') {
+           destUrl = `${protocol}://admin.${baseDomain}/${lang}/dashboard`
+        } else if (data.role === 'owner') {
+           destUrl = `${protocol}://${data.slug}.${baseDomain}/${lang}/dashboard`
+        } else {
+           destUrl = `${protocol}://${data.hotelSlug}.${baseDomain}/${lang}/calendar`
+        }
+        
+        window.location.href = destUrl
       }
-    } catch {
+    } catch (err) {
       setError(t('networkError'))
     } finally {
       setLoading(false)

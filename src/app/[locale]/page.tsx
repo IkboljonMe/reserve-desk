@@ -113,13 +113,13 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
             }}>
               {t('signIn')}
             </Link>
-            <Link href={L('/demo')} style={{
+            <a href={L('/demo')} style={{
               padding: '8px 16px', borderRadius: 10, textDecoration: 'none',
               background: `linear-gradient(135deg, ${ACCENT}, ${ACCENT_DARK})`, color: '#fff',
               fontSize: '0.875rem', fontWeight: 700, boxShadow: '0 4px 12px rgba(79,110,247,0.3)',
             }}>
               {t('lpTryFree')}
-            </Link>
+            </a>
           </nav>
         </div>
       </header>
@@ -156,14 +156,14 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
         </p>
 
         <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginBottom: '3rem' }}>
-          <Link href={L('/demo')} style={{
+          <a href={L('/demo')} style={{
             padding: '13px 28px', borderRadius: 12, textDecoration: 'none',
             background: `linear-gradient(135deg, ${ACCENT}, ${ACCENT_DARK})`, color: '#fff',
             fontWeight: 700, fontSize: '1rem', boxShadow: '0 8px 24px rgba(79,110,247,0.35)',
             display: 'inline-flex', alignItems: 'center', gap: 8,
           }}>
             {t('lpHeroCta')} <ChevronRight size={18} />
-          </Link>
+          </a>
           <a href="#pricing" style={{
             padding: '13px 28px', borderRadius: 12, textDecoration: 'none',
             background: '#fff', color: INK, border: '1px solid #e2e8f0',
@@ -324,7 +324,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
                   ))}
                 </ul>
 
-                <Link href={L('/demo')} style={{
+                <a href={L('/demo')} style={{
                   display: 'block', textAlign: 'center', padding: '11px 0', borderRadius: 10, textDecoration: 'none',
                   fontWeight: 700, fontSize: '0.9rem',
                   ...(plan.highlight
@@ -332,7 +332,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
                     : { background: '#eef2ff', color: ACCENT_DARK }),
                 }}>
                   {t('lpTryFree')}
-                </Link>
+                </a>
               </div>
             ))}
           </div>
@@ -369,14 +369,14 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
           <p style={{ color: 'rgba(255,255,255,0.65)', maxWidth: 540, margin: '0 auto 1.75rem', fontSize: '0.975rem', lineHeight: 1.6 }}>
             {t('lpFinalCtaSub')}
           </p>
-          <Link href={L('/demo')} style={{
+          <a href={L('/demo')} style={{
             display: 'inline-flex', alignItems: 'center', gap: 8,
             padding: '13px 30px', borderRadius: 12, textDecoration: 'none',
             background: `linear-gradient(135deg, ${ACCENT}, #7c3aed)`, color: '#fff',
             fontWeight: 700, boxShadow: '0 8px 24px rgba(99,102,241,0.45)',
           }}>
             {t('lpHeroCta')} <ChevronRight size={18} />
-          </Link>
+          </a>
         </div>
       </section>
 
@@ -390,7 +390,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
             © {new Date().getFullYear()} Easy Service · easy-service.uz
           </div>
           <div style={{ display: 'flex', gap: 18 }}>
-            <Link href={L('/demo')} style={{ color: MUTED, fontSize: '0.83rem', textDecoration: 'none' }}>{t('viewDemo')}</Link>
+            <a href={L('/demo')} style={{ color: MUTED, fontSize: '0.83rem', textDecoration: 'none' }}>{t('viewDemo')}</a>
             <a href="#pricing" style={{ color: MUTED, fontSize: '0.83rem', textDecoration: 'none' }}>{t('pricingTitle')}</a>
             <Link href={L('/login')} style={{ color: MUTED, fontSize: '0.83rem', textDecoration: 'none' }}>{t('signIn')}</Link>
           </div>
