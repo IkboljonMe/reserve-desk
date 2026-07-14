@@ -46,7 +46,7 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
           boxShadow: '0 24px 60px rgba(0,0,0,0.45)',
         }}>
           <h2 style={{ color: '#fff', fontSize: '1.125rem', fontWeight: 600, marginBottom: '1.5rem' }}>{t('signInToAccount')}</h2>
-          <LoginFormClient slug={slug} />
+          <LoginFormClient />
         </div>
       </div>
     </main>
