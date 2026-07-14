@@ -61,39 +61,29 @@ export async function proxy(request: NextRequest) {
 
   const getRootUrl = (path: string) => {
     const protocol = request.headers.get('x-forwarded-proto') || (host.includes('localhost') || host.includes('.test') || host.includes('172.') ? 'http' : 'https')
-    const baseDomain = host.replace(/^(app|admin|demo|[\w-]+)\./, '')
+    const match = host.match(/^(?:([a-zA-Z0-9-]+)\.)?smartix\./)
+    const baseDomain = match ? host.slice(match[1] ? match[1].length + 1 : 0) : host
     return new URL(`/${locale}${path}`, `${protocol}://${baseDomain}`)
   }
 
   const getSubdomainUrl = (path: string, targetSub: string) => {
     const protocol = request.headers.get('x-forwarded-proto') || (host.includes('localhost') || host.includes('.test') || host.includes('172.') ? 'http' : 'https')
-    const baseDomain = host.replace(/^(app|admin|demo|[\w-]+)\./, '')
+    const match = host.match(/^(?:([a-zA-Z0-9-]+)\.)?smartix\./)
+    const baseDomain = match ? host.slice(match[1] ? match[1].length + 1 : 0) : host
     return new URL(`/${locale}${path}`, `${protocol}://${targetSub}.${baseDomain}`)
   }
 
   const toHome = (session: SessionPayload) => {
-    if (session.role === 'superadmin') {
-      if (sub === 'admin') return to('/dashboard')
-      return NextResponse.redirect(getSubdomainUrl('/dashboard', 'admin'))
-    }
-    if (session.role === 'owner') {
-      if (sub === session.companySlug || sub === 'app' || sub === 'demo') return to('/dashboard')
-      return NextResponse.redirect(getSubdomainUrl('/dashboard', session.companySlug || 'app'))
-    }
-    if (session.role === 'admin') {
-      if (sub === session.hotelSlug) return to('/calendar')
-      if (sub === 'app' || sub === 'demo') return to(`/admin/${session.hotelSlug}/calendar`)
-      return NextResponse.redirect(getSubdomainUrl('/calendar', session.hotelSlug || 'app'))
-    }
-    return NextResponse.redirect(getRootUrl('/login'))
+    if (session.role === 'superadmin') return to('/dashboard')
+    if (session.role === 'owner') return to('/dashboard')
+    if (session.role === 'admin') return to('/calendar')
+    return NextResponse.redirect(new URL(`/${locale}/login`, request.url))
   }
 
   const sessionCookie = request.cookies.get('session')?.value
   const session = sessionCookie ? await decrypt(sessionCookie) : null
 
   // --- LEAKED DEMO COOKIE TRAP ----------------------------------------------
-  // If the user's browser cached a global demo cookie prior to our isolatedDomain 
-  // fix, they are trapped. We explicitly annihilate it if seen on the root domain.
   if (!sub && session && session.companySlug === 'demo-hotels') {
     const rootLogin = new URL(`/${locale}/login`, request.url)
     const res = NextResponse.redirect(rootLogin)
@@ -104,7 +94,6 @@ export async function proxy(request: NextRequest) {
     else if (host.includes('localhost')) rootDomain = undefined
     else rootDomain = host.split(':')[0]
     
-    // Delete both the wildcard domain and host-specific versions
     if (rootDomain) res.cookies.set('session', '', { maxAge: 0, domain: rootDomain, path: '/' })
     res.cookies.set('session', '', { maxAge: 0, path: '/' })
     return res
@@ -112,70 +101,74 @@ export async function proxy(request: NextRequest) {
 
   // --- SUBDOMAIN ROUTING ----------------------------------------------------
   if (sub) {
-    if (sub === 'app' || sub === 'demo') {
-      if (rest === '/login') {
-        if (session) return toHome(session)
-        return NextResponse.redirect(getRootUrl('/login'))
-      }
-      
-      if (sub === 'demo' && (rest === '/' || rest === '/demo')) {
-        return rewriteTo('/demo')
-      }
+    let cleanRest = rest
+    const tenantMatch = rest.match(/^\/secure\/company\/[a-z0-9-]+(?:\/admin\/[a-z0-9-]+)?(\/.*)?$/)
+    if (tenantMatch) {
+      cleanRest = tenantMatch[1] || '/'
+    } else {
+      const superMatch = rest.match(/^\/secure\/superadmin(\/.*)?$/)
+      if (superMatch) cleanRest = superMatch[1] || '/'
+    }
 
-      // Everything else on app/demo subdomains require auth to rewrite to secure paths
-      if (!session) {
-        return NextResponse.redirect(getRootUrl('/login'))
+    if (sub === 'app') {
+      if (cleanRest === '/login' || cleanRest === '/login/') {
+        if (session && session.role === 'owner') return toHome(session)
+        // If not logged in, just let them see the login page for app.
+        return NextResponse.next()
       }
-
-      let targetPath = rest
-      if (session.role === 'owner') {
-        targetPath = `/secure/company/${session.companySlug}${rest === '/' ? '/dashboard' : rest}`
-      } else if (session.role === 'admin') {
-        if (rest.startsWith('/admin/')) {
-          targetPath = `/secure/company/${session.companySlug}${rest}`
-        } else if (rest === '/') {
-          targetPath = `/secure/company/${session.companySlug}/admin/${session.hotelSlug}/calendar`
-        } else {
-          targetPath = `/secure/company/${session.companySlug}/admin/${session.hotelSlug}${rest}`
-        }
-      } else {
-        return NextResponse.redirect(getRootUrl('/login'))
+      if (!session || session.role !== 'owner') {
+        return NextResponse.redirect(new URL(`/${locale}/login`, request.url))
       }
-      
+      let targetPath = `/secure/company/${session.companySlug}${cleanRest === '/' ? '/dashboard' : cleanRest}`
       return rewriteTo(targetPath)
     }
 
     if (sub === 'admin') {
-      if (rest === '/login' || rest === '/') {
-        if (session?.role === 'superadmin') return toHome(session)
-        return NextResponse.redirect(getRootUrl('/login'))
+      if (cleanRest === '/login' || cleanRest === '/login/') {
+        if (session && session.role === 'admin') return toHome(session)
+        // Serve login purely on admin branch
+        return NextResponse.next()
       }
-      if (!session || session.role !== 'superadmin') return NextResponse.redirect(getRootUrl('/login'))
-      
-      return rewriteTo(`/secure/superadmin${rest === '/' ? '/dashboard' : rest}`)
+      if (!session || session.role !== 'admin') {
+        return NextResponse.redirect(new URL(`/${locale}/login`, request.url))
+      }
+      let targetPath = `/secure/company/${session.companySlug}/admin/${session.hotelSlug}${cleanRest === '/' ? '/calendar' : cleanRest}`
+      return rewriteTo(targetPath)
     }
 
-    if (!isKnownSubdomain(sub)) {
+    if (sub === 'super') {
+      if (cleanRest === '/login' || cleanRest === '/login/' || cleanRest === '/') {
+        if (session?.role === 'superadmin') return toHome(session)
+        return cleanRest === '/' ? NextResponse.redirect(new URL(`/${locale}/login`, request.url)) : NextResponse.next()
+      }
+      if (!session || session.role !== 'superadmin') return NextResponse.redirect(new URL(`/${locale}/login`, request.url))
+      return rewriteTo(`/secure/superadmin${cleanRest === '/' ? '/dashboard' : cleanRest}`)
+    }
+
+    if (sub === 'demo') {
       if (rest === '/login') {
         if (session) return toHome(session)
         return NextResponse.redirect(getRootUrl('/login'))
       }
-
-      if (session?.role === 'owner' && session.companySlug === sub) {
-         if (rest === '/') return rewriteTo(`/hotel/${sub}`)
-         return rewriteTo(`/secure/company/${sub}${rest}`)
+      if (rest === '/' || rest === '/demo') {
+        return rewriteTo('/demo')
       }
-      
-      if (session?.role === 'admin' && session.hotelSlug === sub) {
-         if (rest === '/') return rewriteTo(`/hotel/${sub}`)
-         return rewriteTo(`/secure/company/${session.companySlug}/admin/${session.hotelSlug}${rest}`)
+      // Demo logic requires auth
+      if (!session) return NextResponse.redirect(getRootUrl('/login'))
+      let targetPath = rest
+      if (session.role === 'owner') {
+        targetPath = `/secure/company/${session.companySlug}${rest === '/' ? '/dashboard' : rest}`
+      } else if (session.role === 'admin') {
+        targetPath = rest.startsWith('/admin/') ? `/secure/company/${session.companySlug}${rest}` : `/secure/company/${session.companySlug}/admin/${session.hotelSlug}${rest === '/' ? '/calendar' : rest}`
+      } else {
+        return NextResponse.redirect(getRootUrl('/login'))
       }
+      return rewriteTo(targetPath)
+    }
 
-      if (!session && ['/dashboard', '/calendar', '/settings', '/bookings', '/clients', '/staff'].some(r => rest.startsWith(r))) {
-         return NextResponse.redirect(getRootUrl('/login'))
-      }
-
-      return rewriteTo(`/hotel/${sub}${rest === '/' ? '' : rest}`)
+    // Dynamic custom subdomains have been disabled as per architecture change
+    if (!isKnownSubdomain(sub)) {
+      return NextResponse.redirect(getRootUrl(rest))
     }
   }
 
@@ -270,5 +263,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+  matcher: ['/((?!api|_next|favicon.ico).*)'],
 }

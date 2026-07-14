@@ -41,8 +41,8 @@ export function getClientSubdomain(): string | null {
   return getSubdomain(window.location.host)
 }
 
-// Well-known subdomains (anything else is treated as a hotel hostname).
-export type KnownSubdomain = 'app' | 'admin' | 'demo'
+// Well-known subdomains (anything else is treated as invalid and redirected to root).
+export type KnownSubdomain = 'app' | 'admin' | 'super' | 'demo'
 export function isKnownSubdomain(sub: string | null): sub is KnownSubdomain {
-  return sub === 'app' || sub === 'admin' || sub === 'demo'
+  return sub === 'app' || sub === 'admin' || sub === 'super' || sub === 'demo'
 }

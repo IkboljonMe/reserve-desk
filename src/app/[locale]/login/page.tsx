@@ -1,12 +1,20 @@
 import LoginFormClient from '@/components/auth/LoginFormClient'
 import { getT } from '@/i18n/dictionary'
+import { headers } from 'next/headers'
+import { getSubdomain } from '@/lib/subdomain'
 
-// Universal login, linked from the landing page. No company/hotel context is
-// passed — the account found by email decides where the session lands
-// (superadmin portal, a company's owner area, or a hotel's admin area).
+// On the root domain this shows selecting the owner/admin portal,
+// while on correct subdomains it displays the real login form.
 export default async function UniversalLoginPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
   const t = getT(locale)
+  const reqHeaders = await headers()
+  const host = reqHeaders.get('host') || ''
+  const sub = getSubdomain(host)
+  
+  const protocol = reqHeaders.get('x-forwarded-proto') || (host.includes('localhost') || host.includes('.test') ? 'http' : 'https')
+  const baseDomain = host.replace(/^(app|admin|super|demo)\./, '')
+
   return (
     <main style={{
       minHeight: '100dvh',
@@ -46,8 +54,36 @@ export default async function UniversalLoginPage({ params }: { params: Promise<{
           padding: '2rem',
           boxShadow: '0 24px 60px rgba(0,0,0,0.45)',
         }}>
-          <h2 style={{ color: '#fff', fontSize: '1.125rem', fontWeight: 600, marginBottom: '1.5rem' }}>{t('signInToAccount')}</h2>
-          <LoginFormClient />
+          {!sub ? (
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+               <h2 style={{ color: '#fff', fontSize: '1.25rem', fontWeight: 600, textAlign: 'center', marginBottom: '1rem' }}>Select your portal</h2>
+               <a 
+                 href={`${protocol}://app.${baseDomain}/${locale}/login`}
+                 className="btn btn-primary"
+                 style={{ textAlign: 'center', padding: '1rem', borderRadius: '12px', color: '#fff', textDecoration: 'none' }}
+               >
+                 Owner Portal
+               </a>
+               <a 
+                 href={`${protocol}://admin.${baseDomain}/${locale}/login`}
+                 className="btn btn-secondary"
+                 style={{ textAlign: 'center', padding: '1rem', borderRadius: '12px', background: 'rgba(255,255,255,0.1)', color: '#fff', textDecoration: 'none' }}
+               >
+                 Branch Admin Portal
+               </a>
+               <a 
+                 href={`${protocol}://super.${baseDomain}/${locale}/login`}
+                 style={{ textAlign: 'center', padding: '0.5rem', color: 'rgba(255,255,255,0.5)', fontSize: '0.875rem', marginTop: '1rem', textDecoration: 'none' }}
+               >
+                 Superadmin Login
+               </a>
+             </div>
+          ) : (
+             <>
+               <h2 style={{ color: '#fff', fontSize: '1.125rem', fontWeight: 600, marginBottom: '1.5rem' }}>{t('signInToAccount')}</h2>
+               <LoginFormClient />
+             </>
+          )}
         </div>
       </div>
     </main>

@@ -32,29 +32,32 @@ export async function POST(req: NextRequest) {
 
     let companySlug: string | null = null
     let adminHotelSlug: string | null = null
+    
+    const host = req.headers.get('host') || ''
+    const sub = host.replace(/^(app|admin|super|demo)\..*/, '$1') // Extract if known
+    
+    // Explicit subdomain role blocking
+    if (admin.role === 'owner' && sub === 'admin') {
+      return Response.json({ error: 'Please log in through the Owner Portal.' }, { status: 401 })
+    }
+    if (admin.role === 'admin' && sub === 'app') {
+      return Response.json({ error: 'Please log in through the Branch Admin Portal.' }, { status: 401 })
+    }
+    if (admin.role !== 'superadmin' && sub === 'super') {
+      return Response.json({ error: 'Invalid email or password.' }, { status: 401 })
+    }
 
     if (admin.role === 'superadmin') {
-      // The superadmin belongs to no tenant — reject logins attempted through
-      // a tenant's own login page.
-      if (slug) return Response.json({ error: 'Invalid email or password' }, { status: 401 })
+      // Superadmin checks
     } else {
       const company = await Company.findById(admin.companyId).select('slug').lean<{ slug: string }>()
       if (!company) return Response.json({ error: 'Invalid email or password' }, { status: 401 })
-      if (slug && company.slug !== slug) {
-        return Response.json({ error: 'Invalid email or password' }, { status: 401 })
-      }
       companySlug = company.slug
 
       if (admin.role === 'admin') {
         const hotel = await Hotel.findById(admin.hotelId).select('slug').lean<{ slug?: string }>()
         if (!hotel?.slug) return Response.json({ error: 'Invalid email or password' }, { status: 401 })
-        if (hotelSlug && hotel.slug !== hotelSlug) {
-          return Response.json({ error: 'Invalid email or password' }, { status: 401 })
-        }
         adminHotelSlug = hotel.slug
-      } else if (hotelSlug) {
-        // An owner has no hotel — they can't sign in through a hotel login page.
-        return Response.json({ error: 'Invalid email or password' }, { status: 401 })
       }
     }
 
@@ -64,6 +67,7 @@ export async function POST(req: NextRequest) {
       admin._id.toString(), admin.email, admin.name, admin.role,
       companyId, companySlug, hotelId, adminHotelSlug,
     )
+
 
     return Response.json({
       success: true,

@@ -3,13 +3,8 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslation } from '@/i18n'
-import { getClientSubdomain } from '@/lib/subdomain'
 
-// One form for every login surface. Area-specific pages pass context the API
-// validates against the account: `slug` (company login page, hotel login
-// page) and `hotelSlug` (hotel login page only). The universal /login page
-// passes neither — the account's own role/company/hotel decide where it goes.
-export default function LoginFormClient({ slug, hotelSlug }: { slug?: string; hotelSlug?: string }) {
+export default function LoginFormClient() {
   const router = useRouter()
   const { t, lang } = useTranslation()
   const [email, setEmail] = useState('')
@@ -25,46 +20,19 @@ export default function LoginFormClient({ slug, hotelSlug }: { slug?: string; ho
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, slug, hotelSlug }),
+        body: JSON.stringify({ email, password }),
       })
       const data = await res.json()
       if (!res.ok) {
         setError(data.error || t('loginFailed'))
       } else {
-        // Cross-domain redirection
-        const currentHost = window.location.host
-        const isLocal = currentHost.includes('localhost') || currentHost.includes('.test') || currentHost.includes('172.')
-        const protocol = isLocal ? 'http' : 'https'
-        // Strip any existing subdomain to get the base domain string
-        const baseDomain = currentHost.replace(/^(app|admin|demo|[\w-]+)\.smartix/, 'smartix')
-        
-        // Chrome drops cookies natively across subdomains on `localhost` because localhost acts as a TLD. 
-        // For local development on plain localhost, strictly stick to the native internal filesystem routes!
-        if (currentHost.startsWith('localhost:') || currentHost === 'localhost') {
-           let dest = ''
-           if (data.role === 'superadmin') {
-             dest = `/${lang}/secure/superadmin/dashboard`
-           } else if (data.role === 'owner') {
-             dest = `/${lang}/secure/company/${data.slug}/dashboard`
-           } else {
-             dest = `/${lang}/secure/company/${data.slug}/admin/${data.hotelSlug}/calendar`
-           }
-           router.push(dest)
-           router.refresh()
-           return
-        }
-        
-        // We know they are on the root domain because proxy forces them there for login.
-        let destUrl = ''
         if (data.role === 'superadmin') {
-           destUrl = `${protocol}://admin.${baseDomain}/${lang}/dashboard`
+           window.location.href = `/${lang}/dashboard`
         } else if (data.role === 'owner') {
-           destUrl = `${protocol}://${data.slug}.${baseDomain}/${lang}/dashboard`
+           window.location.href = `/${lang}/dashboard`
         } else {
-           destUrl = `${protocol}://${data.hotelSlug}.${baseDomain}/${lang}/calendar`
+           window.location.href = `/${lang}/calendar`
         }
-        
-        window.location.href = destUrl
       }
     } catch (err) {
       setError(t('networkError'))
