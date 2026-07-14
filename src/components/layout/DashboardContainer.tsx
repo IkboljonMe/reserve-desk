@@ -89,7 +89,7 @@ export default function DashboardContainer({ children, userName, userEmail, role
                 <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
               </svg>
             </button>
-            <div style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--gray-800)', letterSpacing: '-0.01em' }}>Easy Service</div>
+            <div style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--gray-800)', letterSpacing: '-0.01em' }}>Smartix</div>
           </div>
 
           {readOnly && (

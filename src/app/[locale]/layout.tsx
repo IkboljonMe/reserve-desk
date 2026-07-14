@@ -4,7 +4,7 @@ import { LOCALES, isLocale, DEFAULT_LOCALE } from "@/i18n/config";
 import { LanguageProvider } from "@/i18n";
 
 export const metadata: Metadata = {
-  title: "Easy Service — Always Available",
+  title: "Smartix — Always Available",
   description: "Service reservation management system for staff",
 };
 

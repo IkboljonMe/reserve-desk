@@ -4,8 +4,11 @@ import {
   Languages, ShieldCheck, TrendingUp, Clock4, Percent, ChevronRight,
   Sparkles, Send,
 } from 'lucide-react'
+import { headers } from 'next/headers'
 import { getT } from '@/i18n/dictionary'
 import { LOCALES } from '@/i18n/config'
+import { LandingLangToggle } from './LandingLangToggle'
+import { LandingMobileMenu } from './LandingMobileMenu'
 
 const ACCENT = '#4f6ef7'
 const ACCENT_DARK = '#3b5bdb'
@@ -58,6 +61,24 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
   const t = getT(locale)
   const L = (path: string) => `/${locale}${path}`
 
+  // Cross-subdomain links. The marketing site lives on the root domain; the demo
+  // runs on the `demo.` subdomain, so build an absolute URL to it from the request
+  // host (works for prod `smartix.uz` and local `smartix.test:3000` alike).
+  // "Sign in" stays on the root `/login` portal picker (owner / admin / super).
+  const reqHeaders = await headers()
+  const host = reqHeaders.get('host') || ''
+  const protocol = reqHeaders.get('x-forwarded-proto') || (host.includes('localhost') || host.includes('.test') ? 'http' : 'https')
+  const baseDomain = host.replace(/^(app|admin|super|demo)\./, '')
+  const demoUrl = `${protocol}://demo.${baseDomain}/${locale}/demo`
+
+  // In-page section links, shared by the desktop nav and the mobile drawer.
+  const navLinks = [
+    { href: '#features', label: t('lpNavFeatures') },
+    { href: '#reviews', label: t('lpNavReviews') },
+    { href: '#pricing', label: t('lpNavPricing') },
+    { href: '#faq', label: 'FAQ' },
+  ]
+
   const sectionTitle: React.CSSProperties = {
     fontSize: 'clamp(1.5rem, 3vw, 2rem)', fontWeight: 800, letterSpacing: '-0.02em',
     textAlign: 'center', color: INK, marginBottom: 10,
@@ -71,7 +92,31 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
   }
 
   return (
-    <main style={{ background: '#f8fafc', color: INK, minHeight: '100dvh' }}>
+    <main className="lp-main" style={{ background: '#f8fafc', color: INK, minHeight: '100dvh', overflowX: 'hidden' }}>
+      {/* Responsive rules — inline styles can't hold @media, so scope them here. */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        html { scroll-behavior: smooth; }
+        /* Offset anchor targets so the sticky header doesn't cover them. */
+        #features, #reviews, #pricing, #faq { scroll-margin-top: 76px; }
+        @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+        .lp-nav-links { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+        .lp-nav-desktop-cta { display: flex; gap: 8px; align-items: center; }
+        .lp-mobile-menu-btn { display: none; }
+        @media (max-width: 720px) {
+          /* Swap the desktop anchor nav + inline CTAs for a hamburger drawer;
+             the language dropdown stays on the navbar. */
+          .lp-nav-links, .lp-nav-desktop-cta { display: none; }
+          .lp-mobile-menu-btn { display: inline-flex; }
+        }
+        @media (max-width: 640px) {
+          .lp-final-cta { padding: 2.25rem 1.35rem !important; }
+        }
+        @media (max-width: 420px) {
+          /* Tighter gutters and roomier tap targets on very small phones. */
+          .lp-pad-x { padding-left: 1.15rem !important; padding-right: 1.15rem !important; }
+          .lp-cta-full { flex: 1 1 100%; justify-content: center; }
+        }
+      `}} />
 
       {/* ── Nav ─────────────────────────────────────────────────────────── */}
       <header style={{
@@ -94,38 +139,50 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
                 <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
               </svg>
             </div>
-            Easy Service
+            Smartix
           </div>
 
-          <nav style={{ display: 'flex', gap: 4, marginLeft: 'auto', alignItems: 'center', flexWrap: 'wrap' }}>
-            {([['#features', 'lpNavFeatures'], ['#reviews', 'lpNavReviews'], ['#pricing', 'lpNavPricing'], ['#faq', 'FAQ']] as const).map(([href, key]) => (
-              <a key={href} href={href} style={{
-                padding: '7px 12px', borderRadius: 8, textDecoration: 'none',
-                color: MUTED, fontSize: '0.875rem', fontWeight: 500,
+          <nav style={{ display: 'flex', gap: 8, marginLeft: 'auto', alignItems: 'center', flexWrap: 'wrap' }}>
+            <div className="lp-nav-links">
+              {navLinks.map(({ href, label }) => (
+                <a key={href} href={href} style={{
+                  padding: '7px 12px', borderRadius: 8, textDecoration: 'none',
+                  color: MUTED, fontSize: '0.875rem', fontWeight: 500,
+                }}>
+                  {label}
+                </a>
+              ))}
+            </div>
+            <LandingLangToggle current={locale} />
+            <div className="lp-nav-desktop-cta">
+              <Link href={L('/login')} style={{
+                padding: '8px 16px', borderRadius: 10, textDecoration: 'none',
+                background: '#fff', color: INK, border: '1px solid #e2e8f0',
+                fontSize: '0.875rem', fontWeight: 600,
               }}>
-                {key === 'FAQ' ? 'FAQ' : t(key)}
+                {t('signIn')}
+              </Link>
+              <a href={demoUrl} style={{
+                padding: '8px 16px', borderRadius: 10, textDecoration: 'none',
+                background: `linear-gradient(135deg, ${ACCENT}, ${ACCENT_DARK})`, color: '#fff',
+                fontSize: '0.875rem', fontWeight: 700, boxShadow: '0 4px 12px rgba(79,110,247,0.3)',
+              }}>
+                {t('lpTryFree')}
               </a>
-            ))}
-            <Link href={L('/login')} style={{
-              marginLeft: 6, padding: '8px 16px', borderRadius: 10, textDecoration: 'none',
-              background: '#fff', color: INK, border: '1px solid #e2e8f0',
-              fontSize: '0.875rem', fontWeight: 600,
-            }}>
-              {t('signIn')}
-            </Link>
-            <a href={L('/demo')} style={{
-              padding: '8px 16px', borderRadius: 10, textDecoration: 'none',
-              background: `linear-gradient(135deg, ${ACCENT}, ${ACCENT_DARK})`, color: '#fff',
-              fontSize: '0.875rem', fontWeight: 700, boxShadow: '0 4px 12px rgba(79,110,247,0.3)',
-            }}>
-              {t('lpTryFree')}
-            </a>
+            </div>
+            <LandingMobileMenu
+              links={navLinks}
+              signInHref={L('/login')}
+              signInLabel={t('signIn')}
+              demoHref={demoUrl}
+              demoLabel={t('lpTryFree')}
+            />
           </nav>
         </div>
       </header>
 
       {/* ── Hero ────────────────────────────────────────────────────────── */}
-      <section style={{
+      <section className="lp-pad-x" style={{
         maxWidth: 1140, margin: '0 auto', padding: '4.5rem 1.5rem 3rem', textAlign: 'center',
         background: `
           radial-gradient(700px 380px at 85% -20%, rgba(124,58,237,0.08), transparent 60%),
@@ -156,7 +213,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
         </p>
 
         <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginBottom: '3rem' }}>
-          <a href={L('/demo')} style={{
+          <a href={demoUrl} className="lp-cta-full" style={{
             padding: '13px 28px', borderRadius: 12, textDecoration: 'none',
             background: `linear-gradient(135deg, ${ACCENT}, ${ACCENT_DARK})`, color: '#fff',
             fontWeight: 700, fontSize: '1rem', boxShadow: '0 8px 24px rgba(79,110,247,0.35)',
@@ -164,10 +221,11 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
           }}>
             {t('lpHeroCta')} <ChevronRight size={18} />
           </a>
-          <a href="#pricing" style={{
+          <a href="#pricing" className="lp-cta-full" style={{
             padding: '13px 28px', borderRadius: 12, textDecoration: 'none',
             background: '#fff', color: INK, border: '1px solid #e2e8f0',
             fontWeight: 600, fontSize: '1rem',
+            display: 'inline-flex', alignItems: 'center',
           }}>
             {t('pricingTitle')}
           </a>
@@ -175,7 +233,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
 
         {/* Stats strip */}
         <div style={{
-          display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 14,
+          display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 14,
           maxWidth: 860, margin: '0 auto',
         }}>
           {STATS.map(({ icon: Icon, value, key }) => (
@@ -324,7 +382,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
                   ))}
                 </ul>
 
-                <a href={L('/demo')} style={{
+                <a href={demoUrl} style={{
                   display: 'block', textAlign: 'center', padding: '11px 0', borderRadius: 10, textDecoration: 'none',
                   fontWeight: 700, fontSize: '0.9rem',
                   ...(plan.highlight
@@ -358,7 +416,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
 
       {/* ── Final CTA ───────────────────────────────────────────────────── */}
       <section style={{ maxWidth: 1140, margin: '0 auto', padding: '0 1.5rem 4rem' }}>
-        <div style={{
+        <div className="lp-final-cta" style={{
           borderRadius: 22, padding: '3rem 2rem', textAlign: 'center',
           background: `linear-gradient(135deg, #14192a 0%, #1e2540 60%, #2a1e55 100%)`,
           boxShadow: '0 24px 60px rgba(15,23,42,0.35)',
@@ -369,7 +427,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
           <p style={{ color: 'rgba(255,255,255,0.65)', maxWidth: 540, margin: '0 auto 1.75rem', fontSize: '0.975rem', lineHeight: 1.6 }}>
             {t('lpFinalCtaSub')}
           </p>
-          <a href={L('/demo')} style={{
+          <a href={demoUrl} style={{
             display: 'inline-flex', alignItems: 'center', gap: 8,
             padding: '13px 30px', borderRadius: 12, textDecoration: 'none',
             background: `linear-gradient(135deg, ${ACCENT}, #7c3aed)`, color: '#fff',
@@ -387,10 +445,10 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
           display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap',
         }}>
           <div style={{ color: MUTED, fontSize: '0.83rem' }}>
-            © {new Date().getFullYear()} Easy Service · easy-service.uz
+            © {new Date().getFullYear()} Smartix · smartix.uz
           </div>
           <div style={{ display: 'flex', gap: 18 }}>
-            <a href={L('/demo')} style={{ color: MUTED, fontSize: '0.83rem', textDecoration: 'none' }}>{t('viewDemo')}</a>
+            <a href={demoUrl} style={{ color: MUTED, fontSize: '0.83rem', textDecoration: 'none' }}>{t('viewDemo')}</a>
             <a href="#pricing" style={{ color: MUTED, fontSize: '0.83rem', textDecoration: 'none' }}>{t('pricingTitle')}</a>
             <Link href={L('/login')} style={{ color: MUTED, fontSize: '0.83rem', textDecoration: 'none' }}>{t('signIn')}</Link>
           </div>
