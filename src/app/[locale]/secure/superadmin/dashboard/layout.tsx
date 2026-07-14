@@ -28,7 +28,7 @@ export default async function SuperadminLayout({
           background: '#14192a',
         }}>
           <div style={{ color: '#fff', fontWeight: 800, letterSpacing: '-0.01em' }}>
-            Easy Service — Superadmin
+            Smartix — Superadmin
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8125rem' }}>{session.name}</span>
