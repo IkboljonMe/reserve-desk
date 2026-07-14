@@ -19,8 +19,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ loca
     
     await createSession(
       admin._id.toString(), admin.email, admin.name, admin.role,
-      companyId, company?.slug || null, null, null,
-      true
+      companyId, company?.slug || null, null, null
     )
     
     // Redirect cleanly to the dashboard. The proxy will keep them on demo.smartix.test
