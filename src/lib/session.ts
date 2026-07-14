@@ -1,6 +1,6 @@
 import 'server-only'
 import { SignJWT, jwtVerify } from 'jose'
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { connectDB } from '@/lib/mongodb'
 import { Company } from '@/models/Company'
@@ -70,9 +70,14 @@ export async function createSession(
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
   const session = await encrypt({ userId, email, name, role, companyId, companySlug, hotelId, hotelSlug, expiresAt })
   const cookieStore = await cookies()
+  const reqHeaders = await headers()
+  const host = reqHeaders.get('host') || ''
   
-  // Set the cookie at the base domain level so it is accessible across subdomains
-  const rootDomain = process.env.NODE_ENV === 'production' ? '.smartix.uz' : '.smartix.test'
+  let rootDomain: string | undefined
+  if (process.env.NODE_ENV === 'production') rootDomain = '.smartix.uz'
+  else if (host.includes('smartix.test')) rootDomain = '.smartix.test'
+  else if (host.includes('localhost')) rootDomain = undefined
+  else rootDomain = host.split(':')[0]
 
   const cookieOptions: any = {
     httpOnly: true,
@@ -82,7 +87,7 @@ export async function createSession(
     path: '/',
   }
   
-  if (!isolatedDomain) {
+  if (!isolatedDomain && rootDomain) {
     cookieOptions.domain = rootDomain
   }
 
@@ -98,12 +103,19 @@ export async function getSession(): Promise<SessionPayload | null> {
 
 export async function deleteSession() {
   const cookieStore = await cookies()
-  const domain = process.env.NODE_ENV === 'production' ? '.smartix.uz' : '.smartix.test'
+  const reqHeaders = await headers()
+  const host = reqHeaders.get('host') || ''
+  
+  let rootDomain: string | undefined
+  if (process.env.NODE_ENV === 'production') rootDomain = '.smartix.uz'
+  else if (host.includes('smartix.test')) rootDomain = '.smartix.test'
+  else if (host.includes('localhost')) rootDomain = undefined // undefined safely defaults to HostOnly in browsers, preventing Chrome auto-reject parsing errors
+  else rootDomain = host.split(':')[0]
   
   // Next.js standard cookie deletion only targets the immediate host footprint.
-  // Since we rely on wildcard cross-tenant `.smartix.test` domain cookies, we
+  // Since we rely on wildcard cross-tenant domain cookies, we
   // must overwrite them with an impossible maxAge using the explicit domain property.
-  cookieStore.set('session', '', { maxAge: 0, domain, path: '/' })
+  if (rootDomain) cookieStore.set('session', '', { maxAge: 0, domain: rootDomain, path: '/' })
   cookieStore.set('session', '', { maxAge: 0, path: '/' })
 }
 

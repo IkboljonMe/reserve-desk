@@ -97,9 +97,15 @@ export async function proxy(request: NextRequest) {
   if (!sub && session && session.companySlug === 'demo-hotels') {
     const rootLogin = new URL(`/${locale}/login`, request.url)
     const res = NextResponse.redirect(rootLogin)
-    const domain = process.env.NODE_ENV === 'production' ? '.smartix.uz' : '.smartix.test'
+    
+    let rootDomain: string | undefined
+    if (process.env.NODE_ENV === 'production') rootDomain = '.smartix.uz'
+    else if (host.includes('smartix.test')) rootDomain = '.smartix.test'
+    else if (host.includes('localhost')) rootDomain = undefined
+    else rootDomain = host.split(':')[0]
+    
     // Delete both the wildcard domain and host-specific versions
-    res.cookies.set('session', '', { maxAge: 0, domain, path: '/' })
+    if (rootDomain) res.cookies.set('session', '', { maxAge: 0, domain: rootDomain, path: '/' })
     res.cookies.set('session', '', { maxAge: 0, path: '/' })
     return res
   }

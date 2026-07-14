@@ -38,6 +38,22 @@ export default function LoginFormClient({ slug, hotelSlug }: { slug?: string; ho
         // Strip any existing subdomain to get the base domain string
         const baseDomain = currentHost.replace(/^(app|admin|demo|[\w-]+)\.smartix/, 'smartix')
         
+        // Chrome drops cookies natively across subdomains on `localhost` because localhost acts as a TLD. 
+        // For local development on plain localhost, strictly stick to the native internal filesystem routes!
+        if (currentHost.startsWith('localhost:') || currentHost === 'localhost') {
+           let dest = ''
+           if (data.role === 'superadmin') {
+             dest = `/${lang}/secure/superadmin/dashboard`
+           } else if (data.role === 'owner') {
+             dest = `/${lang}/secure/company/${data.slug}/dashboard`
+           } else {
+             dest = `/${lang}/secure/company/${data.slug}/admin/${data.hotelSlug}/calendar`
+           }
+           router.push(dest)
+           router.refresh()
+           return
+        }
+        
         // We know they are on the root domain because proxy forces them there for login.
         let destUrl = ''
         if (data.role === 'superadmin') {
