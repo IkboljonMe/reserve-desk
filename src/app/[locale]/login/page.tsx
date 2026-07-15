@@ -13,7 +13,7 @@ export default async function UniversalLoginPage({ params }: { params: Promise<{
   const sub = getSubdomain(host)
   
   const protocol = reqHeaders.get('x-forwarded-proto') || (host.includes('localhost') || host.includes('.test') ? 'http' : 'https')
-  const baseDomain = host.replace(/^(app|admin|super|demo)\./, '')
+  const baseDomain = host.replace(/^(www|app|admin|super|demo)\./, '')
 
   return (
     <main style={{

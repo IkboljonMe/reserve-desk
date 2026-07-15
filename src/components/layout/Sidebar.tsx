@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { useTranslation, LANGUAGES, LanguageCode } from '@/i18n'
 import { useState, useEffect, useCallback, type CSSProperties, type MouseEvent } from 'react'
 import { useBookingModal } from '@/components/BookingModalProvider'
@@ -36,7 +36,6 @@ export default function Sidebar({
   onCloseMobile?: () => void
 }) {
   const pathname = usePathname()
-  const router = useRouter()
   const { t, lang, setLang } = useTranslation()
   const { openBookingModal } = useBookingModal()
   const [notifCount, setNotifCount] = useState(0)
@@ -48,9 +47,16 @@ export default function Sidebar({
 
   async function handleLogout() {
     setLoggingOut(true)
-    await fetch('/api/auth/logout', { method: 'POST' })
-    router.push(`/${lang}${basePath}/login`)
-    router.refresh()
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' })
+    } catch {
+      /* ignore — navigate to login regardless so the user isn't stuck */
+    }
+    // Hard navigation (not router.push): forces a fresh request so the cleared
+    // session cookie takes effect and the middleware re-runs, landing cleanly on
+    // the login page. On a subdomain basePath is '' → /{lang}/login (the portal
+    // login); on the root domain it's the tenant's /secure/company/{slug}/login.
+    window.location.assign(`/${lang}${basePath}/login`)
   }
 
   // Owner has no single hotel; admins are scoped to one. Show whichever applies

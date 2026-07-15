@@ -68,7 +68,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
   const reqHeaders = await headers()
   const host = reqHeaders.get('host') || ''
   const protocol = reqHeaders.get('x-forwarded-proto') || (host.includes('localhost') || host.includes('.test') ? 'http' : 'https')
-  const baseDomain = host.replace(/^(app|admin|super|demo)\./, '')
+  const baseDomain = host.replace(/^(www|app|admin|super|demo)\./, '')
   const demoUrl = `${protocol}://demo.${baseDomain}/${locale}/demo`
 
   // In-page section links, shared by the desktop nav and the mobile drawer.
