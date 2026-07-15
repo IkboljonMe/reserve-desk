@@ -1,4 +1,5 @@
 import LoginFormClient from '@/components/auth/LoginFormClient'
+import { BrandMark } from '@/components/BrandMark'
 import { getT } from '@/i18n/dictionary'
 
 export default async function LoginPage({ params }: { params: Promise<{ locale: string; slug: string }> }) {
@@ -18,19 +19,7 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
       <div style={{ width: '100%', maxWidth: '400px', padding: '1rem' }}>
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div style={{
-            width: 56, height: 56,
-            borderRadius: 15,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            margin: '0 auto 1rem',
-            background: 'linear-gradient(135deg, #6366f1 0%, #7c3aed 100%)',
-            boxShadow: '0 10px 26px rgba(99,102,241,0.45)',
-            boxSizing: 'border-box',
-          }}>
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="#fff" stroke="#fff" strokeWidth="1" strokeLinejoin="round">
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-            </svg>
-          </div>
+          <BrandMark size={64} priority style={{ margin: '0 auto 0.75rem' }} />
           <h1 style={{ color: '#fff', fontSize: '1.6rem', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: '0.25rem' }}>Smartix</h1>
           <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.875rem' }}>{t('alwaysAvailable')}</p>
         </div>

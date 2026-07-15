@@ -9,6 +9,7 @@ import { getT } from '@/i18n/dictionary'
 import { LOCALES } from '@/i18n/config'
 import { LandingLangToggle } from './LandingLangToggle'
 import { LandingMobileMenu } from './LandingMobileMenu'
+import { BrandMark } from '@/components/BrandMark'
 
 const ACCENT = '#4f6ef7'
 const ACCENT_DARK = '#3b5bdb'
@@ -129,16 +130,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
           display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontWeight: 800, letterSpacing: '-0.02em', fontSize: '1.05rem' }}>
-            <div style={{
-              width: 34, height: 34, borderRadius: 10, flexShrink: 0,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              background: `linear-gradient(135deg, ${ACCENT} 0%, #7c3aed 100%)`,
-              boxShadow: '0 4px 12px rgba(79,110,247,0.35)',
-            }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff" stroke="#fff" strokeWidth="1" strokeLinejoin="round">
-                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-              </svg>
-            </div>
+            <BrandMark size={34} priority />
             Smartix
           </div>
 

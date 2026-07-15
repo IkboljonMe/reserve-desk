@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { useTranslation, LANGUAGES, LanguageCode } from '@/i18n'
 import { useState, useEffect, useCallback, type CSSProperties, type MouseEvent } from 'react'
 import { useBookingModal } from '@/components/BookingModalProvider'
+import { BrandMark } from '@/components/BrandMark'
 import type { SessionRole } from '@/lib/session'
 
 const EXPANDED_WIDTH = 232
@@ -216,17 +217,8 @@ export default function Sidebar({
           justifyContent: collapsed ? 'center' : 'flex-start',
           transition: `gap 0.24s ${ease}`,
         }}>
-          {/* Brand mark — gradient tile with a bolt (nods to "Always Available") */}
-          <div style={{
-            width: 40, height: 40, borderRadius: 12, flexShrink: 0,
-            background: 'var(--brand-gradient)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 6px 16px rgba(99,102,241,0.40)',
-          }}>
-            <svg width="21" height="21" viewBox="0 0 24 24" fill="#fff" stroke="#fff" strokeWidth="1" strokeLinejoin="round">
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-            </svg>
-          </div>
+          {/* Brand mark — the Smartix icon */}
+          <BrandMark size={40} priority />
           {/* Name lockup */}
           <div style={{
             overflow: 'hidden',
