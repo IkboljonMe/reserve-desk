@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
+import { Zen_Dots } from "next/font/google";
 import "../globals.css";
 import { LOCALES, isLocale, DEFAULT_LOCALE } from "@/i18n/config";
 import { LanguageProvider } from "@/i18n";
+
+// Geometric display face for the brand wordmark / big numbers. Self-hosted by
+// next/font and exposed as the CSS variable --font-zen-dots.
+const zenDots = Zen_Dots({ weight: "400", subsets: ["latin"], variable: "--font-zen-dots", display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://smartix.uz"),
@@ -60,7 +65,7 @@ export default async function RootLayout({
   const lang = isLocale(locale) ? locale : DEFAULT_LOCALE;
 
   return (
-    <html lang={locale}>
+    <html lang={locale} className={zenDots.variable}>
       <body>
         <LanguageProvider lang={lang}>{children}</LanguageProvider>
       </body>
