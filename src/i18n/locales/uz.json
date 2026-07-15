@@ -726,6 +726,7 @@
   "demoUnavailable": "Demo yangilanmoqda — bir daqiqadan so'ng qayta urinib ko'ring.",
   "demoResetNote": "Bu umumiy sinov maydoni — ma'lumotlari vaqti-vaqti bilan tozalanadi. Bu yerda yaratganingiz boshqa tashrifchilarga ham ko'rinadi.",
   "universalLoginHint": "Kiring — sizni o'z ish maydoningizga olib boramiz",
+  "backToHome": "Bosh sahifaga",
   "hotelSlug": "Mehmonxona URL slug'i",
   "hotelSlugPlaceholder": "tashkent-grand-hotel",
   "hotelSlugHint": "Bu mehmonxona adminlari …/admin/{slug}/login orqali kiradi. Bo'sh qoldirsangiz, mehmonxona nomidan olinadi.",
