@@ -11,6 +11,7 @@ import { Pricing } from './components/Pricing'
 import { Faq } from './components/Faq'
 import { FinalCta } from './components/FinalCta'
 import { Footer } from './components/Footer'
+import { ContactWidget } from './components/ContactWidget'
 
 // The marketing landing page. Server component: resolves translations + the
 // request host (for cross-subdomain links), then composes the sections.
@@ -20,7 +21,7 @@ export async function HomePage({ locale }: { locale: string }) {
 
   // Cross-subdomain links. The marketing site lives on the root domain; the demo
   // runs on the `demo.` subdomain, so build an absolute URL to it from the request
-  // host (works for prod `smartix.uz` and local `smartix.test:3000` alike).
+  // host (works for prod `bronit.uz` and local `bronit.test:3000` alike).
   const reqHeaders = await headers()
   const host = reqHeaders.get('host') || ''
   const protocol = reqHeaders.get('x-forwarded-proto') || (host.includes('localhost') || host.includes('.test') ? 'http' : 'https')
@@ -40,13 +41,27 @@ export async function HomePage({ locale }: { locale: string }) {
       <LandingStyles />
       <Navbar locale={locale} t={t} demoUrl={demoUrl} loginHref={loginHref} navLinks={navLinks} />
       <Hero t={t} demoUrl={demoUrl} />
-      <Features t={t} />
-      <Reviews t={t} />
-      <Modules t={t} />
-      <Pricing t={t} demoUrl={demoUrl} />
-      <Faq t={t} />
-      <FinalCta t={t} demoUrl={demoUrl} />
-      <Footer t={t} demoUrl={demoUrl} loginHref={loginHref} />
+      <div className="lp-content-over">
+        <Features t={t} />
+        <Reviews t={t} />
+        <Modules t={t} />
+        <Pricing t={t} demoUrl={demoUrl} />
+        <Faq t={t} />
+        <FinalCta t={t} demoUrl={demoUrl} />
+        <Footer t={t} demoUrl={demoUrl} loginHref={loginHref} />
+      </div>
+
+      <ContactWidget
+        title={t('lpContactTitle')}
+        desc={t('lpContactDesc')}
+        namePlaceholder={t('lpContactName')}
+        phonePlaceholder={t('lpContactPhone')}
+        submitLabel={t('lpContactSubmit')}
+        sendingLabel={t('lpContactSending')}
+        successMsg={t('lpContactSuccess')}
+        errorMsg={t('lpContactError')}
+        closeLabel={t('close')}
+      />
     </main>
   )
 }

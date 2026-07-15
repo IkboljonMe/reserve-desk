@@ -9,7 +9,7 @@ export function Footer({ t, demoUrl, loginHref }: { t: Translate; demoUrl: strin
         display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap',
       }}>
         <div style={{ color: MUTED, fontSize: '0.83rem' }}>
-          © {new Date().getFullYear()} Smartix · smartix.uz
+          © {new Date().getFullYear()} Bronit · bronit.uz
         </div>
         <div style={{ display: 'flex', gap: 18 }}>
           <a href={demoUrl} style={{ color: MUTED, fontSize: '0.83rem', textDecoration: 'none' }}>{t('viewDemo')}</a>

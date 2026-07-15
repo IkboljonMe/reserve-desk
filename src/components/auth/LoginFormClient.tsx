@@ -49,7 +49,7 @@ export default function LoginFormClient() {
           id="email"
           type="email"
           className="form-input"
-          placeholder="example@smartix.uz"
+          placeholder="example@bronit.uz"
           value={email}
           onChange={e => setEmail(e.target.value)}
           required

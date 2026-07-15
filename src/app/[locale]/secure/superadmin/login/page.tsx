@@ -19,7 +19,7 @@ export default async function SuperadminLoginPage({ params }: { params: Promise<
       <div style={{ width: '100%', maxWidth: '400px', padding: '1rem' }}>
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <BrandMark size={64} priority style={{ margin: '0 auto 0.75rem' }} />
-          <h1 style={{ color: '#fff', fontSize: '1.6rem', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: '0.25rem' }}>Smartix</h1>
+          <h1 style={{ color: '#fff', fontSize: '1.6rem', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: '0.25rem' }}>Bronit</h1>
           <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.875rem' }}>{t('superadminPortal')}</p>
         </div>
 

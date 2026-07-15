@@ -22,13 +22,13 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ loca
       companyId, company?.slug || null, null, null
     )
     
-    // Redirect cleanly to the dashboard. The proxy will keep them on demo.smartix.test
-    const host = req.headers.get('host') || 'demo.smartix.test:3000'
+    // Redirect cleanly to the dashboard. The proxy will keep them on demo.bronit.test
+    const host = req.headers.get('host') || 'demo.bronit.test:3000'
     const protocol = req.headers.get('x-forwarded-proto') || (host.includes('localhost') || host.includes('.test') ? 'http' : 'https')
     return NextResponse.redirect(new URL(`/${locale}/dashboard`, `${protocol}://${host}`))
   } catch (err) {
     console.error('Demo auto-login error:', err)
-    const host = req.headers.get('host') || 'demo.smartix.test:3000'
+    const host = req.headers.get('host') || 'demo.bronit.test:3000'
     const protocol = req.headers.get('x-forwarded-proto') || (host.includes('localhost') || host.includes('.test') ? 'http' : 'https')
     return NextResponse.redirect(new URL(`/${locale}/login`, `${protocol}://${host}`))
   }

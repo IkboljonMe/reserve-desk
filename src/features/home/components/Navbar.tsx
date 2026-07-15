@@ -24,8 +24,8 @@ export function Navbar({ locale, t, demoUrl, loginHref, navLinks }: Props) {
         display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontFamily: DISPLAY_FONT, fontWeight: 400, fontSize: '1.15rem', color: INK }}>
-          <BrandMark size={34} priority />
-          Smartix
+          <BrandMark size={42} priority />
+          Bronit
         </div>
 
         <nav style={{ display: 'flex', gap: 8, marginLeft: 'auto', alignItems: 'center', flexWrap: 'wrap' }}>
