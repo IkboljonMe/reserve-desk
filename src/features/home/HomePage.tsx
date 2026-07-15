@@ -11,6 +11,7 @@ import { Pricing } from './components/Pricing'
 import { Faq } from './components/Faq'
 import { FinalCta } from './components/FinalCta'
 import { Footer } from './components/Footer'
+import { ContactWidget } from './components/ContactWidget'
 
 // The marketing landing page. Server component: resolves translations + the
 // request host (for cross-subdomain links), then composes the sections.
@@ -40,13 +41,27 @@ export async function HomePage({ locale }: { locale: string }) {
       <LandingStyles />
       <Navbar locale={locale} t={t} demoUrl={demoUrl} loginHref={loginHref} navLinks={navLinks} />
       <Hero t={t} demoUrl={demoUrl} />
-      <Features t={t} />
-      <Reviews t={t} />
-      <Modules t={t} />
-      <Pricing t={t} demoUrl={demoUrl} />
-      <Faq t={t} />
-      <FinalCta t={t} demoUrl={demoUrl} />
-      <Footer t={t} demoUrl={demoUrl} loginHref={loginHref} />
+      <div className="lp-content-over">
+        <Features t={t} />
+        <Reviews t={t} />
+        <Modules t={t} />
+        <Pricing t={t} demoUrl={demoUrl} />
+        <Faq t={t} />
+        <FinalCta t={t} demoUrl={demoUrl} />
+        <Footer t={t} demoUrl={demoUrl} loginHref={loginHref} />
+      </div>
+
+      <ContactWidget
+        title={t('lpContactTitle')}
+        desc={t('lpContactDesc')}
+        namePlaceholder={t('lpContactName')}
+        phonePlaceholder={t('lpContactPhone')}
+        submitLabel={t('lpContactSubmit')}
+        sendingLabel={t('lpContactSending')}
+        successMsg={t('lpContactSuccess')}
+        errorMsg={t('lpContactError')}
+        closeLabel={t('close')}
+      />
     </main>
   )
 }
