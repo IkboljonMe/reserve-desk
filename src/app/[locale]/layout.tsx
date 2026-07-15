@@ -9,16 +9,16 @@ import { LanguageProvider } from "@/i18n";
 const zenDots = Zen_Dots({ weight: "400", subsets: ["latin"], variable: "--font-zen-dots", display: "swap" });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://smartix.uz"),
+  metadataBase: new URL("https://bronit.uz"),
   title: {
-    default: "Smartix — Hotel service booking, simplified",
-    template: "%s · Smartix",
+    default: "Bronit — Hotel service booking, simplified",
+    template: "%s · Bronit",
   },
   description:
-    "Smartix brings spa slots, conference halls, pools and every bookable hotel service into one dashboard — with payments, deposits, staff roles, and instant Telegram alerts.",
-  applicationName: "Smartix",
+    "Bronit brings spa slots, conference halls, pools and every bookable hotel service into one dashboard — with payments, deposits, staff roles, and instant Telegram alerts.",
+  applicationName: "Bronit",
   keywords: [
-    "Smartix",
+    "Bronit",
     "hotel service booking",
     "reservation management",
     "spa booking",
@@ -27,25 +27,29 @@ export const metadata: Metadata = {
     "hotel dashboard",
     "Uzbekistan",
   ],
-  authors: [{ name: "Smartix" }],
+  authors: [{ name: "Bronit" }],
   icons: {
-    icon: "/favicon.ico",
-    apple: "/assets/smartix-logo.png",
+    icon: [
+      { url: "/assets/bronit-logo.png", type: "image/png" },
+      { url: "/favicon.ico" },
+    ],
+    shortcut: "/assets/bronit-logo.png",
+    apple: "/assets/bronit-logo.png",
   },
   openGraph: {
     type: "website",
-    siteName: "Smartix",
-    title: "Smartix — Hotel service booking, simplified",
+    siteName: "Bronit",
+    title: "Bronit — Hotel service booking, simplified",
     description:
       "One dashboard for every bookable hotel service: bookings, payments, deposits, staff roles, and Telegram alerts.",
-    url: "https://smartix.uz",
-    images: [{ url: "/assets/smartix-logo.png", width: 1024, height: 1024, alt: "Smartix" }],
+    url: "https://bronit.uz",
+    images: [{ url: "/assets/bronit-logo.png", width: 1024, height: 1024, alt: "Bronit" }],
   },
   twitter: {
     card: "summary",
-    title: "Smartix — Hotel service booking, simplified",
+    title: "Bronit — Hotel service booking, simplified",
     description: "One dashboard for every bookable hotel service.",
-    images: ["/assets/smartix-logo.png"],
+    images: ["/assets/bronit-logo.png"],
   },
 };
 

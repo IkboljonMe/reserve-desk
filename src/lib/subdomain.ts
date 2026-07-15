@@ -1,12 +1,12 @@
 // Subdomain detection — shared between server middleware and client components.
-// Production: *.smartix.uz    Local: *.smartix.test
+// Production: *.bronit.uz    Local: *.bronit.test
 
 /**
  * Extract the subdomain from a hostname string (server-side).
  * Returns null for the root domain, 'www', plain localhost, or IP addresses.
  */
 export function getSubdomain(hostname: string): string | null {
-  // Strip port (e.g. "app.smartix.test:3000" → "app.smartix.test")
+  // Strip port (e.g. "app.bronit.test:3000" → "app.bronit.test")
   const host = hostname.split(':')[0]
 
   // Plain localhost / 127.0.0.1 / bare IP → no subdomain
@@ -16,7 +16,7 @@ export function getSubdomain(hostname: string): string | null {
 
   const parts = host.split('.')
 
-  // 3+ parts: xyz.smartix.uz → "xyz",  xyz.smartix.test → "xyz"
+  // 3+ parts: xyz.bronit.uz → "xyz",  xyz.bronit.test → "xyz"
   if (parts.length >= 3) {
     const sub = parts[0]
     return sub === 'www' ? null : sub
@@ -28,7 +28,7 @@ export function getSubdomain(hostname: string): string | null {
     return sub === 'www' ? null : sub
   }
 
-  // 2 parts: smartix.uz or smartix.test → root (no subdomain)
+  // 2 parts: bronit.uz or bronit.test → root (no subdomain)
   return null
 }
 

@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: __dirname,
   },
-  allowedDevOrigins: ['smartix.test', 'app.smartix.test', 'admin.smartix.test', 'demo.smartix.test', 'hilton.smartix.test', 'super.smartix.test'],
+  allowedDevOrigins: ['bronit.test', 'app.bronit.test', 'admin.bronit.test', 'demo.bronit.test', 'hilton.bronit.test', 'super.bronit.test'],
 };
 
 export default nextConfig;

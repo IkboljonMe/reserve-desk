@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 
-// Decorative hero backdrop: soft, blurred gradient "blobs" in the Smartix palette.
+// Decorative hero backdrop: soft, blurred gradient "blobs" in the Bronit palette.
 // Two drift on a slow CSS loop; a third eases toward the mouse for a liquid feel.
 // Purely presentational (aria-hidden, pointer-events: none) and disabled under
 // prefers-reduced-motion.

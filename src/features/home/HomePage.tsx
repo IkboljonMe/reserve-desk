@@ -20,7 +20,7 @@ export async function HomePage({ locale }: { locale: string }) {
 
   // Cross-subdomain links. The marketing site lives on the root domain; the demo
   // runs on the `demo.` subdomain, so build an absolute URL to it from the request
-  // host (works for prod `smartix.uz` and local `smartix.test:3000` alike).
+  // host (works for prod `bronit.uz` and local `bronit.test:3000` alike).
   const reqHeaders = await headers()
   const host = reqHeaders.get('host') || ''
   const protocol = reqHeaders.get('x-forwarded-proto') || (host.includes('localhost') || host.includes('.test') ? 'http' : 'https')

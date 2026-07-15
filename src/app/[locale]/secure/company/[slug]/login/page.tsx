@@ -20,7 +20,7 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <BrandMark size={64} priority style={{ margin: '0 auto 0.75rem' }} />
-          <h1 style={{ color: '#fff', fontSize: '1.6rem', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: '0.25rem' }}>Smartix</h1>
+          <h1 style={{ color: '#fff', fontSize: '1.6rem', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: '0.25rem' }}>Bronit</h1>
           <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.875rem' }}>{t('alwaysAvailable')}</p>
         </div>
 

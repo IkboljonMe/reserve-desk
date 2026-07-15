@@ -217,7 +217,7 @@ export default function Sidebar({
           justifyContent: collapsed ? 'center' : 'flex-start',
           transition: `gap 0.24s ${ease}`,
         }}>
-          {/* Brand mark — the Smartix icon */}
+          {/* Brand mark — the Bronit icon */}
           <BrandMark size={40} priority />
           {/* Name lockup */}
           <div style={{
@@ -227,7 +227,7 @@ export default function Sidebar({
             whiteSpace: 'nowrap',
             transition: labelTransition,
           }}>
-            <div style={{ color: '#fff', fontSize: '1.15rem', fontWeight: 800, lineHeight: 1.15, letterSpacing: '-0.02em' }}>Smartix</div>
+            <div style={{ color: '#fff', fontSize: '1.15rem', fontWeight: 800, lineHeight: 1.15, letterSpacing: '-0.02em' }}>Bronit</div>
             <div style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.7rem', letterSpacing: '0.03em', marginTop: 2 }}>{t('brandTagline')}</div>
           </div>
 

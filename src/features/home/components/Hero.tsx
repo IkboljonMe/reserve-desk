@@ -1,5 +1,6 @@
 import { ChevronRight, Sparkles } from 'lucide-react'
 import { HeroBackground } from './HeroBackground'
+import { BrandMark } from '@/components/BrandMark'
 import { STATS, ACCENT, ACCENT_DARK, INK, MUTED, type Translate } from '../constants'
 
 export function Hero({ t, demoUrl }: { t: Translate; demoUrl: string }) {
@@ -97,7 +98,7 @@ export function Hero({ t, demoUrl }: { t: Translate; demoUrl: string }) {
                 borderRadius: 999,
                 border: '1px solid #e2e8f0',
               }}>
-                smartix.uz/dashboard
+                bronit.uz/dashboard
               </div>
               <div style={{ width: 38 }} />
             </div>
@@ -115,8 +116,8 @@ export function Hero({ t, demoUrl }: { t: Translate; demoUrl: string }) {
                 gap: 20,
               }} className="lp-mock-sidebar">
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                  <div style={{ width: 24, height: 24, borderRadius: 6, background: ACCENT, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '0.8rem', fontWeight: 'bold' }}>S</div>
-                  <span style={{ fontWeight: 700, fontSize: '0.85rem', color: INK }}>Smartix Admin</span>
+                  <BrandMark size={24} />
+                  <span style={{ fontWeight: 700, fontSize: '0.85rem', color: INK }}>Bronit Admin</span>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   {[

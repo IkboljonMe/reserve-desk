@@ -75,7 +75,7 @@ async function main() {
     slug: DEMO_SLUG,
     plan: 'vip',
     expiresAt: new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000),
-    contactName: 'Smartix Demo',
+    contactName: 'Bronit Demo',
     contactPhone: '+998 90 000 00 00',
     paymentMethod: 'demo',
   })

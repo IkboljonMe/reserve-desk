@@ -61,14 +61,14 @@ export async function proxy(request: NextRequest) {
 
   const getRootUrl = (path: string) => {
     const protocol = request.headers.get('x-forwarded-proto') || (host.includes('localhost') || host.includes('.test') || host.includes('172.') ? 'http' : 'https')
-    const match = host.match(/^(?:([a-zA-Z0-9-]+)\.)?smartix\./)
+    const match = host.match(/^(?:([a-zA-Z0-9-]+)\.)?bronit\./)
     const baseDomain = match ? host.slice(match[1] ? match[1].length + 1 : 0) : host
     return new URL(`/${locale}${path}`, `${protocol}://${baseDomain}`)
   }
 
   const getSubdomainUrl = (path: string, targetSub: string) => {
     const protocol = request.headers.get('x-forwarded-proto') || (host.includes('localhost') || host.includes('.test') || host.includes('172.') ? 'http' : 'https')
-    const match = host.match(/^(?:([a-zA-Z0-9-]+)\.)?smartix\./)
+    const match = host.match(/^(?:([a-zA-Z0-9-]+)\.)?bronit\./)
     const baseDomain = match ? host.slice(match[1] ? match[1].length + 1 : 0) : host
     return new URL(`/${locale}${path}`, `${protocol}://${targetSub}.${baseDomain}`)
   }
@@ -89,8 +89,8 @@ export async function proxy(request: NextRequest) {
     const res = NextResponse.redirect(rootLogin)
     
     let rootDomain: string | undefined
-    if (process.env.NODE_ENV === 'production') rootDomain = '.smartix.uz'
-    else if (host.includes('smartix.test')) rootDomain = '.smartix.test'
+    if (process.env.NODE_ENV === 'production') rootDomain = '.bronit.uz'
+    else if (host.includes('bronit.test')) rootDomain = '.bronit.test'
     else if (host.includes('localhost')) rootDomain = undefined
     else rootDomain = host.split(':')[0]
     
