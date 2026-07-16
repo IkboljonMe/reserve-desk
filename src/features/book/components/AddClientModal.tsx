@@ -27,7 +27,7 @@ export function AddClientModal({ w }: { w: BookingWizard }) {
         </div>
 
         <form onSubmit={submitAddClient}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div className="flex flex-col gap-4">
             <div className="form-group">
               <label className="form-label">{t('fullName')} *</label>
               <input
@@ -49,17 +49,16 @@ export function AddClientModal({ w }: { w: BookingWizard }) {
             <div className="form-group">
               <label className="form-label">{t('notes')}</label>
               <textarea
-                className="form-textarea"
+                className="form-textarea min-h-[72px]"
                 value={addClientForm.notes}
                 onChange={e => setAddClientForm(f => ({ ...f, notes: e.target.value }))}
                 placeholder={t('notesClientPlaceholder')}
-                style={{ minHeight: 72 }}
               />
             </div>
           </div>
 
           <div className="h-px bg-surface-border my-4" />
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+          <div className="flex justify-end gap-2">
             <Button type="button" variant="secondary" onClick={closeAddClientModal}>{t('cancel')}</Button>
             <Button type="submit" disabled={savingNewClient || !addClientForm.name.trim()}>
               {savingNewClient ? <Spinner size={18} dark={false} /> : null}

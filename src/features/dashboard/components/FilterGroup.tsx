@@ -2,9 +2,11 @@
 
 export function FilterGroup({ icon, label, children }: { icon?: React.ReactNode; label: string; children: React.ReactNode }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, fontSize: '0.7rem', color: 'var(--gray-400)', fontWeight: 700, whiteSpace: 'nowrap' }}>{icon}{label}</span>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>{children}</div>
+    <div className="flex flex-col gap-1.5">
+      <span className="inline-flex items-center gap-[3px] text-[0.7rem] text-gray-400 font-bold whitespace-nowrap">
+        {icon}{label}
+      </span>
+      <div className="flex items-center gap-1.5 flex-wrap">{children}</div>
     </div>
   )
 }

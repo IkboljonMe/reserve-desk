@@ -1,7 +1,6 @@
 'use client'
 
 import { useTranslation } from '@/i18n'
-import { optionCardStyle } from '../styles'
 import type { BookingWizard } from '../useBookingWizard'
 
 // Slide: which hotel is this booking for? Only reachable when there's an
@@ -13,19 +12,24 @@ export function HotelStep({ w }: { w: BookingWizard }) {
 
   return (
     <div>
-      <h2 style={{ marginBottom: '1rem' }}>{t('whichHotel')}</h2>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.75rem' }}>
-        {hotels.map(hotel => (
-          <button
-            key={hotel._id}
-            type="button"
-            onClick={() => chooseHotel(hotel._id)}
-            style={optionCardStyle(selectedHotelId === hotel._id, 'var(--brand-500)')}
-          >
-            <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--gray-800)' }}>{hotel.shortName}</div>
-            {hotel.name && <div style={{ fontSize: '0.75rem', color: 'var(--gray-500)', marginTop: 2 }}>{hotel.name}</div>}
-          </button>
-        ))}
+      <h2 className="mb-4">{t('whichHotel')}</h2>
+      <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))' }}>
+        {hotels.map(hotel => {
+          const active = selectedHotelId === hotel._id
+          return (
+            <button
+              key={hotel._id}
+              type="button"
+              onClick={() => chooseHotel(hotel._id)}
+              className={`rounded-xl p-4 text-left cursor-pointer transition-all duration-150 border-2 ${
+                active ? 'border-brand-500 bg-brand-500/[0.07]' : 'border-gray-200 bg-white'
+              }`}
+            >
+              <div className="font-bold text-[0.95rem] text-gray-800">{hotel.shortName}</div>
+              {hotel.name && <div className="text-[0.75rem] text-gray-500 mt-0.5">{hotel.name}</div>}
+            </button>
+          )
+        })}
       </div>
     </div>
   )

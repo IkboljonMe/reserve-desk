@@ -21,33 +21,29 @@ export function CompanyList({ s }: { s: CompaniesPageState }) {
   const { companies, loading, openAdd, openEdit, deleteConfirm, setDeleteConfirm, handleDelete } = s
 
   return (
-    <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+    <div className="card p-0 overflow-hidden">
       {loading ? (
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <table className="w-full border-collapse">
           <tbody><SkeletonTableRows rows={4} columns={4} /></tbody>
         </table>
       ) : companies.length === 0 ? (
         <EmptyState icon={<Building2 size={24} strokeWidth={1.75} />}>
           <h3 className="text-gray-700">{t('noCompaniesTitle')}</h3>
           <p>{t('noCompaniesDesc')}</p>
-          <Button style={{ marginTop: 8 }} onClick={openAdd}>{t('addFirstCompany')}</Button>
+          <Button className="mt-2" onClick={openAdd}>{t('addFirstCompany')}</Button>
         </EmptyState>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
+        <div className="flex flex-col">
           {companies.map((c, i) => {
             const expired = isExpired(c.expiresAt)
             return (
               <div
                 key={c._id}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 12,
-                  padding: '12px 16px',
-                  borderTop: i === 0 ? 'none' : '1px solid var(--gray-100)',
-                }}
+                className={`flex items-center gap-3 p-[12px_16px] ${i === 0 ? '' : 'border-t border-gray-100'}`}
               >
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: 600, color: 'var(--gray-800)' }}>{c.name}</div>
-                  <div style={{ fontSize: '0.8125rem', color: 'var(--gray-500)' }}>/{c.slug}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-gray-800">{c.name}</div>
+                  <div className="text-[0.8125rem] text-gray-500">/{c.slug}</div>
                 </div>
                 <Badge variant="gray" className="shrink-0">
                   {PLAN_LABEL[c.plan] ?? c.plan}
@@ -59,12 +55,12 @@ export function CompanyList({ s }: { s: CompaniesPageState }) {
                 >
                   {expired ? t('planExpired') : t('planActiveUntil') + ' ' + new Date(c.expiresAt).toLocaleDateString()}
                 </span>
-                <div style={{ display: 'flex', gap: 6 }}>
+                <div className="flex gap-1.5">
                   <Button variant="ghost" icon onClick={() => openEdit(c)} title={t('edit')} aria-label={t('editCompanyAria')}>
                     <Pencil size={14} />
                   </Button>
                   {deleteConfirm === c._id ? (
-                    <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                    <div className="flex gap-1 items-center">
                       <Button variant="danger" size="sm" onClick={() => handleDelete(c._id)}>{t('delete')}</Button>
                       <Button variant="ghost" size="sm" onClick={() => setDeleteConfirm(null)}>{t('cancel')}</Button>
                     </div>

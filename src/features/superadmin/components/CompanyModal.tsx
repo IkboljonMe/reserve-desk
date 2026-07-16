@@ -22,7 +22,7 @@ export function CompanyModal({ s }: { s: CompaniesPageState }) {
         </div>
 
         <form onSubmit={handleSave}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div className="flex flex-col gap-4">
             <div className="form-group">
               <label className="form-label">{t('companyName')} *</label>
               <input className="form-input" required autoFocus value={form.name} onChange={e => setName(e.target.value)} />
@@ -31,13 +31,13 @@ export function CompanyModal({ s }: { s: CompaniesPageState }) {
             <div className="form-group">
               <label className="form-label">{t('companySlug')} *</label>
               <input className="form-input" required value={form.slug} onChange={e => setSlug(e.target.value)} />
-              <p style={{ marginTop: 4, fontSize: '0.75rem', color: 'var(--gray-500)' }}>
+              <p className="mt-1 text-[0.75rem] text-gray-500">
                 /secure/company/{form.slug || '…'}/login
               </p>
             </div>
 
-            <div style={{ display: 'flex', gap: 12 }}>
-              <div className="form-group" style={{ flex: 1 }}>
+            <div className="flex gap-3">
+              <div className="form-group flex-1">
                 <label className="form-label">{t('plan')} *</label>
                 <select className="form-input" required value={form.plan} onChange={e => setForm(f => ({ ...f, plan: e.target.value as typeof f.plan }))}>
                   <option value="standard">Standard</option>
@@ -45,7 +45,7 @@ export function CompanyModal({ s }: { s: CompaniesPageState }) {
                   <option value="vip">VIP</option>
                 </select>
               </div>
-              <div className="form-group" style={{ flex: 1 }}>
+              <div className="form-group flex-1">
                 <label className="form-label">{t('expiresAt')} *</label>
                 <input className="form-input" type="date" required value={form.expiresAt} onChange={e => setForm(f => ({ ...f, expiresAt: e.target.value }))} />
               </div>
@@ -66,8 +66,8 @@ export function CompanyModal({ s }: { s: CompaniesPageState }) {
 
             {!editCompany && (
               <>
-                <div className="h-px bg-surface-border my-4" />
-                <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--gray-700)' }}>{t('ownerAccount')}</p>
+                <div className="h-px bg-surface-border my-1" />
+                <p className="text-[0.8125rem] font-semibold text-gray-700">{t('ownerAccount')}</p>
                 <div className="form-group">
                   <label className="form-label">{t('fullName')} *</label>
                   <input className="form-input" required value={form.ownerName} onChange={e => setForm(f => ({ ...f, ownerName: e.target.value }))} />
@@ -85,7 +85,7 @@ export function CompanyModal({ s }: { s: CompaniesPageState }) {
           </div>
 
           <div className="h-px bg-surface-border my-4" />
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+          <div className="flex justify-end gap-2">
             <Button type="button" variant="secondary" onClick={closeModal}>{t('cancel')}</Button>
             <Button type="submit" disabled={saving}>
               {saving ? <Spinner size={18} dark={false} /> : null}

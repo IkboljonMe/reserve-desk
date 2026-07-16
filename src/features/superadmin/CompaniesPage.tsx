@@ -13,10 +13,10 @@ export default function CompaniesPage() {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+      <div className="flex justify-between items-center mb-4">
         <div>
-          <h2 style={{ fontSize: '1.125rem', fontWeight: 700 }}>{t('companies')}</h2>
-          <p style={{ marginTop: 2, color: 'var(--gray-500)', fontSize: '0.875rem' }}>
+          <h2 className="text-lg font-bold">{t('companies')}</h2>
+          <p className="mt-0.5 text-gray-500 text-sm">
             {t('companiesSubtitle')}
           </p>
         </div>

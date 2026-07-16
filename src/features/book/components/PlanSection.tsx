@@ -2,7 +2,6 @@
 
 import { useTranslation } from '@/i18n'
 import { TYPE_META } from '../constants'
-import { optionCardStyle } from '../styles'
 import { formatDuration, formatUZS } from '../utils'
 import { UNGROUPED } from '../useBookingWizard'
 import type { BookingType } from '../types'
@@ -27,9 +26,9 @@ export function PlanSection({ w }: { w: BookingWizard }) {
   return (
     <div>
       {hasVariants && (
-        <div style={{ marginBottom: showPlanOptions ? '1.5rem' : 0 }}>
-          <label className="form-label" style={{ display: 'block', marginBottom: 8 }}>{t('chooseVariant')}</label>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+        <div className={showPlanOptions ? 'mb-6' : 'mb-0'}>
+          <label className="form-label block mb-2">{t('chooseVariant')}</label>
+          <div className="flex flex-wrap gap-2">
             {(selectedService.variants ?? []).map(v => {
               const active = selectedVariant?.id === v.id
               const accent = selectedService.color
@@ -38,13 +37,11 @@ export function PlanSection({ w }: { w: BookingWizard }) {
                   key={v.id}
                   type="button"
                   onClick={() => chooseVariant(v)}
+                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-[10px] font-bold text-[0.85rem] cursor-pointer transition-all duration-150"
                   style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 6,
-                    padding: '10px 16px', borderRadius: 10,
                     border: `2px solid ${active ? accent : 'var(--gray-200)'}`,
                     background: active ? `${accent}15` : '#fff',
                     color: active ? accent : 'var(--gray-800)',
-                    fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer',
                   }}
                 >
                   {v.name}
@@ -56,13 +53,17 @@ export function PlanSection({ w }: { w: BookingWizard }) {
       )}
 
       {!showPlanOptions ? null : (<>
-      <h2 style={{ marginBottom: '1.25rem' }}>{t('whoIsThisFor')}</h2>
+      <h2 className="mb-5">{t('whoIsThisFor')}</h2>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem', marginBottom: bookingType ? '1.5rem' : 0 }}>
+      <div
+        className="grid gap-3 mb-0"
+        style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', marginBottom: bookingType ? '1.5rem' : 0 }}
+      >
         {(Object.keys(TYPE_META) as BookingType[]).map(type => {
           const meta = TYPE_META[type]
           // "Clients" always has the Ungrouped/Custom fallback, so it's never disabled.
           const disabled = type === 'room' && roomCats.length === 0
+          const active = bookingType === type
           return (
             <button
               key={type}
@@ -70,19 +71,20 @@ export function PlanSection({ w }: { w: BookingWizard }) {
               disabled={disabled}
               onClick={() => chooseType(type)}
               title={disabled ? t('noPricingSetFor', { label: t(meta.labelKey).toLowerCase() }) : undefined}
+              className="rounded-xl p-4 text-left transition-all duration-150 border-2"
               style={{
-                ...optionCardStyle(bookingType === type, meta.color),
+                borderColor: active ? meta.color : 'var(--gray-200)',
+                background: active ? `${meta.color}12` : '#fff',
                 opacity: disabled ? 0.45 : 1,
                 cursor: disabled ? 'not-allowed' : 'pointer',
               }}
             >
-              <div style={{
-                width: 44, height: 44, borderRadius: 12, marginBottom: 10,
-                background: `${meta.color}18`, color: meta.color,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>{meta.icon}</div>
-              <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--gray-800)' }}>{t(meta.labelKey)}</div>
-              <div style={{ fontSize: '0.72rem', color: 'var(--gray-500)', marginTop: 2 }}>
+              <div
+                className="w-11 h-11 rounded-xl mb-2.5 flex items-center justify-center"
+                style={{ background: `${meta.color}18`, color: meta.color }}
+              >{meta.icon}</div>
+              <div className="font-bold text-[0.95rem] text-gray-800">{t(meta.labelKey)}</div>
+              <div className="text-[0.72rem] text-gray-500 mt-0.5">
                 {disabled ? t('notConfigured') : t(meta.descKey)}
               </div>
             </button>
@@ -93,10 +95,13 @@ export function PlanSection({ w }: { w: BookingWizard }) {
       {/* Category (client group / room type) */}
       {(bookingType === 'client' || bookingType === 'room') && (
         <>
-          <label className="form-label" style={{ display: 'block', marginBottom: 8 }}>
+          <label className="form-label block mb-2">
             {bookingType === 'client' ? t('chooseClientGroup') : t('chooseRoomCategory')}
           </label>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: selectedCategory ? '1.5rem' : 0 }}>
+          <div
+            className="flex flex-wrap gap-2"
+            style={{ marginBottom: selectedCategory ? '1.5rem' : 0 }}
+          >
             {(bookingType === 'client' ? clientCats : roomCats).map(g => {
               const meta = resolveGroupMeta(g)
               const active = selectedCategory === g.category
@@ -105,16 +110,14 @@ export function PlanSection({ w }: { w: BookingWizard }) {
                   key={g.category}
                   type="button"
                   onClick={() => chooseCategory(g.category)}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full font-semibold text-[0.8125rem] cursor-pointer transition-all duration-150"
                   style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 6,
-                    padding: '8px 14px', borderRadius: 999,
                     border: `2px solid ${active ? meta.color : 'var(--gray-200)'}`,
                     background: active ? `${meta.color}15` : '#fff',
                     color: active ? meta.color : 'var(--gray-700)',
-                    fontWeight: 600, fontSize: '0.8125rem', cursor: 'pointer',
                   }}
                 >
-                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: meta.color }} />
+                  <span className="w-2 h-2 rounded-full" style={{ background: meta.color }} />
                   {meta.label}
                 </button>
               )
@@ -123,16 +126,14 @@ export function PlanSection({ w }: { w: BookingWizard }) {
               <button
                 type="button"
                 onClick={() => chooseCategory(UNGROUPED)}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full font-semibold text-[0.8125rem] cursor-pointer transition-all duration-150"
                 style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 6,
-                  padding: '8px 14px', borderRadius: 999,
                   border: `2px solid ${selectedCategory === UNGROUPED ? 'var(--gray-400)' : 'var(--gray-200)'}`,
                   background: selectedCategory === UNGROUPED ? 'var(--gray-100)' : '#fff',
                   color: selectedCategory === UNGROUPED ? 'var(--gray-700)' : 'var(--gray-500)',
-                  fontWeight: 600, fontSize: '0.8125rem', cursor: 'pointer',
                 }}
               >
-                <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--gray-400)' }} />
+                <span className="w-2 h-2 rounded-full bg-gray-400" />
                 {t('typeCustom')}
               </button>
             )}
@@ -140,17 +141,21 @@ export function PlanSection({ w }: { w: BookingWizard }) {
 
           {selectedCategory && !usingManualPrice && (() => {
             const accent = categoryMeta?.color || selectedService.color
-            const pill = (active: boolean) => ({
-              padding: '8px 16px', borderRadius: 10, cursor: 'pointer', minWidth: 64, textAlign: 'center' as const,
-              border: `2px solid ${active ? accent : 'var(--gray-200)'}`,
+            const pillCls = (active: boolean) =>
+              `px-4 py-2 rounded-[10px] cursor-pointer min-w-16 text-center font-bold text-[0.85rem] transition-all duration-150 border-2`
+            const pillStyle = (active: boolean) => ({
+              borderColor: active ? accent : 'var(--gray-200)',
               background: active ? `${accent}15` : '#fff',
-              color: active ? accent : 'var(--gray-700)', fontWeight: 700, fontSize: '0.85rem',
+              color: active ? accent : 'var(--gray-700)',
             })
             return (
             <>
               {/* Rate (per hour) */}
-              <label className="form-label" style={{ display: 'block', marginBottom: 8 }}>{t('chooseRate')}</label>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: selectedRate ? '1.5rem' : 0 }}>
+              <label className="form-label block mb-2">{t('chooseRate')}</label>
+              <div
+                className="flex flex-wrap gap-2"
+                style={{ marginBottom: selectedRate ? '1.5rem' : 0 }}
+              >
                 {planRows.map((plan, i) => {
                   const perHour = Math.round(Number(plan.price) / Math.max(1, Number(plan.duration) / 60))
                   const active = selectedRate?.duration === plan.duration && selectedRate?.price === plan.price
@@ -159,16 +164,12 @@ export function PlanSection({ w }: { w: BookingWizard }) {
                       key={i}
                       type="button"
                       onClick={() => chooseRate(plan)}
-                      style={{
-                        padding: '10px 16px', borderRadius: 10,
-                        border: `2px solid ${active ? accent : 'var(--gray-200)'}`,
-                        background: active ? `${accent}15` : '#fff',
-                        textAlign: 'left', cursor: 'pointer', minWidth: 130,
-                      }}
+                      className={`${pillCls(active)} px-4 py-2.5 text-left min-w-[130px]`}
+                      style={pillStyle(active)}
                     >
-                      <div style={{ fontSize: '0.9rem', color: accent, fontWeight: 700 }}>
+                      <div className="text-[0.9rem] font-bold" style={{ color: accent }}>
                         {perHour > 0
-                          ? <>{formatUZS(perHour)} {t('sum')}<span style={{ color: 'var(--gray-400)', fontWeight: 500 }}>{t('perHour')}</span></>
+                          ? <>{formatUZS(perHour)} {t('sum')}<span className="text-gray-400 font-medium">{t('perHour')}</span></>
                           : t('isFree')}
                       </div>
                     </button>
@@ -179,21 +180,21 @@ export function PlanSection({ w }: { w: BookingWizard }) {
               {/* Hours */}
               {selectedRate && (
                 <>
-                  <label className="form-label" style={{ display: 'block', marginBottom: 8 }}>{t('chooseHours')}</label>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  <label className="form-label block mb-2">{t('chooseHours')}</label>
+                  <div className="flex flex-wrap gap-2">
                     {Array.from({ length: maxHours }, (_, i) => i + 1).map(n => (
-                      <button key={n} type="button" onClick={() => chooseHours(n)} style={pill(!wholeDay && selectedHours === n)}>
+                      <button key={n} type="button" onClick={() => chooseHours(n)} className={pillCls(!wholeDay && selectedHours === n)} style={pillStyle(!wholeDay && selectedHours === n)}>
                         {formatDuration(n * 60)}
                       </button>
                     ))}
-                    <button type="button" onClick={() => chooseWholeDay()} style={pill(wholeDay)}>
+                    <button type="button" onClick={() => chooseWholeDay()} className={pillCls(wholeDay)} style={pillStyle(wholeDay)}>
                       {t('wholeDay')}
                     </button>
                   </div>
 
                   {/* Live total */}
                   {activePlan && (
-                    <div style={{ marginTop: 14, fontSize: '0.875rem', color: 'var(--gray-600)' }}>
+                    <div className="mt-3.5 text-sm text-gray-600">
                       {t('total')}:{' '}
                       <strong style={{ color: accent }}>
                         {activePlan.price > 0 ? `${formatUZS(activePlan.price)} ${t('sum')}` : t('isFree')}
@@ -212,8 +213,8 @@ export function PlanSection({ w }: { w: BookingWizard }) {
       {/* Manual duration & price for "Custom" (ungrouped) clients */}
       {usingManualPrice && (
         <>
-          <label className="form-label" style={{ display: 'block', marginBottom: 8 }}>{t('chooseDurationPrice')}</label>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', maxWidth: 420 }}>
+          <label className="form-label block mb-2">{t('chooseDurationPrice')}</label>
+          <div className="grid grid-cols-2 gap-4 max-w-[420px]">
             <div className="form-group">
               <label className="form-label">{t('durationMin')}</label>
               <input
@@ -224,7 +225,7 @@ export function PlanSection({ w }: { w: BookingWizard }) {
                 aria-invalid={!customValid}
                 style={!customValid ? { borderColor: 'var(--danger)', boxShadow: '0 0 0 3px rgba(239,68,68,0.12)' } : undefined}
               />
-              <small style={{ color: customValid ? 'var(--gray-400)' : 'var(--danger)', fontSize: '0.7rem', display: 'block', marginTop: 4 }}>
+              <small className={`block mt-1 text-[0.7rem] ${customValid ? 'text-gray-400' : 'text-danger'}`}>
                 {customValid ? t('minute15Intervals') : t('multipleOf15')}
               </small>
             </div>
@@ -237,7 +238,7 @@ export function PlanSection({ w }: { w: BookingWizard }) {
                 onFocus={e => e.currentTarget.select()}
                 placeholder="0"
               />
-              <small style={{ color: 'var(--gray-400)', fontSize: '0.7rem', display: 'block', marginTop: 4 }}>{t('setOneOffPrice')}</small>
+              <small className="block mt-1 text-[0.7rem] text-gray-400">{t('setOneOffPrice')}</small>
             </div>
           </div>
         </>

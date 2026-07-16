@@ -8,6 +8,10 @@ import type { DashboardPageState } from '../useDashboardPage'
 import { FilterGroup } from './FilterGroup'
 import Button from '@/components/ui/Button'
 
+// Pill button styles: base, active, and service-specific active (uses inline style for dynamic color)
+const PILL_BASE = 'inline-flex items-center gap-[5px] px-3 py-[5px] rounded-full text-[0.78rem] font-semibold cursor-pointer border-[1.5px] border-gray-200 bg-surface-card text-gray-600 transition-all duration-150 whitespace-nowrap hover:border-brand-400 hover:text-brand-700 font-inherit'
+const PILL_ACTIVE = 'bg-brand-500 text-white border-transparent'
+
 export function FiltersModal({ s, open, onClose }: { s: DashboardPageState; open: boolean; onClose: () => void }) {
   const { t } = useTranslation()
   const {
@@ -28,13 +32,13 @@ export function FiltersModal({ s, open, onClose }: { s: DashboardPageState; open
           </Button>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.15rem' }}>
+        <div className="flex flex-col gap-[1.15rem]">
           {/* 1. Hotels */}
           {hotels.length > 1 && (
             <FilterGroup icon={<Building2 size={12} />} label={t('hotel')}>
-              <button className={`dash-pill ${allHotelsOn ? 'active' : ''}`} onClick={() => setFHotels(new Set())}>{t('all')}</button>
+              <button className={`${PILL_BASE} ${allHotelsOn ? PILL_ACTIVE : ''}`} onClick={() => setFHotels(new Set())}>{t('all')}</button>
               {hotels.map(h => (
-                <button key={h._id} className={`dash-pill ${fHotels.has(h._id) ? 'active' : ''}`}
+                <button key={h._id} className={`${PILL_BASE} ${fHotels.has(h._id) ? PILL_ACTIVE : ''}`}
                   onClick={() => setFHotels(prev => { const n = new Set(prev); if (n.has(h._id)) n.delete(h._id); else n.add(h._id); return n })}>{h.shortName}</button>
               ))}
             </FilterGroup>
@@ -84,11 +88,15 @@ export function FiltersModal({ s, open, onClose }: { s: DashboardPageState; open
           {/* 5. Services */}
           {services.length > 1 && (
             <FilterGroup icon={<Tag size={12} />} label={t('services')}>
-              <button className={`dash-pill ${allServicesOn ? 'active' : ''}`} onClick={() => setFServices(new Set())}>{t('allServices')}</button>
+              <button className={`${PILL_BASE} ${allServicesOn ? PILL_ACTIVE : ''}`} onClick={() => setFServices(new Set())}>{t('allServices')}</button>
               {services.map(svc => (
-                <button key={svc._id} className="dash-pill" style={fServices.has(svc._id) ? { background: svc.color, color: '#fff', borderColor: 'transparent' } : {}}
-                  onClick={() => setFServices(prev => { const n = new Set(prev); if (n.has(svc._id)) n.delete(svc._id); else n.add(svc._id); return n })}>
-                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: fServices.has(svc._id) ? '#fff' : svc.color }} />{svc.name}
+                <button
+                  key={svc._id}
+                  className={PILL_BASE}
+                  style={fServices.has(svc._id) ? { background: svc.color, color: '#fff', borderColor: 'transparent' } : {}}
+                  onClick={() => setFServices(prev => { const n = new Set(prev); if (n.has(svc._id)) n.delete(svc._id); else n.add(svc._id); return n })}
+                >
+                  <span className="w-2 h-2 rounded-full" style={{ background: fServices.has(svc._id) ? '#fff' : svc.color }} />{svc.name}
                 </button>
               ))}
             </FilterGroup>
@@ -96,7 +104,7 @@ export function FiltersModal({ s, open, onClose }: { s: DashboardPageState; open
         </div>
 
         <div className="h-px bg-surface-border my-4" />
-        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
+        <div className="flex justify-between gap-2">
           <Button type="button" variant="ghost" disabled={activeFilterCount === 0} onClick={clearFilters}>
             {t('clear')}
           </Button>

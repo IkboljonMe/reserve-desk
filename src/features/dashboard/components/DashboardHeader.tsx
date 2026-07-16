@@ -50,10 +50,10 @@ export function DashboardHeader({ s }: { s: DashboardPageState }) {
     <div className="flex items-center justify-between flex-wrap gap-4">
       <div>
         <h1>{t('dashboard')}</h1>
-        <p style={{ marginTop: 4 }}>{format(nowUZ(), 'EEEE, MMMM d, yyyy', { locale })}</p>
+        <p className="mt-1">{format(nowUZ(), 'EEEE, MMMM d, yyyy', { locale })}</p>
       </div>
-      <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-        <div style={{ width: 140 }}>
+      <div className="flex gap-2 items-center flex-wrap">
+        <div className="w-[140px]">
           <Dropdown
             value={period}
             onChange={v => {
@@ -66,12 +66,12 @@ export function DashboardHeader({ s }: { s: DashboardPageState }) {
           />
         </div>
         {period === 'custom' && (
-          <div ref={pickerRef} style={{ position: 'relative' }}>
+          <div ref={pickerRef} className="relative">
             <Button variant="secondary" size="md" leftIcon={<CalendarIcon size={14} />} onClick={() => (pickerOpen ? setPickerOpen(false) : openPicker())}>
               {format(new Date(customFrom), 'MMM d', { locale })} – {format(new Date(customTo), 'MMM d', { locale })}
             </Button>
             {pickerOpen && (
-              <div className="dash-date-popover">
+              <div className="absolute top-[calc(100%+6px)] left-0 z-[9999] bg-white border border-gray-200 rounded-[10px] p-3 shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)]">
                 <Calendar
                   mode="range"
                   locale={locale}

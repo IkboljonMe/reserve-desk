@@ -9,13 +9,16 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { TYPE_META } from '../constants'
 import type { DashboardPageState } from '../useDashboardPage'
 
+// Reusable TH class replacing the .dash-th CSS class
+const TH = 'p-[9px_12px] text-left font-bold text-gray-500 text-[0.7rem] uppercase tracking-[0.04em] whitespace-nowrap select-none'
+
 export function BookingsTable({ s }: { s: DashboardPageState }) {
   const { t } = useTranslation()
   const { loading, rows, hotels, serviceHotel, sortKey, toggleSort, setDetailId } = s
 
   if (loading) {
     return (
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8125rem' }}>
+      <table className="w-full border-collapse text-[0.8125rem]">
         <tbody><SkeletonTableRows rows={6} columns={8} /></tbody>
       </table>
     )
@@ -23,29 +26,29 @@ export function BookingsTable({ s }: { s: DashboardPageState }) {
   if (rows.length === 0) {
     return (
       <EmptyState icon={<CalendarDays size={22} />} style={{ padding: '3rem' }}>
-        <p style={{ fontSize: '0.875rem' }}>{t('noBookingsMatch')}</p>
+        <p className="text-sm">{t('noBookingsMatch')}</p>
       </EmptyState>
     )
   }
 
   return (
-    <div style={{ overflow: 'auto', maxHeight: 560 }}>
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8125rem' }}>
+    <div className="overflow-auto max-h-[560px]">
+      <table className="w-full border-collapse text-[0.8125rem]">
         <thead>
-          <tr style={{ position: 'sticky', top: 0, background: 'var(--gray-50)', zIndex: 1, borderBottom: '1px solid var(--gray-200)' }}>
-            <th className="dash-th" style={{ cursor: 'pointer' }} onClick={() => toggleSort('date')}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>{t('colDateTime')} <ArrowUpDown size={11} style={{ opacity: sortKey === 'date' ? 1 : 0.3 }} /></span>
+          <tr className="sticky top-0 bg-gray-50 z-[1] border-b border-gray-200">
+            <th className={`${TH} cursor-pointer`} onClick={() => toggleSort('date')}>
+              <span className="inline-flex items-center gap-1">{t('colDateTime')} <ArrowUpDown size={11} style={{ opacity: sortKey === 'date' ? 1 : 0.3 }} /></span>
             </th>
-            <th className="dash-th">{t('service')}</th>
-            <th className="dash-th">{t('hotel')}</th>
-            <th className="dash-th">{t('guest')}</th>
-            <th className="dash-th">{t('roomType')}</th>
-            <th className="dash-th" style={{ cursor: 'pointer' }} onClick={() => toggleSort('price')}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>{t('price')} <ArrowUpDown size={11} style={{ opacity: sortKey === 'price' ? 1 : 0.3 }} /></span>
+            <th className={TH}>{t('service')}</th>
+            <th className={TH}>{t('hotel')}</th>
+            <th className={TH}>{t('guest')}</th>
+            <th className={TH}>{t('roomType')}</th>
+            <th className={`${TH} cursor-pointer`} onClick={() => toggleSort('price')}>
+              <span className="inline-flex items-center gap-1">{t('price')} <ArrowUpDown size={11} style={{ opacity: sortKey === 'price' ? 1 : 0.3 }} /></span>
             </th>
-            <th className="dash-th">{t('status')}</th>
-            <th className="dash-th" style={{ cursor: 'pointer' }} onClick={() => toggleSort('created')}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>{t('created')} <ArrowUpDown size={11} style={{ opacity: sortKey === 'created' ? 1 : 0.3 }} /></span>
+            <th className={TH}>{t('status')}</th>
+            <th className={`${TH} cursor-pointer`} onClick={() => toggleSort('created')}>
+              <span className="inline-flex items-center gap-1">{t('created')} <ArrowUpDown size={11} style={{ opacity: sortKey === 'created' ? 1 : 0.3 }} /></span>
             </th>
           </tr>
         </thead>
@@ -55,37 +58,47 @@ export function BookingsTable({ s }: { s: DashboardPageState }) {
             const hotel = hotels.find(h => h._id === (serviceHotel.get(svcId(b)) || ''))
             const type = b.bookingType || 'custom'
             return (
-              <tr key={b._id} className="dash-row" onClick={() => setDetailId(b._id)}
-                style={{ borderBottom: '1px solid var(--gray-100)', background: i % 2 ? 'var(--gray-50)' : '#fff', cursor: 'pointer', transition: 'background .1s' }}>
-                <td style={{ padding: '9px 12px', whiteSpace: 'nowrap' }}>
-                  <div style={{ fontWeight: 600, color: 'var(--gray-800)' }}>{format(parseISO(b.date), 'MMM d')}</div>
-                  <div style={{ fontSize: '0.72rem', color: 'var(--gray-400)' }}>{b.startTime}–{b.endTime}</div>
+              <tr
+                key={b._id}
+                onClick={() => setDetailId(b._id)}
+                className="border-b border-gray-100 cursor-pointer transition-colors duration-100 hover:bg-brand-50"
+                style={{ background: i % 2 ? 'var(--gray-50)' : '#fff' }}
+              >
+                <td className="p-[9px_12px] whitespace-nowrap">
+                  <div className="font-semibold text-gray-800">{format(parseISO(b.date), 'MMM d')}</div>
+                  <div className="text-[0.72rem] text-gray-400">{b.startTime}–{b.endTime}</div>
                 </td>
-                <td style={{ padding: '9px 12px' }}>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: b.serviceId?.color || '#6366f1', flexShrink: 0 }} />
-                    <span style={{ color: 'var(--gray-700)' }}>{b.serviceId?.name}</span>
+                <td className="p-[9px_12px]">
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full shrink-0" style={{ background: b.serviceId?.color || '#6366f1' }} />
+                    <span className="text-gray-700">{b.serviceId?.name}</span>
                   </span>
                 </td>
-                <td style={{ padding: '9px 12px', color: 'var(--gray-500)', fontSize: '0.75rem', fontWeight: 600 }}>{hotel?.shortName || '—'}</td>
-                <td style={{ padding: '9px 12px', color: 'var(--gray-800)', fontWeight: 500 }}>{b.customerName}</td>
-                <td style={{ padding: '9px 12px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    {b.roomNumber ? <span style={{ color: 'var(--gray-600)', display: 'inline-flex', alignItems: 'center', gap: 3 }}><BedDouble size={12} />{b.roomNumber}</span> : <span style={{ color: 'var(--gray-300)' }}>—</span>}
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, padding: '1px 6px', borderRadius: 6, background: `${TYPE_META[type].color}14`, color: TYPE_META[type].color, fontSize: '0.66rem', fontWeight: 700 }}>
+                <td className="p-[9px_12px] text-gray-500 text-[0.75rem] font-semibold">{hotel?.shortName || '—'}</td>
+                <td className="p-[9px_12px] text-gray-800 font-medium">{b.customerName}</td>
+                <td className="p-[9px_12px]">
+                  <div className="flex items-center gap-1.5">
+                    {b.roomNumber ? <span className="text-gray-600 inline-flex items-center gap-[3px]"><BedDouble size={12} />{b.roomNumber}</span> : <span className="text-gray-300">—</span>}
+                    <span
+                      className="inline-flex items-center gap-[3px] px-1.5 py-[1px] rounded-[6px] text-[0.66rem] font-bold"
+                      style={{ background: `${TYPE_META[type].color}14`, color: TYPE_META[type].color }}
+                    >
                       {TYPE_META[type].icon}{t(TYPE_META[type].labelKey)}
                     </span>
                   </div>
                 </td>
-                <td style={{ padding: '9px 12px', color: 'var(--gray-700)', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
-                  {b.totalPrice > 0 ? `${money(b.totalPrice)}` : <span style={{ color: 'var(--gray-400)' }}>{t('free')}</span>}
+                <td className="p-[9px_12px] text-gray-700 whitespace-nowrap tabular-nums">
+                  {b.totalPrice > 0 ? `${money(b.totalPrice)}` : <span className="text-gray-400">{t('free')}</span>}
                 </td>
-                <td style={{ padding: '9px 12px' }}>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 20, fontSize: '0.7rem', fontWeight: 700, background: st.bg, color: st.color }}>
+                <td className="p-[9px_12px]">
+                  <span
+                    className="inline-flex items-center gap-1 px-2 py-[2px] rounded-[20px] text-[0.7rem] font-bold"
+                    style={{ background: st.bg, color: st.color }}
+                  >
                     {st.key === 'finished' && <Check size={11} />}{t(st.key)}
                   </span>
                 </td>
-                <td style={{ padding: '9px 12px', color: 'var(--gray-400)', fontSize: '0.72rem', whiteSpace: 'nowrap' }}>
+                <td className="p-[9px_12px] text-gray-400 text-[0.72rem] whitespace-nowrap">
                   {b.createdAt ? formatDistanceToNow(parseISO(b.createdAt), { addSuffix: true }) : '—'}
                 </td>
               </tr>

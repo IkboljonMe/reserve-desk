@@ -156,50 +156,35 @@ export default function BookingDrawer({
   }, [b])
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 1200, display: 'flex', justifyContent: 'flex-end' }}>
+    <div className="fixed inset-0 z-[1200] flex justify-end">
       <div
         onClick={onClose}
-        style={{ position: 'absolute', inset: 0, background: 'rgba(15,23,42,0.4)', animation: 'fadeIn 0.2s ease' }}
+        className="absolute inset-0 bg-slate-900/40"
+        style={{ animation: 'fadeIn 0.2s ease' }}
       />
       <div
-        style={{
-          position: 'relative',
-          width: 'min(440px, 100%)',
-          height: '100%',
-          background: 'var(--surface-card, #fff)',
-          boxShadow: '-8px 0 30px rgba(0,0,0,0.15)',
-          overflowY: 'auto',
-          animation: 'slideInRight 0.25s ease-out',
-        }}
+        className="relative w-[min(440px,100%)] h-full bg-surface-card overflow-y-auto"
+        style={{ boxShadow: '-8px 0 30px rgba(0,0,0,0.15)', animation: 'slideInRight 0.25s ease-out' }}
       >
         {loading || !b || !st ? (
-          <div style={{ padding: '4rem', textAlign: 'center' }}>
+          <div className="p-16 text-center">
             <Spinner size={30} />
           </div>
         ) : (
-          <div style={{ padding: '1.25rem' }}>
+          <div className="p-5">
             {/* Header */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: '1.1rem' }}>
+            <div className="flex items-center gap-2.5 mb-[1.1rem]">
               <span
-                style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: 11,
-                  flexShrink: 0,
-                  background: `${b.serviceId?.color || '#6366f1'}1f`,
-                  color: b.serviceId?.color || '#6366f1',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
+                className="w-10 h-10 rounded-[11px] shrink-0 flex items-center justify-center"
+                style={{ background: `${b.serviceId?.color || '#6366f1'}1f`, color: b.serviceId?.color || '#6366f1' }}
               >
                 {getServiceIcon(b.serviceId?.name || '')}
               </span>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 800, fontSize: '1.05rem', color: 'var(--gray-900)' }}>
+              <div className="flex-1 min-w-0">
+                <div className="font-[800] text-[1.05rem] text-gray-900">
                   {b.customerName}
                 </div>
-                <div style={{ fontSize: '0.78rem', color: 'var(--gray-50)' }}>
+                <div className="text-[0.78rem] text-gray-500">
                   {b.serviceId?.name}
                   {b.variantName ? ` · ${b.variantName}` : ''}
                   {hotel ? ` · ${hotel.shortName}` : ''}
@@ -211,25 +196,25 @@ export default function BookingDrawer({
             </div>
 
             {/* Status + price banner */}
-            <div style={{ display: 'flex', gap: 10, marginBottom: '1.1rem' }}>
-              <div style={{ flex: 1, padding: '0.7rem 0.85rem', borderRadius: 10, background: st.bg }}>
-                <div style={{ fontSize: '0.66rem', fontWeight: 700, color: st.color, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            <div className="flex gap-2.5 mb-[1.1rem]">
+              <div className="flex-1 p-[0.7rem_0.85rem] rounded-[10px]" style={{ background: st.bg }}>
+                <div className="text-[0.66rem] font-bold uppercase tracking-[0.04em]" style={{ color: st.color }}>
                   {t('status')}
                 </div>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontWeight: 800, fontSize: '0.95rem', color: st.color, marginTop: 2 }}>
+                <div className="inline-flex items-center gap-[5px] font-[800] text-[0.95rem] mt-0.5" style={{ color: st.color }}>
                   {st.key === 'finished' && <Check size={14} />}
                   {t(st.key)}
                 </div>
               </div>
-              <div style={{ flex: 1, padding: '0.7rem 0.85rem', borderRadius: 10, background: 'var(--gray-50)' }}>
-                <div style={{ fontSize: '0.66rem', fontWeight: 700, color: 'var(--gray-400)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              <div className="flex-1 p-[0.7rem_0.85rem] rounded-[10px] bg-gray-50">
+                <div className="text-[0.66rem] font-bold text-gray-400 uppercase tracking-[0.04em]">
                   {t('price')}
                 </div>
-                <div style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--gray-800)', marginTop: 2, fontVariantNumeric: 'tabular-nums' }}>
+                <div className="font-[800] text-[0.95rem] text-gray-800 mt-0.5 tabular-nums">
                   {b.totalPrice > 0 ? `${money(b.totalPrice)} ${t('sum')}` : t('free')}
                 </div>
                 {isPartiallyPaid(b) && (
-                  <div style={{ fontSize: '0.72rem', color: '#0891b2', marginTop: 3, fontVariantNumeric: 'tabular-nums' }}>
+                  <div className="text-[0.72rem] text-cyan-600 mt-[3px] tabular-nums">
                     {t('collectedOfDue', { paid: money(amountCollected(b)), due: `${money(amountDue(b))} ${t('sum')}` })}
                   </div>
                 )}
@@ -237,14 +222,14 @@ export default function BookingDrawer({
             </div>
 
             {/* Actions */}
-            <div style={{ display: 'flex', gap: 8, marginBottom: '1.25rem' }}>
+            <div className="flex gap-2 mb-5">
               {!b.finished && (st.key === 'unpaid' || st.key === 'partial') && (
-                <Button size="sm" style={{ flex: 1 }} disabled={busy} onClick={() => setPayConfirm(true)}>
+                <Button size="sm" className="flex-1" disabled={busy} onClick={() => setPayConfirm(true)}>
                   <Wallet size={14} /> {isPartiallyPaid(b) ? t('collectBalance') : t('markAsPaid')}
                 </Button>
               )}
               {!b.finished && (st.key === 'paid' || st.key === 'free') && (
-                <Button size="sm" style={{ flex: 1, background: FILL_COLLECTED, color: '#fff', border: 'none' }} disabled={busy} onClick={() => mutate({ finished: true }, t('bookingCompleted'))}>
+                <Button size="sm" className="flex-1 border-0" disabled={busy} onClick={() => mutate({ finished: true }, t('bookingCompleted'))} style={{ background: FILL_COLLECTED, color: '#fff' }}>
                   <Check size={15} strokeWidth={2.5} /> {t('markAsFinished')}
                 </Button>
               )}
@@ -264,22 +249,22 @@ export default function BookingDrawer({
             </Section>
 
             {/* Notes */}
-            <Section title={t('notes')} action={!editingNotes ? <Button variant="ghost" size="sm" style={{ padding: '2px 6px' }} onClick={() => setEditingNotes(true)}><Pencil size={12} /> {t('edit')}</Button> : undefined}>
+            <Section title={t('notes')} action={!editingNotes ? <Button variant="ghost" size="sm" className="px-1.5 py-[2px]" onClick={() => setEditingNotes(true)}><Pencil size={12} /> {t('edit')}</Button> : undefined}>
               {editingNotes ? (
                 <div>
-                  <textarea className="form-textarea" value={notesDraft} onChange={e => setNotesDraft(e.target.value)} style={{ minHeight: 70, fontSize: '0.82rem' }} placeholder={t('addNotesPlaceholder')} />
-                  <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', marginTop: 6 }}>
+                  <textarea className="form-textarea text-[0.82rem] min-h-[70px]" value={notesDraft} onChange={e => setNotesDraft(e.target.value)} placeholder={t('addNotesPlaceholder')} />
+                  <div className="flex gap-1.5 justify-end mt-1.5">
                     <Button variant="secondary" size="sm" onClick={() => { setEditingNotes(false); setNotesDraft(b.notes || '') }}>{t('cancel')}</Button>
                     <Button size="sm" disabled={busy} onClick={async () => { await mutate({ notes: notesDraft }, t('notesSaved')); setEditingNotes(false) }}>{t('save')}</Button>
                   </div>
                 </div>
               ) : (
-                <p style={{ fontSize: '0.82rem', color: b.notes ? 'var(--gray-700)' : 'var(--gray-400)', margin: 0, whiteSpace: 'pre-wrap' }}>{b.notes || t('noNotes')}</p>
+                <p className={`text-[0.82rem] m-0 whitespace-pre-wrap ${b.notes ? 'text-gray-700' : 'text-gray-400'}`}>{b.notes || t('noNotes')}</p>
               )}
             </Section>
 
             {/* Menu / order */}
-            <Section title={t('menu')} action={!editingMenu ? <Button variant="ghost" size="sm" style={{ padding: '2px 6px' }} onClick={() => setEditingMenu(true)}><Pencil size={12} /> {t('edit')}</Button> : undefined}>
+            <Section title={t('menu')} action={!editingMenu ? <Button variant="ghost" size="sm" className="px-1.5 py-[2px]" onClick={() => setEditingMenu(true)}><Pencil size={12} /> {t('edit')}</Button> : undefined}>
               {editingMenu ? (
                 <div>
                   <MenuItemsEditor
@@ -290,13 +275,13 @@ export default function BookingDrawer({
                     readyTime={menuReadyTimeDraft}
                     onReadyTimeChange={setMenuReadyTimeDraft}
                   />
-                  <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', marginTop: 6 }}>
+                  <div className="flex gap-1.5 justify-end mt-1.5">
                     <Button variant="secondary" size="sm" onClick={() => { setEditingMenu(false); setMenuDraft(b.menuItems || []); setMenuReadyTimeDraft(b.menuReadyTime || '') }}>{t('cancel')}</Button>
                     <Button size="sm" disabled={busy} onClick={async () => { await mutate({ menuItems: menuDraft.filter(it => it.name.trim()), menuReadyTime: menuReadyTimeDraft }, t('menuSaved')); setEditingMenu(false) }}>{t('save')}</Button>
                   </div>
                 </div>
               ) : (
-                <p style={{ fontSize: '0.82rem', color: b.menuItems?.length ? 'var(--gray-700)' : 'var(--gray-400)', margin: 0, whiteSpace: 'pre-wrap' }}>
+                <p className={`text-[0.82rem] m-0 whitespace-pre-wrap ${b.menuItems?.length ? 'text-gray-700' : 'text-gray-400'}`}>
                   {b.menuItems?.length
                     ? `${b.menuItems.map(it => `${it.qty}x ${it.name}`).join(', ')}${b.menuReadyTime ? ` · ${t('menuReadyTime')} ${b.menuReadyTime}` : ''}`
                     : t('noMenu')}
@@ -306,26 +291,29 @@ export default function BookingDrawer({
 
             {/* Timeline */}
             <Section title={t('activity')}>
-              <div style={{ position: 'relative', paddingLeft: 8 }}>
+              <div className="relative pl-2">
                 {timeline.map((e, i) => {
                   const meta = EVENT_META[e.action] || EVENT_META.notes_updated
                   const last = i === timeline.length - 1
                   return (
-                    <div key={i} style={{ display: 'flex', gap: 12, position: 'relative', paddingBottom: last ? 0 : 18 }}>
-                      {!last && <div style={{ position: 'absolute', left: 11, top: 24, bottom: 0, width: 2, background: 'var(--gray-200)' }} />}
-                      <span style={{ width: 24, height: 24, borderRadius: '50%', flexShrink: 0, background: `${meta.color}18`, color: meta.color, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1 }}>{meta.icon}</span>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--gray-800)' }}>{t(meta.labelKey)}</div>
-                        <div style={{ fontSize: '0.72rem', color: 'var(--gray-400)' }}>
+                    <div key={i} className="flex gap-3 relative" style={{ paddingBottom: last ? 0 : 18 }}>
+                      {!last && <div className="absolute left-[11px] top-6 bottom-0 w-0.5 bg-gray-200" />}
+                      <span
+                        className="w-6 h-6 rounded-full shrink-0 flex items-center justify-center z-[1]"
+                        style={{ background: `${meta.color}18`, color: meta.color }}
+                      >{meta.icon}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[0.82rem] font-semibold text-gray-800">{t(meta.labelKey)}</div>
+                        <div className="text-[0.72rem] text-gray-400">
                           {format(parseISO(e.at), 'MMM d, yyyy · HH:mm')} · {formatDistanceToNow(parseISO(e.at), { addSuffix: true })}
-                          <span style={{ color: 'var(--gray-300)' }}> · {e.by || t('admin')}</span>
+                          <span className="text-gray-300"> · {e.by || t('admin')}</span>
                         </div>
                       </div>
                     </div>
                   )
                 })}
                 {b.updatedAt && b.createdAt && new Date(b.updatedAt).getTime() - new Date(b.createdAt).getTime() > 1000 && (
-                  <div style={{ fontSize: '0.7rem', color: 'var(--gray-400)', marginTop: 10, paddingLeft: 36 }}>
+                  <div className="text-[0.7rem] text-gray-400 mt-2.5 pl-9">
                     {t('lastEdited', { time: formatDistanceToNow(parseISO(b.updatedAt), { addSuffix: true }) })}
                   </div>
                 )}
@@ -333,15 +321,15 @@ export default function BookingDrawer({
             </Section>
 
             {/* Delete */}
-            <div style={{ borderTop: '1px solid var(--surface-border)', paddingTop: 14, marginTop: 6 }}>
+            <div className="border-t border-surface-border pt-3.5 mt-1.5">
               {deleteConfirm ? (
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--danger)', marginRight: 'auto' }}>{t('deleteThisBooking')}</span>
+                <div className="flex gap-2 items-center">
+                  <span className="text-[0.8rem] text-danger mr-auto">{t('deleteThisBooking')}</span>
                   <Button variant="danger" size="sm" onClick={del}>{t('delete')}</Button>
                   <Button variant="ghost" size="sm" onClick={() => setDeleteConfirm(false)}>{t('cancel')}</Button>
                 </div>
               ) : (
-                <Button variant="ghost" size="sm" style={{ color: 'var(--danger)' }} onClick={() => setDeleteConfirm(true)}><Trash2 size={13} /> {t('deleteBooking')}</Button>
+                <Button variant="ghost" size="sm" className="text-danger" onClick={() => setDeleteConfirm(true)}><Trash2 size={13} /> {t('deleteBooking')}</Button>
               )}
             </div>
           </div>
@@ -352,22 +340,22 @@ export default function BookingDrawer({
       {payConfirm && b && (
         <div className="modal-overlay" style={{ zIndex: 2000 }} onClick={() => setPayConfirm(false)}>
           <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 384 }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.75rem' }}>
-              <span style={{ width: 52, height: 52, borderRadius: '50%', background: '#10b98118', color: INK_COLLECTED, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div className="flex flex-col items-center text-center gap-3">
+              <span className="w-[52px] h-[52px] rounded-full flex items-center justify-center" style={{ background: '#10b98118', color: INK_COLLECTED }}>
                 <Wallet size={24} />
               </span>
-              <h2 style={{ margin: 0, fontSize: '1.1rem' }}>{t('confirmPayment')}</h2>
-              <p style={{ margin: 0, color: 'var(--gray-600)', fontSize: '0.9rem', lineHeight: 1.5 }}>
+              <h2 className="m-0 text-[1.1rem]">{t('confirmPayment')}</h2>
+              <p className="m-0 text-gray-600 text-[0.9rem] leading-relaxed">
                 {t('didYouReceive', { amount: `${money(b.totalPrice)} ${t('sum')}`, name: b.customerName })}
               </p>
             </div>
             <div className="h-px bg-surface-border my-4" />
-            <div style={{ display: 'flex', gap: 10 }}>
-              <Button variant="secondary" style={{ flex: 1 }} onClick={() => setPayConfirm(false)}>
+            <div className="flex gap-2.5">
+              <Button variant="secondary" className="flex-1" onClick={() => setPayConfirm(false)}>
                 {t('back')}
               </Button>
               <Button
-                style={{ flex: 1 }}
+                className="flex-1"
                 disabled={busy}
                 onClick={async () => {
                   await mutate({ paid: true }, t('markedAsPaid'))
@@ -386,9 +374,9 @@ export default function BookingDrawer({
 
 function Section({ title, action, children }: { title: string; action?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div style={{ marginBottom: '1.25rem' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-        <h3 style={{ fontSize: '0.72rem', margin: 0, color: 'var(--gray-400)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>
+    <div className="mb-5">
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-[0.72rem] m-0 text-gray-400 uppercase tracking-[0.05em] font-bold">
           {title}
         </h3>
         {action}
@@ -400,14 +388,14 @@ function Section({ title, action, children }: { title: string; action?: React.Re
 
 function Field({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '4px 0' }}>
-      <span style={{ color: 'var(--gray-400)', width: 16, display: 'flex', justifyContent: 'center' }}>
+    <div className="flex items-center gap-2.5 py-1">
+      <span className="text-gray-400 w-4 flex justify-center">
         {icon}
       </span>
-      <span style={{ width: 76, fontSize: '0.78rem', color: 'var(--gray-500)', flexShrink: 0 }}>
+      <span className="w-[76px] text-[0.78rem] text-gray-500 shrink-0">
         {label}
       </span>
-      <span style={{ fontSize: '0.82rem', color: 'var(--gray-800)', fontWeight: 500 }}>
+      <span className="text-[0.82rem] text-gray-800 font-medium">
         {value}
       </span>
     </div>

@@ -20,35 +20,45 @@ export function OccupancyCard({ s }: { s: DashboardPageState }) {
   const { occupancy: o } = s
 
   return (
-    <div className="card" style={{ padding: '1.1rem 1.25rem' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-        <span style={{ display: 'inline-flex', color: 'var(--brand-600)' }}><Gauge size={17} /></span>
-        <h3 style={{ margin: 0, fontSize: '0.95rem' }}>{t('occupancy')}</h3>
-        <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'baseline', gap: 10 }}>
-          <span style={{ fontWeight: 800, fontSize: '1.15rem', color: 'var(--gray-900)', fontVariantNumeric: 'tabular-nums' }}>{pct(o.overall)}</span>
+    <div className="card p-[1.1rem_1.25rem]">
+      <div className="flex items-center gap-2.5 mb-1">
+        <span className="inline-flex text-brand-600"><Gauge size={17} /></span>
+        <h3 className="m-0 text-[0.95rem]">{t('occupancy')}</h3>
+        <span className="ml-auto flex items-baseline gap-2.5">
+          <span className="font-[800] text-[1.15rem] text-gray-900 tabular-nums">{pct(o.overall)}</span>
           {o.peakDow !== null && (
-            <span style={{ fontSize: '0.72rem', color: 'var(--gray-500)' }}>
-              {t('busiest')}: <strong style={{ color: 'var(--gray-700)' }}>{t(DOW_KEYS[o.peakDow])}</strong>
+            <span className="text-[0.72rem] text-gray-500">
+              {t('busiest')}: <strong className="text-gray-700">{t(DOW_KEYS[o.peakDow])}</strong>
             </span>
           )}
         </span>
       </div>
-      <p style={{ fontSize: '0.72rem', color: 'var(--gray-400)', margin: '0 0 0.9rem' }}>{t('occupancyHint')}</p>
+      <p className="text-[0.72rem] text-gray-400 m-0 mb-[0.9rem]">{t('occupancyHint')}</p>
 
       {o.perSvc.length === 0 ? (
-        <p style={{ fontSize: '0.8rem', color: 'var(--gray-400)', margin: 0 }}>{t('noOccupancyData')}</p>
+        <p className="text-[0.8rem] text-gray-400 m-0">{t('noOccupancyData')}</p>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div className="flex flex-col gap-2.5">
           {o.perSvc.map(({ svc, util, bookedMin, availMin }) => (
-            <div key={svc._id} className="dash-occ-row">
-              <span className="dash-occ-name" style={{ fontSize: '0.8rem', color: 'var(--gray-700)', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={svc.name}>
+            <div key={svc._id} className="flex items-center gap-3 flex-wrap">
+              {/* name */}
+              <span
+                className="text-[0.8rem] text-gray-700 font-semibold overflow-hidden text-ellipsis whitespace-nowrap w-[130px] shrink-0 max-[480px]:w-full"
+                title={svc.name}
+              >
                 {svc.name}
               </span>
-              <div className="dash-occ-bar" style={{ height: 8, borderRadius: 6, background: 'var(--gray-100)', overflow: 'hidden' }}>
-                <div style={{ width: pct(util), height: '100%', background: svc.color || 'var(--brand-500)', borderRadius: 6, transition: 'width 0.4s ease' }} />
+              {/* bar */}
+              <div className="flex-1 basis-[100px] min-w-[80px] h-2 rounded-[6px] bg-gray-100 overflow-hidden">
+                <div
+                  className="h-full rounded-[6px] transition-[width] duration-[400ms] ease-out"
+                  style={{ width: pct(util), background: svc.color || 'var(--brand-500)' }}
+                />
               </div>
-              <span style={{ width: 44, flexShrink: 0, textAlign: 'right', fontSize: '0.78rem', fontWeight: 700, color: 'var(--gray-800)', fontVariantNumeric: 'tabular-nums' }}>{pct(util)}</span>
-              <span className="dash-occ-hours" style={{ textAlign: 'right', fontSize: '0.72rem', color: 'var(--gray-400)', fontVariantNumeric: 'tabular-nums' }}>
+              {/* pct */}
+              <span className="w-11 shrink-0 text-right text-[0.78rem] font-bold text-gray-800 tabular-nums">{pct(util)}</span>
+              {/* hours */}
+              <span className="w-[92px] shrink-0 text-right text-[0.72rem] text-gray-400 tabular-nums max-[480px]:hidden">
                 {t('hoursBookedOfAvail', { booked: hrs(bookedMin), avail: hrs(availMin) })}
               </span>
             </div>
