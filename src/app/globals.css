@@ -2,6 +2,69 @@
 @import "tailwindcss";
 
 /*
+ * Design tokens registered as real Tailwind utilities (bg-brand-500,
+ * text-gray-800, rounded-lg, shadow-brand, font-sans, ...) via Tailwind v4's
+ * @theme directive: https://tailwindcss.com/docs/theme. This is the single
+ * source of truth for the palette/radii/shadows — the legacy `--brand-500`
+ * -style custom properties in :root below alias these same values (they
+ * don't duplicate them) so not-yet-migrated inline styles keep working
+ * unchanged while new code can use the Tailwind utility classes directly.
+ * `--shadow-*`/`--radius-*` need no alias: Tailwind emits those under the
+ * exact same variable names our legacy CSS already used.
+ */
+@theme {
+  --color-brand-50: #eef2ff;
+  --color-brand-100: #e0e7ff;
+  --color-brand-200: #c7d2fe;
+  --color-brand-500: #4f6ef7;
+  --color-brand-600: #3d5ce8;
+  --color-brand-700: #2e4ad4;
+
+  --color-gray-50: #f8f9fb;
+  --color-gray-100: #f0f2f5;
+  --color-gray-200: #e6e9ef;
+  --color-gray-300: #cdd2db;
+  --color-gray-400: #9aa3b0;
+  --color-gray-500: #6b7584;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-info: #3b82f6;
+
+  --color-status-confirmed: #10b981;
+  --color-status-pending: #f59e0b;
+  --color-status-cancelled: #ef4444;
+
+  --color-surface-bg: #eef1f6;
+  --color-surface-card: #ffffff;
+  --color-surface-border: #e8ebf1;
+  --color-surface-muted: #f6f7fb;
+  --color-sidebar-text: #9aa3b0;
+  --color-sidebar-active: #7c93ff;
+  --color-sidebar-hover: rgba(79, 110, 247, 0.12);
+  --color-header-bg: rgba(255, 255, 255, 0.72);
+
+  --shadow-xs: 0 1px 2px rgba(16, 24, 40, 0.04);
+  --shadow-sm: 0 1px 3px rgba(16, 24, 40, 0.06), 0 1px 2px rgba(16, 24, 40, 0.04);
+  --shadow-md: 0 4px 12px rgba(16, 24, 40, 0.07), 0 2px 4px rgba(16, 24, 40, 0.04);
+  --shadow-lg: 0 12px 28px rgba(16, 24, 40, 0.10), 0 4px 10px rgba(16, 24, 40, 0.05);
+  --shadow-xl: 0 24px 48px rgba(16, 24, 40, 0.16);
+  --shadow-brand: 0 6px 16px rgba(79, 110, 247, 0.28);
+
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/*
  * Everything below is legacy hand-written CSS predating the Tailwind
  * migration. `@import "tailwindcss"` declares `@layer theme, base,
  * components, utilities;` — any CSS NOT inside one of those named layers is
@@ -19,63 +82,53 @@
 :root {
   --sidebar-width: 240px;
 
-  /* Brand palette */
-  --brand-50: #eef2ff;
-  --brand-100: #e0e7ff;
-  --brand-200: #c7d2fe;
-  --brand-500: #4f6ef7;
-  --brand-600: #3d5ce8;
-  --brand-700: #2e4ad4;
+  /* Brand palette — aliases the @theme tokens above (see comment up top) */
+  --brand-50: var(--color-brand-50);
+  --brand-100: var(--color-brand-100);
+  --brand-200: var(--color-brand-200);
+  --brand-500: var(--color-brand-500);
+  --brand-600: var(--color-brand-600);
+  --brand-700: var(--color-brand-700);
+  /* Gradients have no Tailwind color-token equivalent — stay plain CSS vars. */
   --brand-gradient: linear-gradient(135deg, #4f6ef7 0%, #7c3aed 100%);
   --brand-gradient-soft: linear-gradient(135deg, rgba(79,110,247,0.12), rgba(124,58,237,0.12));
 
   /* Neutral palette */
-  --gray-50: #f8f9fb;
-  --gray-100: #f0f2f5;
-  --gray-200: #e6e9ef;
-  --gray-300: #cdd2db;
-  --gray-400: #9aa3b0;
-  --gray-500: #6b7584;
-  --gray-600: #4b5563;
-  --gray-700: #374151;
-  --gray-800: #1f2937;
-  --gray-900: #111827;
+  --gray-50: var(--color-gray-50);
+  --gray-100: var(--color-gray-100);
+  --gray-200: var(--color-gray-200);
+  --gray-300: var(--color-gray-300);
+  --gray-400: var(--color-gray-400);
+  --gray-500: var(--color-gray-500);
+  --gray-600: var(--color-gray-600);
+  --gray-700: var(--color-gray-700);
+  --gray-800: var(--color-gray-800);
+  --gray-900: var(--color-gray-900);
 
   /* Semantic */
-  --success: #10b981;
-  --warning: #f59e0b;
-  --danger: #ef4444;
-  --info: #3b82f6;
+  --success: var(--color-success);
+  --warning: var(--color-warning);
+  --danger: var(--color-danger);
+  --info: var(--color-info);
 
   /* Status colors */
-  --status-confirmed: #10b981;
-  --status-pending: #f59e0b;
-  --status-cancelled: #ef4444;
+  --status-confirmed: var(--color-status-confirmed);
+  --status-pending: var(--color-status-pending);
+  --status-cancelled: var(--color-status-cancelled);
 
   /* Surface & Glassmorphism */
-  --surface-bg: #eef1f6;
-  --surface-card: #ffffff;
-  --surface-border: #e8ebf1;
-  --surface-muted: #f6f7fb;
+  --surface-bg: var(--color-surface-bg);
+  --surface-card: var(--color-surface-card);
+  --surface-border: var(--color-surface-border);
+  --surface-muted: var(--color-surface-muted);
   --sidebar-bg: linear-gradient(180deg, #171e2e 0%, #10141f 100%);
-  --sidebar-text: #9aa3b0;
-  --sidebar-active: #7c93ff;
-  --sidebar-hover: rgba(79, 110, 247, 0.12);
-  --header-bg: rgba(255, 255, 255, 0.72);
+  --sidebar-text: var(--color-sidebar-text);
+  --sidebar-active: var(--color-sidebar-active);
+  --sidebar-hover: var(--color-sidebar-hover);
+  --header-bg: var(--color-header-bg);
 
-  /* Elevation */
-  --shadow-xs: 0 1px 2px rgba(16, 24, 40, 0.04);
-  --shadow-sm: 0 1px 3px rgba(16, 24, 40, 0.06), 0 1px 2px rgba(16, 24, 40, 0.04);
-  --shadow-md: 0 4px 12px rgba(16, 24, 40, 0.07), 0 2px 4px rgba(16, 24, 40, 0.04);
-  --shadow-lg: 0 12px 28px rgba(16, 24, 40, 0.10), 0 4px 10px rgba(16, 24, 40, 0.05);
-  --shadow-xl: 0 24px 48px rgba(16, 24, 40, 0.16);
-  --shadow-brand: 0 6px 16px rgba(79, 110, 247, 0.28);
-
-  /* Radii */
-  --radius-sm: 8px;
-  --radius: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
+  /* Elevation and Radii come straight from @theme above (--shadow-*,
+     --radius-*) — no alias needed, those are the same variable names. */
 }
 
 * {
