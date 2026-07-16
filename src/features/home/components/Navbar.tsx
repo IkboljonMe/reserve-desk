@@ -17,7 +17,7 @@ interface Props {
 export function Navbar({ locale, t, demoUrl, loginHref, navLinks }: Props) {
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 w-full flex flex-col transition-colors duration-200">
-      <div className="w-full px-5 lg:px-10 py-[0.8rem] flex items-center gap-5 flex-wrap">
+      <div className="w-full px-5 lg:px-10 py-[0.8rem] flex items-center gap-3 sm:gap-5 flex-wrap">
         <div
           className="flex items-center gap-2.5 font-normal text-[1.15rem] text-slate-900"
           style={{ fontFamily: DISPLAY_FONT }}

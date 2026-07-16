@@ -14,6 +14,16 @@ export function Hero({ t, demoUrl }: { t: Translate; demoUrl: string }) {
       pricingLabel={t('pricingTitle')}
       demoUrl={demoUrl}
       scrollLabel={t('lpScrollDown')}
+      featuresBadge={t('lpSlideFeatBadge')}
+      featuresTitle={t('lpSlideFeatTitle')}
+      features={[
+        t('lpSlideFeat1'),
+        t('lpSlideFeat2'),
+        t('lpSlideFeat3'),
+        t('lpSlideFeat4'),
+        t('lpSlideFeat5'),
+        t('lpSlideFeat6'),
+      ]}
     />
   )
 }
