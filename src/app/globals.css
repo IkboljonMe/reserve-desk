@@ -737,15 +737,16 @@ button.swiper-button-next::after {
   .form-input,
   .form-select,
   .form-textarea {
-    background-color: var(--surface-muted) !important;
+    background-color: var(--surface-card) !important;
     color: var(--gray-900) !important;
-    border-color: var(--surface-border) !important;
+    border: 1.5px solid var(--surface-border) !important;
   }
   
   /* Native select options styling */
   option {
     background-color: var(--surface-card) !important;
     color: var(--gray-900) !important;
+    border-bottom: 1px solid var(--surface-border) !important;
   }
 
   /* Table styling compatibility */
@@ -796,9 +797,10 @@ button.swiper-button-next::after {
   }
 
   /* Dropdown search panel custom popups compatibility */
-  div[class*="absolute"][class*="bg-white"] {
+  div[class*="absolute"][class*="bg-white"],
+  div[class*="absolute"].bg-white {
     background-color: var(--surface-card) !important;
-    border-color: var(--surface-border) !important;
+    border: 1px solid var(--surface-border) !important;
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.4) !important;
   }
 }
