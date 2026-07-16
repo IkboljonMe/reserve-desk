@@ -37,26 +37,18 @@ export default function MonthView({
   }
 
   return (
-    <div style={{ padding: '0.85rem' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 3, marginBottom: 4 }}>
+    <div className="p-3.5">
+      <div className="grid grid-cols-7 gap-0.75 mb-1">
         {dayNames.map(d => (
           <div
             key={d}
-            style={{
-              textAlign: 'center',
-              fontSize: '0.7rem',
-              fontWeight: 700,
-              color: 'var(--gray-400)',
-              padding: '4px 0',
-              textTransform: 'uppercase',
-              letterSpacing: '0.04em',
-            }}
+            className="text-center text-[0.7rem] font-bold text-[var(--gray-400)] py-1 uppercase tracking-wider"
           >
             {d}
           </div>
         ))}
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4 }}>
+      <div className="grid grid-cols-7 gap-1">
         {days.map(day => {
           const dateStr = format(day, 'yyyy-MM-dd')
           const list = bookingsForDay(dateStr)
@@ -68,43 +60,14 @@ export default function MonthView({
             <div
               key={dateStr}
               onClick={() => onDayClick(day)}
-              style={{
-                minHeight: 104,
-                padding: 6,
-                borderRadius: 10,
-                background: isToday ? 'var(--brand-50)' : inMonth ? 'var(--surface-card)' : 'var(--gray-50)',
-                border: `1px solid ${isToday ? 'var(--brand-400)' : 'var(--gray-200)'}`,
-                cursor: 'pointer',
-                transition: 'border-color .12s, box-shadow .12s',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 3,
-              }}
-              onMouseEnter={e => {
-                const el = e.currentTarget as HTMLElement
-                el.style.boxShadow = 'var(--shadow-sm)'
-                el.style.borderColor = 'var(--brand-400)'
-              }}
-              onMouseLeave={e => {
-                const el = e.currentTarget as HTMLElement
-                el.style.boxShadow = 'none'
-                el.style.borderColor = isToday ? 'var(--brand-400)' : 'var(--gray-200)'
-              }}
+              className={`min-h-[104px] p-1.5 rounded-[10px] cursor-pointer transition-all duration-120 flex flex-col gap-0.75 border hover:shadow-sm hover:border-[var(--brand-400)] ${
+                isToday ? 'bg-[var(--brand-50)] border-[var(--brand-400)]' : inMonth ? 'bg-[var(--surface-card)] border-[var(--gray-200)]' : 'bg-[var(--gray-50)] border-[var(--gray-200)]'
+              }`}
             >
               <div
-                style={{
-                  fontSize: '0.75rem',
-                  fontWeight: isToday ? 700 : 600,
-                  width: 22,
-                  height: 22,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: '50%',
-                  alignSelf: 'flex-start',
-                  background: isToday ? 'var(--brand-500)' : 'transparent',
-                  color: isToday ? '#fff' : inMonth ? 'var(--gray-700)' : 'var(--gray-300)',
-                }}
+                className={`text-[0.75rem] w-[22px] h-[22px] flex items-center justify-center rounded-full self-start ${
+                  isToday ? 'bg-[var(--brand-500)] text-white font-bold' : inMonth ? 'text-[var(--gray-700)] font-semibold' : 'text-[var(--gray-300)] font-semibold'
+                }`}
               >
                 {format(day, 'd')}
               </div>
@@ -115,18 +78,13 @@ export default function MonthView({
                     <div
                       key={b._id}
                       title={`${b.startTime}–${b.endTime} · ${t('occupied')}`}
+                      className="flex items-center gap-1.25 border-l-[3px] border-l-[var(--gray-400)] rounded-[5px] p-[2px_5px_2px_6px] text-[0.68rem] text-[var(--gray-500)] overflow-hidden whitespace-nowrap text-ellipsis cursor-default"
                       style={{
-                        display: 'flex', alignItems: 'center', gap: 5,
                         background: 'repeating-linear-gradient(45deg, var(--gray-100), var(--gray-100) 5px, var(--gray-200) 5px, var(--gray-200) 10px)',
-                        borderLeft: '3px solid var(--gray-400)',
-                        borderRadius: 5, padding: '2px 5px 2px 6px',
-                        fontSize: '0.68rem', color: 'var(--gray-500)',
-                        overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis',
-                        cursor: 'default',
                       }}
                     >
-                      <span style={{ fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>{b.startTime}</span>
-                      <span style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 3, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      <span className="font-bold tabular-nums">{b.startTime}</span>
+                      <span className="flex-1 flex items-center gap-0.75 overflow-hidden text-ellipsis">
                         <Lock size={10} /> {t('occupied')}
                       </span>
                     </div>
@@ -139,27 +97,18 @@ export default function MonthView({
                       e.stopPropagation()
                       onBookingClick(b)
                     }}
+                    className="flex items-center gap-1.25 rounded-[5px] p-[2px_5px_2px_6px] text-[0.68rem] text-[var(--gray-700)] overflow-hidden whitespace-nowrap text-ellipsis border-l-[3px]"
                     style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 5,
                       background: b.finished ? `${color}12` : `${color}1f`,
-                      borderLeft: `3px solid ${b.finished ? '#10b981' : color}`,
-                      borderRadius: 5,
-                      padding: '2px 5px 2px 6px',
-                      fontSize: '0.68rem',
-                      color: 'var(--gray-700)',
-                      overflow: 'hidden',
-                      whiteSpace: 'nowrap',
-                      textOverflow: 'ellipsis',
+                      borderLeftColor: b.finished ? '#10b981' : color,
                     }}
                   >
-                    <span style={{ fontWeight: 700, color, fontVariantNumeric: 'tabular-nums' }}>{b.startTime}</span>
-                    <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <span className="font-bold tabular-nums" style={{ color }}>{b.startTime}</span>
+                    <span className="flex-1 overflow-hidden text-ellipsis">
                       {b.roomNumber || b.customerName}
                     </span>
                     {b.finished ? (
-                      <Check size={11} strokeWidth={3} style={{ color: '#10b981', flexShrink: 0 }} />
+                      <Check size={11} strokeWidth={3} className="text-emerald-500 shrink-0" />
                     ) : canFinish(b) ? (
                       <button
                         title={t('markFinishedTitle')}
@@ -168,34 +117,21 @@ export default function MonthView({
                           e.stopPropagation()
                           onFinish(b)
                         }}
-                        style={{
-                          width: 14,
-                          height: 14,
-                          flexShrink: 0,
-                          borderRadius: '50%',
-                          padding: 0,
-                          cursor: 'pointer',
-                          background: '#fff',
-                          border: '1.5px solid #10b981',
-                          color: '#10b981',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}
+                        className="w-3.5 h-3.5 shrink-0 rounded-full p-0 cursor-pointer bg-white border border-emerald-500 text-emerald-500 flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all duration-120"
                       >
                         <Check size={9} strokeWidth={3} />
                       </button>
                     ) : (
                       <span
                         title={t('unpaid')}
-                        style={{ width: 7, height: 7, flexShrink: 0, borderRadius: '50%', background: '#f59e0b' }}
+                        className="w-1.75 h-1.75 shrink-0 rounded-full bg-amber-500"
                       />
                     )}
                   </div>
                 )
               })}
               {list.length > 3 && (
-                <div style={{ fontSize: '0.68rem', color: 'var(--gray-400)', paddingLeft: 4, fontWeight: 600 }}>
+                <div className="text-[0.68rem] text-[var(--gray-400)] pl-1 font-semibold">
                   +{list.length - 3} more
                 </div>
               )}

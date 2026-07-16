@@ -19,25 +19,30 @@ export function BookingDetailModal({ s }: { s: CalendarPageState }) {
 
   return (
     <div className="modal-overlay" onClick={close}>
-      <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 440 }}>
+      <div className="modal max-w-[440px]" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <h2>{t('bookingDetails')}</h2>
           <Button variant="ghost" icon onClick={close} aria-label={t('close')}><X size={18} /></Button>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', fontSize: '0.875rem' }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 10, padding: '0.75rem',
-            borderRadius: 10, background: `${selectedBooking.serviceId?.color || '#6366f1'}12`,
-            border: `1px solid ${selectedBooking.serviceId?.color || '#6366f1'}33`,
-          }}>
-            <span style={{
-              width: 34, height: 34, borderRadius: 9, flexShrink: 0,
-              background: `${selectedBooking.serviceId?.color || '#6366f1'}22`,
-              color: selectedBooking.serviceId?.color || '#6366f1',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>{getServiceIcon(selectedBooking.serviceId?.name || '')}</span>
-            <strong style={{ color: 'var(--gray-800)', fontSize: '0.95rem' }}>{selectedBooking.serviceId?.name}</strong>
+        <div className="flex flex-col gap-3.5 text-sm">
+          <div
+            className="flex items-center gap-2.5 p-3 rounded-lg border"
+            style={{
+              background: `${selectedBooking.serviceId?.color || '#6366f1'}12`,
+              borderColor: `${selectedBooking.serviceId?.color || '#6366f1'}33`,
+            }}
+          >
+            <span
+              className="w-[34px] h-[34px] rounded-lg shrink-0 flex items-center justify-center"
+              style={{
+                background: `${selectedBooking.serviceId?.color || '#6366f1'}22`,
+                color: selectedBooking.serviceId?.color || '#6366f1',
+              }}
+            >
+              {getServiceIcon(selectedBooking.serviceId?.name || '')}
+            </span>
+            <strong className="text-[var(--gray-800)] text-[0.95rem] font-bold">{selectedBooking.serviceId?.name}</strong>
             {(() => {
               const st = bookingState(selectedBooking)
               return (
@@ -55,7 +60,7 @@ export function BookingDetailModal({ s }: { s: CalendarPageState }) {
           <DetailRow icon={<CalendarDays size={15} />} label={t('date')} value={format(parseISO(selectedBooking.date), 'EEEE, MMM d, yyyy')} />
           <DetailRow icon={<Clock size={15} />} label={t('time')} value={`${selectedBooking.startTime} – ${selectedBooking.endTime}`} />
           {selectedBooking.totalPrice > 0 && (
-            <DetailRow icon={<span style={{ fontWeight: 700, fontSize: 11 }}>{t('sum')}</span>} label={t('price')} value={`${money(selectedBooking.totalPrice)} ${t('sum')}`} success />
+            <DetailRow icon={<span className="font-bold text-[11px]">{t('sum')}</span>} label={t('price')} value={`${money(selectedBooking.totalPrice)} ${t('sum')}`} success />
           )}
           <DetailRow
             icon={<Wallet size={15} />}
@@ -89,26 +94,26 @@ export function BookingDetailModal({ s }: { s: CalendarPageState }) {
 
         {/* Lifecycle actions */}
         {selectedBooking.finished ? (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '0.6rem', marginBottom: '0.85rem', borderRadius: 10, background: '#10b98114', color: '#059669', fontWeight: 700, fontSize: '0.85rem' }}>
+          <div className="flex items-center justify-center gap-2 p-2.5 mb-3.5 rounded-lg bg-emerald-500/10 text-emerald-600 font-bold text-[0.85rem]">
             <Check size={16} /> {t('completed')}
           </div>
         ) : (bookingState(selectedBooking).key === 'unpaid' || bookingState(selectedBooking).key === 'partial') ? (
-          <Button style={{ width: '100%', marginBottom: '0.85rem' }} onClick={() => setPayConfirm(selectedBooking)}>
+          <Button className="w-full mb-3.5" onClick={() => setPayConfirm(selectedBooking)}>
             <Wallet size={15} /> {isPartiallyPaid(selectedBooking) ? t('collectBalance') : t('markAsPaid')}
           </Button>
         ) : (
           <Button
-            style={{ width: '100%', marginBottom: '0.85rem', background: '#10b981', color: '#fff', border: 'none' }}
+            className="w-full mb-3.5 bg-emerald-500 hover:bg-emerald-600 text-white border-none"
             onClick={() => markFinished(selectedBooking)}
           >
             <Check size={16} strokeWidth={2.5} /> {t('markAsFinished')}
           </Button>
         )}
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="flex justify-between items-center">
           {deleteConfirm === selectedBooking._id ? (
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              <span style={{ fontSize: '0.8125rem', color: 'var(--danger)' }}>{t('deleteThisBooking')}</span>
+            <div className="flex gap-2 items-center">
+              <span className="text-[0.8125rem] text-[var(--danger)]">{t('deleteThisBooking')}</span>
               <Button variant="danger" size="sm" onClick={() => handleDeleteBooking(selectedBooking._id)}>{t('delete')}</Button>
               <Button variant="ghost" size="sm" onClick={() => setDeleteConfirm(null)}>{t('cancel')}</Button>
             </div>
@@ -117,7 +122,7 @@ export function BookingDetailModal({ s }: { s: CalendarPageState }) {
               <Trash2 size={13} /> {t('delete')}
             </Button>
           )}
-          <div style={{ display: 'flex', gap: 8 }}>
+          <div className="flex gap-2">
             {!selectedBooking.finished && (
               <Button variant="secondary" size="sm" onClick={() => { setEditBooking(selectedBooking); setSelectedBooking(null) }}>
                 <Pencil size={13} /> {t('edit')}
