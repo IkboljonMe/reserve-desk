@@ -2,7 +2,7 @@ import { FAQS, CARD, SECTION_TITLE, SECTION_SUB, type Translate } from '../const
 
 export function Faq({ t }: { t: Translate }) {
   return (
-    <section id="faq" className="max-w-200 mx-auto px-6 py-14">
+    <section id="faq" className="max-w-[1200px] mx-auto px-5 lg:px-10 py-14">
       <h2 className={SECTION_TITLE}>FAQ</h2>
       <p className={SECTION_SUB}>{t('lpFaqSub')}</p>
       <div className="flex flex-col gap-3">

@@ -3,7 +3,7 @@ import { PILLARS, CARD, SECTION_TITLE, SECTION_SUB, type Translate } from '../co
 
 export function Features({ t }: { t: Translate }) {
   return (
-    <section id="features" className="max-w-285 mx-auto px-6 py-14">
+    <section id="features" className="max-w-[1200px] mx-auto px-5 lg:px-10 py-14">
       <h2 className={SECTION_TITLE}>{t('lpPillarsTitle')}</h2>
       <p className={SECTION_SUB}>{t('lpPillarsSub')}</p>
 

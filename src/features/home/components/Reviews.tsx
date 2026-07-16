@@ -3,7 +3,7 @@ import { REVIEWS, CARD, SECTION_TITLE, SECTION_SUB, type Translate } from '../co
 export function Reviews({ t }: { t: Translate }) {
   return (
     <section id="reviews" className="bg-white border-y border-slate-200">
-      <div className="max-w-285 mx-auto px-6 py-14">
+      <div className="max-w-[1200px] mx-auto px-5 lg:px-10 py-14">
         <h2 className={SECTION_TITLE}>{t('lpReviewsTitle')}</h2>
         <p className={SECTION_SUB}>{t('lpReviewsSub')}</p>
 

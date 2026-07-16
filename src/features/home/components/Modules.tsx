@@ -2,7 +2,7 @@ import { MODULES, CARD, SECTION_TITLE, SECTION_SUB, type Translate } from '../co
 
 export function Modules({ t }: { t: Translate }) {
   return (
-    <section className="max-w-285 mx-auto px-6 py-14">
+    <section className="max-w-[1200px] mx-auto px-5 lg:px-10 py-14">
       <h2 className={SECTION_TITLE}>{t('lpModulesTitle')}</h2>
       <p className={SECTION_SUB}>{t('lpModulesSub')}</p>
 
