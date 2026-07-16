@@ -1,15 +1,15 @@
-import { FAQS, cardStyle, sectionTitle, sectionSub, INK, MUTED, type Translate } from '../constants'
+import { FAQS, CARD, SECTION_TITLE, SECTION_SUB, type Translate } from '../constants'
 
 export function Faq({ t }: { t: Translate }) {
   return (
-    <section id="faq" style={{ maxWidth: 800, margin: '0 auto', padding: '3.5rem 1.5rem' }}>
-      <h2 style={sectionTitle}>FAQ</h2>
-      <p style={sectionSub}>{t('lpFaqSub')}</p>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <section id="faq" className="max-w-200 mx-auto px-6 py-14">
+      <h2 className={SECTION_TITLE}>FAQ</h2>
+      <p className={SECTION_SUB}>{t('lpFaqSub')}</p>
+      <div className="flex flex-col gap-3">
         {FAQS.map(({ q, a }) => (
-          <details key={q} style={{ ...cardStyle, padding: '1.1rem 1.4rem' }}>
-            <summary style={{ fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', color: INK }}>{t(q)}</summary>
-            <p style={{ color: MUTED, fontSize: '0.9rem', lineHeight: 1.65, marginTop: 10 }}>{t(a)}</p>
+          <details key={q} className={`${CARD} bg-white px-[1.4rem] py-[1.1rem]`}>
+            <summary className="font-bold text-[0.95rem] cursor-pointer text-slate-900">{t(q)}</summary>
+            <p className="text-slate-500 text-[0.9rem] leading-relaxed mt-2.5">{t(a)}</p>
           </details>
         ))}
       </div>

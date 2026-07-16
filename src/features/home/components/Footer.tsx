@@ -1,20 +1,17 @@
 import Link from 'next/link'
-import { MUTED, type Translate } from '../constants'
+import type { Translate } from '../constants'
 
 export function Footer({ t, demoUrl, loginHref }: { t: Translate; demoUrl: string; loginHref: string }) {
   return (
-    <footer style={{ background: '#fff', borderTop: '1px solid #e2e8f0' }}>
-      <div style={{
-        maxWidth: 1140, margin: '0 auto', padding: '2rem 1.5rem',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap',
-      }}>
-        <div style={{ color: MUTED, fontSize: '0.83rem' }}>
+    <footer className="bg-white border-t border-slate-200">
+      <div className="max-w-285 mx-auto px-6 py-8 flex items-center justify-between gap-4 flex-wrap">
+        <div className="text-slate-500 text-[0.83rem]">
           © {new Date().getFullYear()} Bronit · bronit.uz
         </div>
-        <div style={{ display: 'flex', gap: 18 }}>
-          <a href={demoUrl} style={{ color: MUTED, fontSize: '0.83rem', textDecoration: 'none' }}>{t('viewDemo')}</a>
-          <a href="#pricing" style={{ color: MUTED, fontSize: '0.83rem', textDecoration: 'none' }}>{t('pricingTitle')}</a>
-          <Link href={loginHref} style={{ color: MUTED, fontSize: '0.83rem', textDecoration: 'none' }}>{t('signIn')}</Link>
+        <div className="flex gap-4.5">
+          <a href={demoUrl} className="text-slate-500 text-[0.83rem] no-underline">{t('viewDemo')}</a>
+          <a href="#pricing" className="text-slate-500 text-[0.83rem] no-underline">{t('pricingTitle')}</a>
+          <Link href={loginHref} className="text-slate-500 text-[0.83rem] no-underline">{t('signIn')}</Link>
         </div>
       </div>
     </footer>
