@@ -686,9 +686,15 @@
 }
 /* Completely hide the default icon font characters */
 .swiper-button-prev::after,
-.swiper-button-next::after {
+.swiper-button-next::after,
+div.swiper-button-prev::after,
+div.swiper-button-next::after,
+button.swiper-button-prev::after,
+button.swiper-button-next::after {
   display: none !important;
   content: "" !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
 }
 /* Inject clean SVG vector arrows as ::before */
 .swiper-button-prev::before {
