@@ -382,21 +382,4 @@ p  { color: var(--gray-500); text-wrap: pretty; }
   }
 }
 
-/* ─── Mobile nav ─────────────────────────── */
-.mobile-nav-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(17, 24, 39, 0.5);
-  z-index: 149;
-  animation: fadeIn 0.18s ease;
-}
-.mobile-topbar {
-  display: none;
-}
-@media (max-width: 768px) {
-  .mobile-topbar {
-    display: flex;
-  }
-}
-
 } /* end @layer base */
