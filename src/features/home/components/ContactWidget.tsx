@@ -70,13 +70,13 @@ export function ContactWidget(p: Props) {
 
   return (
     <div
-      className="fixed right-5 bottom-5 z-[1200] w-[min(340px,calc(100vw-32px))] bg-white border border-slate-200 rounded-2xl shadow-[0_20px_50px_rgba(15,23,42,0.22)] p-[18px_18px_16px] animate-contact-in"
+      className="fixed right-5 bottom-5 z-[1200] w-[min(340px,calc(100vw-32px))] bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] p-[18px_18px_16px] animate-contact-in transition-colors duration-200"
       role="dialog"
       aria-label={p.title}
     >
       <button
         type="button"
-        className="absolute top-2.5 right-2.5 w-7 h-7 border-none bg-slate-100 rounded-lg text-slate-500 cursor-pointer inline-flex items-center justify-center"
+        className="absolute top-2.5 right-2.5 w-7 h-7 border-none bg-[var(--gray-100)] hover:bg-[var(--gray-200)] rounded-lg text-[var(--gray-500)] cursor-pointer inline-flex items-center justify-center transition-colors"
         onClick={() => setOpen(false)}
         aria-label={p.closeLabel}
       >
@@ -84,16 +84,16 @@ export function ContactWidget(p: Props) {
       </button>
 
       {status === 'success' ? (
-        <div className="py-3 px-1 text-center text-sm font-semibold text-slate-900">✅ {p.successMsg}</div>
+        <div className="py-3 px-1 text-center text-sm font-semibold text-[var(--gray-900)]">✅ {p.successMsg}</div>
       ) : (
         <form onSubmit={submit}>
-          <div className="flex items-center gap-2 text-[0.98rem] text-slate-900">
-            <span className="inline-flex w-7 h-7 rounded-lg items-center justify-center bg-brand-50 text-brand-500"><PhoneCall size={16} /></span>
+          <div className="flex items-center gap-2 text-[0.98rem] text-[var(--gray-900)]">
+            <span className="inline-flex w-7 h-7 rounded-lg items-center justify-center bg-[var(--brand-50)]/50 text-[var(--brand-500)]"><PhoneCall size={16} /></span>
             <strong>{p.title}</strong>
           </div>
-          <p className="my-2 text-[0.82rem] text-slate-500 leading-[1.5]">{p.desc}</p>
+          <p className="my-2 text-[0.82rem] text-[var(--gray-500)] leading-[1.5]">{p.desc}</p>
           <input
-            className="w-full box-border px-3 py-2.5 mb-2 border border-slate-200 rounded-xl text-sm outline-none focus:border-[#4f6ef7] focus:shadow-[0_0_0_3px_rgba(79,110,247,0.14)]"
+            className="w-full box-border px-3 py-2.5 mb-2 border border-[var(--surface-border)] bg-[var(--surface-bg)] text-[var(--gray-900)] placeholder:text-[var(--gray-400)] rounded-xl text-sm outline-none focus:border-[#4f6ef7] focus:shadow-[0_0_0_3px_rgba(79,110,247,0.14)] transition-colors"
             value={name}
             onChange={e => setName(e.target.value)}
             placeholder={p.namePlaceholder}
@@ -101,7 +101,7 @@ export function ContactWidget(p: Props) {
             maxLength={120}
           />
           <input
-            className="w-full box-border px-3 py-2.5 mb-2 border border-slate-200 rounded-xl text-sm outline-none focus:border-[#4f6ef7] focus:shadow-[0_0_0_3px_rgba(79,110,247,0.14)]"
+            className="w-full box-border px-3 py-2.5 mb-2 border border-[var(--surface-border)] bg-[var(--surface-bg)] text-[var(--gray-900)] placeholder:text-[var(--gray-400)] rounded-xl text-sm outline-none focus:border-[#4f6ef7] focus:shadow-[0_0_0_3px_rgba(79,110,247,0.14)] transition-colors"
             value={phone}
             onChange={e => setPhone(e.target.value)}
             placeholder={p.phonePlaceholder}
@@ -109,7 +109,7 @@ export function ContactWidget(p: Props) {
             required
             maxLength={40}
           />
-          {status === 'error' && <div className="text-[0.75rem] text-red-600 mb-2">{p.errorMsg}</div>}
+          {status === 'error' && <div className="text-[0.75rem] text-[var(--danger)] mb-2">{p.errorMsg}</div>}
           <button
             className="w-full py-[11px] border-none rounded-xl bg-[linear-gradient(135deg,#4f6ef7,#3b5bdb)] text-white font-bold text-[0.9rem] cursor-pointer disabled:opacity-60 disabled:cursor-default"
             type="submit"
