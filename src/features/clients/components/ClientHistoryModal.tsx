@@ -46,21 +46,21 @@ export function ClientHistoryModal({ s }: { s: ClientsPageState }) {
 
   return (
     <div className="modal-overlay" onClick={close}>
-      <div className="modal max-w-140" onClick={e => e.stopPropagation()}>
+      <div className="modal max-w-[560px]" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <h2>{t('bookingHistory')} · {client.name}</h2>
           <Button variant="ghost" icon onClick={close} aria-label={t('close')}><X size={18} /></Button>
         </div>
 
         {/* Summary tiles */}
-        <div className="grid grid-cols-4 gap-2 mb-4">
+        <div className="grid grid-cols-4 max-[480px]:grid-cols-2 gap-2 mb-4">
           {[
             { label: t('visits'), value: String(stats.visits) },
             { label: t('totalSpent'), value: `${money(stats.totalSpent)}` },
             { label: t('outstanding'), value: `${money(stats.outstanding)}` },
             { label: t('lastVisit'), value: stats.lastVisit || '—' },
           ].map((tile, i) => (
-            <div key={i} className="px-[0.7rem] py-[0.6rem] rounded-lg bg-gray-50">
+            <div key={i} className="px-[0.7rem] py-[0.6rem] rounded-lg bg-[var(--gray-50,#f9fafb)]">
               <div className="text-[0.62rem] font-bold text-gray-400 uppercase tracking-[0.04em]">{tile.label}</div>
               <div className="font-extrabold text-[0.9rem] text-gray-800 mt-0.5 tabular-nums">{tile.value}</div>
             </div>
@@ -75,11 +75,11 @@ export function ClientHistoryModal({ s }: { s: ClientsPageState }) {
             <p className="text-[0.85rem] mt-2">{t('noBookingsForClient')}</p>
           </div>
         ) : (
-          <div className="flex flex-col gap-1.5 max-h-85 overflow-y-auto">
+          <div className="flex flex-col gap-1.5 max-h-[340px] overflow-y-auto">
             {sorted.map(b => {
               const st = bookingState(b)
               return (
-                <div key={b._id} className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg border border-gray-100">
+                <div key={b._id} className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg border border-[var(--gray-100,#f3f4f6)] bg-[var(--surface-card)]">
                   <span className="w-2 h-2 rounded-full shrink-0" style={{ background: b.serviceId?.color || 'var(--brand-500)' }} />
                   <div className="min-w-0 flex-1">
                     <div className="text-[0.82rem] font-semibold text-gray-800 truncate">{b.serviceId?.name || '—'}</div>

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import Dropdown from '@/components/ui/Dropdown'
 import { useTranslation } from '@/i18n'
-import { useIsMobile } from '@/hooks/useIsMobile'
+
 import Spinner from '@/components/ui/Spinner'
 import Button from '@/components/ui/Button'
 
@@ -73,8 +73,8 @@ export default function ContractModal({
   saving,
 }: ContractModalProps) {
   const { t } = useTranslation()
-  const isMobile = useIsMobile()
-  const twoCol: React.CSSProperties = { display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1rem' }
+
+
   const [form, setForm] = useState(EMPTY_FORM)
 
   // Only the owner spans multiple hotels; a new contract must then name one.
@@ -82,6 +82,7 @@ export default function ContractModal({
 
   useEffect(() => {
     if (editContract) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setForm({
         hotelId: editContract.hotelId || '',
         organizationName: editContract.organizationName || '',
@@ -121,7 +122,7 @@ export default function ContractModal({
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 640 }}>
+      <div className="modal max-w-[640px]" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <h2>{editContract ? t('editContract') : t('addContract')}</h2>
           <Button variant="ghost" icon onClick={onClose} aria-label={t('close')}>
@@ -133,12 +134,12 @@ export default function ContractModal({
         </div>
 
         <form onSubmit={handleFormSubmit}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxHeight: '62vh', overflowY: 'auto', paddingRight: 4 }}>
+          <div className="flex flex-col gap-3.5 max-h-[62vh] overflow-y-auto pr-1">
             {multiHotel && (
-              <div className="form-group">
-                <label className="form-label">{t('hotel')} *</label>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('hotel')} *</label>
                 <select
-                  className="form-input"
+                  className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
                   required
                   value={form.hotelId}
                   disabled={!!editContract}
@@ -150,42 +151,42 @@ export default function ContractModal({
               </div>
             )}
 
-            <div className="form-group">
-              <label className="form-label">{t('organizationName')} *</label>
-              <input className="form-input" required value={form.organizationName} onChange={e => setForm(f => ({ ...f, organizationName: e.target.value }))} placeholder={t('orgNamePlaceholder')} />
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('organizationName')} *</label>
+              <input className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]" required value={form.organizationName} onChange={e => setForm(f => ({ ...f, organizationName: e.target.value }))} placeholder={t('orgNamePlaceholder')} />
             </div>
 
-            <div style={twoCol}>
-              <div className="form-group">
-                <label className="form-label">{t('inn')}</label>
-                <input className="form-input" value={form.inn} onChange={e => setForm(f => ({ ...f, inn: e.target.value }))} placeholder="207 324 986" />
+            <div className="grid grid-cols-2 max-[480px]:grid-cols-1 gap-4">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('inn')}</label>
+                <input className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]" value={form.inn} onChange={e => setForm(f => ({ ...f, inn: e.target.value }))} placeholder="207 324 986" />
               </div>
-              <div className="form-group">
-                <label className="form-label">{t('contractNo')}</label>
-                <input className="form-input" value={form.contractNumber} onChange={e => setForm(f => ({ ...f, contractNumber: e.target.value }))} placeholder="SAF78" />
-              </div>
-            </div>
-
-            <div style={twoCol}>
-              <div className="form-group">
-                <label className="form-label">{t('representativeAccountant')}</label>
-                <input className="form-input" value={form.representativeName} onChange={e => setForm(f => ({ ...f, representativeName: e.target.value }))} placeholder={t('fullNamePlaceholder')} />
-              </div>
-              <div className="form-group">
-                <label className="form-label">{t('phone')}</label>
-                <input className="form-input" type="tel" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+998 90 123 45 67" />
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('contractNo')}</label>
+                <input className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]" value={form.contractNumber} onChange={e => setForm(f => ({ ...f, contractNumber: e.target.value }))} placeholder="SAF78" />
               </div>
             </div>
 
-            <div style={twoCol}>
-              <div className="form-group">
-                <label className="form-label">{t('signDate')}</label>
-                <input className="form-input" type="date" value={form.signDate} onChange={e => setForm(f => ({ ...f, signDate: e.target.value }))} />
+            <div className="grid grid-cols-2 max-[480px]:grid-cols-1 gap-4">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('representativeAccountant')}</label>
+                <input className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]" value={form.representativeName} onChange={e => setForm(f => ({ ...f, representativeName: e.target.value }))} placeholder={t('fullNamePlaceholder')} />
               </div>
-              <div className="form-group">
-                <label className="form-label">{t('finishDate')}</label>
-                <input className="form-input" type="date" value={form.finishDate} onChange={e => setForm(f => ({ ...f, finishDate: e.target.value }))} />
-                <p style={{ marginTop: 6, fontSize: '0.72rem', color: 'var(--gray-500)' }}>{t('finishDateHint')}</p>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('phone')}</label>
+                <input className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]" type="tel" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+998 90 123 45 67" />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 max-[480px]:grid-cols-1 gap-4">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('signDate')}</label>
+                <input className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]" type="date" value={form.signDate} onChange={e => setForm(f => ({ ...f, signDate: e.target.value }))} />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('finishDate')}</label>
+                <input className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]" type="date" value={form.finishDate} onChange={e => setForm(f => ({ ...f, finishDate: e.target.value }))} />
+                <p className="mt-1.5 text-xs text-[var(--gray-500)]">{t('finishDateHint')}</p>
               </div>
             </div>
 
@@ -200,16 +201,16 @@ export default function ContractModal({
               ]}
             />
 
-            <div className="form-group">
-              <label className="form-label">{t('contractLink')}</label>
-              <input className="form-input" type="url" value={form.contractLink} onChange={e => setForm(f => ({ ...f, contractLink: e.target.value }))} placeholder="https://drive.google.com/…" />
-              <p style={{ marginTop: 6, fontSize: '0.72rem', color: 'var(--gray-500)' }}>{t('contractLinkHint')}</p>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('contractLink')}</label>
+              <input className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]" type="url" value={form.contractLink} onChange={e => setForm(f => ({ ...f, contractLink: e.target.value }))} placeholder="https://drive.google.com/…" />
+              <p className="mt-1.5 text-xs text-[var(--gray-500)]">{t('contractLinkHint')}</p>
             </div>
 
             {/* Reminder config */}
-            <div className="form-group">
-              <label className="form-label">{t('renewalReminders')}</label>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('renewalReminders')}</label>
+              <div className="flex gap-2 flex-wrap">
                 {[30, 7].map(day => {
                   const on = form.reminderDays.includes(day)
                   return (
@@ -217,22 +218,11 @@ export default function ContractModal({
                       type="button"
                       key={day}
                       onClick={() => toggleReminder(day)}
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: 7,
-                        padding: '7px 12px',
-                        borderRadius: 9,
-                        cursor: 'pointer',
-                        fontSize: '0.8125rem',
-                        fontWeight: 600,
-                        border: on ? '1px solid var(--brand-500)' : '1px solid var(--gray-200)',
-                        background: on ? 'var(--brand-50)' : '#fff',
-                        color: on ? 'var(--brand-700)' : 'var(--gray-500)',
-                        transition: 'all 0.15s ease',
-                      }}
+                      className={`inline-flex items-center gap-1.75 px-3 py-1.75 rounded-lg cursor-pointer text-[0.8125rem] font-semibold border transition-all duration-150 ${
+                        on ? 'border-[var(--brand-500)] bg-[var(--brand-50)] text-[var(--brand-700)]' : 'border-[var(--gray-200)] bg-white text-[var(--gray-500)]'
+                      }`}
                     >
-                      <span style={{ display: 'inline-flex', width: 15, height: 15, borderRadius: 4, alignItems: 'center', justifyContent: 'center', background: on ? 'var(--brand-500)' : 'var(--gray-100)', color: '#fff' }}>
+                      <span className={`inline-flex w-3.75 h-3.75 rounded shrink-0 items-center justify-center text-white ${on ? 'bg-[var(--brand-500)]' : 'bg-[var(--gray-100)]'}`}>
                         {on && (
                           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5">
                             <polyline points="20 6 9 17 4 12" />
@@ -244,19 +234,19 @@ export default function ContractModal({
                   )
                 })}
               </div>
-              <p style={{ marginTop: 6, fontSize: '0.72rem', color: 'var(--gray-500)' }}>
+              <p className="mt-1.5 text-xs text-[var(--gray-500)]">
                 {t('reminderHint')}
               </p>
             </div>
 
-            <div className="form-group">
-              <label className="form-label">{t('notes')}</label>
-              <textarea className="form-textarea" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} placeholder={t('notesContractPlaceholder')} style={{ minHeight: 64 }} />
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('notes')}</label>
+              <textarea className="w-full px-3 py-2 min-h-[64px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] resize-y" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} placeholder={t('notesContractPlaceholder')} />
             </div>
           </div>
 
           <div className="h-px bg-surface-border my-4" />
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+          <div className="flex justify-end gap-2">
             <Button type="button" variant="secondary" onClick={onClose}>{t('cancel')}</Button>
             <Button type="submit" disabled={saving}>
               {saving ? <Spinner size={18} dark={false} /> : null}

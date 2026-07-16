@@ -25,15 +25,15 @@ export function ClientModal({ s }: { s: ClientsPageState }) {
 
         <form onSubmit={handleSave}>
           <div className="flex flex-col gap-4">
-            <div className="form-group">
-              <label className="form-label">{t('fullName')} *</label>
-              <input className="form-input" required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder={t('fullNamePlaceholder')} />
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('fullName')} *</label>
+              <input className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]" required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder={t('fullNamePlaceholder')} />
             </div>
 
-            <div className="form-group">
-              <label className="form-label">{t('group')}</label>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('group')}</label>
               <select
-                className="form-select"
+                className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
                 value={form.groupId}
                 onChange={e => setForm(f => ({ ...f, groupId: e.target.value }))}
               >
@@ -47,14 +47,14 @@ export function ClientModal({ s }: { s: ClientsPageState }) {
               )}
             </div>
 
-            <div className="form-group">
-              <label className="form-label">{t('phone')}</label>
-              <input className="form-input" type="tel" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+998 90 123 45 67" />
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('phone')}</label>
+              <input className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]" type="tel" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+998 90 123 45 67" />
             </div>
 
-            <div className="form-group">
-              <label className="form-label">{t('notes')}</label>
-              <textarea className="form-textarea min-h-18!" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} placeholder={t('notesClientPlaceholder')} />
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('notes')}</label>
+              <textarea className="w-full px-3 py-2 min-h-[72px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] resize-y" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} placeholder={t('notesClientPlaceholder')} />
             </div>
           </div>
 
