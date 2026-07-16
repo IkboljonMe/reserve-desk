@@ -98,7 +98,7 @@ export function ScheduleEditor({ weeklyHours, blackoutDates, defaultOpen, defaul
         </div>
       )}
 
-      <div className="divider" style={{ margin: '14px 0 10px' }} />
+      <div className="h-px bg-surface-border" style={{ margin: '14px 0 10px' }} />
 
       <div style={{ marginBottom: 8 }}>
         <h3 style={{ fontSize: '0.9rem', color: 'var(--brand-700)', margin: 0 }}>{t('blackoutDates')}</h3>

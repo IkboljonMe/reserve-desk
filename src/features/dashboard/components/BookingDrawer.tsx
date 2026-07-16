@@ -20,7 +20,9 @@ import {
 import { Booking, Hotel, bookingState, money, svcId, amountCollected, amountDue, isPartiallyPaid } from '@/lib/bookingHelpers'
 import { getServiceIcon } from '@/lib/serviceIcons'
 import { MenuItemsEditor, type MenuItem } from '@/components/ui/MenuItemsEditor'
+import Spinner from '@/components/ui/Spinner'
 import { useTranslation, type DictionaryKeys } from '@/i18n'
+import Button from '@/components/ui/Button'
 
 interface Actor {
   _id?: string
@@ -172,7 +174,7 @@ export default function BookingDrawer({
       >
         {loading || !b || !st ? (
           <div style={{ padding: '4rem', textAlign: 'center' }}>
-            <div className="spinner spinner-dark" style={{ width: 30, height: 30, margin: '0 auto' }} />
+            <Spinner size={30} />
           </div>
         ) : (
           <div style={{ padding: '1.25rem' }}>
@@ -203,14 +205,14 @@ export default function BookingDrawer({
                   {hotel ? ` · ${hotel.shortName}` : ''}
                 </div>
               </div>
-              <button className="btn btn-ghost btn-icon" onClick={onClose} aria-label={t('close')}>
+              <Button variant="ghost" icon onClick={onClose} aria-label={t('close')}>
                 <X size={18} />
-              </button>
+              </Button>
             </div>
 
             {/* Status + price banner */}
             <div style={{ display: 'flex', gap: 10, marginBottom: '1.1rem' }}>
-              <div style={{ flex: 1, padding: '0.7rem 0.85rem', borderRadius: 10, background: st.badge === 'badge-success' ? '#ecfdf5' : st.badge === 'badge-warning' ? '#fffbeb' : '#eff6ff' }}>
+              <div style={{ flex: 1, padding: '0.7rem 0.85rem', borderRadius: 10, background: st.bg }}>
                 <div style={{ fontSize: '0.66rem', fontWeight: 700, color: st.color, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                   {t('status')}
                 </div>
@@ -237,18 +239,18 @@ export default function BookingDrawer({
             {/* Actions */}
             <div style={{ display: 'flex', gap: 8, marginBottom: '1.25rem' }}>
               {!b.finished && (st.key === 'unpaid' || st.key === 'partial') && (
-                <button className="btn btn-primary btn-sm" style={{ flex: 1 }} disabled={busy} onClick={() => setPayConfirm(true)}>
+                <Button size="sm" style={{ flex: 1 }} disabled={busy} onClick={() => setPayConfirm(true)}>
                   <Wallet size={14} /> {isPartiallyPaid(b) ? t('collectBalance') : t('markAsPaid')}
-                </button>
+                </Button>
               )}
               {!b.finished && (st.key === 'paid' || st.key === 'free') && (
-                <button className="btn btn-sm" style={{ flex: 1, background: FILL_COLLECTED, color: '#fff', border: 'none' }} disabled={busy} onClick={() => mutate({ finished: true }, t('bookingCompleted'))}>
+                <Button size="sm" style={{ flex: 1, background: FILL_COLLECTED, color: '#fff', border: 'none' }} disabled={busy} onClick={() => mutate({ finished: true }, t('bookingCompleted'))}>
                   <Check size={15} strokeWidth={2.5} /> {t('markAsFinished')}
-                </button>
+                </Button>
               )}
-              <button className="btn btn-secondary btn-sm" onClick={() => router.push(`/${lang}/calendar?date=${b.date}`)} title={t('openInCalendar')}>
+              <Button variant="secondary" size="sm" onClick={() => router.push(`/${lang}/calendar?date=${b.date}`)} title={t('openInCalendar')}>
                 <ExternalLink size={14} />
-              </button>
+              </Button>
             </div>
 
             {/* Details grid */}
@@ -262,13 +264,13 @@ export default function BookingDrawer({
             </Section>
 
             {/* Notes */}
-            <Section title={t('notes')} action={!editingNotes ? <button className="btn btn-ghost btn-sm" style={{ padding: '2px 6px' }} onClick={() => setEditingNotes(true)}><Pencil size={12} /> {t('edit')}</button> : undefined}>
+            <Section title={t('notes')} action={!editingNotes ? <Button variant="ghost" size="sm" style={{ padding: '2px 6px' }} onClick={() => setEditingNotes(true)}><Pencil size={12} /> {t('edit')}</Button> : undefined}>
               {editingNotes ? (
                 <div>
                   <textarea className="form-textarea" value={notesDraft} onChange={e => setNotesDraft(e.target.value)} style={{ minHeight: 70, fontSize: '0.82rem' }} placeholder={t('addNotesPlaceholder')} />
                   <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', marginTop: 6 }}>
-                    <button className="btn btn-secondary btn-sm" onClick={() => { setEditingNotes(false); setNotesDraft(b.notes || '') }}>{t('cancel')}</button>
-                    <button className="btn btn-primary btn-sm" disabled={busy} onClick={async () => { await mutate({ notes: notesDraft }, t('notesSaved')); setEditingNotes(false) }}>{t('save')}</button>
+                    <Button variant="secondary" size="sm" onClick={() => { setEditingNotes(false); setNotesDraft(b.notes || '') }}>{t('cancel')}</Button>
+                    <Button size="sm" disabled={busy} onClick={async () => { await mutate({ notes: notesDraft }, t('notesSaved')); setEditingNotes(false) }}>{t('save')}</Button>
                   </div>
                 </div>
               ) : (
@@ -277,7 +279,7 @@ export default function BookingDrawer({
             </Section>
 
             {/* Menu / order */}
-            <Section title={t('menu')} action={!editingMenu ? <button className="btn btn-ghost btn-sm" style={{ padding: '2px 6px' }} onClick={() => setEditingMenu(true)}><Pencil size={12} /> {t('edit')}</button> : undefined}>
+            <Section title={t('menu')} action={!editingMenu ? <Button variant="ghost" size="sm" style={{ padding: '2px 6px' }} onClick={() => setEditingMenu(true)}><Pencil size={12} /> {t('edit')}</Button> : undefined}>
               {editingMenu ? (
                 <div>
                   <MenuItemsEditor
@@ -289,8 +291,8 @@ export default function BookingDrawer({
                     onReadyTimeChange={setMenuReadyTimeDraft}
                   />
                   <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', marginTop: 6 }}>
-                    <button className="btn btn-secondary btn-sm" onClick={() => { setEditingMenu(false); setMenuDraft(b.menuItems || []); setMenuReadyTimeDraft(b.menuReadyTime || '') }}>{t('cancel')}</button>
-                    <button className="btn btn-primary btn-sm" disabled={busy} onClick={async () => { await mutate({ menuItems: menuDraft.filter(it => it.name.trim()), menuReadyTime: menuReadyTimeDraft }, t('menuSaved')); setEditingMenu(false) }}>{t('save')}</button>
+                    <Button variant="secondary" size="sm" onClick={() => { setEditingMenu(false); setMenuDraft(b.menuItems || []); setMenuReadyTimeDraft(b.menuReadyTime || '') }}>{t('cancel')}</Button>
+                    <Button size="sm" disabled={busy} onClick={async () => { await mutate({ menuItems: menuDraft.filter(it => it.name.trim()), menuReadyTime: menuReadyTimeDraft }, t('menuSaved')); setEditingMenu(false) }}>{t('save')}</Button>
                   </div>
                 </div>
               ) : (
@@ -335,11 +337,11 @@ export default function BookingDrawer({
               {deleteConfirm ? (
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <span style={{ fontSize: '0.8rem', color: 'var(--danger)', marginRight: 'auto' }}>{t('deleteThisBooking')}</span>
-                  <button className="btn btn-danger btn-sm" onClick={del}>{t('delete')}</button>
-                  <button className="btn btn-ghost btn-sm" onClick={() => setDeleteConfirm(false)}>{t('cancel')}</button>
+                  <Button variant="danger" size="sm" onClick={del}>{t('delete')}</Button>
+                  <Button variant="ghost" size="sm" onClick={() => setDeleteConfirm(false)}>{t('cancel')}</Button>
                 </div>
               ) : (
-                <button className="btn btn-ghost btn-sm" style={{ color: 'var(--danger)' }} onClick={() => setDeleteConfirm(true)}><Trash2 size={13} /> {t('deleteBooking')}</button>
+                <Button variant="ghost" size="sm" style={{ color: 'var(--danger)' }} onClick={() => setDeleteConfirm(true)}><Trash2 size={13} /> {t('deleteBooking')}</Button>
               )}
             </div>
           </div>
@@ -359,13 +361,12 @@ export default function BookingDrawer({
                 {t('didYouReceive', { amount: `${money(b.totalPrice)} ${t('sum')}`, name: b.customerName })}
               </p>
             </div>
-            <div className="divider" />
+            <div className="h-px bg-surface-border my-4" />
             <div style={{ display: 'flex', gap: 10 }}>
-              <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setPayConfirm(false)}>
+              <Button variant="secondary" style={{ flex: 1 }} onClick={() => setPayConfirm(false)}>
                 {t('back')}
-              </button>
-              <button
-                className="btn btn-primary"
+              </Button>
+              <Button
                 style={{ flex: 1 }}
                 disabled={busy}
                 onClick={async () => {
@@ -374,7 +375,7 @@ export default function BookingDrawer({
                 }}
               >
                 <Check size={15} strokeWidth={2.5} /> {t('yesReceived')}
-              </button>
+              </Button>
             </div>
           </div>
         </div>

@@ -47,7 +47,7 @@ export function DashboardHeader({ s }: { s: DashboardPageState }) {
   ] as [PeriodKey, string][]).map(([value, label]) => ({ value, label }))
 
   return (
-    <div className="page-header" style={{ marginBottom: 0 }}>
+    <div className="flex items-center justify-between flex-wrap gap-4">
       <div>
         <h1>{t('dashboard')}</h1>
         <p style={{ marginTop: 4 }}>{format(nowUZ(), 'EEEE, MMMM d, yyyy', { locale })}</p>

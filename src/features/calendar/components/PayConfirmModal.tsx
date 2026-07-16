@@ -5,6 +5,7 @@ import { Check, Wallet } from 'lucide-react'
 import { money, amountCollected, amountDue } from '@/lib/bookingHelpers'
 import { useTranslation } from '@/i18n'
 import type { CalendarPageState } from '../useCalendarPage'
+import Button from '@/components/ui/Button'
 
 export function PayConfirmModal({ s }: { s: CalendarPageState }) {
   const { t } = useTranslation()
@@ -36,7 +37,7 @@ export function PayConfirmModal({ s }: { s: CalendarPageState }) {
           </p>
         </div>
 
-        <div className="divider" />
+        <div className="h-px bg-surface-border my-4" />
 
         {collected > 0 && (
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--gray-600)', marginBottom: 10 }}>
@@ -62,15 +63,14 @@ export function PayConfirmModal({ s }: { s: CalendarPageState }) {
         </div>
 
         <div style={{ display: 'flex', gap: 10 }}>
-          <button className="btn btn-secondary" style={{ flex: 1 }} onClick={close}>{t('back')}</button>
-          <button
-            className="btn btn-primary"
+          <Button variant="secondary" style={{ flex: 1 }} onClick={close}>{t('back')}</Button>
+          <Button
             style={{ flex: 1 }}
             disabled={receivedNum <= 0}
             onClick={async () => { await recordPayment(payConfirm, newTotal); close() }}
           >
             <Check size={15} strokeWidth={2.5} /> {settlesFully ? t('yesReceived') : t('recordPayment')}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

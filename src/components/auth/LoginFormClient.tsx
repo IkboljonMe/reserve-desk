@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslation } from '@/i18n'
+import Spinner from '@/components/ui/Spinner'
+import Button from '@/components/ui/Button'
 
 export default function LoginFormClient() {
   const router = useRouter()
@@ -92,16 +94,16 @@ export default function LoginFormClient() {
         </div>
       )}
 
-      <button
+      <Button
         id="login-submit"
         type="submit"
         disabled={loading}
-        className="btn btn-primary btn-lg"
+        size="lg"
         style={{ marginTop: '0.25rem', width: '100%' }}
       >
-        {loading ? <span className="spinner" /> : null}
+        {loading ? <Spinner size={18} dark={false} /> : null}
         {loading ? t('signingIn') : t('signIn')}
-      </button>
+      </Button>
     </form>
   )
 }

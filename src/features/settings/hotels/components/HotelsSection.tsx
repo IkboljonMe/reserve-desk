@@ -4,7 +4,9 @@ import { Building2, MapPin, Trash2, Plus, Check, X, BedDouble, Pencil } from 'lu
 import { useTranslation } from '@/i18n'
 import { displayCode } from '../utils'
 import { SkeletonCard } from '@/components/ui/Skeleton'
+import { EmptyState } from '@/components/ui/EmptyState'
 import type { HotelsRoomsPageState } from '../useHotelsRoomsPage'
+import Button from '@/components/ui/Button'
 
 export function HotelsSection({ s }: { s: HotelsRoomsPageState }) {
   const { t } = useTranslation()
@@ -12,7 +14,7 @@ export function HotelsSection({ s }: { s: HotelsRoomsPageState }) {
 
   return (
     <section>
-      <div className="page-header" style={{ marginBottom: '1rem' }}>
+      <div className="flex items-center justify-between mb-4 flex-wrap gap-4">
         <div>
           <h2 style={{ fontSize: '1.125rem', color: 'var(--gray-800)', display: 'flex', alignItems: 'center', gap: 8 }}>
             <Building2 size={18} style={{ color: 'var(--brand-600)' }} /> {t('hotels')}
@@ -22,9 +24,9 @@ export function HotelsSection({ s }: { s: HotelsRoomsPageState }) {
           </p>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
-          <button className="btn btn-primary" onClick={openHotelModal}>
+          <Button onClick={openHotelModal}>
             <Plus size={15} strokeWidth={2.5} /> {t('addHotel')}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -34,12 +36,11 @@ export function HotelsSection({ s }: { s: HotelsRoomsPageState }) {
         </div>
       ) : hotels.length === 0 ? (
         <div className="card">
-          <div className="empty-state">
-            <div className="empty-state-icon"><Building2 size={26} /></div>
-            <h3>{t('noHotelsAdded')}</h3>
+          <EmptyState icon={<Building2 size={26} />}>
+            <h3 className="text-gray-700">{t('noHotelsAdded')}</h3>
             <p>{t('noHotelsDesc')}</p>
-            <button className="btn btn-primary" style={{ marginTop: 8 }} onClick={openHotelModal}>{t('addFirstHotel')}</button>
-          </div>
+            <Button style={{ marginTop: 8 }} onClick={openHotelModal}>{t('addFirstHotel')}</Button>
+          </EmptyState>
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '0.875rem' }}>
@@ -67,17 +68,17 @@ export function HotelsSection({ s }: { s: HotelsRoomsPageState }) {
                   </div>
                   {hotelDeleteConfirm === hotel._id ? (
                     <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
-                      <button className="btn btn-danger btn-sm btn-icon" onClick={() => handleDeleteHotel(hotel._id)} aria-label={t('confirmDeleteHotel')}><Check size={14} /></button>
-                      <button className="btn btn-ghost btn-sm btn-icon" onClick={() => setHotelDeleteConfirm(null)} aria-label={t('cancelDelete')}><X size={14} /></button>
+                      <Button variant="danger" icon onClick={() => handleDeleteHotel(hotel._id)} aria-label={t('confirmDeleteHotel')}><Check size={14} /></Button>
+                      <Button variant="ghost" icon onClick={() => setHotelDeleteConfirm(null)} aria-label={t('cancelDelete')}><X size={14} /></Button>
                     </div>
                   ) : (
                     <div style={{ display: 'flex', gap: 2, flexShrink: 0 }}>
-                      <button className="btn btn-ghost btn-sm btn-icon" onClick={() => openEditHotel(hotel)} title={t('editHotelAria')} aria-label={t('editHotelAria')}>
+                      <Button variant="ghost" icon onClick={() => openEditHotel(hotel)} title={t('editHotelAria')} aria-label={t('editHotelAria')}>
                         <Pencil size={15} />
-                      </button>
-                      <button className="btn btn-ghost btn-sm btn-icon" style={{ color: 'var(--danger)' }} onClick={() => setHotelDeleteConfirm(hotel._id)} title={t('deleteHotelAria')} aria-label={t('deleteHotelAria')}>
+                      </Button>
+                      <Button variant="ghost" icon style={{ color: 'var(--danger)' }} onClick={() => setHotelDeleteConfirm(hotel._id)} title={t('deleteHotelAria')} aria-label={t('deleteHotelAria')}>
                         <Trash2 size={15} />
-                      </button>
+                      </Button>
                     </div>
                   )}
                 </div>

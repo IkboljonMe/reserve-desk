@@ -1,54 +1,54 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
-:root {
-  --sidebar-width: 240px;
+/*
+ * Design tokens registered as real Tailwind utilities (bg-brand-500,
+ * text-gray-800, rounded-lg, shadow-brand, font-sans, ...) via Tailwind v4's
+ * @theme directive: https://tailwindcss.com/docs/theme. This is the single
+ * source of truth for the palette/radii/shadows — the legacy `--brand-500`
+ * -style custom properties in :root below alias these same values (they
+ * don't duplicate them) so not-yet-migrated inline styles keep working
+ * unchanged while new code can use the Tailwind utility classes directly.
+ * `--shadow-*`/`--radius-*` need no alias: Tailwind emits those under the
+ * exact same variable names our legacy CSS already used.
+ */
+@theme {
+  --color-brand-50: #eef2ff;
+  --color-brand-100: #e0e7ff;
+  --color-brand-200: #c7d2fe;
+  --color-brand-500: #4f6ef7;
+  --color-brand-600: #3d5ce8;
+  --color-brand-700: #2e4ad4;
 
-  /* Brand palette */
-  --brand-50: #eef2ff;
-  --brand-100: #e0e7ff;
-  --brand-200: #c7d2fe;
-  --brand-500: #4f6ef7;
-  --brand-600: #3d5ce8;
-  --brand-700: #2e4ad4;
-  --brand-gradient: linear-gradient(135deg, #4f6ef7 0%, #7c3aed 100%);
-  --brand-gradient-soft: linear-gradient(135deg, rgba(79,110,247,0.12), rgba(124,58,237,0.12));
+  --color-gray-50: #f8f9fb;
+  --color-gray-100: #f0f2f5;
+  --color-gray-200: #e6e9ef;
+  --color-gray-300: #cdd2db;
+  --color-gray-400: #9aa3b0;
+  --color-gray-500: #6b7584;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
 
-  /* Neutral palette */
-  --gray-50: #f8f9fb;
-  --gray-100: #f0f2f5;
-  --gray-200: #e6e9ef;
-  --gray-300: #cdd2db;
-  --gray-400: #9aa3b0;
-  --gray-500: #6b7584;
-  --gray-600: #4b5563;
-  --gray-700: #374151;
-  --gray-800: #1f2937;
-  --gray-900: #111827;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-info: #3b82f6;
 
-  /* Semantic */
-  --success: #10b981;
-  --warning: #f59e0b;
-  --danger: #ef4444;
-  --info: #3b82f6;
+  --color-status-confirmed: #10b981;
+  --color-status-pending: #f59e0b;
+  --color-status-cancelled: #ef4444;
 
-  /* Status colors */
-  --status-confirmed: #10b981;
-  --status-pending: #f59e0b;
-  --status-cancelled: #ef4444;
+  --color-surface-bg: #eef1f6;
+  --color-surface-card: #ffffff;
+  --color-surface-border: #e8ebf1;
+  --color-surface-muted: #f6f7fb;
+  --color-sidebar-text: #9aa3b0;
+  --color-sidebar-active: #7c93ff;
+  --color-sidebar-hover: rgba(79, 110, 247, 0.12);
+  --color-header-bg: rgba(255, 255, 255, 0.72);
 
-  /* Surface & Glassmorphism */
-  --surface-bg: #eef1f6;
-  --surface-card: #ffffff;
-  --surface-border: #e8ebf1;
-  --surface-muted: #f6f7fb;
-  --sidebar-bg: linear-gradient(180deg, #171e2e 0%, #10141f 100%);
-  --sidebar-text: #9aa3b0;
-  --sidebar-active: #7c93ff;
-  --sidebar-hover: rgba(79, 110, 247, 0.12);
-  --header-bg: rgba(255, 255, 255, 0.72);
-
-  /* Elevation */
   --shadow-xs: 0 1px 2px rgba(16, 24, 40, 0.04);
   --shadow-sm: 0 1px 3px rgba(16, 24, 40, 0.06), 0 1px 2px rgba(16, 24, 40, 0.04);
   --shadow-md: 0 4px 12px rgba(16, 24, 40, 0.07), 0 2px 4px rgba(16, 24, 40, 0.04);
@@ -56,11 +56,79 @@
   --shadow-xl: 0 24px 48px rgba(16, 24, 40, 0.16);
   --shadow-brand: 0 6px 16px rgba(79, 110, 247, 0.28);
 
-  /* Radii */
   --radius-sm: 8px;
   --radius: 12px;
   --radius-lg: 16px;
   --radius-xl: 20px;
+
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/*
+ * Everything below is legacy hand-written CSS predating the Tailwind
+ * migration. `@import "tailwindcss"` declares `@layer theme, base,
+ * components, utilities;` — any CSS NOT inside one of those named layers is
+ * "unlayered", and per the CSS Cascade Layers spec, unlayered rules always
+ * beat layered ones regardless of selector specificity. Left unwrapped, this
+ * whole file would silently win over every Tailwind utility class that
+ * touches the same property (e.g. a plain `h1 { font-size: 1.6rem }` here
+ * would always beat `text-4xl` on an <h1>, even though `.text-4xl` is more
+ * specific) — which is exactly why Tailwind utilities appeared "broken".
+ * Wrapping it in `@layer base` puts it at Tailwind's own base-layer
+ * priority, below `components`/`utilities`, so utility classes reliably win.
+ */
+@layer base {
+
+:root {
+  --sidebar-width: 240px;
+
+  /* Brand palette — aliases the @theme tokens above (see comment up top) */
+  --brand-50: var(--color-brand-50);
+  --brand-100: var(--color-brand-100);
+  --brand-200: var(--color-brand-200);
+  --brand-500: var(--color-brand-500);
+  --brand-600: var(--color-brand-600);
+  --brand-700: var(--color-brand-700);
+  /* Gradients have no Tailwind color-token equivalent — stay plain CSS vars. */
+  --brand-gradient: linear-gradient(135deg, #4f6ef7 0%, #7c3aed 100%);
+  --brand-gradient-soft: linear-gradient(135deg, rgba(79,110,247,0.12), rgba(124,58,237,0.12));
+
+  /* Neutral palette */
+  --gray-50: var(--color-gray-50);
+  --gray-100: var(--color-gray-100);
+  --gray-200: var(--color-gray-200);
+  --gray-300: var(--color-gray-300);
+  --gray-400: var(--color-gray-400);
+  --gray-500: var(--color-gray-500);
+  --gray-600: var(--color-gray-600);
+  --gray-700: var(--color-gray-700);
+  --gray-800: var(--color-gray-800);
+  --gray-900: var(--color-gray-900);
+
+  /* Semantic */
+  --success: var(--color-success);
+  --warning: var(--color-warning);
+  --danger: var(--color-danger);
+  --info: var(--color-info);
+
+  /* Status colors */
+  --status-confirmed: var(--color-status-confirmed);
+  --status-pending: var(--color-status-pending);
+  --status-cancelled: var(--color-status-cancelled);
+
+  /* Surface & Glassmorphism */
+  --surface-bg: var(--color-surface-bg);
+  --surface-card: var(--color-surface-card);
+  --surface-border: var(--color-surface-border);
+  --surface-muted: var(--color-surface-muted);
+  --sidebar-bg: linear-gradient(180deg, #171e2e 0%, #10141f 100%);
+  --sidebar-text: var(--color-sidebar-text);
+  --sidebar-active: var(--color-sidebar-active);
+  --sidebar-hover: var(--color-sidebar-hover);
+  --header-bg: var(--color-header-bg);
+
+  /* Elevation and Radii come straight from @theme above (--shadow-*,
+     --radius-*) — no alias needed, those are the same variable names. */
 }
 
 * {
@@ -98,28 +166,6 @@ h2 { font-size: 1.25rem; font-weight: 700; color: var(--gray-800); text-wrap: ba
 h3 { font-size: 1.05rem; font-weight: 600; color: var(--gray-800); text-wrap: balance; letter-spacing: -0.01em; }
 p  { color: var(--gray-500); text-wrap: pretty; }
 
-/* Align numeric data (times, prices, counts) for clean columns */
-.tabular-nums { font-variant-numeric: tabular-nums; }
-
-.text-gradient {
-  background: var(--brand-gradient);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-/* ─── Utility ─────────────────────────── */
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  border: 0;
-}
-
 /* ─── Card ─────────────────────────── */
 .card {
   background: var(--surface-card);
@@ -134,111 +180,6 @@ p  { color: var(--gray-500); text-wrap: pretty; }
   transform: translateY(-3px);
   border-color: var(--brand-100);
 }
-
-/* Stat card — subtle gradient wash + interactive lift */
-.stat-card {
-  position: relative;
-  overflow: hidden;
-  background: var(--surface-card);
-  border: 1px solid var(--surface-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
-}
-.stat-card:hover {
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
-  border-color: var(--brand-100);
-}
-.stat-card::before {
-  content: '';
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 3px;
-  background: var(--accent, var(--brand-500));
-  opacity: 0.85;
-}
-
-/* Icon container */
-.icon-box {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-  flex-shrink: 0;
-}
-
-/* ─── Badge ─────────────────────────── */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px 9px;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  border: 1px solid transparent;
-}
-.badge-success { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }
-.badge-warning { background: #fffbeb; color: #b45309; border-color: #fde68a; }
-.badge-danger  { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
-.badge-gray    { background: var(--gray-100); color: var(--gray-600); border-color: var(--gray-200); }
-.badge-blue    { background: var(--brand-50); color: var(--brand-700); border-color: var(--brand-100); }
-
-/* ─── Buttons ─────────────────────────── */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 9px 16px;
-  border-radius: var(--radius-sm);
-  border: 1px solid transparent;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.12s ease, box-shadow 0.15s ease, background 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
-  white-space: nowrap;
-  text-decoration: none;
-  font-family: inherit;
-  letter-spacing: -0.01em;
-}
-.btn:active:not(:disabled) { transform: translateY(1px) scale(0.99); }
-.btn:disabled { opacity: 0.55; cursor: not-allowed; }
-.btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(79, 110, 247, 0.3); }
-
-.btn-primary {
-  background: var(--brand-gradient);
-  color: #fff;
-  box-shadow: var(--shadow-brand);
-}
-.btn-primary:hover:not(:disabled) { filter: brightness(1.06); box-shadow: 0 8px 20px rgba(79, 110, 247, 0.36); transform: translateY(-1px); }
-
-.btn-secondary {
-  background: var(--surface-card);
-  color: var(--gray-700);
-  border: 1px solid var(--gray-200);
-  box-shadow: var(--shadow-xs);
-}
-.btn-secondary:hover:not(:disabled) { background: var(--gray-50); border-color: var(--gray-300); transform: translateY(-1px); box-shadow: var(--shadow-sm); }
-
-.btn-danger {
-  background: #fee2e2;
-  color: var(--danger);
-  border: 1px solid #fecaca;
-}
-.btn-danger:hover:not(:disabled) { background: #fecaca; }
-
-.btn-ghost {
-  background: transparent;
-  color: var(--gray-600);
-}
-.btn-ghost:hover:not(:disabled) { background: var(--gray-100); color: var(--gray-800); }
-
-.btn-sm { padding: 6px 12px; font-size: 0.8125rem; }
-.btn-lg { padding: 11px 22px; font-size: 0.9375rem; }
-.btn-icon { padding: 8px; }
 
 /* ─── Form Elements ─────────────────────────── */
 .form-group { display: flex; flex-direction: column; gap: 6px; }
@@ -274,66 +215,6 @@ p  { color: var(--gray-500); text-wrap: pretty; }
 .form-input::placeholder { color: var(--gray-400); }
 .form-textarea { resize: vertical; min-height: 80px; }
 .form-error { font-size: 0.75rem; color: var(--danger); font-weight: 500; }
-
-/* ─── Select Bar (matches the icon picker bar) ───────────── */
-.select-bar {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 100%;
-  padding: 10px 36px 10px 12px;
-  border: 1.5px solid var(--gray-200);
-  border-radius: 10px;
-  background-color: var(--surface-card);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239aa3b0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 16px;
-  font-family: inherit;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: var(--gray-700);
-  cursor: pointer;
-  outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-.select-bar:hover { border-color: var(--gray-300); }
-.select-bar:focus {
-  border-color: var(--brand-500);
-  box-shadow: 0 0 0 3px rgba(79, 110, 247, 0.14);
-}
-
-/* Custom dropdown trigger (Select component) — matches the icon picker bar */
-.select-trigger {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border: 1.5px solid var(--gray-200);
-  border-radius: 10px;
-  background: var(--surface-card);
-  font-family: inherit;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: var(--gray-700);
-  cursor: pointer;
-  outline: none;
-  text-align: left;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-.select-trigger:hover { border-color: var(--gray-300); }
-.select-trigger:focus-visible,
-.select-trigger[aria-expanded="true"] {
-  border-color: var(--brand-500);
-  box-shadow: 0 0 0 3px rgba(79, 110, 247, 0.14);
-}
-
-/* ─── Divider ─────────────────────────── */
-.divider {
-  height: 1px;
-  background: var(--surface-border);
-  margin: 1rem 0;
-}
 
 /* ─── Modal Overlay ─────────────────────────── */
 .modal-overlay {
@@ -376,48 +257,6 @@ p  { color: var(--gray-500); text-wrap: pretty; }
   margin-bottom: 1.25rem;
 }
 
-/* ─── Toast ─────────────────────────── */
-.toast-container {
-  position: fixed;
-  bottom: calc(1.5rem + env(safe-area-inset-bottom));
-  right: calc(1.5rem + env(safe-area-inset-right));
-  z-index: 200;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.toast {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
-  border-radius: 12px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  box-shadow: var(--shadow-lg);
-  animation: slideInRight 0.24s cubic-bezier(0.16, 1, 0.3, 1);
-  min-width: 240px;
-  max-width: 380px;
-}
-.toast-success { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
-.toast-error   { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
-.toast-info    { background: var(--brand-50); color: var(--brand-700); border: 1px solid var(--brand-100); }
-/* Exit — ToastProvider flags the toast shortly before removing it */
-.toast.toast-leaving { animation: toastOut 0.22s ease forwards; }
-
-/* ─── Color Pill Picker ─────────────────────────── */
-.color-swatch {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  cursor: pointer;
-  border: 2px solid #fff;
-  box-shadow: 0 0 0 1.5px var(--gray-200);
-  transition: transform 0.12s, box-shadow 0.12s;
-}
-.color-swatch:hover { transform: scale(1.15); }
-.color-swatch.selected { box-shadow: 0 0 0 2px var(--gray-900); }
-
 /* ─── Animations ─────────────────────────── */
 @keyframes fadeIn {
   from { opacity: 0; }
@@ -435,7 +274,9 @@ p  { color: var(--gray-500); text-wrap: pretty; }
   to { transform: rotate(360deg); }
 }
 
-/* Respect users who prefer reduced motion — keep only essential spinners */
+/* Respect users who prefer reduced motion — a loading spinner is exempted
+   (see [data-spinner] in components/ui/Spinner.tsx): freezing it entirely
+   would make it look stuck/broken rather than just calmer. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -445,26 +286,10 @@ p  { color: var(--gray-500); text-wrap: pretty; }
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  .spinner,
-  .spinner-dark {
+  [data-spinner] {
     animation-duration: 0.6s !important;
     animation-iteration-count: infinite !important;
   }
-}
-
-/* ─── Spinner ─────────────────────────── */
-.spinner {
-  width: 18px;
-  height: 18px;
-  border: 2px solid rgba(255,255,255,0.3);
-  border-top-color: #fff;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-  display: inline-block;
-}
-.spinner-dark {
-  border-color: rgba(79,110,247,0.18);
-  border-top-color: var(--brand-500);
 }
 
 /* ─── Skeleton ─────────────────────────── */
@@ -485,52 +310,4 @@ p  { color: var(--gray-500); text-wrap: pretty; }
   }
 }
 
-/* ─── Mobile nav ─────────────────────────── */
-.mobile-nav-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(17, 24, 39, 0.5);
-  z-index: 149;
-  animation: fadeIn 0.18s ease;
-}
-.mobile-topbar {
-  display: none;
-}
-@media (max-width: 768px) {
-  .mobile-topbar {
-    display: flex;
-  }
-}
-
-/* ─── Empty State ─────────────────────────── */
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem 1rem;
-  text-align: center;
-  gap: 0.75rem;
-}
-.empty-state h3 { color: var(--gray-700); }
-.empty-state-icon {
-  width: 60px;
-  height: 60px;
-  background: var(--brand-gradient-soft);
-  border: 1px solid var(--brand-100);
-  border-radius: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--brand-500);
-}
-
-/* ─── Page Header ─────────────────────────── */
-.page-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
+} /* end @layer base */

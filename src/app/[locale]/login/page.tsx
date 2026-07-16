@@ -50,16 +50,16 @@ export default async function UniversalLoginPage({ params }: { params: Promise<{
           {!sub ? (
              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                <h2 style={{ color: '#fff', fontSize: '1.25rem', fontWeight: 600, textAlign: 'center', marginBottom: '1rem' }}>Select your portal</h2>
-               <a 
+               <a
                  href={`${protocol}://app.${baseDomain}/${locale}/login`}
-                 className="btn btn-primary"
+                 className="inline-flex items-center justify-center gap-1.5 font-semibold whitespace-nowrap tracking-[-0.01em] bg-[image:var(--brand-gradient)] shadow-brand transition-[filter,box-shadow,transform] duration-150 hover:brightness-[1.06] hover:shadow-[0_8px_20px_rgba(79,110,247,0.36)] active:translate-y-px"
                  style={{ textAlign: 'center', padding: '1rem', borderRadius: '12px', color: '#fff', textDecoration: 'none' }}
                >
                  Owner Portal
                </a>
-               <a 
+               <a
                  href={`${protocol}://admin.${baseDomain}/${locale}/login`}
-                 className="btn btn-secondary"
+                 className="inline-flex items-center justify-center gap-1.5 font-semibold whitespace-nowrap tracking-[-0.01em] border border-white/20 transition-colors duration-150 hover:bg-white/15"
                  style={{ textAlign: 'center', padding: '1rem', borderRadius: '12px', background: 'rgba(255,255,255,0.1)', color: '#fff', textDecoration: 'none' }}
                >
                  Branch Admin Portal

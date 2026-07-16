@@ -5,6 +5,8 @@ import { useTranslation } from '@/i18n'
 import { useNotificationsPage } from './useNotificationsPage'
 import { NotificationGroup } from './components/NotificationGroup'
 import { Skeleton } from '@/components/ui/Skeleton'
+import { EmptyState } from '@/components/ui/EmptyState'
+import Button from '@/components/ui/Button'
 
 export default function NotificationsPage() {
   const { t, lang } = useTranslation()
@@ -12,15 +14,15 @@ export default function NotificationsPage() {
 
   return (
     <div>
-      <div className="page-header">
+      <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
         <div>
           <h1>{t('notifications')}</h1>
           <p style={{ marginTop: 4 }}>{t('notificationsSubtitle')}</p>
         </div>
-        <button className="btn btn-secondary" onClick={() => refetch()} disabled={loading}>
+        <Button variant="secondary" onClick={() => refetch()} disabled={loading}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
           {t('refresh')}
-        </button>
+        </Button>
       </div>
 
       {loading ? (
@@ -37,14 +39,20 @@ export default function NotificationsPage() {
         </div>
       ) : items.length === 0 ? (
         <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-          <div className="empty-state">
-            <div className="empty-state-icon" style={{ color: 'var(--success)' }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            </div>
-            <h3>{t('allCaughtUp')}</h3>
+          <EmptyState
+            icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>}
+            iconStyle={{ color: 'var(--success)' }}
+          >
+            <h3 className="text-gray-700">{t('allCaughtUp')}</h3>
             <p>{t('noNotificationsDesc')}</p>
-            <Link href={`/${lang}/contracts`} className="btn btn-secondary" style={{ marginTop: 8 }}>{t('goToContracts')}</Link>
-          </div>
+            <Link
+              href={`/${lang}/contracts`}
+              className="inline-flex items-center justify-center gap-1.5 rounded-sm border border-gray-200 bg-surface-card py-[9px] px-4 text-sm font-semibold text-gray-700 whitespace-nowrap tracking-[-0.01em] shadow-xs transition-colors duration-150 hover:bg-gray-50 hover:border-gray-300"
+              style={{ marginTop: 8 }}
+            >
+              {t('goToContracts')}
+            </Link>
+          </EmptyState>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>

@@ -2,7 +2,9 @@
 
 import { X } from 'lucide-react'
 import { useTranslation } from '@/i18n'
+import Spinner from '@/components/ui/Spinner'
 import type { AdminsPageState } from '../useAdminsPage'
+import Button from '@/components/ui/Button'
 
 export function AdminModal({ s }: { s: AdminsPageState }) {
   const { t } = useTranslation()
@@ -14,9 +16,9 @@ export function AdminModal({ s }: { s: AdminsPageState }) {
       <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 440 }}>
         <div className="modal-header">
           <h2>{editAdmin ? t('editAdmin') : t('addAdmin')}</h2>
-          <button className="btn btn-ghost btn-icon" onClick={closeModal} aria-label={t('close')}>
+          <Button variant="ghost" icon onClick={closeModal} aria-label={t('close')}>
             <X size={18} />
-          </button>
+          </Button>
         </div>
 
         <form onSubmit={handleSave}>
@@ -56,13 +58,13 @@ export function AdminModal({ s }: { s: AdminsPageState }) {
             </div>
           </div>
 
-          <div className="divider" />
+          <div className="h-px bg-surface-border my-4" />
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-            <button type="button" className="btn btn-secondary" onClick={closeModal}>{t('cancel')}</button>
-            <button type="submit" className="btn btn-primary" disabled={saving}>
-              {saving ? <span className="spinner" /> : null}
+            <Button type="button" variant="secondary" onClick={closeModal}>{t('cancel')}</Button>
+            <Button type="submit" disabled={saving}>
+              {saving ? <Spinner size={18} dark={false} /> : null}
               {saving ? t('saving') : editAdmin ? t('save') : t('addAdmin')}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

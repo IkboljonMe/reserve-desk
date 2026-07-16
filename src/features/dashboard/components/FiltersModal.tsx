@@ -6,6 +6,7 @@ import Dropdown from '@/components/ui/Dropdown'
 import type { PaymentFilter, TypeFilter, StateFilter } from '../utils'
 import type { DashboardPageState } from '../useDashboardPage'
 import { FilterGroup } from './FilterGroup'
+import Button from '@/components/ui/Button'
 
 export function FiltersModal({ s, open, onClose }: { s: DashboardPageState; open: boolean; onClose: () => void }) {
   const { t } = useTranslation()
@@ -22,9 +23,9 @@ export function FiltersModal({ s, open, onClose }: { s: DashboardPageState; open
       <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 460 }}>
         <div className="modal-header">
           <h2>{t('filters')}</h2>
-          <button className="btn btn-ghost btn-icon" onClick={onClose} aria-label={t('close')}>
+          <Button variant="ghost" icon onClick={onClose} aria-label={t('close')}>
             <X size={18} />
-          </button>
+          </Button>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.15rem' }}>
@@ -94,14 +95,14 @@ export function FiltersModal({ s, open, onClose }: { s: DashboardPageState; open
           )}
         </div>
 
-        <div className="divider" />
+        <div className="h-px bg-surface-border my-4" />
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
-          <button type="button" className="btn btn-ghost" disabled={activeFilterCount === 0} onClick={clearFilters}>
+          <Button type="button" variant="ghost" disabled={activeFilterCount === 0} onClick={clearFilters}>
             {t('clear')}
-          </button>
-          <button type="button" className="btn btn-primary" onClick={onClose}>
+          </Button>
+          <Button type="button" onClick={onClose}>
             {t('close')}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

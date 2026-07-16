@@ -1,148 +1,73 @@
 'use client'
 
-import React from 'react'
+import type { ButtonHTMLAttributes, ReactNode } from 'react'
+import Spinner from './Spinner'
 
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'danger' | 'ghost'
-  size?: 'sm' | 'md' | 'lg'
+export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost'
+export type ButtonSize = 'sm' | 'md' | 'lg'
+
+const BASE =
+  'inline-flex items-center justify-center gap-1.5 rounded-sm border border-transparent text-sm font-semibold cursor-pointer whitespace-nowrap tracking-[-0.01em] transition-[transform,box-shadow,background-color,border-color,opacity] duration-150 ' +
+  'active:enabled:translate-y-px active:enabled:scale-[0.99] disabled:opacity-55 disabled:cursor-not-allowed ' +
+  'focus-visible:outline-none focus-visible:shadow-[0_0_0_3px_rgba(79,110,247,0.3)]'
+
+const VARIANT_CLASSES: Record<ButtonVariant, string> = {
+  primary:
+    'bg-[image:var(--brand-gradient)] text-white shadow-brand ' +
+    'hover:enabled:brightness-[1.06] hover:enabled:shadow-[0_8px_20px_rgba(79,110,247,0.36)] hover:enabled:-translate-y-px',
+  secondary:
+    'bg-surface-card text-gray-700 border-gray-200 shadow-xs ' +
+    'hover:enabled:bg-gray-50 hover:enabled:border-gray-300 hover:enabled:-translate-y-px hover:enabled:shadow-sm',
+  danger:
+    'bg-red-100 text-danger border-red-200 hover:enabled:bg-red-200',
+  ghost:
+    'bg-transparent text-gray-600 hover:enabled:bg-gray-100 hover:enabled:text-gray-800',
+}
+
+const SIZE_CLASSES: Record<ButtonSize, string> = {
+  sm: 'py-[6px] px-3 text-[0.8125rem]',
+  md: 'py-[9px] px-4',
+  lg: 'py-[11px] px-[22px] text-[0.9375rem]',
+}
+
+export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: ButtonVariant
+  size?: ButtonSize
+  icon?: boolean
   loading?: boolean
-  leftIcon?: React.ReactNode
-  rightIcon?: React.ReactNode
+  leftIcon?: ReactNode
+  rightIcon?: ReactNode
+  children?: ReactNode
 }
 
 export default function Button({
-  children,
   variant = 'primary',
   size = 'md',
+  icon = false,
   loading = false,
   leftIcon,
   rightIcon,
   className = '',
   disabled,
+  children,
   ...props
 }: ButtonProps) {
+  const dark = variant === 'secondary' || variant === 'ghost'
   return (
     <button
-      className={`rd-btn rd-btn-${variant} rd-btn-${size} ${className}`.trim()}
+      className={`${BASE} ${VARIANT_CLASSES[variant]} ${icon ? 'p-2' : SIZE_CLASSES[size]} ${className}`.trim()}
       disabled={disabled || loading}
       {...props}
     >
-      <style>{`
-        .rd-btn {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          gap: 6px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.15s ease;
-          border: 1px solid transparent;
-          white-space: nowrap;
-          outline: none;
-          box-sizing: border-box;
-          font-family: inherit;
-        }
-        .rd-btn:active:not(:disabled) {
-          transform: translateY(1px);
-        }
-        .rd-btn:disabled {
-          opacity: 0.55;
-          cursor: not-allowed;
-        }
-
-        /* Variants */
-        .rd-btn-primary {
-          background: linear-gradient(135deg, #4f6ef7 0%, #7c3aed 100%);
-          color: #ffffff;
-          box-shadow: 0 4px 14px rgba(79, 110, 247, 0.25);
-        }
-        .rd-btn-primary:hover:not(:disabled) {
-          filter: brightness(1.08);
-          box-shadow: 0 6px 18px rgba(79, 110, 247, 0.35);
-        }
-        .rd-btn-secondary {
-          background: #ffffff;
-          color: var(--gray-700, #374151);
-          border-color: var(--gray-200, #e5e7eb);
-          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-        }
-        .rd-btn-secondary:hover:not(:disabled) {
-          background: var(--gray-5, #f9fafb);
-          border-color: var(--gray-300, #d1d5db);
-        }
-        .rd-btn-danger {
-          background: #fee2e2;
-          color: var(--danger, #ef4444);
-          border-color: #fecaca;
-        }
-        .rd-btn-danger:hover:not(:disabled) {
-          background: #fecaca;
-        }
-        .rd-btn-ghost {
-          background: transparent;
-          color: var(--gray-600, #4b5563);
-        }
-        .rd-btn-ghost:hover:not(:disabled) {
-          background: var(--gray-100, #f3f4f6);
-          color: var(--gray-800, #1f2937);
-        }
-
-        /* Sizes */
-        .rd-btn-sm {
-          padding: 6px 12px;
-          font-size: 0.8125rem;
-          border-radius: 6px;
-        }
-        .rd-btn-md {
-          padding: 8px 16px;
-          font-size: 0.875rem;
-          border-radius: 8px;
-          min-height: 38px;
-        }
-        .rd-btn-lg {
-          padding: 10px 20px;
-          font-size: 0.9375rem;
-          border-radius: 8px;
-          min-height: 44px;
-        }
-
-        /* Spinner animation */
-        @keyframes rd-spin {
-          to { transform: rotate(360deg); }
-        }
-        .rd-spinner {
-          width: 16px;
-          height: 16px;
-          border: 2px solid rgba(255, 255, 255, 0.3);
-          border-top-color: #ffffff;
-          border-radius: 50%;
-          animation: rd-spin 0.6s linear infinite;
-        }
-        .rd-btn-secondary .rd-spinner, .rd-btn-ghost .rd-spinner {
-          border-color: rgba(99, 102, 241, 0.2);
-          border-top-color: var(--brand-500, #6366f1);
-        }
-      `}</style>
-
       {loading ? (
-        <span
-          className="rd-spinner"
-          style={{ marginRight: children ? '4px' : '0px' }}
-          aria-hidden="true"
-        />
+        <Spinner size={16} dark={dark} className={children ? 'mr-1' : ''} />
       ) : leftIcon ? (
-        <span style={{ display: 'inline-flex', alignItems: 'center' }}>
-          {leftIcon}
-        </span>
+        <span className="inline-flex items-center">{leftIcon}</span>
       ) : null}
 
       {children}
 
-      {!loading && rightIcon ? (
-        <span style={{ display: 'inline-flex', alignItems: 'center' }}>
-          {rightIcon}
-        </span>
-      ) : null}
+      {!loading && rightIcon ? <span className="inline-flex items-center">{rightIcon}</span> : null}
     </button>
   )
 }

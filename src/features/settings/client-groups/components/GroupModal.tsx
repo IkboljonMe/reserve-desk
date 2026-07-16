@@ -2,8 +2,10 @@
 
 import { Check, X } from 'lucide-react'
 import { useTranslation } from '@/i18n'
+import Spinner from '@/components/ui/Spinner'
 import { PRESET_COLORS } from '../useClientGroupsPage'
 import type { ClientGroupsPageState } from '../useClientGroupsPage'
+import Button from '@/components/ui/Button'
 
 export function GroupModal({ s }: { s: ClientGroupsPageState }) {
   const { t } = useTranslation()
@@ -15,9 +17,9 @@ export function GroupModal({ s }: { s: ClientGroupsPageState }) {
       <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 420 }}>
         <div className="modal-header">
           <h2>{editGroup ? t('editGroup') : t('addGroup')}</h2>
-          <button className="btn btn-ghost btn-icon" onClick={closeModal} aria-label={t('close')}>
+          <Button variant="ghost" icon onClick={closeModal} aria-label={t('close')}>
             <X size={18} />
-          </button>
+          </Button>
         </div>
 
         <form onSubmit={handleSave}>
@@ -52,13 +54,13 @@ export function GroupModal({ s }: { s: ClientGroupsPageState }) {
             </div>
           </div>
 
-          <div className="divider" />
+          <div className="h-px bg-surface-border my-4" />
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-            <button type="button" className="btn btn-secondary" onClick={closeModal}>{t('cancel')}</button>
-            <button type="submit" className="btn btn-primary" disabled={saving}>
-              {saving ? <span className="spinner" /> : null}
+            <Button type="button" variant="secondary" onClick={closeModal}>{t('cancel')}</Button>
+            <Button type="submit" disabled={saving}>
+              {saving ? <Spinner size={18} dark={false} /> : null}
               {saving ? t('saving') : editGroup ? t('save') : t('addGroup')}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

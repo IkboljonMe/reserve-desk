@@ -3,8 +3,10 @@
 import { Layers, Trash2, Plus, DoorClosed, TriangleAlert, Check, X, BedDouble, Pencil, GripVertical, Building2 } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import Select from '@/components/Select'
+import { EmptyState } from '@/components/ui/EmptyState'
 import { displayCode } from '../utils'
 import type { HotelsRoomsPageState } from '../useHotelsRoomsPage'
+import Button from '@/components/ui/Button'
 
 export function RoomsSection({ s }: { s: HotelsRoomsPageState }) {
   const { t } = useTranslation()
@@ -16,7 +18,7 @@ export function RoomsSection({ s }: { s: HotelsRoomsPageState }) {
 
   return (
     <section>
-      <div className="page-header" style={{ marginBottom: '1rem' }}>
+      <div className="flex items-center justify-between mb-4 flex-wrap gap-4">
         <div>
           <h2 style={{ fontSize: '1.125rem', color: 'var(--gray-800)', display: 'flex', alignItems: 'center', gap: 8 }}>
             <BedDouble size={18} style={{ color: 'var(--brand-600)' }} /> {t('rooms')}
@@ -25,19 +27,18 @@ export function RoomsSection({ s }: { s: HotelsRoomsPageState }) {
             {t('roomsSectionDesc')}
           </p>
         </div>
-        <button className="btn btn-primary" onClick={openRoomModal}>
+        <Button onClick={openRoomModal}>
           <Plus size={15} strokeWidth={2.5} /> {t('addRoom')}
-        </button>
+        </Button>
       </div>
 
       {loading ? null : rooms.length === 0 ? (
         <div className="card">
-          <div className="empty-state">
-            <div className="empty-state-icon"><BedDouble size={26} /></div>
-            <h3>{t('noRoomsAdded')}</h3>
+          <EmptyState icon={<BedDouble size={26} />}>
+            <h3 className="text-gray-700">{t('noRoomsAdded')}</h3>
             <p>{t('noRoomsDesc')}</p>
-            <button className="btn btn-primary" style={{ marginTop: 8 }} onClick={openRoomModal}>{t('addFirstRoom')}</button>
-          </div>
+            <Button style={{ marginTop: 8 }} onClick={openRoomModal}>{t('addFirstRoom')}</Button>
+          </EmptyState>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -70,9 +71,9 @@ export function RoomsSection({ s }: { s: HotelsRoomsPageState }) {
                       options={hotels.map(h => ({ value: h._id, label: `${displayCode(h)} · ${h.name}` }))}
                     />
                   </div>
-                  <button className="btn btn-ghost btn-sm btn-icon" style={{ color: 'var(--danger)' }} onClick={() => handleDeleteRoom(room._id)} title={t('deleteRoomAria')} aria-label={t('deleteRoomAria')}>
+                  <Button variant="ghost" icon style={{ color: 'var(--danger)' }} onClick={() => handleDeleteRoom(room._id)} title={t('deleteRoomAria')} aria-label={t('deleteRoomAria')}>
                     <Trash2 size={15} />
-                  </button>
+                  </Button>
                 </div>
               ))}
             </div>
@@ -165,17 +166,17 @@ export function RoomsSection({ s }: { s: HotelsRoomsPageState }) {
                           </div>
                           {roomDeleteConfirm === room._id ? (
                             <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
-                              <button className="btn btn-danger btn-sm btn-icon" onClick={() => handleDeleteRoom(room._id)} aria-label={t('confirmDeleteRoom')}><Check size={14} /></button>
-                              <button className="btn btn-ghost btn-sm btn-icon" onClick={() => setRoomDeleteConfirm(null)} aria-label={t('cancelDelete')}><X size={14} /></button>
+                              <Button variant="danger" icon onClick={() => handleDeleteRoom(room._id)} aria-label={t('confirmDeleteRoom')}><Check size={14} /></Button>
+                              <Button variant="ghost" icon onClick={() => setRoomDeleteConfirm(null)} aria-label={t('cancelDelete')}><X size={14} /></Button>
                             </div>
                           ) : (
                             <div style={{ display: 'flex', gap: 2, flexShrink: 0 }}>
-                              <button className="btn btn-ghost btn-sm btn-icon" onClick={() => openEditRoom(room)} title={t('editRoomAria')} aria-label={t('editRoomAria')}>
+                              <Button variant="ghost" icon onClick={() => openEditRoom(room)} title={t('editRoomAria')} aria-label={t('editRoomAria')}>
                                 <Pencil size={14} />
-                              </button>
-                              <button className="btn btn-ghost btn-sm btn-icon" style={{ color: 'var(--danger)' }} onClick={() => setRoomDeleteConfirm(room._id)} title={t('deleteRoomAria')} aria-label={t('deleteRoomAria')}>
+                              </Button>
+                              <Button variant="ghost" icon style={{ color: 'var(--danger)' }} onClick={() => setRoomDeleteConfirm(room._id)} title={t('deleteRoomAria')} aria-label={t('deleteRoomAria')}>
                                 <Trash2 size={14} />
-                              </button>
+                              </Button>
                             </div>
                           )}
                         </div>

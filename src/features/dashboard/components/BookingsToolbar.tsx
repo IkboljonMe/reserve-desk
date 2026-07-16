@@ -5,6 +5,7 @@ import { Search, X, SlidersHorizontal } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import type { DashboardPageState } from '../useDashboardPage'
 import { FiltersModal } from './FiltersModal'
+import Button from '@/components/ui/Button'
 
 export function BookingsToolbar({ s }: { s: DashboardPageState }) {
   const { t } = useTranslation()
@@ -16,9 +17,9 @@ export function BookingsToolbar({ s }: { s: DashboardPageState }) {
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
         <h3 style={{ fontSize: '0.95rem', margin: 0, marginRight: 4 }}>{t('bookings')}</h3>
         <span style={{ fontSize: '0.75rem', color: 'var(--gray-400)', fontWeight: 600, marginRight: 8 }}>{rows.length} {t('inRange')}</span>
-        <button
+        <Button
           onClick={exportToExcel}
-          className="btn btn-secondary btn-sm"
+          variant="secondary" size="sm"
           style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px', height: '30px', fontSize: '0.8rem', cursor: 'pointer' }}
           title={t('exportTitle')}
         >
@@ -28,10 +29,10 @@ export function BookingsToolbar({ s }: { s: DashboardPageState }) {
             <line x1="12" y1="15" x2="12" y2="3" />
           </svg>
           {t('exportBtn')}
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={() => setFiltersOpen(true)}
-          className="btn btn-secondary btn-sm"
+          variant="secondary" size="sm"
           style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px', height: '30px', fontSize: '0.8rem', cursor: 'pointer', position: 'relative' }}
         >
           <SlidersHorizontal size={13} />
@@ -45,7 +46,7 @@ export function BookingsToolbar({ s }: { s: DashboardPageState }) {
               {activeFilterCount}
             </span>
           )}
-        </button>
+        </Button>
         <div style={{ position: 'relative', marginLeft: 'auto', flex: '1 1 220px', maxWidth: 320 }}>
           <Search size={14} style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)', color: 'var(--gray-400)', pointerEvents: 'none' }} />
           <input className="form-input" style={{ paddingLeft: 32, paddingTop: 6, paddingBottom: 6, fontSize: '0.82rem' }}

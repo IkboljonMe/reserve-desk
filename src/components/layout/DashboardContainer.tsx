@@ -50,7 +50,10 @@ export default function DashboardContainer({ children, userName, userEmail, role
         }} />
 
         {isMobile && mobileNavOpen && (
-          <div className="mobile-nav-backdrop" onClick={() => setMobileNavOpen(false)} />
+          <div
+            className="fixed inset-0 z-[149] bg-gray-900/50 [animation:fadeIn_0.18s_ease]"
+            onClick={() => setMobileNavOpen(false)}
+          />
         )}
 
         <Sidebar
@@ -67,7 +70,7 @@ export default function DashboardContainer({ children, userName, userEmail, role
         />
 
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
-          <div className="mobile-topbar" style={{
+          <div className="hidden max-md:flex" style={{
             alignItems: 'center',
             gap: 12,
             padding: '0.85rem 1rem',

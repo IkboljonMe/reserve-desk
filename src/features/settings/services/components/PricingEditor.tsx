@@ -5,6 +5,7 @@ import { Plus, Trash2, Check, ChevronDown, BedDouble, Users } from 'lucide-react
 import { useTranslation } from '@/i18n'
 import { formatPrice } from '../utils'
 import type { PricingPlan, PricingGroup, ClientGroup } from '../types'
+import Button from '@/components/ui/Button'
 
 export interface PricingEditorProps {
   plans: PricingPlan[]
@@ -138,9 +139,9 @@ export function PricingEditor({
                   placeholder="0" required
                 />
               </div>
-              <button type="button" className="btn btn-ghost btn-sm btn-icon" style={{ marginTop: 22, color: 'var(--danger)' }} onClick={() => removePlan(index)} aria-label={t('removePlanAria', { index: index + 1 })}>
+              <Button type="button" variant="ghost" icon style={{ marginTop: 22, color: 'var(--danger)' }} onClick={() => removePlan(index)} aria-label={t('removePlanAria', { index: index + 1 })}>
                 <Trash2 size={14} />
-              </button>
+              </Button>
             </div>
           ))}
         </div>
@@ -166,9 +167,9 @@ export function PricingEditor({
                   <span style={{ marginLeft: 'auto', fontSize: '0.7rem', color: 'var(--gray-400)' }}>
                     {group.rows.length} {group.rows.length === 1 ? t('priceLower') : t('pricesWord')}
                   </span>
-                  <button type="button" className="btn btn-ghost btn-sm btn-icon" style={{ color: 'var(--danger)' }} onClick={e => { e.stopPropagation(); removeGroup(gi) }} aria-label={t('removeGroupAria', { label: meta.label })}>
+                  <Button type="button" variant="ghost" icon style={{ color: 'var(--danger)' }} onClick={e => { e.stopPropagation(); removeGroup(gi) }} aria-label={t('removeGroupAria', { label: meta.label })}>
                     <Trash2 size={13} />
-                  </button>
+                  </Button>
                   <ChevronDown size={15} style={{ color: 'var(--gray-400)', transform: collapsed ? 'rotate(-90deg)' : 'none', transition: 'transform 0.15s' }} />
                 </div>
 
@@ -191,14 +192,14 @@ export function PricingEditor({
                             placeholder="0" required
                           />
                         </div>
-                        <button type="button" className="btn btn-ghost btn-sm btn-icon" style={{ marginTop: 22, color: 'var(--danger)' }} onClick={() => removeGroupRow(gi, ri)} aria-label={t('removePriceAria', { index: ri + 1 })} disabled={group.rows.length === 1}>
+                        <Button type="button" variant="ghost" icon style={{ marginTop: 22, color: 'var(--danger)' }} onClick={() => removeGroupRow(gi, ri)} aria-label={t('removePriceAria', { index: ri + 1 })} disabled={group.rows.length === 1}>
                           <Trash2 size={14} />
-                        </button>
+                        </Button>
                       </div>
                     ))}
-                    <button type="button" className="btn btn-ghost btn-sm" style={{ alignSelf: 'flex-start', color: meta.color }} onClick={() => addGroupRow(gi)}>
+                    <Button type="button" variant="ghost" size="sm" style={{ alignSelf: 'flex-start', color: meta.color }} onClick={() => addGroupRow(gi)}>
                       <Plus size={13} /> {t('addPrice')}
-                    </button>
+                    </Button>
                   </div>
                 )}
               </div>
@@ -209,22 +210,22 @@ export function PricingEditor({
 
       {/* Add-plan mini flow */}
       {planPicker === null && (
-        <button type="button" className="btn btn-secondary btn-sm" onClick={() => setPlanPicker('choose')}>
+        <Button type="button" variant="secondary" size="sm" onClick={() => setPlanPicker('choose')}>
           <Plus size={13} /> {t('addPlan')}
-        </button>
+        </Button>
       )}
 
       {planPicker === 'choose' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--gray-600)' }}>{t('whoIsPriceFor')}</span>
           <div style={{ display: 'flex', gap: 8 }}>
-            <button type="button" className="btn btn-secondary btn-sm" onClick={() => { setPlanPicker('room'); setPickerCategory('') }}>
+            <Button type="button" variant="secondary" size="sm" onClick={() => { setPlanPicker('room'); setPickerCategory('') }}>
               <BedDouble size={14} /> {t('roomCategoryLabel')}
-            </button>
-            <button type="button" className="btn btn-secondary btn-sm" onClick={() => { setPlanPicker('client'); setPickerCategory('') }}>
+            </Button>
+            <Button type="button" variant="secondary" size="sm" onClick={() => { setPlanPicker('client'); setPickerCategory('') }}>
               <Users size={14} /> {t('clientGroupLabel')}
-            </button>
-            <button type="button" className="btn btn-ghost btn-sm" onClick={() => setPlanPicker(null)}>{t('cancel')}</button>
+            </Button>
+            <Button type="button" variant="ghost" size="sm" onClick={() => setPlanPicker(null)}>{t('cancel')}</Button>
           </div>
         </div>
       )}
@@ -251,12 +252,12 @@ export function PricingEditor({
                   <option value="">{t('chooseDots')}</option>
                   {opts.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </select>
-                <button type="button" className="btn btn-primary btn-sm" onClick={confirmAddGroup} disabled={!pickerCategory}>
+                <Button type="button" size="sm" onClick={confirmAddGroup} disabled={!pickerCategory}>
                   <Check size={13} /> {t('add')}
-                </button>
+                </Button>
               </div>
             )}
-            <button type="button" className="btn btn-ghost btn-sm" style={{ alignSelf: 'flex-start' }} onClick={() => { setPlanPicker(null); setPickerCategory('') }}>{t('cancel')}</button>
+            <Button type="button" variant="ghost" size="sm" style={{ alignSelf: 'flex-start' }} onClick={() => { setPlanPicker(null); setPickerCategory('') }}>{t('cancel')}</Button>
           </div>
         )
       })()}

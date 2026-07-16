@@ -5,7 +5,9 @@ import { STATUS_META } from '../constants'
 import { daysLeftOf, fmtDate } from '../utils'
 import { ExpiryPill } from './ExpiryPill'
 import { SkeletonTableRows } from '@/components/ui/Skeleton'
+import { EmptyState } from '@/components/ui/EmptyState'
 import type { ContractsPageState } from '../useContractsPage'
+import Button from '@/components/ui/Button'
 
 export function ContractsTable({ s }: { s: ContractsPageState }) {
   const { t } = useTranslation()
@@ -18,16 +20,15 @@ export function ContractsTable({ s }: { s: ContractsPageState }) {
           <tbody><SkeletonTableRows rows={6} columns={multiHotel ? 8 : 7} /></tbody>
         </table>
       ) : visible.length === 0 ? (
-        <div className="empty-state">
-          <div className="empty-state-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/>
-            </svg>
-          </div>
-          <h3>{contracts.length === 0 ? t('noContractsYet') : t('noContractsMatch')}</h3>
+        <EmptyState icon={
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/>
+          </svg>
+        }>
+          <h3 className="text-gray-700">{contracts.length === 0 ? t('noContractsYet') : t('noContractsMatch')}</h3>
           <p>{contracts.length === 0 ? t('noContractsDesc') : t('tryClearFilters')}</p>
-          {contracts.length === 0 && <button className="btn btn-primary" style={{ marginTop: 8 }} onClick={openAdd}>{t('addFirstContract')}</button>}
-        </div>
+          {contracts.length === 0 && <Button style={{ marginTop: 8 }} onClick={openAdd}>{t('addFirstContract')}</Button>}
+        </EmptyState>
       ) : (
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem', minWidth: 920 }}>
@@ -85,7 +86,7 @@ export function ContractsTable({ s }: { s: ContractsPageState }) {
                     <td style={{ padding: '12px 16px' }}><ExpiryPill status={c.status} daysLeft={dl} /></td>
                     <td style={{ padding: '12px 16px' }}>
                       {c.contractLink ? (
-                        <a href={c.contractLink} target="_blank" rel="noopener noreferrer" className="btn btn-ghost btn-sm" style={{ gap: 6, color: 'var(--brand-600)' }} title={c.contractLink}>
+                        <a href={c.contractLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center rounded-sm py-[6px] px-3 text-[0.8125rem] font-semibold whitespace-nowrap tracking-[-0.01em] transition-colors duration-150 hover:bg-gray-100 hover:text-gray-800" style={{ gap: 6, color: 'var(--brand-600)' }} title={c.contractLink}>
                           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                           {t('openLink')}
                         </a>
@@ -93,18 +94,18 @@ export function ContractsTable({ s }: { s: ContractsPageState }) {
                     </td>
                     <td style={{ padding: '12px 16px' }}>
                       <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-                        <button className="btn btn-ghost btn-sm btn-icon" onClick={() => openEdit(c)} title={t('edit')} aria-label={t('editContractAria')}>
+                        <Button variant="ghost" icon onClick={() => openEdit(c)} title={t('edit')} aria-label={t('editContractAria')}>
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                        </button>
+                        </Button>
                         {deleteConfirm === c._id ? (
                           <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-                            <button className="btn btn-danger btn-sm" onClick={() => handleDelete(c._id)}>{t('delete')}</button>
-                            <button className="btn btn-ghost btn-sm" onClick={() => setDeleteConfirm(null)}>{t('cancel')}</button>
+                            <Button variant="danger" size="sm" onClick={() => handleDelete(c._id)}>{t('delete')}</Button>
+                            <Button variant="ghost" size="sm" onClick={() => setDeleteConfirm(null)}>{t('cancel')}</Button>
                           </div>
                         ) : (
-                          <button className="btn btn-ghost btn-sm btn-icon" onClick={() => setDeleteConfirm(c._id)} title={t('delete')} aria-label={t('deleteContractAria')}>
+                          <Button variant="ghost" icon onClick={() => setDeleteConfirm(c._id)} title={t('delete')} aria-label={t('deleteContractAria')}>
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-                          </button>
+                          </Button>
                         )}
                       </div>
                     </td>

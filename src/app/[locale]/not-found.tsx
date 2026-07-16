@@ -72,7 +72,11 @@ export default function NotFound() {
           {t.subtitle}
         </p>
 
-        <Link href={`/${lang}/dashboard`} className="btn btn-primary btn-lg" style={{ marginTop: '0.5rem' }}>
+        <Link
+          href={`/${lang}/dashboard`}
+          className="inline-flex items-center justify-center gap-1.5 rounded-sm border border-transparent py-[11px] px-[22px] text-[0.9375rem] font-semibold text-white whitespace-nowrap tracking-[-0.01em] bg-[image:var(--brand-gradient)] shadow-brand transition-[filter,box-shadow,transform] duration-150 hover:brightness-[1.06] hover:shadow-[0_8px_20px_rgba(79,110,247,0.36)] hover:-translate-y-px active:translate-y-px"
+          style={{ marginTop: '0.5rem' }}
+        >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="3" y="3" width="7" height="7" rx="1"/>
             <rect x="14" y="3" width="7" height="7" rx="1"/>

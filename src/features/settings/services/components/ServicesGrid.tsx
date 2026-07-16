@@ -5,7 +5,9 @@ import { useTranslation } from '@/i18n'
 import { extractHotelId } from '../utils'
 import { ServiceCard } from './ServiceCard'
 import { SkeletonCard } from '@/components/ui/Skeleton'
+import { EmptyState } from '@/components/ui/EmptyState'
 import type { ServicesPageState } from '../useServicesPage'
+import Button from '@/components/ui/Button'
 
 export function ServicesGrid({ s }: { s: ServicesPageState }) {
   const { t } = useTranslation()
@@ -25,34 +27,30 @@ export function ServicesGrid({ s }: { s: ServicesPageState }) {
   if (services.length === 0) {
     return (
       <div className="card">
-        <div className="empty-state">
-          <div className="empty-state-icon">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-            </svg>
-          </div>
-          <h3>{t('noServicesTitle')}</h3>
+        <EmptyState icon={
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+          </svg>
+        }>
+          <h3 className="text-gray-700">{t('noServicesTitle')}</h3>
           <p>{t('noServicesDesc')}</p>
-          <button className="btn btn-primary" style={{ marginTop: 8 }} onClick={openAddForm}>
+          <Button style={{ marginTop: 8 }} onClick={openAddForm}>
             <Plus size={15} /> {t('addService')}
-          </button>
-        </div>
+          </Button>
+        </EmptyState>
       </div>
     )
   }
   if (filtered.length === 0) {
     return (
       <div className="card">
-        <div className="empty-state">
-          <div className="empty-state-icon">
-            <Search size={26} />
-          </div>
-          <h3>{t('noResults')}</h3>
+        <EmptyState icon={<Search size={26} />}>
+          <h3 className="text-gray-700">{t('noResults')}</h3>
           <p>{t('noServicesMatch')}</p>
-          <button className="btn btn-secondary btn-sm" style={{ marginTop: 8 }} onClick={() => { setSearchQuery(''); setFilterHotel(''); setFilterStatus('') }}>
+          <Button variant="secondary" size="sm" style={{ marginTop: 8 }} onClick={() => { setSearchQuery(''); setFilterHotel(''); setFilterStatus('') }}>
             {t('clearFilters')}
-          </button>
-        </div>
+          </Button>
+        </EmptyState>
       </div>
     )
   }

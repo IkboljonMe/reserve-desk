@@ -111,7 +111,7 @@ export default function Select({
     <div ref={rootRef} style={{ position: 'relative' }}>
       <button
         type="button"
-        className="select-trigger"
+        className="w-full flex items-center gap-2.5 py-2.5 px-3 border-[1.5px] border-gray-200 rounded-[10px] bg-surface-card font-[inherit] text-[0.8125rem] font-medium text-gray-700 cursor-pointer outline-none text-left transition-[border-color,box-shadow] duration-150 ease-[ease] hover:border-gray-300 focus-visible:border-brand-500 focus-visible:shadow-[0_0_0_3px_rgba(79,110,247,0.14)] aria-expanded:border-brand-500 aria-expanded:shadow-[0_0_0_3px_rgba(79,110,247,0.14)]"
         onClick={() => (open ? setOpen(false) : openList())}
         onKeyDown={onKeyDown}
         aria-haspopup="listbox"

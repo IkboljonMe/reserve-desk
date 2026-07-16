@@ -2,6 +2,7 @@
 
 import { Plus, Trash2 } from 'lucide-react'
 import { useTranslation } from '@/i18n'
+import Button from '@/components/ui/Button'
 
 export interface MenuItem { name: string; qty: number; price: number }
 
@@ -69,19 +70,19 @@ export function MenuItemsEditor({
               onChange={e => onUpdate(i, { price: Number(e.target.value.replace(/\D/g, '')) || 0 })}
               onFocus={e => e.currentTarget.select()}
             />
-            <button
-              type="button" className="btn btn-ghost btn-sm btn-icon" style={{ width: 28, flexShrink: 0 }}
+            <Button
+              type="button" variant="ghost" icon style={{ width: 28, flexShrink: 0 }}
               onClick={() => onRemove(i)} aria-label={t('delete')}
             >
               <Trash2 size={14} color="var(--danger)" />
-            </button>
+            </Button>
           </div>
         ))}
       </div>
 
-      <button type="button" className="btn btn-secondary btn-sm" style={{ marginTop: 8, display: 'inline-flex', alignItems: 'center', gap: 6 }} onClick={onAdd}>
+      <Button type="button" variant="secondary" size="sm" style={{ marginTop: 8, display: 'inline-flex', alignItems: 'center', gap: 6 }} onClick={onAdd}>
         <Plus size={13} /> {t('addMenuItem')}
-      </button>
+      </Button>
 
       {items.length > 0 && (
         <div style={{ marginTop: 10, padding: '8px 10px', borderRadius: 8, background: 'var(--gray-50)', border: '1px solid var(--gray-200)', fontSize: '0.78rem', color: 'var(--gray-600)', display: 'flex', flexDirection: 'column', gap: 3 }}>

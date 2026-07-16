@@ -5,6 +5,7 @@ import Dropdown from '@/components/ui/Dropdown'
 import type { ContractStatus } from './ContractModal'
 import type { ExpiryFilter, SortKey } from '../constants'
 import type { ContractsPageState } from '../useContractsPage'
+import Button from '@/components/ui/Button'
 
 export function ContractsFilters({ s }: { s: ContractsPageState }) {
   const { t } = useTranslation()
@@ -68,9 +69,9 @@ export function ContractsFilters({ s }: { s: ContractsPageState }) {
         </div>
 
         {activeFilterCount > 0 && (
-          <button className="btn btn-ghost btn-sm" onClick={() => { setStatusFilter(''); setExpiryFilter('all') }}>
+          <Button variant="ghost" size="sm" onClick={() => { setStatusFilter(''); setExpiryFilter('all') }}>
             {t('clearFilters')}
-          </button>
+          </Button>
         )}
       </div>
     </div>

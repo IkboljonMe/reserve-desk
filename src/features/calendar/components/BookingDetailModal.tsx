@@ -4,9 +4,11 @@ import { format, parseISO } from 'date-fns'
 import { X, Check, Clock, MapPin, Phone, User, Trash2, CalendarDays, Wallet, FileText, Pencil, UtensilsCrossed } from 'lucide-react'
 import { getServiceIcon } from '@/lib/serviceIcons'
 import { bookingState, money, amountCollected, isPartiallyPaid } from '@/lib/bookingHelpers'
+import { Badge } from '@/components/ui/Badge'
 import { useTranslation } from '@/i18n'
 import { DetailRow } from './DetailRow'
 import type { CalendarPageState } from '../useCalendarPage'
+import Button from '@/components/ui/Button'
 
 export function BookingDetailModal({ s }: { s: CalendarPageState }) {
   const { t } = useTranslation()
@@ -20,7 +22,7 @@ export function BookingDetailModal({ s }: { s: CalendarPageState }) {
       <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 440 }}>
         <div className="modal-header">
           <h2>{t('bookingDetails')}</h2>
-          <button className="btn btn-ghost btn-icon" onClick={close} aria-label={t('close')}><X size={18} /></button>
+          <Button variant="ghost" icon onClick={close} aria-label={t('close')}><X size={18} /></Button>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', fontSize: '0.875rem' }}>
@@ -39,10 +41,10 @@ export function BookingDetailModal({ s }: { s: CalendarPageState }) {
             {(() => {
               const st = bookingState(selectedBooking)
               return (
-                <span className={`badge ${st.badge}`} style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                <Badge variant={st.badge} className="ml-auto">
                   {st.key === 'finished' && <Check size={12} />}
                   {t(st.key)}
-                </span>
+                </Badge>
               )
             })()}
           </div>
@@ -83,7 +85,7 @@ export function BookingDetailModal({ s }: { s: CalendarPageState }) {
           )}
         </div>
 
-        <div className="divider" />
+        <div className="h-px bg-surface-border my-4" />
 
         {/* Lifecycle actions */}
         {selectedBooking.finished ? (
@@ -91,38 +93,37 @@ export function BookingDetailModal({ s }: { s: CalendarPageState }) {
             <Check size={16} /> {t('completed')}
           </div>
         ) : (bookingState(selectedBooking).key === 'unpaid' || bookingState(selectedBooking).key === 'partial') ? (
-          <button className="btn btn-primary" style={{ width: '100%', marginBottom: '0.85rem' }} onClick={() => setPayConfirm(selectedBooking)}>
+          <Button style={{ width: '100%', marginBottom: '0.85rem' }} onClick={() => setPayConfirm(selectedBooking)}>
             <Wallet size={15} /> {isPartiallyPaid(selectedBooking) ? t('collectBalance') : t('markAsPaid')}
-          </button>
+          </Button>
         ) : (
-          <button
-            className="btn"
+          <Button
             style={{ width: '100%', marginBottom: '0.85rem', background: '#10b981', color: '#fff', border: 'none' }}
             onClick={() => markFinished(selectedBooking)}
           >
             <Check size={16} strokeWidth={2.5} /> {t('markAsFinished')}
-          </button>
+          </Button>
         )}
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           {deleteConfirm === selectedBooking._id ? (
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
               <span style={{ fontSize: '0.8125rem', color: 'var(--danger)' }}>{t('deleteThisBooking')}</span>
-              <button className="btn btn-danger btn-sm" onClick={() => handleDeleteBooking(selectedBooking._id)}>{t('delete')}</button>
-              <button className="btn btn-ghost btn-sm" onClick={() => setDeleteConfirm(null)}>{t('cancel')}</button>
+              <Button variant="danger" size="sm" onClick={() => handleDeleteBooking(selectedBooking._id)}>{t('delete')}</Button>
+              <Button variant="ghost" size="sm" onClick={() => setDeleteConfirm(null)}>{t('cancel')}</Button>
             </div>
           ) : (
-            <button className="btn btn-danger btn-sm" onClick={() => setDeleteConfirm(selectedBooking._id)}>
+            <Button variant="danger" size="sm" onClick={() => setDeleteConfirm(selectedBooking._id)}>
               <Trash2 size={13} /> {t('delete')}
-            </button>
+            </Button>
           )}
           <div style={{ display: 'flex', gap: 8 }}>
             {!selectedBooking.finished && (
-              <button className="btn btn-secondary btn-sm" onClick={() => { setEditBooking(selectedBooking); setSelectedBooking(null) }}>
+              <Button variant="secondary" size="sm" onClick={() => { setEditBooking(selectedBooking); setSelectedBooking(null) }}>
                 <Pencil size={13} /> {t('edit')}
-              </button>
+              </Button>
             )}
-            <button className="btn btn-secondary btn-sm" onClick={close}>{t('close')}</button>
+            <Button variant="secondary" size="sm" onClick={close}>{t('close')}</Button>
           </div>
         </div>
       </div>

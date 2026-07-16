@@ -32,9 +32,16 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
-      <div className="toast-container">
+      <div className="fixed z-[200] flex flex-col gap-2 right-[calc(1.5rem+env(safe-area-inset-right))] bottom-[calc(1.5rem+env(safe-area-inset-bottom))]">
         {toasts.map(toast => (
-          <div key={toast.id} className={`toast toast-${toast.type}`}>
+          <div
+            key={toast.id}
+            className={`flex items-center gap-2.5 px-4 py-3 rounded text-sm font-medium shadow-lg [animation:slideInRight_0.24s_cubic-bezier(0.16,1,0.3,1)] min-w-[240px] max-w-[380px] ${
+              toast.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' :
+              toast.type === 'error' ? 'bg-red-50 text-red-800 border border-red-200' :
+              'bg-brand-50 text-brand-700 border border-brand-100'
+            }`}
+          >
             {toast.type === 'success' && (
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="20 6 9 17 4 12"/>

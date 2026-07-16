@@ -7,6 +7,7 @@ import { ServicesStyles } from './components/ServicesStyles'
 import { ServicesFilterBar } from './components/ServicesFilterBar'
 import { ServicesGrid } from './components/ServicesGrid'
 import { ServiceFormModal } from './components/ServiceFormModal'
+import Button from '@/components/ui/Button'
 
 export default function ServicesPage() {
   const { t } = useTranslation()
@@ -17,7 +18,7 @@ export default function ServicesPage() {
       <ServicesStyles />
 
       {/* ── Page Header ── */}
-      <div className="page-header" style={{ marginBottom: '1.25rem' }}>
+      <div className="flex items-center justify-between mb-5 flex-wrap gap-4">
         <div>
           <h2 style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             {t('services')}
@@ -36,10 +37,10 @@ export default function ServicesPage() {
             {t('servicesSubtitle')}
           </p>
         </div>
-        <button id="add-service-btn" className="btn btn-primary" onClick={s.openAddForm}>
+        <Button id="add-service-btn" onClick={s.openAddForm}>
           <Plus size={15} strokeWidth={2.5} />
           {t('addService')}
-        </button>
+        </Button>
       </div>
 
       {/* ── Filter Bar ── */}

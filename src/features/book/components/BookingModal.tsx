@@ -3,6 +3,7 @@
 import { ArrowLeft, ArrowRight, X } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import { useIsMobile } from '@/hooks/useIsMobile'
+import Spinner from '@/components/ui/Spinner'
 import { useBookingWizard } from '../useBookingWizard'
 import { HotelStep } from './HotelStep'
 import { ServiceStep } from './ServiceStep'
@@ -11,6 +12,7 @@ import { GuestSection } from './GuestSection'
 import { DateTimeSection } from './DateTimeSection'
 import { ReviewStep } from './ReviewStep'
 import { SlideProgress } from './SlideProgress'
+import Button from '@/components/ui/Button'
 
 export function BookingModal({
   initialDate,
@@ -49,9 +51,9 @@ export function BookingModal({
           display: 'flex', alignItems: 'flex-start', gap: 12,
         }}>
           <SlideProgress slides={w.slides} slideIndex={w.slideIndex} onJump={w.goToSlide} />
-          <button type="button" className="btn btn-ghost btn-icon" onClick={onClose} aria-label={t('close')} style={{ flexShrink: 0 }}>
+          <Button type="button" variant="ghost" icon onClick={onClose} aria-label={t('close')} style={{ flexShrink: 0 }}>
             <X size={18} />
-          </button>
+          </Button>
         </div>
 
         {/* Body — the active slide */}
@@ -73,20 +75,20 @@ export function BookingModal({
           display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8,
         }}>
           {w.slideIndex > 0 ? (
-            <button type="button" className="btn btn-secondary" onClick={w.goBack} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <Button type="button" variant="secondary" onClick={w.goBack} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
               <ArrowLeft size={14} /> {t('back')}
-            </button>
+            </Button>
           ) : <span />}
 
           {w.currentSlide === 'review' ? (
-            <button type="button" className="btn btn-primary" disabled={w.loading || !w.canReview} onClick={w.confirmBooking}>
-              {w.loading ? <span className="spinner" /> : null}
+            <Button type="button" disabled={w.loading || !w.canReview} onClick={w.confirmBooking}>
+              {w.loading ? <Spinner size={18} dark={false} /> : null}
               {w.loading ? t('creating') : t('confirmBooking')}
-            </button>
+            </Button>
           ) : (
-            <button type="button" className="btn btn-primary" disabled={!w.canGoNext} onClick={w.goNext} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <Button type="button" disabled={!w.canGoNext} onClick={w.goNext} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
               {t('next')} <ArrowRight size={14} />
-            </button>
+            </Button>
           )}
         </div>
       </div>

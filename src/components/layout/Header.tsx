@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useTranslation, LanguageCode, LANGUAGES } from '@/i18n'
 import Dropdown from '@/components/ui/Dropdown'
+import Button from '@/components/ui/Button'
 
 interface Props {
   userName: string
@@ -101,11 +102,11 @@ export default function Header({ userName, userEmail, onToggleSidebar, sidebarCo
           </div>
         </div>
 
-        <button
+        <Button
           id="logout-btn"
           onClick={handleLogout}
           disabled={loggingOut}
-          className="btn btn-ghost btn-sm btn-icon"
+          variant="ghost" icon
           title={t('signOut')}
           aria-label={t('signOut')}
           style={{ marginLeft: 2 }}
@@ -115,7 +116,7 @@ export default function Header({ userName, userEmail, onToggleSidebar, sidebarCo
             <polyline points="16 17 21 12 16 7"/>
             <line x1="21" y1="12" x2="9" y2="12"/>
           </svg>
-        </button>
+        </Button>
       </div>
     </header>
   )

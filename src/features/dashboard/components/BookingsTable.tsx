@@ -5,6 +5,7 @@ import { useTranslation } from '@/i18n'
 import { svcId, bookingState, money } from '@/lib/bookingHelpers'
 import { CalendarDays, ArrowUpDown, Check, BedDouble } from 'lucide-react'
 import { SkeletonTableRows } from '@/components/ui/Skeleton'
+import { EmptyState } from '@/components/ui/EmptyState'
 import { TYPE_META } from '../constants'
 import type { DashboardPageState } from '../useDashboardPage'
 
@@ -21,10 +22,9 @@ export function BookingsTable({ s }: { s: DashboardPageState }) {
   }
   if (rows.length === 0) {
     return (
-      <div className="empty-state" style={{ padding: '3rem' }}>
-        <div className="empty-state-icon"><CalendarDays size={22} /></div>
+      <EmptyState icon={<CalendarDays size={22} />} style={{ padding: '3rem' }}>
         <p style={{ fontSize: '0.875rem' }}>{t('noBookingsMatch')}</p>
-      </div>
+      </EmptyState>
     )
   }
 
