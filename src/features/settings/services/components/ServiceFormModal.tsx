@@ -24,19 +24,21 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
 
   return (
     <div className="modal-overlay" onClick={closeForm}>
-      <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 660 }}>
+      <div className="modal max-w-[660px]" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div className="flex items-center gap-2.5">
             {/* Preview icon in title */}
-            <span style={{
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              width: 34, height: 34, borderRadius: 10,
-              background: `${form.color}18`, border: `1.5px solid ${form.color}40`,
-              color: form.color, flexShrink: 0,
-            }}>
+            <span
+              className="inline-flex items-center justify-center w-8.5 h-8.5 rounded-lg shrink-0 border-[1.5px] border-solid"
+              style={{
+                background: `${form.color}18`,
+                borderColor: `${form.color}40`,
+                color: form.color,
+              }}
+            >
               <ServiceIcon name={form.icon} size={18} />
             </span>
-            <h2 style={{ margin: 0 }}>{editService ? t('editColon', { name: editService.name }) : t('addService')}</h2>
+            <h2 className="m-0 text-lg font-bold">{editService ? t('editColon', { name: editService.name }) : t('addService')}</h2>
           </div>
           <Button variant="ghost" icon onClick={closeForm} aria-label={t('close')}>
             <X size={18} />
@@ -44,26 +46,27 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div className="flex flex-col gap-4">
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '1rem', alignItems: 'start' }}>
-              <div className="form-group">
-                <label className="form-label">{t('name')} *<InfoHint text={t('nameHint')} /></label>
+            <div className="grid grid-cols-[1fr_auto] gap-4 items-start">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('name')} *<InfoHint text={t('nameHint')} /></label>
                 <input
-                  type="text" className="form-input"
+                  type="text"
+                  className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
                   value={form.name}
                   onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                   required autoFocus
                 />
               </div>
-              <div className="form-group">
-                <label className="form-label">{t('icon')} *<InfoHint text={t('iconHint')} /></label>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('icon')} *<InfoHint text={t('iconHint')} /></label>
                 <IconPicker value={form.icon} onChange={name => setForm(f => ({ ...f, icon: name }))} />
               </div>
             </div>
 
-            <div className="form-group">
-              <label className="form-label">{t('hotel')} *<InfoHint text={t('hotelHint')} /></label>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('hotel')} *<InfoHint text={t('hotelHint')} /></label>
               <Select
                 ariaLabel={t('selectHotel')}
                 placeholder={t('selectHotel')}
@@ -80,16 +83,20 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
             </div>
 
             {form.hotelId && hotels.length > 1 && (
-              <div className="form-group">
-                <label className="form-label">{t('sharedWithHotels')}<InfoHint text={t('sharedWithHotelsHint')} /></label>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('sharedWithHotels')}<InfoHint text={t('sharedWithHotelsHint')} /></label>
+                <div className="flex flex-wrap gap-2">
                   {hotels.filter(h => h._id !== form.hotelId).map(h => {
                     const on = form.sharedHotelIds.includes(h._id)
                     return (
                       <button
                         key={h._id}
                         type="button"
-                        className={`svc-filter-pill ${on ? 'active' : ''}`}
+                        className={`px-3.5 py-1.5 rounded-full text-[0.8rem] font-semibold cursor-pointer border transition-all duration-150 whitespace-nowrap inline-flex items-center gap-1.25 ${
+                          on
+                            ? 'bg-gradient-to-r from-[var(--brand-500)] to-[var(--brand-600)] text-white border-transparent shadow-[var(--shadow-brand)]'
+                            : 'border-[var(--gray-200,#e5e7eb)] bg-[var(--surface-card)] text-[var(--gray-600,#4b5563)] hover:border-[var(--brand-500,#6366f1)] hover:text-[var(--brand-700,#4338ca)] hover:bg-[var(--brand-50,#eef2ff)]'
+                        }`}
                         aria-pressed={on}
                         onClick={() => setForm(f => ({
                           ...f,
@@ -103,67 +110,75 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
                     )
                   })}
                 </div>
-                <small style={{ color: 'var(--gray-400)', fontSize: '0.7rem', display: 'block', marginTop: 6 }}>
+                <small className="mt-1.5 text-[0.7rem] text-[var(--gray-400)] block">
                   {t('sharedWithHotelsHint')}
                 </small>
               </div>
             )}
 
-            <div className="form-group">
-              <label className="form-label">{t('description')}<InfoHint text={t('descriptionHint')} /></label>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('description')}<InfoHint text={t('descriptionHint')} /></label>
               <textarea
-                className="form-textarea" style={{ minHeight: 60 }}
+                className="w-full px-3 py-2 min-h-[60px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] resize-y"
                 value={form.description}
                 onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
               />
             </div>
 
-            <div className="form-group">
-              <label className="form-label">{t('details')}<InfoHint text={t('detailsHint')} /></label>
-              <input type="text" className="form-input" placeholder={t('detailsPlaceholder')} value={form.details} onChange={e => setForm(f => ({ ...f, details: e.target.value }))} />
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('details')}<InfoHint text={t('detailsHint')} /></label>
+              <input type="text" className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]" placeholder={t('detailsPlaceholder')} value={form.details} onChange={e => setForm(f => ({ ...f, details: e.target.value }))} />
             </div>
 
-            <div className="h-px bg-surface-border" style={{ margin: '0.1rem 0' }} />
+            <div className="h-px bg-surface-border my-1" />
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <div className="form-group">
-                <label className="form-label">{t('opensAt')} *<InfoHint text={t('opensAtHint')} /></label>
-                <input type="time" className="form-input" value={form.openTime} onChange={e => setForm(f => ({ ...f, openTime: e.target.value }))} required />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('opensAt')} *<InfoHint text={t('opensAtHint')} /></label>
+                <input type="time" className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]" value={form.openTime} onChange={e => setForm(f => ({ ...f, openTime: e.target.value }))} required />
               </div>
-              <div className="form-group">
-                <label className="form-label">{t('closesAt')} *<InfoHint text={t('closesAtHint')} /></label>
-                <input type="time" className="form-input" value={form.closeTime} onChange={e => setForm(f => ({ ...f, closeTime: e.target.value }))} required />
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('closesAt')} *<InfoHint text={t('closesAtHint')} /></label>
+                <input type="time" className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]" value={form.closeTime} onChange={e => setForm(f => ({ ...f, closeTime: e.target.value }))} required />
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <div className="form-group">
-                <label className="form-label">{t('bufferBefore')}<InfoHint text={t('bufferBeforeHint')} /></label>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('bufferBefore')}<InfoHint text={t('bufferBeforeHint')} /></label>
                 <input
-                  type="number" className="form-input hide-arrows"
+                  type="number"
+                  className={`w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] hide-arrows ${
+                    bufferError(form.bufferTimeBefore)
+                      ? 'border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.14)]'
+                      : 'border-[var(--gray-200,#e5e7eb)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]'
+                  }`}
                   min={0} max={120} step={15} placeholder="e.g. 15"
                   value={form.bufferTimeBefore} onFocus={selectAllOnFocus}
                   onChange={e => setForm(f => ({ ...f, bufferTimeBefore: Number(e.target.value) }))}
                   aria-invalid={bufferError(form.bufferTimeBefore)}
-                  style={bufferError(form.bufferTimeBefore) ? { borderColor: 'var(--danger)', boxShadow: '0 0 0 3px rgba(239,68,68,0.12)' } : undefined}
                 />
                 {bufferError(form.bufferTimeBefore)
-                  ? <small className="form-error" style={{ display: 'block', marginTop: 4 }}>{t('mustBe15')}</small>
-                  : <small style={{ color: 'var(--gray-400)', fontSize: '0.7rem', display: 'block', marginTop: 4 }}>{t('min15IntervalsShort')}</small>}
+                  ? <small className="mt-1 text-xs text-[var(--danger,#ef4444)] block">{t('mustBe15')}</small>
+                  : <small className="mt-1 text-[0.7rem] text-[var(--gray-400)] block">{t('min15IntervalsShort')}</small>}
               </div>
-              <div className="form-group">
-                <label className="form-label">{t('bufferAfter')}<InfoHint text={t('bufferAfterHint')} /></label>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('bufferAfter')}<InfoHint text={t('bufferAfterHint')} /></label>
                 <input
-                  type="number" className="form-input hide-arrows"
+                  type="number"
+                  className={`w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] hide-arrows ${
+                    bufferError(form.bufferTimeAfter)
+                      ? 'border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.14)]'
+                      : 'border-[var(--gray-200,#e5e7eb)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]'
+                  }`}
                   min={0} max={120} step={15} placeholder="e.g. 15"
                   value={form.bufferTimeAfter} onFocus={selectAllOnFocus}
                   onChange={e => setForm(f => ({ ...f, bufferTimeAfter: Number(e.target.value) }))}
                   aria-invalid={bufferError(form.bufferTimeAfter)}
-                  style={bufferError(form.bufferTimeAfter) ? { borderColor: 'var(--danger)', boxShadow: '0 0 0 3px rgba(239,68,68,0.12)' } : undefined}
                 />
                 {bufferError(form.bufferTimeAfter)
-                  ? <small className="form-error" style={{ display: 'block', marginTop: 4 }}>{t('mustBe15')}</small>
-                  : <small style={{ color: 'var(--gray-400)', fontSize: '0.7rem', display: 'block', marginTop: 4 }}>{t('min15IntervalsShort')}</small>}
+                  ? <small className="mt-1 text-xs text-[var(--danger,#ef4444)] block">{t('mustBe15')}</small>
+                  : <small className="mt-1 text-[0.7rem] text-[var(--gray-400)] block">{t('min15IntervalsShort')}</small>}
               </div>
             </div>
 
@@ -179,14 +194,14 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
               }))}
             />
 
-            <div className="form-group">
-              <label className="form-label">{t('calendarColor')}<InfoHint text={t('calendarColorHint')} /></label>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 4 }}>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('calendarColor')}<InfoHint text={t('calendarColorHint')} /></label>
+              <div className="flex gap-2 flex-wrap mt-1">
                 {PRESET_COLORS.map(c => (
                   <button
                     key={c} type="button"
-                    className={`w-[26px] h-[26px] rounded-full cursor-pointer border-2 border-white transition duration-[120ms] hover:scale-[1.15] ${
-                      form.color === c ? 'shadow-[0_0_0_2px_var(--color-gray-900)]' : 'shadow-[0_0_0_1.5px_var(--color-gray-200)]'
+                    className={`w-6.5 h-6.5 rounded-full cursor-pointer border-2 border-white transition-all duration-[120ms] hover:scale-115 ${
+                      form.color === c ? 'shadow-[0_0_0_2px_var(--color-gray-900,#1f2937)]' : 'shadow-[0_0_0_1.5px_var(--color-gray-200,#e5e7eb)]'
                     }`}
                     style={{ background: c }}
                     onClick={() => setForm(f => ({ ...f, color: c }))}
@@ -214,29 +229,30 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
                   <Button type="button" variant="secondary" size="sm" onClick={addVariant}>
                     <Layers size={14} /> {t('addVariant')}
                   </Button>
-                  <small style={{ color: 'var(--gray-400)', fontSize: '0.7rem', display: 'block', marginTop: 6 }}>
+                  <small className="mt-1.5 text-[0.7rem] text-[var(--gray-400)] block">
                     {t('variantsHint')}
                   </small>
                 </div>
               </>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div className="flex flex-col gap-3.5">
                 <div>
-                  <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight flex items-center gap-1.5">
                     <Layers size={14} /> {t('serviceVariants')}
                   </label>
-                  <small style={{ color: 'var(--gray-400)', fontSize: '0.7rem', display: 'block', marginTop: 2 }}>
+                  <small className="mt-1.5 text-[0.7rem] text-[var(--gray-400)] block">
                     {t('variantsHint')}
                   </small>
                 </div>
 
                 {form.variants.map(v => (
-                  <div key={v.id} style={{ border: '1px solid var(--gray-200)', borderRadius: 12, padding: 14, display: 'flex', flexDirection: 'column', gap: 12, background: '#fff' }}>
-                    <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
-                      <div className="form-group" style={{ flex: 1, margin: 0 }}>
-                        <label className="form-label">{t('variantName')} *</label>
+                  <div key={v.id} className="border border-[var(--gray-200,#e5e7eb)] rounded-xl p-3.5 flex flex-col gap-3 bg-white">
+                    <div className="flex gap-2 items-end">
+                      <div className="flex flex-col gap-1.5 flex-1 m-0">
+                        <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('variantName')} *</label>
                         <input
-                          type="text" className="form-input"
+                          type="text"
+                          className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
                           value={v.name}
                           placeholder={t('variantNamePlaceholder')}
                           onChange={e => updateVariantName(v.id, e.target.value)}
@@ -245,7 +261,7 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
                       </div>
                       <Button
                         type="button" variant="ghost" icon
-                        style={{ color: 'var(--danger)' }}
+                        className="text-[var(--danger)]"
                         onClick={() => removeVariant(v.id)}
                         aria-label={t('removeVariant', { name: v.name || '' })}
                       >
@@ -265,7 +281,7 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
                   </div>
                 ))}
 
-                <Button type="button" variant="secondary" size="sm" style={{ alignSelf: 'flex-start' }} onClick={addVariant}>
+                <Button type="button" variant="secondary" size="sm" className="self-start" onClick={addVariant}>
                   <Plus size={14} /> {t('addVariant')}
                 </Button>
               </div>
@@ -273,13 +289,13 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
           </div>
 
           <div className="h-px bg-surface-border my-4" />
-          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div className="flex gap-3 justify-between items-center">
             {!editService ? (
-              <Button type="button" variant="ghost" size="sm" onClick={discardDraft} style={{ color: 'var(--gray-400)' }}>
+              <Button type="button" variant="ghost" size="sm" onClick={discardDraft} className="text-[var(--gray-400)]">
                 {t('discardDraft')}
               </Button>
             ) : <span />}
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <div className="flex gap-3">
               <Button type="button" variant="secondary" onClick={closeForm}>{t('cancel')}</Button>
               <Button id="save-service-btn" type="submit" disabled={saving}>
                 {saving ? <Spinner size={18} dark={false} /> : null}

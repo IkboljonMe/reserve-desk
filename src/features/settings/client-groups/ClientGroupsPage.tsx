@@ -13,10 +13,10 @@ export default function ClientGroupsPage() {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+      <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
         <div>
-          <h2 style={{ fontSize: '1.125rem', fontWeight: 700 }}>{t('clientGroups')}</h2>
-          <p style={{ marginTop: 2, color: 'var(--gray-500)', fontSize: '0.875rem' }}>
+          <h2 className="m-0 text-lg font-bold">{t('clientGroups')}</h2>
+          <p className="mt-1 text-sm text-[var(--gray-500)]">
             {t('clientGroupsSubtitle')}
           </p>
         </div>

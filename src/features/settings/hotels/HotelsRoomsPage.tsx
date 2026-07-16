@@ -10,7 +10,7 @@ export default function HotelsRoomsPage() {
   const s = useHotelsRoomsPage()
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2.25rem' }}>
+    <div className="flex flex-col gap-9">
       <HotelsSection s={s} />
       <RoomsSection s={s} />
       <HotelModal s={s} />

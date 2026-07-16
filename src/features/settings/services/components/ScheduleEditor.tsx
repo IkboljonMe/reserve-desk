@@ -54,42 +54,50 @@ export function ScheduleEditor({ weeklyHours, blackoutDates, defaultOpen, defaul
   }
 
   return (
-    <div style={{ border: '1px solid var(--brand-100)', borderRadius: 10, padding: 16, background: '#fcfdff' }}>
-      <div style={{ marginBottom: '0.75rem' }}>
-        <h3 style={{ fontSize: '0.9rem', color: 'var(--brand-700)', margin: 0 }}>{t('weeklySchedule')}</h3>
-        <p style={{ fontSize: '0.72rem', color: 'var(--gray-500)', margin: '2px 0 0' }}>{t('weeklyScheduleHint')}</p>
+    <div className="bg-[var(--surface-card)] border border-[var(--brand-100,#e0e7ff)] rounded-[var(--radius-lg)] shadow-sm p-4 bg-[#fcfdff]">
+      <div className="mb-3">
+        <h3 className="text-[0.9rem] font-bold text-[var(--brand-700,#4338ca)] m-0">{t('weeklySchedule')}</h3>
+        <p className="text-[0.72rem] text-[var(--gray-500)] mt-0.5">{t('weeklyScheduleHint')}</p>
       </div>
 
-      <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.82rem', cursor: 'pointer', marginBottom: custom ? 12 : 0 }}>
+      <label className={`flex items-center gap-2 text-[0.82rem] cursor-pointer ${custom ? 'mb-3' : 'mb-0'}`}>
         <input type="checkbox" checked={custom} onChange={e => toggleCustom(e.target.checked)} />
         {t('useCustomHours')}
       </label>
 
       {!custom && (
-        <p style={{ fontSize: '0.75rem', color: 'var(--gray-400)', margin: 0 }}>{t('defaultHoursApply')}</p>
+        <p className="text-[0.75rem] text-[var(--gray-400)] m-0">{t('defaultHoursApply')}</p>
       )}
 
       {custom && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <div className="flex flex-col gap-1.5">
           {WEEK_ORDER.map(({ day, labelKey }) => {
             const row = byDay(day)
             if (!row) return null
             return (
-              <div key={day} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span style={{ width: 42, fontSize: '0.8rem', fontWeight: 600, color: 'var(--gray-700)' }}>{t(labelKey)}</span>
-                <label style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.76rem', color: 'var(--gray-500)', width: 88 }}>
+              <div key={day} className="flex items-center gap-2.5">
+                <span className="w-10.5 text-[0.8rem] font-semibold text-[var(--gray-700)]">{t(labelKey)}</span>
+                <label className="flex items-center gap-1.25 text-[0.76rem] text-[var(--gray-500)] w-22">
                   <input type="checkbox" checked={!row.closed} onChange={e => updateDay(day, { closed: !e.target.checked })} />
                   {row.closed ? t('dayClosed') : t('dayOpen')}
                 </label>
                 <input
-                  type="time" className="form-input" style={{ width: 120, opacity: row.closed ? 0.5 : 1 }}
-                  value={row.open} disabled={row.closed}
+                  type="time"
+                  className={`w-[120px] px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] ${
+                    row.closed ? 'opacity-50' : 'opacity-100'
+                  }`}
+                  value={row.open}
+                  disabled={row.closed}
                   onChange={e => updateDay(day, { open: e.target.value })}
                 />
-                <span style={{ color: 'var(--gray-400)' }}>–</span>
+                <span className="text-[var(--gray-400)]">–</span>
                 <input
-                  type="time" className="form-input" style={{ width: 120, opacity: row.closed ? 0.5 : 1 }}
-                  value={row.close} disabled={row.closed}
+                  type="time"
+                  className={`w-[120px] px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] ${
+                    row.closed ? 'opacity-50' : 'opacity-100'
+                  }`}
+                  value={row.close}
+                  disabled={row.closed}
                   onChange={e => updateDay(day, { close: e.target.value })}
                 />
               </div>
@@ -98,37 +106,38 @@ export function ScheduleEditor({ weeklyHours, blackoutDates, defaultOpen, defaul
         </div>
       )}
 
-      <div className="h-px bg-surface-border" style={{ margin: '14px 0 10px' }} />
+      <div className="h-px bg-surface-border my-3.5" />
 
-      <div style={{ marginBottom: 8 }}>
-        <h3 style={{ fontSize: '0.9rem', color: 'var(--brand-700)', margin: 0 }}>{t('blackoutDates')}</h3>
-        <p style={{ fontSize: '0.72rem', color: 'var(--gray-500)', margin: '2px 0 0' }}>{t('blackoutDatesHint')}</p>
+      <div className="mb-2">
+        <h3 className="text-[0.9rem] font-bold text-[var(--brand-700,#4338ca)] m-0">{t('blackoutDates')}</h3>
+        <p className="text-[0.72rem] text-[var(--gray-500)] mt-0.5">{t('blackoutDatesHint')}</p>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: blackoutDates.length ? 10 : 0 }}>
+      <div className={`flex items-center gap-2 ${blackoutDates.length ? 'mb-2.5' : 'mb-0'}`}>
         <input
-          type="date" className="form-input" style={{ width: 'auto' }}
+          type="date"
+          className="w-auto px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
           onChange={e => { addBlackout(e.target.value); e.target.value = '' }}
           aria-label={t('addDate')}
         />
-        <span style={{ fontSize: '0.72rem', color: 'var(--gray-400)', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+        <span className="text-[0.72rem] text-[var(--gray-400)] inline-flex items-center gap-1">
           <Plus size={12} /> {t('addDate')}
         </span>
       </div>
 
       {blackoutDates.length > 0 ? (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+        <div className="flex flex-wrap gap-1.5">
           {blackoutDates.map(d => (
-            <span key={d} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 8px', borderRadius: 20, fontSize: '0.75rem', background: 'var(--gray-100)', color: 'var(--gray-700)', fontVariantNumeric: 'tabular-nums' }}>
+            <span key={d} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[0.75rem] bg-[var(--gray-100,#f3f4f6)] text-[var(--gray-700,#374151)] font-semibold tabular-nums">
               {d}
-              <button type="button" onClick={() => removeBlackout(d)} aria-label={t('remove')} style={{ display: 'inline-flex', color: 'var(--gray-400)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+              <button type="button" onClick={() => removeBlackout(d)} aria-label={t('remove')} className="inline-flex text-[var(--gray-400,#9ca3af)] hover:text-[var(--danger,#ef4444)] bg-transparent border-0 cursor-pointer p-0">
                 <X size={13} />
               </button>
             </span>
           ))}
         </div>
       ) : (
-        <p style={{ fontSize: '0.75rem', color: 'var(--gray-400)', margin: 0 }}>{t('noBlackoutDates')}</p>
+        <p className="text-[0.75rem] text-[var(--gray-400)] m-0">{t('noBlackoutDates')}</p>
       )}
     </div>
   )

@@ -18,7 +18,7 @@ export function RoomModal({ s }: { s: HotelsRoomsPageState }) {
 
   return (
     <div className="modal-overlay" onClick={() => setRoomOpen(false)}>
-      <div className="modal" style={{ maxWidth: 440 }} onClick={e => e.stopPropagation()}>
+      <div className="modal max-w-[440px]" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <h2>{editRoomId ? t('editRoom') : t('addRoom')}</h2>
           <Button variant="ghost" icon onClick={() => setRoomOpen(false)} aria-label={t('close')}>
@@ -26,9 +26,9 @@ export function RoomModal({ s }: { s: HotelsRoomsPageState }) {
           </Button>
         </div>
         <form onSubmit={handleSubmitRoom}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <div className="form-group">
-              <label className="form-label">{t('hotel')} *</label>
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('hotel')} *</label>
               <Select
                 ariaLabel={t('hotel')}
                 placeholder={t('selectHotel')}
@@ -42,11 +42,11 @@ export function RoomModal({ s }: { s: HotelsRoomsPageState }) {
               />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <div className="form-group">
-                <label className="form-label">{t('floor')} *</label>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('floor')} *</label>
                 <input
-                  className="form-input"
+                  className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
                   type="number"
                   min={0}
                   required
@@ -55,10 +55,10 @@ export function RoomModal({ s }: { s: HotelsRoomsPageState }) {
                   placeholder="2"
                 />
               </div>
-              <div className="form-group">
-                <label className="form-label">{t('roomNumberField')} *</label>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('roomNumberField')} *</label>
                 <input
-                  className="form-input"
+                  className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
                   required
                   value={roomForm.number}
                   onChange={e => setRoomForm(f => ({ ...f, number: e.target.value }))}
@@ -68,8 +68,8 @@ export function RoomModal({ s }: { s: HotelsRoomsPageState }) {
             </div>
 
             {roomHotel && roomHotel.roomTypes && roomHotel.roomTypes.length > 0 && (
-              <div className="form-group">
-                <label className="form-label">{t('category')}</label>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('category')}</label>
                 <Select
                   ariaLabel={t('roomCategoryAria')}
                   placeholder={t('selectCategory')}
@@ -81,23 +81,15 @@ export function RoomModal({ s }: { s: HotelsRoomsPageState }) {
             )}
 
             {/* Live preview of the generated room name */}
-            <div style={{
-              background: 'var(--brand-50)',
-              border: '1px solid var(--brand-100)',
-              borderRadius: 8,
-              padding: '10px 14px',
-              fontSize: '0.8125rem',
-              color: 'var(--brand-700)',
-              display: 'flex', alignItems: 'center', gap: 8,
-            }}>
+            <div className="bg-[var(--brand-50,#eef2ff)] border border-[var(--brand-100,#e0e7ff)] rounded-lg p-[10px_14px] text-[0.8125rem] text-[var(--brand-700,#4338ca)] flex items-center gap-2">
               {t('roomNameLabel')}&nbsp;
-              <strong style={{ fontSize: '0.9375rem', fontVariantNumeric: 'tabular-nums' }}>
+              <strong className="text-[0.9375rem] font-bold tabular-nums">
                 {roomShort}-{roomForm.number || '###'}
               </strong>
             </div>
           </div>
           <div className="h-px bg-surface-border my-4" />
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+          <div className="flex justify-end gap-2">
             <Button type="button" variant="secondary" onClick={() => setRoomOpen(false)}>{t('cancel')}</Button>
             <Button type="submit" disabled={savingRoom}>
               {savingRoom ? <Spinner size={18} dark={false} /> : null}
