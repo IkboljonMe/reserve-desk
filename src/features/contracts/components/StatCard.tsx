@@ -8,13 +8,16 @@ export function StatCard({ label, value, tint, tintBg, icon }: { label: string; 
     alert: <><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></>,
   }
   return (
-    <div className="card" style={{ padding: '1rem 1.1rem', display: 'flex', alignItems: 'center', gap: 14 }}>
-      <div style={{ width: 42, height: 42, borderRadius: 11, background: tintBg, color: tint, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+    <div className="bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-[var(--radius-lg)] shadow-sm flex items-center gap-3.5 p-[1rem_1.1rem]">
+      <div
+        className="w-10.5 h-10.5 rounded-[11px] flex items-center justify-center shrink-0"
+        style={{ background: tintBg, color: tint }}
+      >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{paths[icon]}</svg>
       </div>
       <div>
-        <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--gray-900)', lineHeight: 1 }}>{value}</div>
-        <div style={{ fontSize: '0.75rem', color: 'var(--gray-500)', marginTop: 4, fontWeight: 500 }}>{label}</div>
+        <div className="text-2xl font-extrabold text-[var(--gray-900)] leading-none">{value}</div>
+        <div className="text-[0.75rem] text-[var(--gray-500)] mt-1 font-medium">{label}</div>
       </div>
     </div>
   )
