@@ -803,4 +803,42 @@ button.swiper-button-next::after {
     border: 1px solid var(--surface-border) !important;
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.4) !important;
   }
+
+  /* ─── Landing Page Dark Mode Overrides ──────────────── */
+  .text-slate-900 {
+    color: var(--gray-900) !important;
+  }
+  .text-slate-800 {
+    color: var(--gray-800) !important;
+  }
+  .text-slate-700 {
+    color: var(--gray-700) !important;
+  }
+  .text-slate-600,
+  .text-slate-500 {
+    color: var(--gray-500) !important;
+  }
+  .text-slate-400 {
+    color: var(--gray-400) !important;
+  }
+
+  .border-slate-200,
+  .border-slate-300 {
+    border-color: var(--surface-border) !important;
+  }
+
+  /* Section backgrounds mapping overrides */
+  section.bg-white,
+  footer.bg-white,
+  section#pricing,
+  section#reviews {
+    background-color: var(--surface-bg) !important;
+    border-color: var(--surface-border) !important;
+  }
+
+  /* Force background override for landing cards using constant styles */
+  div.border-slate-200.rounded-2xl {
+    background-color: var(--surface-card) !important;
+    border-color: var(--surface-border) !important;
+  }
 }
