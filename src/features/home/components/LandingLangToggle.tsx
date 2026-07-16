@@ -32,7 +32,7 @@ export function LandingLangToggle({ current }: { current: string }) {
   }
 
   return (
-    <div style={{ width: 108 }}>
+    <div className="w-[108px]">
       <Dropdown
         value={current}
         onChange={switchTo}

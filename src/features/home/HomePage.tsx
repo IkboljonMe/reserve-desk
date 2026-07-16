@@ -1,6 +1,5 @@
 import { headers } from 'next/headers'
 import { getT } from '@/i18n/dictionary'
-import { LandingStyles } from './components/LandingStyles'
 import { Navbar } from './components/Navbar'
 import { Hero } from './components/Hero'
 import { Features } from './components/Features'
@@ -36,11 +35,10 @@ export async function HomePage({ locale }: { locale: string }) {
   ]
 
   return (
-    <main className="lp-main bg-slate-50 text-slate-900 min-h-dvh overflow-x-clip">
-      <LandingStyles />
+    <main className="bg-slate-50 text-slate-900 min-h-dvh overflow-x-clip">
       <Navbar locale={locale} t={t} demoUrl={demoUrl} loginHref={loginHref} navLinks={navLinks} />
       <Hero t={t} demoUrl={demoUrl} />
-      <div className="lp-content-over">
+      <div className="relative bg-slate-50">
         <Features t={t} />
         <Reviews t={t} />
         <Modules t={t} />

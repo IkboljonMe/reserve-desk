@@ -25,7 +25,7 @@ export function Navbar({ locale, t, demoUrl, loginHref, navLinks }: Props) {
         </div>
 
         <nav className="flex gap-2 ml-auto items-center flex-wrap">
-          <div className="lp-nav-links">
+          <div className="hidden min-[721px]:flex items-center gap-1 flex-wrap">
             {navLinks.map(({ href, label }) => (
               <a
                 key={href}
@@ -37,7 +37,7 @@ export function Navbar({ locale, t, demoUrl, loginHref, navLinks }: Props) {
             ))}
           </div>
           <LandingLangToggle current={locale} />
-          <div className="lp-nav-desktop-cta">
+          <div className="hidden min-[721px]:flex items-center gap-2">
             <Link
               href={loginHref}
               className="px-4 py-2 rounded-[10px] no-underline bg-white text-slate-900 border border-slate-200 text-sm font-semibold"

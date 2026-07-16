@@ -62,7 +62,32 @@
   --radius-xl: 20px;
 
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --animate-float-1: lpFloat1 15s ease-in-out infinite;
+  --animate-float-2: lpFloat2 19s ease-in-out infinite;
+  --animate-scroll-wheel: lpScrollWheel 1.6s ease-in-out infinite;
+  --animate-contact-in: lpContactIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+
+  @keyframes lpFloat1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(5%, 7%) scale(1.08); }
+  }
+  @keyframes lpFloat2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-6%, 5%) scale(1.1); }
+  }
+  @keyframes lpScrollWheel {
+    0% { opacity: 0; transform: translate(-50%, 0); }
+    30% { opacity: 1; }
+    80% { opacity: 0; transform: translate(-50%, 8px); }
+    100% { opacity: 0; }
+  }
+  @keyframes lpContactIn {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: none; }
+  }
 }
+
 
 /*
  * Everything below is legacy hand-written CSS predating the Tailwind
