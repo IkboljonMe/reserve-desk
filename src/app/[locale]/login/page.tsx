@@ -19,68 +19,49 @@ export default async function UniversalLoginPage({ params }: { params: Promise<{
   const homeUrl = `${protocol}://${baseDomain}/${locale}`
 
   return (
-    <main style={{
-      minHeight: '100dvh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: `
-        radial-gradient(900px 500px at 80% -10%, rgba(124,58,237,0.35), transparent 60%),
-        radial-gradient(800px 500px at 10% 110%, rgba(79,110,247,0.30), transparent 55%),
-        linear-gradient(135deg, #14192a 0%, #1e2540 50%, #14192a 100%)`,
-    }}>
-      <div style={{ width: '100%', maxWidth: '400px', padding: '1rem' }}>
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <a href={homeUrl} style={{ textDecoration: 'none', display: 'inline-block' }} aria-label={t('backToHome')}>
-            <BrandMark size={64} priority style={{ margin: '0 auto 0.75rem' }} />
-            <h1 style={{ color: '#fff', fontSize: '1.6rem', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: '0.25rem' }}>Bronit</h1>
+    <main className="min-h-[100dvh] flex items-center justify-center bg-[radial-gradient(900px_500px_at_80%_-10%,rgba(124,58,237,0.35),transparent_60%),radial-gradient(800px_500px_at_10%_110%,rgba(79,110,247,0.30),transparent_55%),linear-gradient(135deg,#14192a_0%,#1e2540_50%,#14192a_100%)]">
+      <div className="w-full max-w-[400px] p-4">
+        <div className="text-center mb-8">
+          <a href={homeUrl} className="no-underline inline-block" aria-label={t('backToHome')}>
+            <BrandMark size={64} priority className="mx-auto mb-3" />
+            <h1 className="text-white text-[1.6rem] font-extrabold tracking-tight mb-1">Bronit</h1>
           </a>
-          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.875rem' }}>{t('universalLoginHint')}</p>
+          <p className="text-white/50 text-sm">{t('universalLoginHint')}</p>
         </div>
 
-        <div style={{
-          background: 'rgba(255,255,255,0.06)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-          border: '1px solid rgba(255,255,255,0.12)',
-          borderRadius: 20,
-          padding: '2rem',
-          boxShadow: '0 24px 60px rgba(0,0,0,0.45)',
-        }}>
+        <div className="bg-white/6 backdrop-blur-2xl border border-white/12 rounded-[20px] p-8 shadow-[0_24px_60px_rgba(0,0,0,0.45)]">
           {!sub ? (
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-               <h2 style={{ color: '#fff', fontSize: '1.25rem', fontWeight: 600, textAlign: 'center', marginBottom: '1rem' }}>Select your portal</h2>
+             <div className="flex flex-col gap-4">
+               <h2 className="text-white text-[1.25rem] font-semibold text-center mb-4">Select your portal</h2>
                <a
                  href={`${protocol}://app.${baseDomain}/${locale}/login`}
-                 className="inline-flex items-center justify-center gap-1.5 font-semibold whitespace-nowrap tracking-[-0.01em] bg-[image:var(--brand-gradient)] shadow-brand transition-[filter,box-shadow,transform] duration-150 hover:brightness-[1.06] hover:shadow-[0_8px_20px_rgba(79,110,247,0.36)] active:translate-y-px"
-                 style={{ textAlign: 'center', padding: '1rem', borderRadius: '12px', color: '#fff', textDecoration: 'none' }}
+                 className="inline-flex items-center justify-center gap-1.5 font-semibold whitespace-nowrap tracking-tight bg-[image:var(--brand-gradient)] shadow-brand transition-all duration-150 hover:brightness-[1.06] hover:shadow-[0_8px_20px_rgba(79,110,247,0.36)] active:translate-y-px text-center p-4 rounded-xl text-white no-underline"
                >
                  Owner Portal
                </a>
                <a
                  href={`${protocol}://admin.${baseDomain}/${locale}/login`}
-                 className="inline-flex items-center justify-center gap-1.5 font-semibold whitespace-nowrap tracking-[-0.01em] border border-white/20 transition-colors duration-150 hover:bg-white/15"
-                 style={{ textAlign: 'center', padding: '1rem', borderRadius: '12px', background: 'rgba(255,255,255,0.1)', color: '#fff', textDecoration: 'none' }}
+                 className="inline-flex items-center justify-center gap-1.5 font-semibold whitespace-nowrap tracking-tight border border-white/20 transition-colors duration-150 hover:bg-white/15 text-center p-4 rounded-xl bg-white/10 text-white no-underline"
                >
                  Branch Admin Portal
                </a>
                <a 
                  href={`${protocol}://super.${baseDomain}/${locale}/login`}
-                 style={{ textAlign: 'center', padding: '0.5rem', color: 'rgba(255,255,255,0.5)', fontSize: '0.875rem', marginTop: '1rem', textDecoration: 'none' }}
+                 className="text-center p-2 text-white/50 text-sm mt-4 no-underline hover:text-white/80 transition-colors"
                >
                  Superadmin Login
                </a>
              </div>
           ) : (
              <>
-               <h2 style={{ color: '#fff', fontSize: '1.125rem', fontWeight: 600, marginBottom: '1.5rem' }}>{t('signInToAccount')}</h2>
+               <h2 className="text-white text-[1.125rem] font-semibold mb-6">{t('signInToAccount')}</h2>
                <LoginFormClient />
              </>
           )}
         </div>
 
-        <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
-          <a href={homeUrl} style={{ color: 'rgba(255,255,255,0.55)', fontSize: '0.85rem', textDecoration: 'none' }}>
+        <div className="text-center mt-6">
+          <a href={homeUrl} className="text-white/55 text-[0.85rem] no-underline hover:text-white/80 transition-colors">
             ← {t('backToHome')}
           </a>
         </div>

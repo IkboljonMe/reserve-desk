@@ -1,13 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+
 import { useTranslation } from '@/i18n'
 import Spinner from '@/components/ui/Spinner'
 import Button from '@/components/ui/Button'
 
 export default function LoginFormClient() {
-  const router = useRouter()
+
   const { t, lang } = useTranslation()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -36,7 +36,7 @@ export default function LoginFormClient() {
            window.location.href = `/${lang}/calendar`
         }
       }
-    } catch (err) {
+    } catch {
       setError(t('networkError'))
     } finally {
       setLoading(false)
@@ -44,52 +44,35 @@ export default function LoginFormClient() {
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-      <div className="form-group">
-        <label className="form-label" style={{ color: 'rgba(255,255,255,0.7)' }}>{t('emailAddress')}</label>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <div className="flex flex-col gap-1.5">
+        <label className="text-[0.8125rem] font-semibold text-white/70 tracking-tight">{t('emailAddress')}</label>
         <input
           id="email"
           type="email"
-          className="form-input"
+          className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white/7 border-1.5 border-white/12 text-white placeholder-white/30 focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
           placeholder="example@bronit.uz"
           value={email}
           onChange={e => setEmail(e.target.value)}
           required
-          style={{
-            background: 'rgba(255,255,255,0.07)',
-            border: '1.5px solid rgba(255,255,255,0.12)',
-            color: '#fff',
-          }}
         />
       </div>
 
-      <div className="form-group">
-        <label className="form-label" style={{ color: 'rgba(255,255,255,0.7)' }}>{t('password')}</label>
+      <div className="flex flex-col gap-1.5">
+        <label className="text-[0.8125rem] font-semibold text-white/70 tracking-tight">{t('password')}</label>
         <input
           id="password"
           type="password"
-          className="form-input"
+          className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white/7 border-1.5 border-white/12 text-white placeholder-white/30 focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
           placeholder="••••••••"
           value={password}
           onChange={e => setPassword(e.target.value)}
           required
-          style={{
-            background: 'rgba(255,255,255,0.07)',
-            border: '1.5px solid rgba(255,255,255,0.12)',
-            color: '#fff',
-          }}
         />
       </div>
 
       {error && (
-        <div style={{
-          background: 'rgba(239,68,68,0.15)',
-          border: '1px solid rgba(239,68,68,0.3)',
-          borderRadius: 8,
-          padding: '8px 12px',
-          color: '#fca5a5',
-          fontSize: '0.875rem',
-        }}>
+        <div className="bg-red-500/15 border border-red-500/30 rounded-lg p-[8px_12px] text-[#fca5a5] text-sm">
           {error}
         </div>
       )}
@@ -99,7 +82,7 @@ export default function LoginFormClient() {
         type="submit"
         disabled={loading}
         size="lg"
-        style={{ marginTop: '0.25rem', width: '100%' }}
+        className="mt-1 w-full"
       >
         {loading ? <Spinner size={18} dark={false} /> : null}
         {loading ? t('signingIn') : t('signIn')}
