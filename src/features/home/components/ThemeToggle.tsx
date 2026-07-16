@@ -37,17 +37,17 @@ export function ThemeToggle() {
         onClick={() => setOpen(!open)}
         aria-expanded={open}
         aria-haspopup="listbox"
-        className="w-[105px] h-[38px] px-3.5 inline-flex items-center justify-between rounded-[10px] bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 cursor-pointer border border-slate-200/40 dark:border-slate-700/50 transition-all duration-150 text-[0.8rem] font-semibold"
+        className="w-[105px] h-[38px] px-3.5 inline-flex items-center justify-between rounded-[10px] bg-[var(--gray-100)] hover:bg-[var(--gray-200)] text-[var(--gray-700)] cursor-pointer border border-[var(--surface-border)] transition-all duration-150 text-[0.8rem] font-semibold"
       >
         <span className="flex items-center gap-1.75">
           <ActiveIcon size={14} className="shrink-0" />
           {activeOption.label}
         </span>
-        <ChevronDown size={12} className={`shrink-0 text-slate-400 dark:text-slate-500 transition-transform duration-150 ${open ? 'rotate-180' : 'rotate-0'}`} />
+        <ChevronDown size={12} className={`shrink-0 text-[var(--gray-400)] transition-transform duration-150 ${open ? 'rotate-180' : 'rotate-0'}`} />
       </button>
 
       {open && (
-        <ul className="absolute top-[calc(100%+6px)] right-0 z-[9999] list-none m-0 p-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[10px] shadow-[0_12px_32px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.04)] w-[120px] box-border">
+        <ul className="absolute top-[calc(100%+6px)] right-0 z-[9999] list-none m-0 p-1 bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-[10px] shadow-[0_12px_32px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.04)] w-[120px] box-border">
           {options.map(opt => {
             const isSelected = opt.value === theme
             const OptIcon = opt.icon
@@ -60,8 +60,8 @@ export function ThemeToggle() {
                 }}
                 className={`flex items-center justify-between gap-2 p-2 rounded-lg cursor-pointer text-[0.8rem] transition-all duration-100 ease-in-out box-border ${
                   isSelected
-                    ? 'font-bold text-[var(--brand-600,#4f6ef7)] bg-[var(--brand-50)]/30 dark:bg-[var(--brand-500)]/15'
-                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+                    ? 'font-bold text-[var(--brand-600)] bg-[var(--sidebar-hover)]'
+                    : 'text-[var(--gray-700)] hover:bg-[var(--gray-50)] hover:text-[var(--gray-900)]'
                 }`}
               >
                 <span className="flex items-center gap-1.75">
