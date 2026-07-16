@@ -3,13 +3,11 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslation, LANGUAGES, LanguageCode } from '@/i18n'
-import { useState, useEffect, useCallback, type CSSProperties, type MouseEvent } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useBookingModal } from '@/components/BookingModalProvider'
 import { BrandMark } from '@/components/BrandMark'
 import type { SessionRole } from '@/lib/session'
 
-const EXPANDED_WIDTH = 232
-const RAIL_WIDTH = 72
 
 export default function Sidebar({
   collapsed = false,
@@ -75,6 +73,7 @@ export default function Sidebar({
   }, [])
 
   // Refresh the badge on navigation and whenever a reminder is dismissed.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { loadNotifCount() }, [loadNotifCount, pathname])
   useEffect(() => {
     const handler = () => loadNotifCount()
@@ -174,61 +173,24 @@ export default function Sidebar({
     ? NAV_ITEMS
     : NAV_ITEMS.filter(item => item.href !== '/settings')
 
-  // Shared transition timing so every collapsing element moves in sync.
-  const ease = 'cubic-bezier(0.4, 0, 0.2, 1)'
-  const labelTransition = `max-width 0.22s ${ease}, opacity 0.18s ${ease}, margin 0.22s ${ease}`
 
   return (
-    <aside style={mobile ? {
-      position: 'fixed',
-      top: 0,
-      bottom: 0,
-      left: 0,
-      width: EXPANDED_WIDTH,
-      minWidth: EXPANDED_WIDTH,
-      zIndex: 150,
-      background: 'var(--sidebar-bg)',
-      display: 'flex',
-      flexDirection: 'column',
-      overflow: 'hidden',
-      transform: mobileOpen ? 'translateX(0)' : 'translateX(-100%)',
-      transition: `transform 0.24s ${ease}`,
-      boxShadow: mobileOpen ? '8px 0 30px rgba(0,0,0,0.25)' : 'none',
-    } : {
-      width: collapsed ? RAIL_WIDTH : EXPANDED_WIDTH,
-      minWidth: collapsed ? RAIL_WIDTH : EXPANDED_WIDTH,
-      background: 'var(--sidebar-bg)',
-      borderRight: '1px solid rgba(255,255,255,0.08)',
-      display: 'flex',
-      flexDirection: 'column',
-      overflow: 'hidden',
-      transition: `width 0.24s ${ease}, min-width 0.24s ${ease}`,
-    }}>
+    <aside
+      className={mobile ? (
+        `fixed inset-y-0 left-0 w-[232px] min-w-[232px] z-[150] bg-[var(--sidebar-bg)] flex flex-col overflow-hidden transition-transform duration-240 ease-[cubic-bezier(0.4,0,0.2,1)] ${mobileOpen ? 'translate-x-0 shadow-[8px_0_30px_rgba(0,0,0,0.25)]' : '-translate-x-full'}`
+      ) : (
+        `flex flex-col overflow-hidden bg-[var(--sidebar-bg)] border-r border-white/8 transition-[width,min-width] duration-240 ease-[cubic-bezier(0.4,0,0.2,1)] ${collapsed ? 'w-[72px] min-w-[72px]' : 'w-[232px] min-w-[232px]'}`
+      )}
+    >
       {/* Brand */}
-      <div style={{
-        padding: collapsed ? '1.5rem 0 1.35rem' : '1.5rem 1.1rem 1.35rem',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
-        transition: `padding 0.24s ${ease}`,
-      }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: collapsed ? 0 : 12,
-          justifyContent: collapsed ? 'center' : 'flex-start',
-          transition: `gap 0.24s ${ease}`,
-        }}>
+      <div className={`border-b border-white/6 transition-[padding] duration-240 ease-[cubic-bezier(0.4,0,0.2,1)] ${collapsed ? 'py-6 px-0 pb-[1.35rem]' : 'py-6 px-[1.1rem] pb-[1.35rem]'}`}>
+        <div className={`flex items-center transition-[gap] duration-240 ease-[cubic-bezier(0.4,0,0.2,1)] ${collapsed ? 'gap-0 justify-center' : 'gap-3 justify-start'}`}>
           {/* Brand mark — the Bronit icon */}
           <BrandMark size={40} priority />
           {/* Name lockup */}
-          <div style={{
-            overflow: 'hidden',
-            maxWidth: collapsed ? 0 : 170,
-            opacity: collapsed ? 0 : 1,
-            whiteSpace: 'nowrap',
-            transition: labelTransition,
-          }}>
-            <div style={{ color: '#fff', fontSize: '1.15rem', fontWeight: 800, lineHeight: 1.15, letterSpacing: '-0.02em' }}>Bronit</div>
-            <div style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.7rem', letterSpacing: '0.03em', marginTop: 2 }}>{t('brandTagline')}</div>
+          <div className={`overflow-hidden whitespace-nowrap transition-all duration-220 ease-[cubic-bezier(0.4,0,0.2,1)] ${collapsed ? 'max-w-0 opacity-0' : 'max-w-[170px] opacity-100'}`}>
+            <div className="text-white text-[1.15rem] font-extrabold leading-[1.15] tracking-tight">Bronit</div>
+            <div className="text-white/45 text-[0.7rem] tracking-wider mt-0.5">{t('brandTagline')}</div>
           </div>
 
           {mobile && (
@@ -236,16 +198,7 @@ export default function Sidebar({
               type="button"
               onClick={onCloseMobile}
               aria-label={t('closeMenuAria')}
-              style={{
-                marginLeft: 'auto',
-                width: 32, height: 32, flexShrink: 0,
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                background: 'rgba(255,255,255,0.06)',
-                border: '1px solid rgba(255,255,255,0.08)',
-                borderRadius: 8,
-                color: 'rgba(255,255,255,0.7)',
-                cursor: 'pointer',
-              }}
+              className="ml-auto w-8 h-8 shrink-0 inline-flex items-center justify-center bg-white/6 border border-white/8 rounded-lg text-white/70 cursor-pointer"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -256,107 +209,43 @@ export default function Sidebar({
       </div>
 
       {/* Nav */}
-      <nav style={{ flex: 1, padding: '1rem 0.75rem', display: 'flex', flexDirection: 'column', gap: 3, overflowY: 'auto', overflowX: 'hidden' }}>
-        <div style={{
-          padding: '0 10px',
-          height: collapsed ? 0 : 22,
-          marginBottom: collapsed ? 0 : 8,
-          fontSize: '0.65rem',
-          fontWeight: 700,
-          letterSpacing: '0.12em',
-          textTransform: 'uppercase',
-          color: 'rgba(255,255,255,0.28)',
-          overflow: 'hidden',
-          opacity: collapsed ? 0 : 1,
-          whiteSpace: 'nowrap',
-          transition: `height 0.22s ${ease}, opacity 0.18s ${ease}, margin 0.22s ${ease}`,
-        }}>
+      <nav className="flex-1 p-[1rem_0.75rem] flex flex-col gap-0.5 overflow-y-auto overflow-x-hidden">
+        <div className={`px-2.5 uppercase font-bold text-[0.65rem] tracking-[0.12em] text-white/28 overflow-hidden whitespace-nowrap transition-all duration-220 ease-[cubic-bezier(0.4,0,0.2,1)] ${collapsed ? 'h-0 mb-0 opacity-0' : 'h-[22px] mb-2 opacity-100'}`}>
           {t('menu')}
         </div>
         {visibleItems.map((item) => {
-          // "New Booking" opens the wizard modal in place rather than navigating
-          // to a route, so it's never the "active" nav item and needs no href.
           const isBookingItem = item.href === '/book'
           const isActive = !isBookingItem && pathname.startsWith(localized(item.href))
           const badge = 'badge' in item ? (item.badge ?? 0) : 0
 
-          const itemStyle: CSSProperties = {
-            position: 'relative',
-            display: 'flex',
-            alignItems: 'center',
-            gap: collapsed ? 0 : 11,
-            justifyContent: collapsed ? 'center' : 'flex-start',
-            width: '100%',
-            padding: collapsed ? '10px 0' : '9px 11px',
-            border: 'none',
-            background: isActive ? 'linear-gradient(135deg, rgba(79,110,247,0.28), rgba(124,58,237,0.22))' : 'transparent',
-            borderRadius: 10,
-            textDecoration: 'none',
-            color: isActive ? '#fff' : 'var(--sidebar-text)',
-            boxShadow: isActive ? 'inset 0 0 0 1px rgba(124,146,255,0.25)' : 'none',
-            transition: `background 0.15s ease, gap 0.24s ${ease}, padding 0.24s ${ease}`,
-            fontSize: '0.875rem',
-            fontWeight: isActive ? 600 : 500,
-            fontFamily: 'inherit',
-            cursor: 'pointer',
-          }
-          const itemHoverHandlers = {
-            onMouseEnter: (e: MouseEvent<HTMLElement>) => {
-              if (!isActive) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.06)'
-            },
-            onMouseLeave: (e: MouseEvent<HTMLElement>) => {
-              if (!isActive) (e.currentTarget as HTMLElement).style.background = 'transparent'
-            },
-          }
+          const itemClassName = `relative flex items-center w-full border-none no-underline text-sm font-medium cursor-pointer rounded-xl transition-all duration-150 ease-in-out hover:bg-white/6 ${
+            collapsed ? 'gap-0 justify-center py-2.5 px-0' : 'gap-2.75 justify-start py-2.25 px-2.75'
+          } ${
+            isActive
+              ? 'bg-[linear-gradient(135deg,rgba(79,110,247,0.28),rgba(124,58,237,0.22))] text-white font-semibold shadow-[inset_0_0_0_1px_rgba(124,146,255,0.25)]'
+              : 'text-[var(--sidebar-text)]'
+          }`
 
           const itemContent = (
             <>
               {isActive && !collapsed && (
-                <span style={{
-                  position: 'absolute', left: -7, top: '50%', transform: 'translateY(-50%)',
-                  width: 3, height: 18, borderRadius: 4, background: 'var(--sidebar-active)',
-                }} />
+                <span className="absolute -left-1.75 top-1/2 -translate-y-1/2 w-[3px] h-[18px] rounded-[4px] bg-[var(--sidebar-active)]" />
               )}
-              <span style={{ position: 'relative', display: 'inline-flex', flexShrink: 0, color: isActive ? '#fff' : 'var(--sidebar-text)' }}>
+              <span className={`relative inline-flex shrink-0 ${isActive ? 'text-white' : 'text-[var(--sidebar-text)]'}`}>
                 {item.icon}
-                {/* Collapsed rail: badge shrinks to a dot on the icon corner. */}
                 {collapsed && badge > 0 && (
-                  <span style={{
-                    position: 'absolute', top: -4, right: -4,
-                    minWidth: 8, height: 8,
-                    borderRadius: 9,
-                    background: 'var(--danger)',
-                    boxShadow: '0 0 0 2px var(--sidebar-bg)',
-                  }} />
+                  <span className="absolute -top-1 -right-1 min-w-2 h-2 rounded-full bg-[var(--color-danger)] shadow-[0_0_0_2px_var(--sidebar-bg)]" />
                 )}
               </span>
-              <span style={{
-                flex: 1,
-                display: 'flex',
-                alignItems: 'center',
-                overflow: 'hidden',
-                maxWidth: collapsed ? 0 : 200,
-                opacity: collapsed ? 0 : 1,
-                whiteSpace: 'nowrap',
-                transition: labelTransition,
-              }}>
-                <span style={{ flex: 1, textAlign: 'left' }}>{item.label}</span>
+              <span className={`flex-1 flex items-center overflow-hidden whitespace-nowrap transition-all duration-220 ease-[cubic-bezier(0.4,0,0.2,1)] ${collapsed ? 'max-w-0 opacity-0' : 'max-w-[200px] opacity-100'}`}>
+                <span className="flex-1 text-left">{item.label}</span>
                 {badge > 0 && (
-                  <span style={{
-                    marginLeft: 8,
-                    minWidth: 18, height: 18, padding: '0 5px',
-                    borderRadius: 9,
-                    background: 'var(--danger)',
-                    color: '#fff',
-                    fontSize: '0.68rem', fontWeight: 700,
-                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                    boxShadow: '0 2px 6px rgba(239,68,68,0.45)',
-                  }}>
+                  <span className="ml-2 min-w-4.5 h-4.5 px-1.25 rounded-full bg-[var(--color-danger)] text-white text-[0.68rem] font-bold inline-flex items-center justify-center shadow-[0_2px_6px_rgba(239,68,68,0.45)]">
                     {badge > 99 ? '99+' : badge}
                   </span>
                 )}
                 {item.href === '/settings' && (
-                  <span style={{ marginLeft: 8, color: 'rgba(255,255,255,0.5)', display: 'inline-flex', transform: isActive ? 'rotate(0deg)' : 'rotate(-90deg)', transition: 'transform 0.2s ease' }}>
+                  <span className={`ml-2 text-white/50 inline-flex transition-transform duration-200 ease-out ${isActive ? 'rotate-0' : '-rotate-90'}`}>
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <polyline points="6 9 12 15 18 9"/>
                     </svg>
@@ -369,18 +258,18 @@ export default function Sidebar({
           return (
             <div key={item.href}>
               {isBookingItem ? (
-                <button type="button" title={collapsed ? item.label : undefined} style={itemStyle} onClick={() => openBookingModal()} {...itemHoverHandlers}>
+                <button type="button" title={collapsed ? item.label : undefined} className={itemClassName} onClick={() => openBookingModal()}>
                   {itemContent}
                 </button>
               ) : (
-                <Link href={localized(item.href)} title={collapsed ? item.label : undefined} style={itemStyle} {...itemHoverHandlers}>
+                <Link href={localized(item.href)} title={collapsed ? item.label : undefined} className={itemClassName}>
                   {itemContent}
                 </Link>
               )}
 
               {/* Sub-items for settings — only shown when expanded */}
               {item.children && isActive && !collapsed && (
-                <div style={{ marginLeft: 28, marginTop: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                <div className="ml-7 mt-0.5 flex flex-col gap-0.5">
                   {item.children.map(child => {
                     const childHref = localized(child.href)
                     const childActive = pathname === childHref || pathname.startsWith(childHref)
@@ -388,18 +277,11 @@ export default function Sidebar({
                       <Link
                         key={child.href}
                         href={childHref}
-                        style={{
-                          display: 'block',
-                          padding: '6px 10px',
-                          borderRadius: 6,
-                          textDecoration: 'none',
-                          color: childActive ? '#fff' : 'var(--sidebar-text)',
-                          background: childActive ? 'rgba(79,110,247,0.2)' : 'transparent',
-                          fontSize: '0.8125rem',
-                          fontWeight: childActive ? 500 : 400,
-                          transition: 'all 0.15s ease',
-                          whiteSpace: 'nowrap',
-                        }}
+                        className={`block px-2.5 py-1.5 rounded-md no-underline text-[0.8125rem] transition-all duration-150 ease-in-out whitespace-nowrap ${
+                          childActive
+                            ? 'text-white bg-[#4f6ef7]/20 font-medium'
+                            : 'text-[var(--sidebar-text)] hover:bg-white/6'
+                        }`}
                       >
                         {child.label}
                       </Link>
@@ -413,64 +295,23 @@ export default function Sidebar({
       </nav>
 
       {/* Bottom: account, language, logout, and the collapse / expand toggle */}
-      <div style={{
-        borderTop: '1px solid rgba(255,255,255,0.06)',
-        padding: collapsed ? '0.6rem 0' : '0.75rem',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 10,
-        alignItems: collapsed ? 'center' : 'stretch',
-        transition: `padding 0.24s ${ease}`,
-      }}>
+      <div className={`border-t border-white/6 flex flex-col gap-2.5 transition-[padding] duration-240 ease-[cubic-bezier(0.4,0,0.2,1)] ${collapsed ? 'py-[0.6rem] px-0' : 'p-3 items-stretch'}`}>
         {/* Account */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: collapsed ? 0 : 10,
-          justifyContent: collapsed ? 'center' : 'flex-start',
-          padding: collapsed ? 0 : '2px',
-          transition: `gap 0.24s ${ease}`,
-        }}>
+        <div className={`flex items-center transition-[gap] duration-240 ease-[cubic-bezier(0.4,0,0.2,1)] ${collapsed ? 'gap-0 justify-center p-0' : 'gap-2.5 justify-start p-0.5'}`}>
           <div
             title={collapsed ? `${userName} · ${accountContext}` : undefined}
-            style={{
-              width: 36, height: 36,
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, #4f6ef7, #7c3aed)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: '#fff',
-              fontWeight: 700,
-              fontSize: '0.9rem',
-              boxShadow: '0 3px 8px rgba(79,110,247,0.35)',
-              flexShrink: 0,
-            }}
+            className="w-9 h-9 rounded-full bg-[linear-gradient(135deg,#4f6ef7,#7c3aed)] flex items-center justify-center text-white font-bold text-[0.9rem] shadow-[0_3px_8px_rgba(79,110,247,0.35)] shrink-0"
           >
             {(userName.charAt(0) || '?').toUpperCase()}
           </div>
-          <div style={{
-            overflow: 'hidden',
-            flex: 1,
-            minWidth: 0,
-            maxWidth: collapsed ? 0 : 200,
-            opacity: collapsed ? 0 : 1,
-            transition: labelTransition,
-          }}>
-            <div style={{
-              color: '#fff', fontSize: '0.8125rem', fontWeight: 600, lineHeight: 1.25,
-              whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-            }}>
+          <div className={`flex-1 min-w-0 overflow-hidden transition-all duration-220 ease-[cubic-bezier(0.4,0,0.2,1)] ${collapsed ? 'max-w-0 opacity-0' : 'max-w-[200px] opacity-100'}`}>
+            <div className="text-white text-[0.8125rem] font-semibold leading-tight whitespace-nowrap overflow-hidden text-ellipsis">
               {userName}
             </div>
-            <div style={{
-              color: 'var(--sidebar-active, #8ea2ff)', fontSize: '0.7rem', fontWeight: 500, lineHeight: 1.3,
-              whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-            }}>
+            <div className="text-[var(--sidebar-active,#8ea2ff)] text-[0.7rem] font-medium leading-[1.3] whitespace-nowrap overflow-hidden text-ellipsis">
               {accountContext}
             </div>
-            <div style={{
-              color: 'rgba(255,255,255,0.4)', fontSize: '0.68rem', lineHeight: 1.3,
-              whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-            }}>
+            <div className="text-white/40 text-[0.68rem] leading-[1.3] whitespace-nowrap overflow-hidden text-ellipsis">
               {userEmail}
             </div>
           </div>
@@ -478,14 +319,7 @@ export default function Sidebar({
 
         {/* Language segmented control — hidden in the rail */}
         {!collapsed && (
-          <div style={{
-            display: 'flex',
-            gap: 2,
-            padding: 3,
-            borderRadius: 9,
-            background: 'rgba(255,255,255,0.05)',
-            border: '1px solid rgba(255,255,255,0.06)',
-          }}>
+          <div className="flex gap-0.5 p-0.75 rounded-lg bg-white/5 border border-white/6">
             {LANGUAGES.map(l => {
               const active = l.code === lang
               return (
@@ -493,20 +327,11 @@ export default function Sidebar({
                   key={l.code}
                   type="button"
                   onClick={() => setLang(l.code as LanguageCode)}
-                  style={{
-                    flex: 1,
-                    padding: '5px 0',
-                    borderRadius: 6,
-                    border: 'none',
-                    cursor: 'pointer',
-                    fontSize: '0.7rem',
-                    fontWeight: 700,
-                    letterSpacing: '0.03em',
-                    color: active ? '#fff' : 'rgba(255,255,255,0.5)',
-                    background: active ? 'linear-gradient(135deg, rgba(79,110,247,0.9), rgba(124,58,237,0.85))' : 'transparent',
-                    boxShadow: active ? '0 2px 6px rgba(79,110,247,0.35)' : 'none',
-                    transition: 'all 0.15s ease',
-                  }}
+                  className={`flex-1 py-1.25 rounded-md border-none cursor-pointer text-[0.7rem] font-bold tracking-wide transition-all duration-150 ease-in-out ${
+                    active
+                      ? 'text-white bg-[linear-gradient(135deg,rgba(79,110,247,0.9),rgba(124,58,237,0.85))] shadow-[0_2px_6px_rgba(79,110,247,0.35)]'
+                      : 'text-white/50 bg-transparent hover:text-white/80'
+                  }`}
                 >
                   {l.label}
                 </button>
@@ -516,52 +341,24 @@ export default function Sidebar({
         )}
 
         {/* Logout + collapse toggle */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-          flexDirection: collapsed ? 'column' : 'row',
-          width: collapsed ? 'auto' : '100%',
-        }}>
+        <div className={`flex items-center gap-2 ${collapsed ? 'flex-col w-auto' : 'flex-row w-full'}`}>
           <button
             type="button"
             onClick={handleLogout}
             disabled={loggingOut}
             title={t('signOut')}
             aria-label={t('signOut')}
-            style={{
-              flex: collapsed ? undefined : 1,
-              width: collapsed ? 34 : undefined,
-              height: 34,
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              gap: 8,
-              background: 'rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: 9,
-              color: 'rgba(255,255,255,0.65)',
-              cursor: loggingOut ? 'default' : 'pointer',
-              opacity: loggingOut ? 0.6 : 1,
-              fontSize: '0.8rem',
-              fontWeight: 500,
-              transition: 'background 0.15s ease, color 0.15s ease',
-            }}
-            onMouseEnter={e => {
-              if (loggingOut) return
-              ;(e.currentTarget as HTMLElement).style.background = 'rgba(239,68,68,0.15)'
-              ;(e.currentTarget as HTMLElement).style.color = '#fca5a5'
-            }}
-            onMouseLeave={e => {
-              (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)'
-              ;(e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.65)'
-            }}
+            className={`h-[34px] inline-flex items-center justify-center gap-2 bg-white/5 border border-white/8 rounded-lg text-white/65 hover:bg-red-500/15 hover:text-red-300 transition-colors duration-150 ${
+              collapsed ? 'w-[34px] shrink-0' : 'flex-1'
+            } ${loggingOut ? 'cursor-default opacity-60' : 'cursor-pointer opacity-100'}`}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
               <polyline points="16 17 21 12 16 7"/>
               <line x1="21" y1="12" x2="9" y2="12"/>
             </svg>
             {!collapsed && (
-              <span style={{ whiteSpace: 'nowrap' }}>{t('signOut')}</span>
+              <span className="whitespace-nowrap text-[0.8rem] font-medium">{t('signOut')}</span>
             )}
           </button>
 
@@ -571,28 +368,11 @@ export default function Sidebar({
               onClick={onToggle}
               title={collapsed ? t('expandMenu') : t('collapseMenu')}
               aria-label={collapsed ? t('expandMenu') : t('collapseMenu')}
-              style={{
-                width: 34, height: 34,
-                flexShrink: 0,
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.08)',
-                borderRadius: 9,
-                color: 'rgba(255,255,255,0.65)',
-                cursor: 'pointer',
-                transition: 'background 0.15s ease, color 0.15s ease',
-              }}
-              onMouseEnter={e => {
-                (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.12)'
-                ;(e.currentTarget as HTMLElement).style.color = '#fff'
-              }}
-              onMouseLeave={e => {
-                (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)'
-                ;(e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.65)'
-              }}
+              className="w-[34px] h-[34px] shrink-0 inline-flex items-center justify-center bg-white/5 border border-white/8 rounded-lg text-white/65 hover:bg-white/12 hover:text-white cursor-pointer transition-colors duration-150"
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                style={{ transform: collapsed ? 'rotate(180deg)' : 'rotate(0deg)', transition: `transform 0.24s ${ease}` }}
+              <svg
+                width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                className={`transition-transform duration-240 ease-[cubic-bezier(0.4,0,0.2,1)] ${collapsed ? 'rotate-180' : 'rotate-0'}`}
               >
                 <polyline points="15 18 9 12 15 6" />
               </svg>

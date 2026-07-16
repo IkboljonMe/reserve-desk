@@ -26,34 +26,11 @@ export default function Header({ userName, userEmail, onToggleSidebar, sidebarCo
   }
 
   return (
-    <header style={{
-      height: 60,
-      background: 'var(--surface-card)',
-      borderBottom: '1px solid var(--surface-border)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: '0 1.5rem',
-      flexShrink: 0,
-    }}>
+    <header className="h-[60px] bg-[var(--surface-card)] border-b border-[var(--surface-border)] flex items-center justify-between px-6 shrink-0">
       {onToggleSidebar && (
         <button
           onClick={onToggleSidebar}
-          style={{
-            width: 34, height: 34,
-            flexShrink: 0,
-            background: 'var(--gray-100)',
-            border: '1px solid var(--gray-200)',
-            borderRadius: 9,
-            color: 'var(--gray-600)',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            transition: 'background-color 0.15s ease, border-color 0.15s ease',
-          }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--gray-200)' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'var(--gray-100)' }}
+          className="w-[34px] h-[34px] shrink-0 bg-[var(--gray-100)] border border-[var(--gray-200)] rounded-lg text-[var(--gray-600)] cursor-pointer flex items-center justify-center transition-colors duration-150 hover:bg-[var(--gray-200)]"
           title={sidebarCollapsed ? t('showSidebar') : t('hideSidebar')}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -65,7 +42,7 @@ export default function Header({ userName, userEmail, onToggleSidebar, sidebarCo
       )}
       {!onToggleSidebar && <div />}
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+      <div className="flex items-center gap-3">
         <Dropdown
           value={lang}
           onChange={val => setLang(val as LanguageCode)}
@@ -74,31 +51,17 @@ export default function Header({ userName, userEmail, onToggleSidebar, sidebarCo
           containerClassName="lang-dropdown"
         />
 
-        <div style={{ width: 1, height: 24, background: 'var(--surface-border)' }} />
+        <div className="w-[1px] h-6 bg-[var(--surface-border)]" />
 
         {/* User chip */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 10,
-          padding: '4px 6px 4px 4px',
-          borderRadius: 999,
-        }}>
-          <div style={{
-            width: 34, height: 34,
-            borderRadius: '50%',
-            background: 'linear-gradient(135deg, #4f6ef7, #7c3aed)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: '#fff',
-            fontWeight: 700,
-            fontSize: '0.85rem',
-            boxShadow: '0 3px 8px rgba(79,110,247,0.35)',
-            flexShrink: 0,
-          }}>
+        <div className="flex items-center gap-2.5 p-[4px_6px_4px_4px] rounded-full">
+          <div className="w-[34px] h-[34px] rounded-full bg-[linear-gradient(135deg,#4f6ef7,#7c3aed)] flex items-center justify-center text-white font-bold text-[0.85rem] shadow-[0_3px_8px_rgba(79,110,247,0.35)] shrink-0">
             {userName.charAt(0).toUpperCase()}
           </div>
 
-          <div style={{ lineHeight: 1.3 }}>
-            <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--gray-800)' }}>{userName}</div>
-            <div style={{ fontSize: '0.7rem', color: 'var(--gray-400)' }}>{userEmail}</div>
+          <div className="leading-snug">
+            <div className="text-[0.8125rem] font-semibold text-[var(--gray-800)]">{userName}</div>
+            <div className="text-[0.7rem] text-[var(--gray-400)]">{userEmail}</div>
           </div>
         </div>
 
@@ -109,7 +72,7 @@ export default function Header({ userName, userEmail, onToggleSidebar, sidebarCo
           variant="ghost" icon
           title={t('signOut')}
           aria-label={t('signOut')}
-          style={{ marginLeft: 2 }}
+          className="ml-0.5"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>

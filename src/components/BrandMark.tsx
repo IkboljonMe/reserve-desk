@@ -18,8 +18,8 @@ export function BrandMark({ size = 32, priority = false, className, style }: Bra
       width={size}
       height={size}
       priority={priority}
-      className={className}
-      style={{ objectFit: 'contain', display: 'block', flexShrink: 0, ...style }}
+      className={`object-contain block shrink-0 ${className || ''}`}
+      style={style}
     />
   )
 }
