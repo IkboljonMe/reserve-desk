@@ -4,6 +4,7 @@ import { Pencil, Trash2, ShieldCheck } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import { SkeletonTableRows } from '@/components/ui/Skeleton'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { Badge } from '@/components/ui/Badge'
 import type { AdminsPageState } from '../useAdminsPage'
 
 export function AdminList({ s }: { s: AdminsPageState }) {
@@ -39,9 +40,9 @@ export function AdminList({ s }: { s: AdminsPageState }) {
                 <div style={{ fontWeight: 600, color: 'var(--gray-800)' }}>{a.name}</div>
                 <div style={{ fontSize: '0.8125rem', color: 'var(--gray-500)' }}>{a.email}</div>
               </div>
-              <span className="badge" style={{ background: 'var(--gray-100)', color: 'var(--gray-700)', flexShrink: 0 }}>
+              <Badge variant="gray" className="shrink-0">
                 {a.hotelId ? `${a.hotelId.name} (${a.hotelId.shortName})` : t('noHotelAssigned')}
-              </span>
+              </Badge>
               <div style={{ display: 'flex', gap: 6 }}>
                 <button className="btn btn-ghost btn-sm btn-icon" onClick={() => openEdit(a)} title={t('edit')} aria-label={t('editAdminAria')}>
                   <Pencil size={14} />

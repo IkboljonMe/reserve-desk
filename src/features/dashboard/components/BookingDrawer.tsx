@@ -211,7 +211,7 @@ export default function BookingDrawer({
 
             {/* Status + price banner */}
             <div style={{ display: 'flex', gap: 10, marginBottom: '1.1rem' }}>
-              <div style={{ flex: 1, padding: '0.7rem 0.85rem', borderRadius: 10, background: st.badge === 'badge-success' ? '#ecfdf5' : st.badge === 'badge-warning' ? '#fffbeb' : '#eff6ff' }}>
+              <div style={{ flex: 1, padding: '0.7rem 0.85rem', borderRadius: 10, background: st.bg }}>
                 <div style={{ fontSize: '0.66rem', fontWeight: 700, color: st.color, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                   {t('status')}
                 </div>

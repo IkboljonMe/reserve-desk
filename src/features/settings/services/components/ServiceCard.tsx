@@ -5,6 +5,7 @@ import {
 } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import { ServiceIcon } from '@/lib/serviceIcons'
+import { Badge } from '@/components/ui/Badge'
 import type { Service, PricingGroup } from '../types'
 
 export function ServiceCard({
@@ -152,7 +153,7 @@ export function ServiceCard({
       )}
       {svc.isFree && !hasPlans && (
         <div style={{ padding: '0 1.25rem 0.875rem' }}>
-          <span className="badge badge-blue">{t('isFree')}</span>
+          <Badge variant="blue">{t('isFree')}</Badge>
         </div>
       )}
 

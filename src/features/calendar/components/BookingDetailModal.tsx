@@ -4,6 +4,7 @@ import { format, parseISO } from 'date-fns'
 import { X, Check, Clock, MapPin, Phone, User, Trash2, CalendarDays, Wallet, FileText, Pencil, UtensilsCrossed } from 'lucide-react'
 import { getServiceIcon } from '@/lib/serviceIcons'
 import { bookingState, money, amountCollected, isPartiallyPaid } from '@/lib/bookingHelpers'
+import { Badge } from '@/components/ui/Badge'
 import { useTranslation } from '@/i18n'
 import { DetailRow } from './DetailRow'
 import type { CalendarPageState } from '../useCalendarPage'
@@ -39,10 +40,10 @@ export function BookingDetailModal({ s }: { s: CalendarPageState }) {
             {(() => {
               const st = bookingState(selectedBooking)
               return (
-                <span className={`badge ${st.badge}`} style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                <Badge variant={st.badge} className="ml-auto">
                   {st.key === 'finished' && <Check size={12} />}
                   {t(st.key)}
-                </span>
+                </Badge>
               )
             })()}
           </div>

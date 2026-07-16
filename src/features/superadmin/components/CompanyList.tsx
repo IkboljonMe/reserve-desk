@@ -4,6 +4,7 @@ import { Pencil, Trash2, Building2 } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import { SkeletonTableRows } from '@/components/ui/Skeleton'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { Badge } from '@/components/ui/Badge'
 import type { CompaniesPageState } from '../useCompaniesPage'
 
 const PLAN_LABEL: Record<string, string> = { standard: 'Standard', pro: 'Pro', vip: 'VIP' }
@@ -47,16 +48,13 @@ export function CompanyList({ s }: { s: CompaniesPageState }) {
                   <div style={{ fontWeight: 600, color: 'var(--gray-800)' }}>{c.name}</div>
                   <div style={{ fontSize: '0.8125rem', color: 'var(--gray-500)' }}>/{c.slug}</div>
                 </div>
-                <span className="badge" style={{ background: 'var(--gray-100)', color: 'var(--gray-700)', flexShrink: 0 }}>
+                <Badge variant="gray" className="shrink-0">
                   {PLAN_LABEL[c.plan] ?? c.plan}
-                </span>
+                </Badge>
                 <span
-                  className="badge"
-                  style={{
-                    flexShrink: 0,
-                    background: expired ? '#fee2e2' : '#dcfce7',
-                    color: expired ? '#991b1b' : '#166534',
-                  }}
+                  className={`inline-flex items-center gap-1 px-[9px] py-[3px] rounded-full text-xs font-semibold tracking-[0.01em] border border-transparent shrink-0 ${
+                    expired ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
+                  }`}
                 >
                   {expired ? t('planExpired') : t('planActiveUntil') + ' ' + new Date(c.expiresAt).toLocaleDateString()}
                 </span>

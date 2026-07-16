@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { X, CalendarDays } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import { bookingState, amountCollected, money } from '@/lib/bookingHelpers'
+import { Badge } from '@/components/ui/Badge'
 import type { Booking } from '@/types'
 import type { ClientsPageState } from '../useClientsPage'
 
@@ -86,7 +87,7 @@ export function ClientHistoryModal({ s }: { s: ClientsPageState }) {
                   <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--gray-700)', fontVariantNumeric: 'tabular-nums' }}>
                     {b.totalPrice > 0 ? `${money(b.totalPrice)}` : t('free')}
                   </span>
-                  <span className={`badge ${st.badge}`} style={{ flexShrink: 0 }}>{t(st.key)}</span>
+                  <Badge variant={st.badge} className="shrink-0">{t(st.key)}</Badge>
                 </div>
               )
             })}

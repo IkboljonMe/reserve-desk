@@ -1,3 +1,5 @@
+import type { BadgeVariant } from '@/components/ui/Badge'
+
 export type HotelRef = { _id: string; name?: string; shortName?: string }
 
 export interface Service {
@@ -71,12 +73,12 @@ export const isPartiallyPaid = (b: PayShape) => {
 
 export type StateKey = 'finished' | 'free' | 'paid' | 'partial' | 'unpaid'
 
-export function bookingState(b: Booking): { key: StateKey; label: string; color: string; badge: string; bg: string } {
-  if (b.finished) return { key: 'finished', label: 'Finished', color: '#4f46e5', badge: 'badge-success', bg: '#eef2ff' }
-  if ((b.totalPrice || 0) === 0) return { key: 'free', label: 'Free', color: '#2563eb', badge: 'badge-blue', bg: '#eff6ff' }
-  if (b.paid) return { key: 'paid', label: 'Paid', color: '#059669', badge: 'badge-success', bg: '#ecfdf5' }
-  if (isPartiallyPaid(b)) return { key: 'partial', label: 'Partial', color: '#0891b2', badge: 'badge-blue', bg: '#ecfeff' }
-  return { key: 'unpaid', label: 'Unpaid', color: '#b45309', badge: 'badge-warning', bg: '#fffbeb' }
+export function bookingState(b: Booking): { key: StateKey; label: string; color: string; badge: BadgeVariant; bg: string } {
+  if (b.finished) return { key: 'finished', label: 'Finished', color: '#4f46e5', badge: 'success', bg: '#eef2ff' }
+  if ((b.totalPrice || 0) === 0) return { key: 'free', label: 'Free', color: '#2563eb', badge: 'blue', bg: '#eff6ff' }
+  if (b.paid) return { key: 'paid', label: 'Paid', color: '#059669', badge: 'success', bg: '#ecfdf5' }
+  if (isPartiallyPaid(b)) return { key: 'partial', label: 'Partial', color: '#0891b2', badge: 'blue', bg: '#ecfeff' }
+  return { key: 'unpaid', label: 'Unpaid', color: '#b45309', badge: 'warning', bg: '#fffbeb' }
 }
 
 export const canFinish = (b: Booking) => !b.finished && (b.paid || (b.totalPrice || 0) === 0)
