@@ -185,27 +185,27 @@
 
   .dark {
     /* Neutral palette (Dark Mode) */
-    --gray-50: #0b0f19;
-    --gray-100: #151b2c;
-    --gray-200: #222b44;
-    --gray-300: #3b486d;
-    --gray-400: #62729d;
-    --gray-500: #8999c0;
-    --gray-600: #aab8d9;
-    --gray-700: #cdd5eb;
+    --gray-50: #0b0f17;
+    --gray-100: #151e2e;
+    --gray-200: #222f47;
+    --gray-300: #384a6b;
+    --gray-400: #5c6f96;
+    --gray-500: #869abf;
+    --gray-600: #a7b9da;
+    --gray-700: #cbd7ed;
     --gray-800: #eef2fc;
     --gray-900: #ffffff;
 
     /* Surface & Glassmorphism (Dark Mode) */
-    --surface-bg: #090d16;
-    --surface-card: #0f1524;
-    --surface-border: #1d263b;
-    --surface-muted: #131b2e;
-    --sidebar-bg: linear-gradient(180deg, #0e1320 0%, #080c14 100%);
-    --sidebar-text: #8999c0;
+    --surface-bg: #0b0f17;
+    --surface-card: #151e2e;
+    --surface-border: #222f47;
+    --surface-muted: #0e1624;
+    --sidebar-bg: linear-gradient(180deg, #0b0f17 0%, #070a10 100%);
+    --sidebar-text: #869abf;
     --sidebar-active: #5f7fff;
     --sidebar-hover: rgba(95, 127, 255, 0.15);
-    --header-bg: rgba(15, 21, 36, 0.75);
+    --header-bg: rgba(11, 15, 23, 0.85);
   }
 
   * {
