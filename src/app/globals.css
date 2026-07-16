@@ -640,14 +640,23 @@
 
   /* ─── Skeleton ─────────────────────────── */
   .skeleton {
-    background: linear-gradient(90deg, var(--gray-100) 25%, var(--gray-200) 37%, var(--gray-100) 63%);
+    background: linear-gradient(
+      90deg,
+      var(--gray-100) 25%,
+      var(--gray-200) 37%,
+      var(--gray-100) 63%
+    );
     background-size: 400% 100%;
     animation: skeletonShimmer 1.4s ease infinite;
     border-radius: var(--radius-sm);
   }
   @keyframes skeletonShimmer {
-    0%   { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+    0% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
   }
   @media (prefers-reduced-motion: reduce) {
     .skeleton {
@@ -655,7 +664,6 @@
       background: var(--gray-100);
     }
   }
-
 } /* end @layer base */
 
 /* ─── Swiper Custom Overrides ─────────────────────────── */
@@ -682,7 +690,7 @@
 .swiper-button-prev:hover,
 .swiper-button-next:hover {
   background: transparent !important;
-  transform: scale(1.1) !important;
+  transform: scale(0.9) !important;
 }
 /* Completely hide the default icon font characters */
 .swiper-button-prev::after,
@@ -696,33 +704,6 @@ button.swiper-button-next::after {
   opacity: 0 !important;
   visibility: hidden !important;
 }
-/* Inject clean SVG vector arrows as ::before */
-.swiper-button-prev::before {
-  content: '' !important;
-  width: 20px !important;
-  height: 20px !important;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.75)' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'><line x1='19' y1='12' x2='5' y2='12'></line><polyline points='12 19 5 12 12 5'></polyline></svg>") !important;
-  background-size: contain !important;
-  background-repeat: no-repeat !important;
-  background-position: center !important;
-  display: block !important;
-}
-.swiper-button-next::before {
-  content: '' !important;
-  width: 20px !important;
-  height: 20px !important;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.75)' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'><line x1='5' y1='12' x2='19' y2='12'></line><polyline points='12 5 19 12 12 19'></polyline></svg>") !important;
-  background-size: contain !important;
-  background-repeat: no-repeat !important;
-  background-position: center !important;
-  display: block !important;
-}
-.swiper-button-prev:hover::before {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'><line x1='19' y1='12' x2='5' y2='12'></line><polyline points='12 19 5 12 12 5'></polyline></svg>") !important;
-}
-.swiper-button-next:hover::before {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'><line x1='5' y1='12' x2='19' y2='12'></line><polyline points='12 5 19 12 12 19'></polyline></svg>") !important;
-}
 .swiper-pagination-bullet {
   background: #9aa3b0 !important;
   opacity: 0.6 !important;
@@ -734,4 +715,90 @@ button.swiper-button-next::after {
   opacity: 1 !important;
   width: 24px !important;
   border-radius: 4px !important;
+}
+
+/* ─── Dark Mode UI Compatibility Overrides ──────────────── */
+.dark {
+  /* Override hardcoded bg-white backgrounds inside dark mode to prevent white panels */
+  .bg-white,
+  .bg-white\/90,
+  .bg-white\/95,
+  div.bg-white,
+  span.bg-white {
+    background-color: var(--surface-card) !important;
+    border-color: var(--surface-border) !important;
+    color: var(--gray-900) !important;
+  }
+  
+  /* Ensure form controls (inputs, selects, textareas) and standard option elements look great */
+  input,
+  select,
+  textarea,
+  .form-input,
+  .form-select,
+  .form-textarea {
+    background-color: var(--surface-muted) !important;
+    color: var(--gray-900) !important;
+    border-color: var(--surface-border) !important;
+  }
+  
+  /* Native select options styling */
+  option {
+    background-color: var(--surface-card) !important;
+    color: var(--gray-900) !important;
+  }
+
+  /* Table styling compatibility */
+  table {
+    border-color: var(--surface-border) !important;
+  }
+  
+  thead tr,
+  tr.bg-\[var\(--gray-50\)\],
+  tr:nth-child(even) {
+    background-color: var(--surface-muted) !important;
+  }
+  
+  tr.bg-white,
+  tr:nth-child(odd) {
+    background-color: var(--surface-card) !important;
+  }
+
+  tr {
+    border-color: var(--surface-border) !important;
+  }
+
+  th, td {
+    border-color: var(--surface-border) !important;
+  }
+
+  th {
+    color: var(--gray-500) !important;
+  }
+
+  td span.text-\[var\(--gray-800\)\],
+  span.text-slate-900,
+  span.text-slate-800,
+  span.text-slate-700,
+  td {
+    color: var(--gray-800) !important;
+  }
+
+  /* Calendar Specific Elements Readability */
+  .border-l.border-\[var\(--gray-100\)\],
+  .border-t.border-\[var\(--gray-100\)\] {
+    border-color: var(--surface-border) !important;
+  }
+
+  .text-\[var\(--gray-300\)\],
+  .text-\[var\(--gray-400\)\] {
+    color: var(--gray-500) !important;
+  }
+
+  /* Dropdown search panel custom popups compatibility */
+  div[class*="absolute"][class*="bg-white"] {
+    background-color: var(--surface-card) !important;
+    border-color: var(--surface-border) !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.4) !important;
+  }
 }
