@@ -37,7 +37,7 @@ export default function Sidebar({
 }) {
   const pathname = usePathname()
   const { t, lang, setLang } = useTranslation()
-  const { theme, toggleTheme } = useTheme()
+  const { theme, setTheme } = useTheme()
   const { openBookingModal } = useBookingModal()
   const [notifCount, setNotifCount] = useState(0)
   const [loggingOut, setLoggingOut] = useState(false)
