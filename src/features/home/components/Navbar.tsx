@@ -16,10 +16,10 @@ interface Props {
 
 export function Navbar({ locale, t, demoUrl, loginHref, navLinks }: Props) {
   return (
-    <header className="sticky top-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 w-full flex flex-col transition-colors duration-200">
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 w-full flex flex-col transition-colors duration-200">
       <div className="w-full px-5 lg:px-10 py-[0.8rem] flex items-center gap-5 flex-wrap">
         <div
-          className="flex items-center gap-2.5 font-normal text-[1.15rem] text-slate-900 dark:text-white"
+          className="flex items-center gap-2.5 font-normal text-[1.15rem] text-slate-900"
           style={{ fontFamily: DISPLAY_FONT }}
         >
           <BrandMark size={42} priority />
@@ -32,7 +32,7 @@ export function Navbar({ locale, t, demoUrl, loginHref, navLinks }: Props) {
               <a
                 key={href}
                 href={href}
-                className="px-3 py-1.75 rounded-lg no-underline text-slate-500 dark:text-slate-400 text-sm font-medium hover:text-slate-900 dark:hover:text-white"
+                className="px-3 py-1.75 rounded-lg no-underline text-slate-500 text-sm font-medium hover:text-slate-900"
               >
                 {label}
               </a>
@@ -45,16 +45,10 @@ export function Navbar({ locale, t, demoUrl, loginHref, navLinks }: Props) {
           <div className="hidden min-[721px]:flex items-center gap-2">
             <Link
               href={loginHref}
-              className="px-4 py-2 rounded-[10px] no-underline bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-700/80"
+              className="px-4 py-2 rounded-[10px] no-underline bg-white text-slate-900 border border-slate-200 text-sm font-semibold hover:bg-slate-50"
             >
               {t('signIn')}
             </Link>
-            <a
-              href={demoUrl}
-              className="px-4 py-2 rounded-[10px] no-underline bg-[linear-gradient(135deg,#4f6ef7,#3b5bdb)] text-white text-sm font-bold shadow-[0_4px_12px_rgba(79,110,247,0.3)]"
-            >
-              {t('lpTryFree')}
-            </a>
           </div>
           <LandingMobileMenu
             links={navLinks}

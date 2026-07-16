@@ -35,10 +35,10 @@ export async function HomePage({ locale }: { locale: string }) {
   ]
 
   return (
-    <main className="bg-slate-50 text-slate-900 min-h-dvh overflow-x-clip">
+    <main className="bg-[var(--surface-bg)] text-[var(--gray-900)] min-h-dvh overflow-x-clip transition-colors duration-200">
       <Navbar locale={locale} t={t} demoUrl={demoUrl} loginHref={loginHref} navLinks={navLinks} />
       <Hero t={t} demoUrl={demoUrl} />
-      <div className="relative bg-slate-50">
+      <div className="relative bg-[var(--surface-bg)] transition-colors duration-200">
         <Features t={t} />
         <Reviews t={t} />
         <Modules t={t} />
