@@ -216,6 +216,28 @@
 
   html {
     font-size: 14px;
+    /* Smooth in-page anchor navigation (navbar links, CTA buttons). The
+       prefers-reduced-motion block below forces this back to `auto`. */
+    scroll-behavior: smooth;
+  }
+
+  /* Offset the landing's anchor targets so their headings aren't hidden behind
+     the sticky navbar when scrolled to. The header is taller on ≥md, where the
+     advantage strip appears. */
+  #features,
+  #reviews,
+  #pricing,
+  #faq {
+    scroll-margin-top: 84px;
+  }
+
+  @media (min-width: 768px) {
+    #features,
+    #reviews,
+    #pricing,
+    #faq {
+      scroll-margin-top: 128px;
+    }
   }
 
   body {
