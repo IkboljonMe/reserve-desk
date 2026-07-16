@@ -12,7 +12,12 @@ const BASE_URL = 'https://bronit.uz'
 // unfinished placeholder — none of those belong in a sitemap. Keep this in
 // sync with robots.ts, which blocks crawling of those same paths.
 export default function sitemap(): MetadataRoute.Sitemap {
-  const languages = Object.fromEntries(LOCALES.map(locale => [locale, `${BASE_URL}/${locale}`]))
+  const languages: Record<string, string> = Object.fromEntries(
+    LOCALES.map(locale => [locale, `${BASE_URL}/${locale}`]),
+  )
+  // hreflang requires an x-default fallback for visitors whose language matches
+  // none of ours — point it at the default locale's landing page.
+  languages['x-default'] = `${BASE_URL}/${DEFAULT_LOCALE}`
 
   return LOCALES.map(locale => ({
     url: `${BASE_URL}/${locale}`,
