@@ -12,9 +12,9 @@ export function ClientsTable({ s }: { s: ClientsPageState }) {
   const { clients, loading, openAdd, openEdit, deleteConfirm, setDeleteConfirm, handleDelete, clientGroup, setHistoryClient } = s
 
   return (
-    <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+    <div className="card p-0 overflow-hidden">
       {loading ? (
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
+        <table className="w-full border-collapse text-sm">
           <tbody><SkeletonTableRows rows={6} columns={7} /></tbody>
         </table>
       ) : clients.length === 0 ? (
@@ -28,15 +28,15 @@ export function ClientsTable({ s }: { s: ClientsPageState }) {
         }>
           <h3 className="text-gray-700">{t('noClientsYet')}</h3>
           <p>{t('noClientsDesc')}</p>
-          <Button style={{ marginTop: 8 }} onClick={openAdd}>{t('addFirstClient')}</Button>
+          <Button className="mt-2" onClick={openAdd}>{t('addFirstClient')}</Button>
         </EmptyState>
       ) : (
-        <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem', minWidth: 720 }}>
+        <div className="overflow-x-auto">
+        <table className="w-full border-collapse text-sm min-w-180">
           <thead>
-            <tr style={{ borderBottom: '1px solid var(--gray-200)', background: 'var(--gray-50)' }}>
+            <tr className="border-b border-gray-200 bg-gray-50">
               {[['guest', t('guest')], ['group', t('group')], ['room', t('room')], ['floor', t('floor')], ['phone', t('phone')], ['notes', t('notes')], ['actions', '']].map(([key, col]) => (
-                <th key={key} style={{ padding: '10px 16px', textAlign: 'left', fontWeight: 600, color: 'var(--gray-500)', fontSize: '0.75rem' }}>
+                <th key={key} className="px-4 py-2.5 text-left font-semibold text-gray-500 text-xs">
                   {col}
                 </th>
               ))}
@@ -44,66 +44,47 @@ export function ClientsTable({ s }: { s: ClientsPageState }) {
           </thead>
           <tbody>
             {clients.map((c, i) => (
-              <tr
-                key={c._id}
-                style={{
-                  borderBottom: '1px solid var(--gray-100)',
-                  background: i % 2 === 0 ? '#fff' : 'var(--gray-50)',
-                }}
-              >
-                <td style={{ padding: '12px 16px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div style={{
-                      width: 32, height: 32, borderRadius: '50%',
-                      background: 'var(--brand-100)',
-                      color: 'var(--brand-600)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontWeight: 700, fontSize: '0.8125rem', flexShrink: 0,
-                    }}>
+              <tr key={c._id} className={`border-b border-gray-100 ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center font-bold text-[0.8125rem] shrink-0">
                       {c.name.charAt(0).toUpperCase()}
                     </div>
-                    <span style={{ fontWeight: 600, color: 'var(--gray-800)' }}>{c.name}</span>
+                    <span className="font-semibold text-gray-800">{c.name}</span>
                   </div>
                 </td>
-                <td style={{ padding: '12px 16px' }}>
+                <td className="px-4 py-3">
                   {(() => {
                     const g = clientGroup(c)
                     return g ? (
-                      <span style={{
-                        display: 'inline-flex', alignItems: 'center', gap: 6,
-                        padding: '2px 10px', borderRadius: 20,
-                        background: `${g.color}1a`, color: g.color,
-                        fontWeight: 600, fontSize: '0.8125rem',
-                      }}>
-                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: g.color }} />
+                      <span
+                        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-semibold text-[0.8125rem]"
+                        style={{ background: `${g.color}1a`, color: g.color }}
+                      >
+                        <span className="w-2 h-2 rounded-full" style={{ background: g.color }} />
                         {g.name}
                       </span>
-                    ) : <span style={{ color: 'var(--gray-300)' }}>—</span>
+                    ) : <span className="text-gray-300">—</span>
                   })()}
                 </td>
-                <td style={{ padding: '12px 16px' }}>
+                <td className="px-4 py-3">
                   {c.roomNumber ? (
-                    <span style={{
-                      display: 'inline-flex', alignItems: 'center', gap: 4,
-                      padding: '2px 10px', borderRadius: 20,
-                      background: 'var(--brand-100)', color: 'var(--brand-700)',
-                      fontWeight: 600, fontSize: '0.8125rem',
-                    }}>
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-brand-100 text-brand-700 font-semibold text-[0.8125rem]">
                       <BedDouble size={12} /> {c.roomNumber}
                     </span>
-                  ) : <span style={{ color: 'var(--gray-300)' }}>—</span>}
+                  ) : <span className="text-gray-300">—</span>}
                 </td>
-                <td style={{ padding: '12px 16px', color: 'var(--gray-600)' }}>
+                <td className="px-4 py-3 text-gray-600">
                   {c.floor > 0 ? `${t('floor')} ${c.floor}` : '—'}
                 </td>
-                <td style={{ padding: '12px 16px', color: 'var(--gray-600)' }}>
-                  {c.phone || <span style={{ color: 'var(--gray-300)' }}>—</span>}
+                <td className="px-4 py-3 text-gray-600">
+                  {c.phone || <span className="text-gray-300">—</span>}
                 </td>
-                <td style={{ padding: '12px 16px', color: 'var(--gray-500)', fontSize: '0.8125rem', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <td className="px-4 py-3 text-gray-500 text-[0.8125rem] max-w-50 truncate">
                   {c.notes || '—'}
                 </td>
-                <td style={{ padding: '12px 16px' }}>
-                  <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                <td className="px-4 py-3">
+                  <div className="flex gap-1.5 justify-end">
                     <Button variant="ghost" icon onClick={() => setHistoryClient(c)} title={t('bookingHistory')} aria-label={t('bookingHistory')}>
                       <History size={14} />
                     </Button>
@@ -114,7 +95,7 @@ export function ClientsTable({ s }: { s: ClientsPageState }) {
                       </svg>
                     </Button>
                     {deleteConfirm === c._id ? (
-                      <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                      <div className="flex gap-1 items-center">
                         <Button variant="danger" size="sm" onClick={() => handleDelete(c._id)}>{t('delete')}</Button>
                         <Button variant="ghost" size="sm" onClick={() => setDeleteConfirm(null)}>{t('cancel')}</Button>
                       </div>
