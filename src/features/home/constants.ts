@@ -1,4 +1,3 @@
-import type { CSSProperties } from 'react'
 import {
   CalendarDays, LayoutDashboard, Building2, Users, FileText,
   Languages, ShieldCheck, TrendingUp, Clock4, Percent, Sparkles, Send,
@@ -7,25 +6,13 @@ import {
 // Server-side translator shape (from `getT`) — threaded to the section components.
 export type Translate = (key: string, params?: Record<string, string | number>) => string
 
-export const ACCENT = '#4f6ef7'
-export const ACCENT_DARK = '#3b5bdb'
-export const INK = '#0f172a'
-export const MUTED = '#64748b'
-
 // Zen Dots — geometric display face for the brand wordmark and big stat numbers.
 export const DISPLAY_FONT = 'var(--font-zen-dots), system-ui, sans-serif'
 
-export const cardStyle: CSSProperties = {
-  background: '#fff', border: '1px solid #e2e8f0', borderRadius: 16,
-  boxShadow: '0 1px 3px rgba(15,23,42,0.04), 0 8px 24px rgba(15,23,42,0.04)',
-}
-export const sectionTitle: CSSProperties = {
-  fontSize: 'clamp(1.5rem, 3vw, 2rem)', fontWeight: 800, letterSpacing: '-0.02em',
-  textAlign: 'center', color: INK, marginBottom: 10,
-}
-export const sectionSub: CSSProperties = {
-  textAlign: 'center', color: MUTED, maxWidth: 620, margin: '0 auto 2.5rem', fontSize: '1rem', lineHeight: 1.6,
-}
+// Shared Tailwind class strings for the landing sections.
+export const CARD = 'border border-slate-200 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.04),0_8px_24px_rgba(15,23,42,0.04)]'
+export const SECTION_TITLE = 'text-center font-extrabold tracking-[-0.02em] text-slate-900 mb-2.5 text-[clamp(1.5rem,3vw,2rem)]'
+export const SECTION_SUB = 'text-center text-slate-500 max-w-155 mx-auto mb-10 text-base leading-relaxed'
 
 // UNO-style palette — one vivid colour per stat card.
 export const STATS = [

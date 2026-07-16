@@ -739,5 +739,9 @@
   "hotelSlug": "Hotel URL slug",
   "hotelSlugPlaceholder": "tashkent-grand-hotel",
   "hotelSlugHint": "Admins of this hotel sign in at …/admin/{slug}/login. Leave empty to use the hotel name.",
-  "hotelSlugTaken": "Another hotel already uses this slug"
+  "hotelSlugTaken": "Another hotel already uses this slug",
+  "metaTitleDefault": "Bronit — Hotel service booking, simplified",
+  "metaDescription": "Bronit brings spa slots, conference halls, pools and every bookable hotel service into one dashboard — with payments, deposits, staff roles, and instant Telegram alerts.",
+  "metaOgDescription": "One dashboard for every bookable hotel service: bookings, payments, deposits, staff roles, and Telegram alerts.",
+  "metaTwitterDescription": "One dashboard for every bookable hotel service."
 }

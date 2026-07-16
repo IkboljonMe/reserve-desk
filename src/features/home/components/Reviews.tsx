@@ -1,31 +1,26 @@
-import { REVIEWS, cardStyle, sectionTitle, sectionSub, ACCENT, MUTED, type Translate } from '../constants'
+import { REVIEWS, CARD, SECTION_TITLE, SECTION_SUB, type Translate } from '../constants'
 
 export function Reviews({ t }: { t: Translate }) {
   return (
-    <section id="reviews" style={{ background: '#fff', borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0' }}>
-      <div style={{ maxWidth: 1140, margin: '0 auto', padding: '3.5rem 1.5rem' }}>
-        <h2 style={sectionTitle}>{t('lpReviewsTitle')}</h2>
-        <p style={sectionSub}>{t('lpReviewsSub')}</p>
+    <section id="reviews" className="bg-white border-y border-slate-200">
+      <div className="max-w-285 mx-auto px-6 py-14">
+        <h2 className={SECTION_TITLE}>{t('lpReviewsTitle')}</h2>
+        <p className={SECTION_SUB}>{t('lpReviewsSub')}</p>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-5">
           {REVIEWS.map(r => (
-            <div key={r.name} style={{ ...cardStyle, background: '#f8fafc', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <div style={{ color: '#f59e0b', letterSpacing: 2, fontSize: '0.9rem' }}>★★★★★</div>
-              <p style={{ color: '#334155', fontSize: '0.925rem', lineHeight: 1.65, flex: 1 }}>
+            <div key={r.name} className={`${CARD} bg-slate-50 p-6 flex flex-col gap-3.5`}>
+              <div className="text-warning tracking-[2px] text-[0.9rem]">★★★★★</div>
+              <p className="text-slate-700 text-[0.925rem] leading-relaxed flex-1">
                 “{t(r.quoteKey)}”
               </p>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div style={{
-                  width: 40, height: 40, borderRadius: '50%', flexShrink: 0,
-                  background: `linear-gradient(135deg, ${ACCENT}, #7c3aed)`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: '#fff', fontWeight: 700,
-                }}>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full shrink-0 bg-[image:var(--brand-gradient)] flex items-center justify-center text-white font-bold">
                   {r.initial}
                 </div>
                 <div>
-                  <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>{r.name}</div>
-                  <div style={{ color: MUTED, fontSize: '0.78rem' }}>{t(r.hotelKey)}</div>
+                  <div className="font-bold text-[0.9rem]">{r.name}</div>
+                  <div className="text-slate-500 text-[0.78rem]">{t(r.hotelKey)}</div>
                 </div>
               </div>
             </div>

@@ -1,64 +1,52 @@
 import { ShieldCheck } from 'lucide-react'
-import { PLANS, cardStyle, sectionTitle, sectionSub, ACCENT, ACCENT_DARK, MUTED, type Translate } from '../constants'
+import { PLANS, CARD, SECTION_TITLE, SECTION_SUB, type Translate } from '../constants'
 
 export function Pricing({ t, demoUrl }: { t: Translate; demoUrl: string }) {
   return (
-    <section id="pricing" style={{ background: '#fff', borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0' }}>
-      <div style={{ maxWidth: 1140, margin: '0 auto', padding: '3.5rem 1.5rem' }}>
-        <h2 style={sectionTitle}>{t('pricingTitle')}</h2>
-        <p style={sectionSub}>{t('lpPricingSub')}</p>
+    <section id="pricing" className="bg-white border-y border-slate-200">
+      <div className="max-w-285 mx-auto px-6 py-14">
+        <h2 className={SECTION_TITLE}>{t('pricingTitle')}</h2>
+        <p className={SECTION_SUB}>{t('lpPricingSub')}</p>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 20, alignItems: 'stretch' }}>
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-5 items-stretch">
           {PLANS.map(plan => (
-            <div key={plan.key} style={{
-              ...cardStyle,
-              padding: '1.9rem',
-              position: 'relative',
-              display: 'flex', flexDirection: 'column',
-              ...(plan.highlight ? {
-                border: `2px solid ${ACCENT}`,
-                boxShadow: '0 12px 36px rgba(79,110,247,0.18)',
-              } : {}),
-            }}>
+            <div
+              key={plan.key}
+              className={`${CARD} bg-white p-[1.9rem] relative flex flex-col ${plan.highlight ? 'border-2! border-brand-500! shadow-[0_12px_36px_rgba(79,110,247,0.18)]!' : ''}`}
+            >
               {plan.highlight && (
-                <span style={{
-                  position: 'absolute', top: -13, left: '50%', transform: 'translateX(-50%)',
-                  background: `linear-gradient(135deg, ${ACCENT}, #7c3aed)`, color: '#fff',
-                  fontSize: '0.72rem', fontWeight: 700, padding: '4px 14px', borderRadius: 999,
-                  whiteSpace: 'nowrap',
-                }}>
+                <span className="absolute -top-3.25 left-1/2 -translate-x-1/2 bg-[image:var(--brand-gradient)] text-white text-[0.72rem] font-bold px-3.5 py-1 rounded-full whitespace-nowrap">
                   {t('mostPopular')}
                 </span>
               )}
-              <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: 4 }}>{t(`plan_${plan.key}`)}</h3>
-              <div style={{ fontSize: '1.9rem', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: 4 }}>
+              <h3 className="text-[1.05rem] font-extrabold mb-1">{t(`plan_${plan.key}`)}</h3>
+              <div className="text-[1.9rem] font-extrabold tracking-[-0.02em] mb-1">
                 {plan.price}
-                <span style={{ fontSize: '0.85rem', fontWeight: 500, color: MUTED }}> {t('lpUzsPerMonth')}</span>
+                <span className="text-[0.85rem] font-medium text-slate-500"> {t('lpUzsPerMonth')}</span>
               </div>
-              <p style={{ color: MUTED, fontSize: '0.83rem', marginBottom: 18 }}>{t(`plan_${plan.key}_desc`)}</p>
+              <p className="text-slate-500 text-[0.83rem] mb-4.5">{t(`plan_${plan.key}_desc`)}</p>
 
-              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 22px', display: 'flex', flexDirection: 'column', gap: 9, flex: 1 }}>
+              <ul className="list-none p-0 mt-0 mb-5.5 flex flex-col gap-2.25 flex-1">
                 {plan.features.map(f => (
-                  <li key={f} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: '0.85rem', color: '#334155' }}>
-                    <ShieldCheck size={15} color="#10b981" style={{ flexShrink: 0, marginTop: 2 }} />
+                  <li key={f} className="flex gap-2 items-start text-[0.85rem] text-slate-700">
+                    <ShieldCheck size={15} className="text-success shrink-0 mt-0.5" />
                     {t(f)}
                   </li>
                 ))}
               </ul>
 
-              <a href={demoUrl} style={{
-                display: 'block', textAlign: 'center', padding: '11px 0', borderRadius: 10, textDecoration: 'none',
-                fontWeight: 700, fontSize: '0.9rem',
-                ...(plan.highlight
-                  ? { background: `linear-gradient(135deg, ${ACCENT}, ${ACCENT_DARK})`, color: '#fff', boxShadow: '0 6px 18px rgba(79,110,247,0.3)' }
-                  : { background: '#eef2ff', color: ACCENT_DARK }),
-              }}>
+              <a
+                href={demoUrl}
+                className={`block text-center py-2.75 rounded-[10px] no-underline font-bold text-[0.9rem] ${plan.highlight
+                  ? 'bg-[linear-gradient(135deg,#4f6ef7,#3b5bdb)] text-white shadow-[0_6px_18px_rgba(79,110,247,0.3)]'
+                  : 'bg-brand-50 text-[#3b5bdb]'}`}
+              >
                 {t('lpTryFree')}
               </a>
             </div>
           ))}
         </div>
-        <p style={{ textAlign: 'center', color: MUTED, fontSize: '0.83rem', marginTop: 20 }}>
+        <p className="text-center text-slate-500 text-[0.83rem] mt-5">
           {t('lpPricingContact')}
         </p>
       </div>

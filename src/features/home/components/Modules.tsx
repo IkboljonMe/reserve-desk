@@ -1,24 +1,20 @@
-import { MODULES, cardStyle, sectionTitle, sectionSub, ACCENT, MUTED, type Translate } from '../constants'
+import { MODULES, CARD, SECTION_TITLE, SECTION_SUB, type Translate } from '../constants'
 
 export function Modules({ t }: { t: Translate }) {
   return (
-    <section style={{ maxWidth: 1140, margin: '0 auto', padding: '3.5rem 1.5rem' }}>
-      <h2 style={sectionTitle}>{t('lpModulesTitle')}</h2>
-      <p style={sectionSub}>{t('lpModulesSub')}</p>
+    <section className="max-w-285 mx-auto px-6 py-14">
+      <h2 className={SECTION_TITLE}>{t('lpModulesTitle')}</h2>
+      <p className={SECTION_SUB}>{t('lpModulesSub')}</p>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-3.5">
         {MODULES.map(({ icon: Icon, key }) => (
-          <div key={key} style={{ ...cardStyle, padding: '1.2rem', display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{
-              width: 38, height: 38, borderRadius: 10, flexShrink: 0,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              background: '#eef2ff', color: ACCENT,
-            }}>
+          <div key={key} className={`${CARD} bg-white p-5 flex items-center gap-3`}>
+            <div className="w-9.5 h-9.5 rounded-[10px] shrink-0 flex items-center justify-center bg-brand-50 text-brand-500">
               <Icon size={19} />
             </div>
             <div>
-              <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>{t(`${key}Title`)}</div>
-              <div style={{ color: MUTED, fontSize: '0.78rem', marginTop: 2 }}>{t(`${key}Desc`)}</div>
+              <div className="font-bold text-[0.9rem]">{t(`${key}Title`)}</div>
+              <div className="text-slate-500 text-[0.78rem] mt-0.5">{t(`${key}Desc`)}</div>
             </div>
           </div>
         ))}

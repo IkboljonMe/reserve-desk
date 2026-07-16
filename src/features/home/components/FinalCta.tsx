@@ -1,26 +1,20 @@
 import { ChevronRight } from 'lucide-react'
-import { ACCENT, type Translate } from '../constants'
+import type { Translate } from '../constants'
 
 export function FinalCta({ t, demoUrl }: { t: Translate; demoUrl: string }) {
   return (
-    <section style={{ maxWidth: 1140, margin: '0 auto', padding: '0 1.5rem 4rem' }}>
-      <div className="lp-final-cta" style={{
-        borderRadius: 22, padding: '3rem 2rem', textAlign: 'center',
-        background: 'linear-gradient(135deg, #14192a 0%, #1e2540 60%, #2a1e55 100%)',
-        boxShadow: '0 24px 60px rgba(15,23,42,0.35)',
-      }}>
-        <h2 style={{ color: '#fff', fontSize: 'clamp(1.4rem, 3vw, 2rem)', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: 10 }}>
+    <section className="max-w-285 mx-auto px-6 pb-16">
+      <div className="lp-final-cta rounded-[22px] px-8 py-12 text-center bg-[linear-gradient(135deg,#14192a_0%,#1e2540_60%,#2a1e55_100%)] shadow-[0_24px_60px_rgba(15,23,42,0.35)]">
+        <h2 className="text-white text-[clamp(1.4rem,3vw,2rem)] font-extrabold tracking-[-0.02em] mb-2.5">
           {t('lpFinalCtaTitle')}
         </h2>
-        <p style={{ color: 'rgba(255,255,255,0.65)', maxWidth: 540, margin: '0 auto 1.75rem', fontSize: '0.975rem', lineHeight: 1.6 }}>
+        <p className="text-white/65 max-w-135 mx-auto mb-7 text-[0.975rem] leading-relaxed">
           {t('lpFinalCtaSub')}
         </p>
-        <a href={demoUrl} style={{
-          display: 'inline-flex', alignItems: 'center', gap: 8,
-          padding: '13px 30px', borderRadius: 12, textDecoration: 'none',
-          background: `linear-gradient(135deg, ${ACCENT}, #7c3aed)`, color: '#fff',
-          fontWeight: 700, boxShadow: '0 8px 24px rgba(99,102,241,0.45)',
-        }}>
+        <a
+          href={demoUrl}
+          className="inline-flex items-center gap-2 px-7.5 py-3.25 rounded-xl no-underline bg-[image:var(--brand-gradient)] text-white font-bold shadow-[0_8px_24px_rgba(99,102,241,0.45)]"
+        >
           {t('lpHeroCta')} <ChevronRight size={18} />
         </a>
       </div>
