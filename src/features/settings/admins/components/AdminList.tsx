@@ -3,6 +3,7 @@
 import { Pencil, Trash2, ShieldCheck } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import { SkeletonTableRows } from '@/components/ui/Skeleton'
+import { EmptyState } from '@/components/ui/EmptyState'
 import type { AdminsPageState } from '../useAdminsPage'
 
 export function AdminList({ s }: { s: AdminsPageState }) {
@@ -16,16 +17,13 @@ export function AdminList({ s }: { s: AdminsPageState }) {
           <tbody><SkeletonTableRows rows={4} columns={3} /></tbody>
         </table>
       ) : admins.length === 0 ? (
-        <div className="empty-state">
-          <div className="empty-state-icon">
-            <ShieldCheck size={24} strokeWidth={1.75} />
-          </div>
-          <h3>{t('noAdminsTitle')}</h3>
+        <EmptyState icon={<ShieldCheck size={24} strokeWidth={1.75} />}>
+          <h3 className="text-gray-700">{t('noAdminsTitle')}</h3>
           <p>{noHotels ? t('addHotelFirst') : t('noAdminsDesc')}</p>
           {!noHotels && (
             <button className="btn btn-primary" style={{ marginTop: 8 }} onClick={openAdd}>{t('addFirstAdmin')}</button>
           )}
-        </div>
+        </EmptyState>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           {admins.map((a, i) => (

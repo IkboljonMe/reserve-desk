@@ -3,6 +3,7 @@
 import { Layers, Trash2, Plus, DoorClosed, TriangleAlert, Check, X, BedDouble, Pencil, GripVertical, Building2 } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import Select from '@/components/Select'
+import { EmptyState } from '@/components/ui/EmptyState'
 import { displayCode } from '../utils'
 import type { HotelsRoomsPageState } from '../useHotelsRoomsPage'
 
@@ -32,12 +33,11 @@ export function RoomsSection({ s }: { s: HotelsRoomsPageState }) {
 
       {loading ? null : rooms.length === 0 ? (
         <div className="card">
-          <div className="empty-state">
-            <div className="empty-state-icon"><BedDouble size={26} /></div>
-            <h3>{t('noRoomsAdded')}</h3>
+          <EmptyState icon={<BedDouble size={26} />}>
+            <h3 className="text-gray-700">{t('noRoomsAdded')}</h3>
             <p>{t('noRoomsDesc')}</p>
             <button className="btn btn-primary" style={{ marginTop: 8 }} onClick={openRoomModal}>{t('addFirstRoom')}</button>
-          </div>
+          </EmptyState>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>

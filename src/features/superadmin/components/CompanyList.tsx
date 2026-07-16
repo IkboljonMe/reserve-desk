@@ -3,6 +3,7 @@
 import { Pencil, Trash2, Building2 } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import { SkeletonTableRows } from '@/components/ui/Skeleton'
+import { EmptyState } from '@/components/ui/EmptyState'
 import type { CompaniesPageState } from '../useCompaniesPage'
 
 const PLAN_LABEL: Record<string, string> = { standard: 'Standard', pro: 'Pro', vip: 'VIP' }
@@ -24,14 +25,11 @@ export function CompanyList({ s }: { s: CompaniesPageState }) {
           <tbody><SkeletonTableRows rows={4} columns={4} /></tbody>
         </table>
       ) : companies.length === 0 ? (
-        <div className="empty-state">
-          <div className="empty-state-icon">
-            <Building2 size={24} strokeWidth={1.75} />
-          </div>
-          <h3>{t('noCompaniesTitle')}</h3>
+        <EmptyState icon={<Building2 size={24} strokeWidth={1.75} />}>
+          <h3 className="text-gray-700">{t('noCompaniesTitle')}</h3>
           <p>{t('noCompaniesDesc')}</p>
           <button className="btn btn-primary" style={{ marginTop: 8 }} onClick={openAdd}>{t('addFirstCompany')}</button>
-        </div>
+        </EmptyState>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           {companies.map((c, i) => {

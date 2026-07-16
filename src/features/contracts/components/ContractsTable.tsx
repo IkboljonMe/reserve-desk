@@ -5,6 +5,7 @@ import { STATUS_META } from '../constants'
 import { daysLeftOf, fmtDate } from '../utils'
 import { ExpiryPill } from './ExpiryPill'
 import { SkeletonTableRows } from '@/components/ui/Skeleton'
+import { EmptyState } from '@/components/ui/EmptyState'
 import type { ContractsPageState } from '../useContractsPage'
 
 export function ContractsTable({ s }: { s: ContractsPageState }) {
@@ -18,16 +19,15 @@ export function ContractsTable({ s }: { s: ContractsPageState }) {
           <tbody><SkeletonTableRows rows={6} columns={multiHotel ? 8 : 7} /></tbody>
         </table>
       ) : visible.length === 0 ? (
-        <div className="empty-state">
-          <div className="empty-state-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/>
-            </svg>
-          </div>
-          <h3>{contracts.length === 0 ? t('noContractsYet') : t('noContractsMatch')}</h3>
+        <EmptyState icon={
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/>
+          </svg>
+        }>
+          <h3 className="text-gray-700">{contracts.length === 0 ? t('noContractsYet') : t('noContractsMatch')}</h3>
           <p>{contracts.length === 0 ? t('noContractsDesc') : t('tryClearFilters')}</p>
           {contracts.length === 0 && <button className="btn btn-primary" style={{ marginTop: 8 }} onClick={openAdd}>{t('addFirstContract')}</button>}
-        </div>
+        </EmptyState>
       ) : (
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem', minWidth: 920 }}>

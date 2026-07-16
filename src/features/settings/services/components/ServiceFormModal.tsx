@@ -184,7 +184,9 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
                 {PRESET_COLORS.map(c => (
                   <button
                     key={c} type="button"
-                    className={`color-swatch ${form.color === c ? 'selected' : ''}`}
+                    className={`w-[26px] h-[26px] rounded-full cursor-pointer border-2 border-white transition duration-[120ms] hover:scale-[1.15] ${
+                      form.color === c ? 'shadow-[0_0_0_2px_var(--color-gray-900)]' : 'shadow-[0_0_0_1.5px_var(--color-gray-200)]'
+                    }`}
                     style={{ background: c }}
                     onClick={() => setForm(f => ({ ...f, color: c }))}
                     title={c} aria-label={t('calendarColorAria', { color: c })} aria-pressed={form.color === c}

@@ -5,6 +5,7 @@ import { useTranslation } from '@/i18n'
 import { useNotificationsPage } from './useNotificationsPage'
 import { NotificationGroup } from './components/NotificationGroup'
 import { Skeleton } from '@/components/ui/Skeleton'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 export default function NotificationsPage() {
   const { t, lang } = useTranslation()
@@ -37,14 +38,14 @@ export default function NotificationsPage() {
         </div>
       ) : items.length === 0 ? (
         <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-          <div className="empty-state">
-            <div className="empty-state-icon" style={{ color: 'var(--success)' }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            </div>
-            <h3>{t('allCaughtUp')}</h3>
+          <EmptyState
+            icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>}
+            iconStyle={{ color: 'var(--success)' }}
+          >
+            <h3 className="text-gray-700">{t('allCaughtUp')}</h3>
             <p>{t('noNotificationsDesc')}</p>
             <Link href={`/${lang}/contracts`} className="btn btn-secondary" style={{ marginTop: 8 }}>{t('goToContracts')}</Link>
-          </div>
+          </EmptyState>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>

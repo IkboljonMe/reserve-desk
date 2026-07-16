@@ -3,6 +3,7 @@
 import { BedDouble, History } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import { SkeletonTableRows } from '@/components/ui/Skeleton'
+import { EmptyState } from '@/components/ui/EmptyState'
 import type { ClientsPageState } from '../useClientsPage'
 
 export function ClientsTable({ s }: { s: ClientsPageState }) {
@@ -16,19 +17,18 @@ export function ClientsTable({ s }: { s: ClientsPageState }) {
           <tbody><SkeletonTableRows rows={6} columns={7} /></tbody>
         </table>
       ) : clients.length === 0 ? (
-        <div className="empty-state">
-          <div className="empty-state-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-              <circle cx="9" cy="7" r="4"/>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-            </svg>
-          </div>
-          <h3>{t('noClientsYet')}</h3>
+        <EmptyState icon={
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        }>
+          <h3 className="text-gray-700">{t('noClientsYet')}</h3>
           <p>{t('noClientsDesc')}</p>
           <button className="btn btn-primary" style={{ marginTop: 8 }} onClick={openAdd}>{t('addFirstClient')}</button>
-        </div>
+        </EmptyState>
       ) : (
         <div style={{ overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem', minWidth: 720 }}>

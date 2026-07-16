@@ -2,6 +2,7 @@
 
 import { useTranslation } from '@/i18n'
 import { getServiceIcon } from '@/lib/serviceIcons'
+import { EmptyState } from '@/components/ui/EmptyState'
 import { optionCardStyle } from '../styles'
 import type { BookingWizard } from '../useBookingWizard'
 
@@ -15,12 +16,9 @@ export function ServiceStep({ w }: { w: BookingWizard }) {
     <div>
       <h2 style={{ marginBottom: '1rem' }}>{t('chooseService')}</h2>
       {hotelServices.length === 0 ? (
-        <div className="empty-state">
-          <div className="empty-state-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2" /></svg>
-          </div>
-          <h3>{t('noActiveServicesHotel')}</h3>
-        </div>
+        <EmptyState icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2" /></svg>}>
+          <h3 className="text-gray-700">{t('noActiveServicesHotel')}</h3>
+        </EmptyState>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.75rem' }}>
           {hotelServices.map(svc => (

@@ -4,6 +4,7 @@ import { Building2, MapPin, Trash2, Plus, Check, X, BedDouble, Pencil } from 'lu
 import { useTranslation } from '@/i18n'
 import { displayCode } from '../utils'
 import { SkeletonCard } from '@/components/ui/Skeleton'
+import { EmptyState } from '@/components/ui/EmptyState'
 import type { HotelsRoomsPageState } from '../useHotelsRoomsPage'
 
 export function HotelsSection({ s }: { s: HotelsRoomsPageState }) {
@@ -34,12 +35,11 @@ export function HotelsSection({ s }: { s: HotelsRoomsPageState }) {
         </div>
       ) : hotels.length === 0 ? (
         <div className="card">
-          <div className="empty-state">
-            <div className="empty-state-icon"><Building2 size={26} /></div>
-            <h3>{t('noHotelsAdded')}</h3>
+          <EmptyState icon={<Building2 size={26} />}>
+            <h3 className="text-gray-700">{t('noHotelsAdded')}</h3>
             <p>{t('noHotelsDesc')}</p>
             <button className="btn btn-primary" style={{ marginTop: 8 }} onClick={openHotelModal}>{t('addFirstHotel')}</button>
-          </div>
+          </EmptyState>
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '0.875rem' }}>

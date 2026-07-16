@@ -3,6 +3,7 @@
 import { Pencil, Trash2, Users } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import { SkeletonTableRows } from '@/components/ui/Skeleton'
+import { EmptyState } from '@/components/ui/EmptyState'
 import type { ClientGroupsPageState } from '../useClientGroupsPage'
 
 export function GroupList({ s }: { s: ClientGroupsPageState }) {
@@ -16,14 +17,11 @@ export function GroupList({ s }: { s: ClientGroupsPageState }) {
           <tbody><SkeletonTableRows rows={4} columns={3} /></tbody>
         </table>
       ) : groups.length === 0 ? (
-        <div className="empty-state">
-          <div className="empty-state-icon">
-            <Users size={24} strokeWidth={1.75} />
-          </div>
-          <h3>{t('noGroupsTitle')}</h3>
+        <EmptyState icon={<Users size={24} strokeWidth={1.75} />}>
+          <h3 className="text-gray-700">{t('noGroupsTitle')}</h3>
           <p>{t('noGroupsDesc')}</p>
           <button className="btn btn-primary" style={{ marginTop: 8 }} onClick={openAdd}>{t('addFirstGroup')}</button>
-        </div>
+        </EmptyState>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           {groups.map((g, i) => (
