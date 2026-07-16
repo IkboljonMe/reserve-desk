@@ -1,6 +1,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
+/*
+ * Everything below is legacy hand-written CSS predating the Tailwind
+ * migration. `@import "tailwindcss"` declares `@layer theme, base,
+ * components, utilities;` — any CSS NOT inside one of those named layers is
+ * "unlayered", and per the CSS Cascade Layers spec, unlayered rules always
+ * beat layered ones regardless of selector specificity. Left unwrapped, this
+ * whole file would silently win over every Tailwind utility class that
+ * touches the same property (e.g. a plain `h1 { font-size: 1.6rem }` here
+ * would always beat `text-4xl` on an <h1>, even though `.text-4xl` is more
+ * specific) — which is exactly why Tailwind utilities appeared "broken".
+ * Wrapping it in `@layer base` puts it at Tailwind's own base-layer
+ * priority, below `components`/`utilities`, so utility classes reliably win.
+ */
+@layer base {
+
 :root {
   --sidebar-width: 240px;
 
@@ -534,3 +549,5 @@ p  { color: var(--gray-500); text-wrap: pretty; }
   flex-wrap: wrap;
   gap: 1rem;
 }
+
+} /* end @layer base */
