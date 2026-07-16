@@ -83,7 +83,7 @@ export function BookingDetailModal({ s }: { s: CalendarPageState }) {
           )}
         </div>
 
-        <div className="divider" />
+        <div className="h-px bg-surface-border my-4" />
 
         {/* Lifecycle actions */}
         {selectedBooking.finished ? (

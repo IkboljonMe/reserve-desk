@@ -2,6 +2,7 @@
 
 import { X } from 'lucide-react'
 import { useTranslation } from '@/i18n'
+import Spinner from '@/components/ui/Spinner'
 import type { CompaniesPageState } from '../useCompaniesPage'
 
 export function CompanyModal({ s }: { s: CompaniesPageState }) {
@@ -64,7 +65,7 @@ export function CompanyModal({ s }: { s: CompaniesPageState }) {
 
             {!editCompany && (
               <>
-                <div className="divider" />
+                <div className="h-px bg-surface-border my-4" />
                 <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--gray-700)' }}>{t('ownerAccount')}</p>
                 <div className="form-group">
                   <label className="form-label">{t('fullName')} *</label>
@@ -82,11 +83,11 @@ export function CompanyModal({ s }: { s: CompaniesPageState }) {
             )}
           </div>
 
-          <div className="divider" />
+          <div className="h-px bg-surface-border my-4" />
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
             <button type="button" className="btn btn-secondary" onClick={closeModal}>{t('cancel')}</button>
             <button type="submit" className="btn btn-primary" disabled={saving}>
-              {saving ? <span className="spinner" /> : null}
+              {saving ? <Spinner size={18} dark={false} /> : null}
               {saving ? t('saving') : editCompany ? t('save') : t('addCompany')}
             </button>
           </div>

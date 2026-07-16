@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import Dropdown from '@/components/ui/Dropdown'
 import { useTranslation } from '@/i18n'
 import { useIsMobile } from '@/hooks/useIsMobile'
+import Spinner from '@/components/ui/Spinner'
 
 export type ContractStatus = 'awaiting' | 'signed' | 'terminated'
 
@@ -253,11 +254,11 @@ export default function ContractModal({
             </div>
           </div>
 
-          <div className="divider" />
+          <div className="h-px bg-surface-border my-4" />
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
             <button type="button" className="btn btn-secondary" onClick={onClose}>{t('cancel')}</button>
             <button type="submit" className="btn btn-primary" disabled={saving}>
-              {saving ? <span className="spinner" /> : null}
+              {saving ? <Spinner size={18} dark={false} /> : null}
               {saving ? t('saving') : editContract ? t('save') : t('addContract')}
             </button>
           </div>

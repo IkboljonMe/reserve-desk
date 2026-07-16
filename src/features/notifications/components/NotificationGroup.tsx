@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useTranslation } from '@/i18n'
+import Spinner from '@/components/ui/Spinner'
 import { ContractNotification, NotificationTier } from '@/types'
 import { TIER_META } from '../constants'
 import { fmtDate } from '../utils'
@@ -48,7 +49,7 @@ export function NotificationGroup({
               <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
                 <Link href={`/${lang}/contracts`} className="btn btn-secondary btn-sm">{t('view')}</Link>
                 <button className="btn btn-ghost btn-sm" onClick={() => onDismiss(n)} disabled={dismissing === key}>
-                  {dismissing === key ? <span className="spinner spinner-dark" /> : t('dismiss')}
+                  {dismissing === key ? <Spinner size={18} /> : t('dismiss')}
                 </button>
               </div>
             </div>

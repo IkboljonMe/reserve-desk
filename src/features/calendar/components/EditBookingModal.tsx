@@ -7,6 +7,7 @@ import { getBookings } from '@/lib/api/bookings'
 import { generateTimeSlots, slotEnd, toMin } from '@/features/book/utils'
 import { hoursForDate } from '@/lib/serviceHours'
 import { MenuItemsEditor, type MenuItem } from '@/components/ui/MenuItemsEditor'
+import Spinner from '@/components/ui/Spinner'
 import type { Booking } from '@/types'
 import type { CalendarPageState } from '../useCalendarPage'
 
@@ -161,11 +162,11 @@ export function EditBookingModal({ s }: { s: CalendarPageState }) {
           />
         </div>
 
-        <div className="divider" />
+        <div className="h-px bg-surface-border my-4" />
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
           <button className="btn btn-secondary" onClick={close}>{t('cancel')}</button>
           <button className="btn btn-primary" disabled={saving || !changed || !startTime || dayHours.closed} onClick={save}>
-            {saving ? <span className="spinner" /> : null}{t('saveChanges')}
+            {saving ? <Spinner size={18} dark={false} /> : null}{t('saveChanges')}
           </button>
         </div>
       </div>

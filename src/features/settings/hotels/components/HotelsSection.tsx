@@ -12,7 +12,7 @@ export function HotelsSection({ s }: { s: HotelsRoomsPageState }) {
 
   return (
     <section>
-      <div className="page-header" style={{ marginBottom: '1rem' }}>
+      <div className="flex items-center justify-between mb-4 flex-wrap gap-4">
         <div>
           <h2 style={{ fontSize: '1.125rem', color: 'var(--gray-800)', display: 'flex', alignItems: 'center', gap: 8 }}>
             <Building2 size={18} style={{ color: 'var(--brand-600)' }} /> {t('hotels')}

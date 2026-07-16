@@ -3,6 +3,7 @@
 import { startOfWeek, addDays } from 'date-fns'
 import TimeGrid from './TimeGrid'
 import MonthView from './MonthView'
+import Spinner from '@/components/ui/Spinner'
 import type { CalendarPageState } from '../useCalendarPage'
 
 export function CalendarGrid({ s }: { s: CalendarPageState }) {
@@ -17,7 +18,7 @@ export function CalendarGrid({ s }: { s: CalendarPageState }) {
           zIndex: 20, display: 'flex', alignItems: 'center', justifyContent: 'center',
           animation: 'fadeIn 0.2s ease',
         }}>
-          <div className="spinner spinner-dark" style={{ width: 34, height: 34, borderWidth: 3 }} />
+          <Spinner size={34} borderWidth={3} />
         </div>
       )}
 

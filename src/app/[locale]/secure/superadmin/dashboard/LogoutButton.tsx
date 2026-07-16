@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslation } from '@/i18n'
+import Spinner from '@/components/ui/Spinner'
 
 export default function LogoutButton() {
   const router = useRouter()
@@ -24,7 +25,7 @@ export default function LogoutButton() {
       className="btn btn-sm"
       style={{ background: 'rgba(255,255,255,0.1)', color: '#fff', border: '1px solid rgba(255,255,255,0.15)' }}
     >
-      {loggingOut ? <span className="spinner" /> : t('signOut')}
+      {loggingOut ? <Spinner size={18} dark={false} /> : t('signOut')}
     </button>
   )
 }

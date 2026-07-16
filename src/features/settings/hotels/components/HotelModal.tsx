@@ -2,6 +2,7 @@
 
 import { X } from 'lucide-react'
 import { useTranslation } from '@/i18n'
+import Spinner from '@/components/ui/Spinner'
 import type { HotelsRoomsPageState } from '../useHotelsRoomsPage'
 
 export function HotelModal({ s }: { s: HotelsRoomsPageState }) {
@@ -126,11 +127,11 @@ export function HotelModal({ s }: { s: HotelsRoomsPageState }) {
               </small>
             </div>
           </div>
-          <div className="divider" />
+          <div className="h-px bg-surface-border my-4" />
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
             <button type="button" className="btn btn-secondary" onClick={() => setHotelOpen(false)}>{t('cancel')}</button>
             <button type="submit" className="btn btn-primary" disabled={savingHotel || !!shortNameError || !!slugError}>
-              {savingHotel ? <span className="spinner" /> : null}
+              {savingHotel ? <Spinner size={18} dark={false} /> : null}
               {savingHotel ? (editHotelId ? t('saving') : t('adding')) : (editHotelId ? t('save') : t('addHotel'))}
             </button>
           </div>

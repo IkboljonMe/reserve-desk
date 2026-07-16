@@ -1,6 +1,7 @@
 'use client'
 
 import { useTranslation } from '@/i18n'
+import Spinner from '@/components/ui/Spinner'
 import type { ClientsPageState } from '../useClientsPage'
 
 export function ClientModal({ s }: { s: ClientsPageState }) {
@@ -56,11 +57,11 @@ export function ClientModal({ s }: { s: ClientsPageState }) {
             </div>
           </div>
 
-          <div className="divider" />
+          <div className="h-px bg-surface-border my-4" />
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
             <button type="button" className="btn btn-secondary" onClick={closeModal}>{t('cancel')}</button>
             <button type="submit" className="btn btn-primary" disabled={saving}>
-              {saving ? <span className="spinner" /> : null}
+              {saving ? <Spinner size={18} dark={false} /> : null}
               {saving ? t('saving') : editClient ? t('save') : t('addClient')}
             </button>
           </div>

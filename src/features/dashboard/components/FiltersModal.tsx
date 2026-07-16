@@ -94,7 +94,7 @@ export function FiltersModal({ s, open, onClose }: { s: DashboardPageState; open
           )}
         </div>
 
-        <div className="divider" />
+        <div className="h-px bg-surface-border my-4" />
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
           <button type="button" className="btn btn-ghost" disabled={activeFilterCount === 0} onClick={clearFilters}>
             {t('clear')}

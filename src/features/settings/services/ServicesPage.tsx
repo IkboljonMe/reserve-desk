@@ -17,7 +17,7 @@ export default function ServicesPage() {
       <ServicesStyles />
 
       {/* ── Page Header ── */}
-      <div className="page-header" style={{ marginBottom: '1.25rem' }}>
+      <div className="flex items-center justify-between mb-5 flex-wrap gap-4">
         <div>
           <h2 style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             {t('services')}

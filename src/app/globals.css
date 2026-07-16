@@ -166,28 +166,6 @@ h2 { font-size: 1.25rem; font-weight: 700; color: var(--gray-800); text-wrap: ba
 h3 { font-size: 1.05rem; font-weight: 600; color: var(--gray-800); text-wrap: balance; letter-spacing: -0.01em; }
 p  { color: var(--gray-500); text-wrap: pretty; }
 
-/* Align numeric data (times, prices, counts) for clean columns */
-.tabular-nums { font-variant-numeric: tabular-nums; }
-
-.text-gradient {
-  background: var(--brand-gradient);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-/* ─── Utility ─────────────────────────── */
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  border: 0;
-}
-
 /* ─── Card ─────────────────────────── */
 .card {
   background: var(--surface-card);
@@ -201,39 +179,6 @@ p  { color: var(--gray-500); text-wrap: pretty; }
   box-shadow: var(--shadow-lg);
   transform: translateY(-3px);
   border-color: var(--brand-100);
-}
-
-/* Stat card — subtle gradient wash + interactive lift */
-.stat-card {
-  position: relative;
-  overflow: hidden;
-  background: var(--surface-card);
-  border: 1px solid var(--surface-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
-}
-.stat-card:hover {
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
-  border-color: var(--brand-100);
-}
-.stat-card::before {
-  content: '';
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 3px;
-  background: var(--accent, var(--brand-500));
-  opacity: 0.85;
-}
-
-/* Icon container */
-.icon-box {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-  flex-shrink: 0;
 }
 
 /* ─── Badge ─────────────────────────── */
@@ -343,33 +288,6 @@ p  { color: var(--gray-500); text-wrap: pretty; }
 .form-textarea { resize: vertical; min-height: 80px; }
 .form-error { font-size: 0.75rem; color: var(--danger); font-weight: 500; }
 
-/* ─── Select Bar (matches the icon picker bar) ───────────── */
-.select-bar {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 100%;
-  padding: 10px 36px 10px 12px;
-  border: 1.5px solid var(--gray-200);
-  border-radius: 10px;
-  background-color: var(--surface-card);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239aa3b0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 16px;
-  font-family: inherit;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: var(--gray-700);
-  cursor: pointer;
-  outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-.select-bar:hover { border-color: var(--gray-300); }
-.select-bar:focus {
-  border-color: var(--brand-500);
-  box-shadow: 0 0 0 3px rgba(79, 110, 247, 0.14);
-}
-
 /* Custom dropdown trigger (Select component) — matches the icon picker bar */
 .select-trigger {
   width: 100%;
@@ -394,13 +312,6 @@ p  { color: var(--gray-500); text-wrap: pretty; }
 .select-trigger[aria-expanded="true"] {
   border-color: var(--brand-500);
   box-shadow: 0 0 0 3px rgba(79, 110, 247, 0.14);
-}
-
-/* ─── Divider ─────────────────────────── */
-.divider {
-  height: 1px;
-  background: var(--surface-border);
-  margin: 1rem 0;
 }
 
 /* ─── Modal Overlay ─────────────────────────── */
@@ -503,7 +414,9 @@ p  { color: var(--gray-500); text-wrap: pretty; }
   to { transform: rotate(360deg); }
 }
 
-/* Respect users who prefer reduced motion — keep only essential spinners */
+/* Respect users who prefer reduced motion — a loading spinner is exempted
+   (see [data-spinner] in components/ui/Spinner.tsx): freezing it entirely
+   would make it look stuck/broken rather than just calmer. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -513,26 +426,10 @@ p  { color: var(--gray-500); text-wrap: pretty; }
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  .spinner,
-  .spinner-dark {
+  [data-spinner] {
     animation-duration: 0.6s !important;
     animation-iteration-count: infinite !important;
   }
-}
-
-/* ─── Spinner ─────────────────────────── */
-.spinner {
-  width: 18px;
-  height: 18px;
-  border: 2px solid rgba(255,255,255,0.3);
-  border-top-color: #fff;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-  display: inline-block;
-}
-.spinner-dark {
-  border-color: rgba(79,110,247,0.18);
-  border-top-color: var(--brand-500);
 }
 
 /* ─── Skeleton ─────────────────────────── */
@@ -591,16 +488,6 @@ p  { color: var(--gray-500); text-wrap: pretty; }
   align-items: center;
   justify-content: center;
   color: var(--brand-500);
-}
-
-/* ─── Page Header ─────────────────────────── */
-.page-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-  gap: 1rem;
 }
 
 } /* end @layer base */

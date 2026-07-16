@@ -20,7 +20,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
   const localized = (href: string) => `/${lang}/secure/company/${slug}${href}`
   return (
     <div>
-      <div className="page-header">
+      <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
         <h1>{t('settings')}</h1>
       </div>
 

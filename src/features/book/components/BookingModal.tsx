@@ -3,6 +3,7 @@
 import { ArrowLeft, ArrowRight, X } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import { useIsMobile } from '@/hooks/useIsMobile'
+import Spinner from '@/components/ui/Spinner'
 import { useBookingWizard } from '../useBookingWizard'
 import { HotelStep } from './HotelStep'
 import { ServiceStep } from './ServiceStep'
@@ -80,7 +81,7 @@ export function BookingModal({
 
           {w.currentSlide === 'review' ? (
             <button type="button" className="btn btn-primary" disabled={w.loading || !w.canReview} onClick={w.confirmBooking}>
-              {w.loading ? <span className="spinner" /> : null}
+              {w.loading ? <Spinner size={18} dark={false} /> : null}
               {w.loading ? t('creating') : t('confirmBooking')}
             </button>
           ) : (

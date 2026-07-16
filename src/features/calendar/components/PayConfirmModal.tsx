@@ -36,7 +36,7 @@ export function PayConfirmModal({ s }: { s: CalendarPageState }) {
           </p>
         </div>
 
-        <div className="divider" />
+        <div className="h-px bg-surface-border my-4" />
 
         {collected > 0 && (
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--gray-600)', marginBottom: 10 }}>

@@ -12,7 +12,7 @@ export default function NotificationsPage() {
 
   return (
     <div>
-      <div className="page-header">
+      <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
         <div>
           <h1>{t('notifications')}</h1>
           <p style={{ marginTop: 4 }}>{t('notificationsSubtitle')}</p>

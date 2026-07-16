@@ -20,6 +20,7 @@ import {
 import { Booking, Hotel, bookingState, money, svcId, amountCollected, amountDue, isPartiallyPaid } from '@/lib/bookingHelpers'
 import { getServiceIcon } from '@/lib/serviceIcons'
 import { MenuItemsEditor, type MenuItem } from '@/components/ui/MenuItemsEditor'
+import Spinner from '@/components/ui/Spinner'
 import { useTranslation, type DictionaryKeys } from '@/i18n'
 
 interface Actor {
@@ -172,7 +173,7 @@ export default function BookingDrawer({
       >
         {loading || !b || !st ? (
           <div style={{ padding: '4rem', textAlign: 'center' }}>
-            <div className="spinner spinner-dark" style={{ width: 30, height: 30, margin: '0 auto' }} />
+            <Spinner size={30} />
           </div>
         ) : (
           <div style={{ padding: '1.25rem' }}>
@@ -359,7 +360,7 @@ export default function BookingDrawer({
                 {t('didYouReceive', { amount: `${money(b.totalPrice)} ${t('sum')}`, name: b.customerName })}
               </p>
             </div>
-            <div className="divider" />
+            <div className="h-px bg-surface-border my-4" />
             <div style={{ display: 'flex', gap: 10 }}>
               <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setPayConfirm(false)}>
                 {t('back')}

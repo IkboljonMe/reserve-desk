@@ -6,6 +6,7 @@ import { ServiceIcon } from '@/lib/serviceIcons'
 import IconPicker from '@/components/IconPicker'
 import Select from '@/components/Select'
 import { InfoHint } from '@/components/ui/InfoHint'
+import Spinner from '@/components/ui/Spinner'
 import { PRESET_COLORS, bufferError, selectAllOnFocus } from '../utils'
 import { PricingEditor } from './PricingEditor'
 import { ScheduleEditor } from './ScheduleEditor'
@@ -121,7 +122,7 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
               <input type="text" className="form-input" placeholder={t('detailsPlaceholder')} value={form.details} onChange={e => setForm(f => ({ ...f, details: e.target.value }))} />
             </div>
 
-            <div className="divider" style={{ margin: '0.1rem 0' }} />
+            <div className="h-px bg-surface-border" style={{ margin: '0.1rem 0' }} />
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div className="form-group">
@@ -268,7 +269,7 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
             )}
           </div>
 
-          <div className="divider" />
+          <div className="h-px bg-surface-border my-4" />
           <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'space-between', alignItems: 'center' }}>
             {!editService ? (
               <button type="button" className="btn btn-ghost btn-sm" onClick={discardDraft} style={{ color: 'var(--gray-400)' }}>
@@ -278,7 +279,7 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
             <div style={{ display: 'flex', gap: '0.75rem' }}>
               <button type="button" className="btn btn-secondary" onClick={closeForm}>{t('cancel')}</button>
               <button id="save-service-btn" type="submit" className="btn btn-primary" disabled={saving}>
-                {saving ? <span className="spinner" /> : null}
+                {saving ? <Spinner size={18} dark={false} /> : null}
                 {saving ? t('saving') : (editService ? t('save') : t('save'))}
               </button>
             </div>

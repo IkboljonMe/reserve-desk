@@ -1,6 +1,7 @@
 'use client'
 
 import { useTranslation } from '@/i18n'
+import Spinner from '@/components/ui/Spinner'
 import type { BookingWizard } from '../useBookingWizard'
 
 // Lightweight "add client" modal used from within the booking wizard.
@@ -56,11 +57,11 @@ export function AddClientModal({ w }: { w: BookingWizard }) {
             </div>
           </div>
 
-          <div className="divider" />
+          <div className="h-px bg-surface-border my-4" />
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
             <button type="button" className="btn btn-secondary" onClick={closeAddClientModal}>{t('cancel')}</button>
             <button type="submit" className="btn btn-primary" disabled={savingNewClient || !addClientForm.name.trim()}>
-              {savingNewClient ? <span className="spinner" /> : null}
+              {savingNewClient ? <Spinner size={18} dark={false} /> : null}
               {savingNewClient ? t('saving') : t('addClient')}
             </button>
           </div>

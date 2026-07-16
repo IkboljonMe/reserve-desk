@@ -3,6 +3,7 @@
 import { Building2 } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import Select from '@/components/Select'
+import Spinner from '@/components/ui/Spinner'
 import { displayCode } from '../utils'
 import type { HotelsRoomsPageState } from '../useHotelsRoomsPage'
 
@@ -94,11 +95,11 @@ export function RoomModal({ s }: { s: HotelsRoomsPageState }) {
               </strong>
             </div>
           </div>
-          <div className="divider" />
+          <div className="h-px bg-surface-border my-4" />
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
             <button type="button" className="btn btn-secondary" onClick={() => setRoomOpen(false)}>{t('cancel')}</button>
             <button type="submit" className="btn btn-primary" disabled={savingRoom}>
-              {savingRoom ? <span className="spinner" /> : null}
+              {savingRoom ? <Spinner size={18} dark={false} /> : null}
               {savingRoom ? t('saving') : editRoomId ? t('save') : t('addRoom')}
             </button>
           </div>

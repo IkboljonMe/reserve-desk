@@ -93,7 +93,7 @@ export function ClientHistoryModal({ s }: { s: ClientsPageState }) {
           </div>
         )}
 
-        <div className="divider" />
+        <div className="h-px bg-surface-border my-4" />
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
           <button className="btn btn-secondary btn-sm" onClick={close}>{t('close')}</button>
         </div>
