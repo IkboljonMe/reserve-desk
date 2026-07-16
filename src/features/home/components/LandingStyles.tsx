@@ -19,6 +19,16 @@ export function LandingStyles() {
       }
       @media (max-width: 640px) {
         .lp-final-cta { padding: 2.25rem 1.35rem !important; }
+        /* The hero photo is desktop-only — too heavy/distracting on small
+           screens. Fall back to a soft gradient so the section isn't blank. */
+        .lp-hero-fs-bg { display: none; }
+        .lp-hero-fs {
+          background: linear-gradient(180deg, #eef1fb, #f8fafc);
+          /* Without the photo, a full-viewport centered layout leaves huge
+             empty gaps above/below the copy — size to content instead. */
+          height: auto; min-height: 0; padding: 50px 0;
+        }
+        .lp-hero-fs-scroll { display: none; }
       }
       @media (max-width: 420px) {
         /* Tighter gutters and roomier tap targets on very small phones. */
