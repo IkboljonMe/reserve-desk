@@ -1,7 +1,6 @@
 'use client'
 
 import { useCalendarPage } from './useCalendarPage'
-import { CalendarStyles } from './components/CalendarStyles'
 import { CalendarToolbar } from './components/CalendarToolbar'
 import { CalendarFilters } from './components/CalendarFilters'
 import { CalendarGrid } from './components/CalendarGrid'
@@ -14,11 +13,9 @@ export default function CalendarPage() {
   const s = useCalendarPage()
 
   return (
-    <div className="cal-shell">
-      <CalendarStyles />
-
+    <div className="flex gap-5 h-full min-h-0 max-[860px]:flex-col max-[860px]:h-auto">
       {/* ── Main column ── */}
-      <div className="cal-main-col">
+      <div className="flex-1 flex flex-col min-w-0 min-h-0">
         <CalendarToolbar s={s} />
         <CalendarFilters s={s} />
         <CalendarGrid s={s} />

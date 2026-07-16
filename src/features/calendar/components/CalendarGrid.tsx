@@ -10,14 +10,9 @@ export function CalendarGrid({ s }: { s: CalendarPageState }) {
   const { loadingBookings, view, currentDate, today, bookingsForDay, setSelectedBooking, markFinished, setCurrentDate, setView, rowH, goToCreate } = s
 
   return (
-    <div className="card cal-grid-card">
+    <div className="bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-[var(--radius-lg)] shadow-sm flex-1 overflow-auto p-0 relative min-h-0 max-[860px]:flex-none max-[860px]:min-h-[70vh]">
       {loadingBookings && (
-        <div style={{
-          position: 'absolute', inset: 0, background: 'rgba(255,255,255,0.45)',
-          backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)',
-          zIndex: 20, display: 'flex', alignItems: 'center', justifyContent: 'center',
-          animation: 'fadeIn 0.2s ease',
-        }}>
+        <div className="absolute inset-0 bg-white/45 backdrop-blur-md z-20 flex items-center justify-center [animation:fadeIn_0.2s_ease]">
           <Spinner size={34} borderWidth={3} />
         </div>
       )}

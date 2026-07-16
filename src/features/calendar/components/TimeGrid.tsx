@@ -98,7 +98,6 @@ export default function TimeGrid({
   const totalMin = (endHour - startHour) * 60
   const bodyHeight = totalMin * ppm
   const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i)
-  const GUTTER = 58
 
   const nowMin = today.getHours() * 60 + today.getMinutes()
   const nowVisible = nowMin >= startMin && nowMin <= endHour * 60
@@ -126,17 +125,7 @@ export default function TimeGrid({
   return (
     <div style={{ minWidth: days.length > 1 ? 640 : undefined }}>
       {/* Sticky header */}
-      <div
-        style={{
-          display: 'flex',
-          paddingLeft: GUTTER,
-          position: 'sticky',
-          top: 0,
-          zIndex: 6,
-          background: 'var(--surface-card)',
-          borderBottom: '1px solid var(--gray-200)',
-        }}
-      >
+      <div className="flex pl-[58px] sticky top-0 z-[6] bg-[var(--surface-card)] border-b border-[var(--gray-200)]">
         {days.map(day => {
           const isToday = isSameDay(day, today)
           const isWeekend = [0, 6].includes(day.getDay())
@@ -145,43 +134,23 @@ export default function TimeGrid({
             <div
               key={day.toISOString()}
               onClick={clickable ? () => onDayHeaderClick!(day) : undefined}
-              style={{
-                flex: 1,
-                textAlign: 'center',
-                padding: '9px 4px 8px',
-                borderLeft: '1px solid var(--gray-100)',
-                cursor: clickable ? 'pointer' : 'default',
-                background: isToday ? 'var(--brand-50)' : 'transparent',
-                borderBottom: isToday ? '2px solid var(--brand-500)' : '2px solid transparent',
-                marginBottom: -1,
-              }}
+              className={`flex-1 text-center p-[9px_4px_8px] border-l border-[var(--gray-100)] ${
+                clickable ? 'cursor-pointer' : 'cursor-default'
+              } ${
+                isToday ? 'bg-[var(--brand-50)] border-b-2 border-b-[var(--brand-500)]' : 'bg-transparent border-b-2 border-b-transparent -mb-[1px]'
+              }`}
             >
               <div
-                style={{
-                  fontSize: '0.68rem',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                  fontWeight: 700,
-                  color: isToday ? 'var(--brand-600)' : isWeekend ? 'var(--gray-300)' : 'var(--gray-400)',
-                }}
+                className={`text-[0.68rem] uppercase tracking-wider font-bold ${
+                  isToday ? 'text-[var(--brand-600)]' : isWeekend ? 'text-[var(--gray-300)]' : 'text-[var(--gray-400)]'
+                }`}
               >
                 {format(day, 'EEE', { locale })}
               </div>
               <div
-                style={{
-                  width: 30,
-                  height: 30,
-                  borderRadius: '50%',
-                  margin: '3px auto 0',
-                  background: isToday ? 'var(--brand-500)' : 'transparent',
-                  boxShadow: isToday ? '0 2px 8px rgba(99,102,241,0.4)' : 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '0.9375rem',
-                  fontWeight: isToday ? 700 : 600,
-                  color: isToday ? '#fff' : isWeekend ? 'var(--gray-400)' : 'var(--gray-700)',
-                }}
+                className={`w-[30px] h-[30px] rounded-full mx-auto mt-0.75 flex items-center justify-center text-[0.9375rem] ${
+                  isToday ? 'bg-[var(--brand-500)] text-white shadow-[0_2px_8px_rgba(99,102,241,0.4)] font-bold' : isWeekend ? 'text-[var(--gray-400)] font-semibold' : 'text-[var(--gray-700)] font-semibold'
+                }`}
               >
                 {format(day, 'd')}
               </div>
@@ -191,26 +160,17 @@ export default function TimeGrid({
       </div>
 
       {/* Body */}
-      <div ref={bodyRef} style={{ position: 'relative', height: bodyHeight }}>
+      <div ref={bodyRef} className="relative" style={{ height: bodyHeight }}>
         {/* Hour lines + gutter labels */}
         {hours.map(h => {
           const top = (h * 60 - startMin) * ppm
           return (
             <div key={h}>
-              <div style={{ position: 'absolute', top, left: GUTTER, right: 0, borderTop: '1px solid var(--gray-100)' }} />
+              <div className="absolute left-[58px] right-0 border-t border-[var(--gray-100)]" style={{ top }} />
               <div
+                className="absolute left-0 w-[48px] text-right -translate-y-1/2 text-[0.68rem] text-[var(--gray-400)] tabular-nums bg-[var(--surface-card)] pr-0.5"
                 style={{
-                  position: 'absolute',
                   top,
-                  left: 0,
-                  width: GUTTER - 10,
-                  textAlign: 'right',
-                  transform: 'translateY(-50%)',
-                  fontSize: '0.68rem',
-                  color: 'var(--gray-400)',
-                  fontVariantNumeric: 'tabular-nums',
-                  background: 'var(--surface-card)',
-                  paddingRight: 2,
                 }}
               >
                 {h < 24 ? `${h.toString().padStart(2, '0')}:00` : ''}
@@ -222,19 +182,15 @@ export default function TimeGrid({
         {hours.slice(0, -1).map(h => (
           <div
             key={`half-${h}`}
+            className="absolute left-[58px] right-0 border-t border-dashed border-[var(--gray-100)] opacity-50"
             style={{
-              position: 'absolute',
               top: (h * 60 + 30 - startMin) * ppm,
-              left: GUTTER,
-              right: 0,
-              borderTop: '1px dashed var(--gray-100)',
-              opacity: 0.5,
             }}
           />
         ))}
 
         {/* Day columns */}
-        <div style={{ position: 'absolute', left: GUTTER, right: 0, top: 0, bottom: 0, display: 'flex' }}>
+        <div className="absolute left-[58px] right-0 top-0 bottom-0 flex">
           {days.map(day => {
             const dateStr = format(day, 'yyyy-MM-dd')
             const placed = packDay(bookingsForDay(dateStr))
@@ -244,13 +200,9 @@ export default function TimeGrid({
               <div
                 key={day.toISOString()}
                 onClick={e => handleColumnClick(e, day)}
-                style={{
-                  flex: 1,
-                  position: 'relative',
-                  borderLeft: '1px solid var(--gray-100)',
-                  cursor: 'pointer',
-                  background: isToday ? 'rgba(99,102,241,0.055)' : isWeekend ? 'rgba(148,163,184,0.04)' : 'transparent',
-                }}
+                className={`flex-1 relative border-l border-[var(--gray-100)] cursor-pointer ${
+                  isToday ? 'bg-[rgba(99,102,241,0.055)]' : isWeekend ? 'bg-[rgba(148,163,184,0.04)]' : 'bg-transparent'
+                }`}
               >
                 {placed.map(p => (
                   <EventBlock
@@ -263,21 +215,9 @@ export default function TimeGrid({
                   />
                 ))}
                 {isToday && nowVisible && (
-                  <div style={{ position: 'absolute', top: (nowMin - startMin) * ppm, left: 0, right: 0, zIndex: 9, pointerEvents: 'none' }}>
-                    <div
-                      style={{
-                        position: 'absolute',
-                        left: -5,
-                        top: -5,
-                        width: 11,
-                        height: 11,
-                        borderRadius: '50%',
-                        background: 'var(--brand-500)',
-                        border: '2px solid #fff',
-                        boxShadow: '0 0 0 1px var(--brand-500)',
-                      }}
-                    />
-                    <div style={{ borderTop: '2px solid var(--brand-500)', boxShadow: '0 0 6px rgba(99,102,241,0.35)' }} />
+                  <div className="absolute left-0 right-0 z-[9] pointer-events-none" style={{ top: (nowMin - startMin) * ppm }}>
+                    <div className="absolute -left-[5px] -top-[5px] w-[11px] h-[11px] rounded-full bg-[var(--brand-500)] border-2 border-white shadow-[0_0_0_1px_var(--brand-500)]" />
+                    <div className="border-t-2 border-t-[var(--brand-500)] shadow-[0_0_6px_rgba(99,102,241,0.35)]" />
                   </div>
                 )}
               </div>
@@ -288,31 +228,12 @@ export default function TimeGrid({
         {/* Current-time label in the gutter */}
         {todayInRange && nowVisible && (
           <div
+            className="absolute left-0 w-[52px] -translate-y-1/2 z-10 pointer-events-none flex justify-end"
             style={{
-              position: 'absolute',
               top: (nowMin - startMin) * ppm,
-              left: 0,
-              width: GUTTER - 6,
-              transform: 'translateY(-50%)',
-              zIndex: 10,
-              pointerEvents: 'none',
-              display: 'flex',
-              justifyContent: 'flex-end',
             }}
           >
-            <span
-              style={{
-                background: 'var(--brand-500)',
-                color: '#fff',
-                fontSize: '0.66rem',
-                fontWeight: 700,
-                padding: '1px 6px',
-                borderRadius: 6,
-                fontVariantNumeric: 'tabular-nums',
-                boxShadow: '0 2px 6px rgba(99,102,241,0.4)',
-                letterSpacing: '0.01em',
-              }}
-            >
+            <span className="bg-[var(--brand-500)] text-white text-[0.66rem] font-bold p-[1px_6px] rounded-md tabular-nums shadow-[0_2px_6px_rgba(99,102,241,0.4)] tracking-wide">
               {fromMin(nowMin)}
             </span>
           </div>
@@ -347,7 +268,9 @@ function EventBlock({
   if (b.masked) {
     return (
       <div
-        className="cal-event"
+        className={`absolute rounded-[7px] overflow-hidden transition-all duration-120 box-border border border-[var(--gray-300)] border-l-[3px] border-l-[var(--gray-400)] cursor-default text-[var(--gray-500)] ${
+          height > 34 ? 'p-[3px_6px]' : 'p-[1px_6px]'
+        }`}
         title={`${b.startTime}–${b.endTime} · ${t('occupied')}`}
         style={{
           top,
@@ -355,18 +278,13 @@ function EventBlock({
           left: `calc(${placed.col * widthPct}% + 2px)`,
           width: `calc(${widthPct}% - 4px)`,
           background: 'repeating-linear-gradient(45deg, var(--gray-100), var(--gray-100) 6px, var(--gray-200) 6px, var(--gray-200) 12px)',
-          border: '1px solid var(--gray-300)',
-          borderLeft: '3px solid var(--gray-400)',
-          padding: height > 34 ? '3px 6px' : '1px 6px',
-          cursor: 'default',
-          color: 'var(--gray-500)',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.7rem', fontWeight: 600 }}>
+        <div className="flex items-center gap-1 text-[0.7rem] font-semibold">
           <Lock size={11} /> {t('occupied')}
         </div>
         {height > 30 && (
-          <div style={{ fontSize: '0.64rem', fontVariantNumeric: 'tabular-nums' }}>
+          <div className="text-[0.64rem] tabular-nums">
             {b.startTime}–{b.endTime}
           </div>
         )}
@@ -381,7 +299,9 @@ function EventBlock({
 
   return (
     <div
-      className="cal-event"
+      className={`absolute rounded-[7px] overflow-hidden cursor-pointer transition-all duration-120 box-border hover:shadow-[0_6px_16px_rgba(0,0,0,0.14)] hover:-translate-y-[1px] hover:z-[5] hover:saturate-[1.15] border-l-[3px] ${
+        height > 34 ? 'p-[3px_6px]' : 'p-[1px_6px]'
+      }`}
       title={`${b.startTime}–${b.endTime} · ${b.customerName}${b.roomNumber ? ` · Room ${b.roomNumber}` : ''} · ${
         b.serviceId?.name || ''
       } · ${state.label}`}
@@ -396,24 +316,14 @@ function EventBlock({
         width: `calc(${widthPct}% - 4px)`,
         background: finished ? `${color}18` : `${color}26`,
         border: `1px ${unpaid ? 'dashed' : 'solid'} ${color}66`,
-        borderLeft: `3px solid ${finished ? '#10b981' : color}`,
-        padding: height > 34 ? '3px 6px' : '1px 6px',
+        borderLeftColor: finished ? '#10b981' : color,
       }}
     >
-      <span style={{ position: 'absolute', top: 3, right: 3, zIndex: 2 }}>
+      <span className="absolute top-[3px] right-[3px] z-[2]">
         {finished ? (
           <span
             title={t('completed')}
-            style={{
-              width: 16,
-              height: 16,
-              borderRadius: '50%',
-              background: '#10b981',
-              color: '#fff',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
+            className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center"
           >
             <Check size={11} strokeWidth={3} />
           </span>
@@ -425,101 +335,41 @@ function EventBlock({
               e.stopPropagation()
               onFinish(b)
             }}
-            style={{
-              width: 16,
-              height: 16,
-              borderRadius: '50%',
-              padding: 0,
-              cursor: 'pointer',
-              background: '#fff',
-              border: '1.5px solid #10b981',
-              color: '#10b981',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all .12s',
-            }}
-            onMouseEnter={e => {
-              const t = e.currentTarget
-              t.style.background = '#10b981'
-              t.style.color = '#fff'
-            }}
-            onMouseLeave={e => {
-              const t = e.currentTarget
-              t.style.background = '#fff'
-              t.style.color = '#10b981'
-            }}
+            className="w-4 h-4 rounded-full p-0 cursor-pointer bg-white border border-emerald-500 text-emerald-500 flex items-center justify-center transition-all duration-120 hover:bg-emerald-500 hover:text-white"
           >
             <Check size={11} strokeWidth={3} />
           </button>
         ) : (
           <span
             title={t('unpaid')}
-            style={{
-              width: 9,
-              height: 9,
-              borderRadius: '50%',
-              background: '#f59e0b',
-              display: 'block',
-              boxShadow: '0 0 0 2px #fff',
-            }}
+            className="w-2.25 h-2.25 rounded-full bg-amber-500 block shadow-[0_0_0_2px_#fff]"
           />
         )}
       </span>
 
       <div
-        style={{
-          fontSize: '0.7rem',
-          fontWeight: 700,
-          color: 'var(--gray-800)',
-          paddingRight: 16,
-          lineHeight: 1.15,
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap',
-        }}
+        className="text-[0.7rem] font-bold text-[var(--gray-800)] pr-4 leading-[1.15] overflow-hidden text-ellipsis whitespace-nowrap"
       >
         {label}
       </div>
       {height > 30 && (
         <div
-          style={{
-            fontSize: '0.64rem',
-            color: 'var(--gray-600)',
-            lineHeight: 1.2,
-            fontVariantNumeric: 'tabular-nums',
-            overflow: 'hidden',
-            whiteSpace: 'nowrap',
-            textOverflow: 'ellipsis',
-          }}
+          className="text-[0.64rem] text-[var(--gray-600)] leading-[1.2] tabular-nums overflow-hidden whitespace-nowrap text-ellipsis"
         >
           {b.startTime}–{b.endTime}
         </div>
       )}
       {height > 52 && b.roomNumber && (
         <div
-          style={{
-            fontSize: '0.64rem',
-            color: 'var(--gray-500)',
-            overflow: 'hidden',
-            whiteSpace: 'nowrap',
-            textOverflow: 'ellipsis',
-          }}
+          className="text-[0.64rem] text-[var(--gray-500)] overflow-hidden whitespace-nowrap text-ellipsis"
         >
           {b.customerName}
         </div>
       )}
       {height > 68 && (
         <div
-          style={{
-            fontSize: '0.62rem',
-            color,
-            fontWeight: 600,
-            overflow: 'hidden',
-            whiteSpace: 'nowrap',
-            textOverflow: 'ellipsis',
-            marginTop: 1,
-          }}
+          className="text-[0.62rem] font-semibold overflow-hidden whitespace-nowrap text-ellipsis mt-[1px]"
+          style={{ color }}
         >
           {b.serviceId?.name}
         </div>

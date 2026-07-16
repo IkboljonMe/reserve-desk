@@ -99,22 +99,22 @@ export function EditBookingModal({ s }: { s: CalendarPageState }) {
   }
 
   return (
-    <div className="modal-overlay" style={{ zIndex: 2100 }} onClick={close}>
-      <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 460 }}>
+    <div className="modal-overlay z-[2100]" onClick={close}>
+      <div className="modal max-w-[460px]" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <h2>{t('editBooking')}</h2>
           <Button variant="ghost" icon onClick={close} aria-label={t('close')}><X size={18} /></Button>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
-            <div className="form-group" style={{ flex: 1 }}>
-              <label className="form-label"><CalendarDays size={13} /> {t('date')}</label>
-              <input type="date" className="form-input" value={date} onChange={e => setDate(e.target.value)} />
+        <div className="flex flex-col gap-3.5">
+          <div className="flex gap-3">
+            <div className="flex flex-col gap-1.5 flex-1">
+              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight flex items-center gap-1.25"><CalendarDays size={13} /> {t('date')}</label>
+              <input type="date" className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]" value={date} onChange={e => setDate(e.target.value)} />
             </div>
-            <div className="form-group" style={{ flex: 1 }}>
-              <label className="form-label"><Clock size={13} /> {t('time')}</label>
-              <select className="form-select" value={startTime} onChange={e => setStartTime(e.target.value)} disabled={dayHours.closed}>
+            <div className="flex flex-col gap-1.5 flex-1">
+              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight flex items-center gap-1.25"><Clock size={13} /> {t('time')}</label>
+              <select className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] disabled:opacity-50 disabled:bg-[var(--gray-50)]" value={startTime} onChange={e => setStartTime(e.target.value)} disabled={dayHours.closed}>
                 {startOptions.length === 0 && <option value="">{dayHours.closed ? t('serviceClosedOnDate') : t('noSlotsAvailable')}</option>}
                 {startOptions.map(slot => (
                   <option key={slot} value={slot}>{slot} – {slotEnd(slot, duration)}</option>
@@ -123,34 +123,34 @@ export function EditBookingModal({ s }: { s: CalendarPageState }) {
             </div>
           </div>
 
-          <div className="form-group">
-            <label className="form-label"><User size={13} /> {t('guest')}</label>
-            <input type="text" className="form-input" value={name} onChange={e => setName(e.target.value)} />
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight flex items-center gap-1.25"><User size={13} /> {t('guest')}</label>
+            <input type="text" className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]" value={name} onChange={e => setName(e.target.value)} />
           </div>
 
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
-            <div className="form-group" style={{ flex: 1 }}>
-              <label className="form-label"><Phone size={13} /> {t('phone')}</label>
-              <input type="text" className="form-input" value={phone} onChange={e => setPhone(e.target.value)} />
+          <div className="flex gap-3">
+            <div className="flex flex-col gap-1.5 flex-1">
+              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight flex items-center gap-1.25"><Phone size={13} /> {t('phone')}</label>
+              <input type="text" className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]" value={phone} onChange={e => setPhone(e.target.value)} />
             </div>
-            <div className="form-group" style={{ flex: 1 }}>
-              <label className="form-label"><MapPin size={13} /> {t('room')}</label>
-              <input type="text" className="form-input" value={room} onChange={e => setRoom(e.target.value)} />
+            <div className="flex flex-col gap-1.5 flex-1">
+              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight flex items-center gap-1.25"><MapPin size={13} /> {t('room')}</label>
+              <input type="text" className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]" value={room} onChange={e => setRoom(e.target.value)} />
             </div>
           </div>
 
-          <div className="form-group" style={{ maxWidth: 160 }}>
-            <label className="form-label"><Users size={13} /> {t('personsCount')}</label>
+          <div className="flex flex-col gap-1.5 max-w-[160px]">
+            <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight flex items-center gap-1.25"><Users size={13} /> {t('personsCount')}</label>
             <input
-              type="number" className="form-input" min={1} step={1} value={persons}
+              type="number" className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]" min={1} step={1} value={persons}
               onChange={e => setPersons(Math.max(1, parseInt(e.target.value) || 1))}
               onFocus={e => e.currentTarget.select()}
             />
           </div>
 
-          <div className="form-group">
-            <label className="form-label"><FileText size={13} /> {t('notes')}</label>
-            <textarea className="form-input" rows={2} value={notes} onChange={e => setNotes(e.target.value)} />
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight flex items-center gap-1.25"><FileText size={13} /> {t('notes')}</label>
+            <textarea className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] resize-y" rows={2} value={notes} onChange={e => setNotes(e.target.value)} />
           </div>
 
           <MenuItemsEditor
@@ -164,7 +164,7 @@ export function EditBookingModal({ s }: { s: CalendarPageState }) {
         </div>
 
         <div className="h-px bg-surface-border my-4" />
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+        <div className="flex justify-end gap-3">
           <Button variant="secondary" onClick={close}>{t('cancel')}</Button>
           <Button disabled={saving || !changed || !startTime || dayHours.closed} onClick={save}>
             {saving ? <Spinner size={18} dark={false} /> : null}{t('saveChanges')}

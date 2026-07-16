@@ -25,14 +25,14 @@ export function PayConfirmModal({ s }: { s: CalendarPageState }) {
   const close = () => { setPayConfirm(null); setReceived('') }
 
   return (
-    <div className="modal-overlay" style={{ zIndex: 2000 }} onClick={close}>
-      <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 384 }}>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.75rem' }}>
-          <span style={{ width: 52, height: 52, borderRadius: '50%', background: '#10b98118', color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div className="modal-overlay z-[2000]" onClick={close}>
+      <div className="modal max-w-[384px]" onClick={e => e.stopPropagation()}>
+        <div className="flex flex-col items-center text-center gap-3">
+          <span className="w-13 h-13 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
             <Wallet size={24} />
           </span>
-          <h2 style={{ margin: 0, fontSize: '1.1rem' }}>{t('confirmPayment')}</h2>
-          <p style={{ margin: 0, color: 'var(--gray-600)', fontSize: '0.9rem', lineHeight: 1.5 }}>
+          <h2 className="m-0 text-[1.1rem]">{t('confirmPayment')}</h2>
+          <p className="m-0 text-[var(--gray-600)] text-[0.9rem] leading-normal">
             {t('didYouReceive', { amount: `${money(total)} ${t('sum')}`, name: payConfirm.customerName })}
           </p>
         </div>
@@ -40,32 +40,32 @@ export function PayConfirmModal({ s }: { s: CalendarPageState }) {
         <div className="h-px bg-surface-border my-4" />
 
         {collected > 0 && (
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--gray-600)', marginBottom: 10 }}>
+          <div className="flex justify-between text-[0.85rem] text-[var(--gray-600)] mb-2.5">
             <span>{t('alreadyCollected')}</span>
             <strong>{money(collected)} {t('sum')}</strong>
           </div>
         )}
 
-        <div className="form-group" style={{ marginBottom: 12 }}>
-          <label className="form-label">{t('amountReceived')}</label>
+        <div className="flex flex-col gap-1.5 mb-3">
+          <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('amountReceived')}</label>
           <input
-            type="text" inputMode="numeric" className="form-input"
+            type="text" inputMode="numeric" className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
             value={received}
             placeholder={money(due)}
             onChange={e => setReceived(e.target.value.replace(/\D/g, ''))}
             onFocus={e => e.currentTarget.select()}
           />
-          <p style={{ fontSize: '0.78rem', color: settlesFully ? '#059669' : 'var(--gray-500)', margin: '6px 0 0' }}>
+          <p className={`text-[0.78rem] mt-1.5 ${settlesFully ? 'text-emerald-600' : 'text-[var(--gray-500)]'}`}>
             {settlesFully
               ? t('willBeFullyPaid')
               : t('balanceDueAfter', { amount: `${money(Math.max(0, total - newTotal))} ${t('sum')}` })}
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: 10 }}>
-          <Button variant="secondary" style={{ flex: 1 }} onClick={close}>{t('back')}</Button>
+        <div className="flex gap-2.5">
+          <Button variant="secondary" className="flex-1" onClick={close}>{t('back')}</Button>
           <Button
-            style={{ flex: 1 }}
+            className="flex-1"
             disabled={receivedNum <= 0}
             onClick={async () => { await recordPayment(payConfirm, newTotal); close() }}
           >
