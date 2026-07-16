@@ -61,7 +61,7 @@ export function HeroClient({ badge, title1, title2, subtitle, ctaLabel, pricingL
               disableOnInteraction: false,
             }}
             pagination={{ clickable: true }}
-            className="w-full aspect-[16/9] md:aspect-[21/9]"
+            className="w-full aspect-[375/400] md:aspect-[768/600] lg:aspect-[1920/600]"
           >
             <SwiperSlide className="relative w-full h-full">
               <Image
