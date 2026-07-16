@@ -5,9 +5,6 @@ import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import { Menu, X, ChevronRight } from 'lucide-react'
 
-const ACCENT = '#4f6ef7'
-const ACCENT_DARK = '#3b5bdb'
-const INK = '#0f172a'
 
 interface NavLink { href: string; label: string }
 
@@ -54,15 +51,10 @@ export function LandingMobileMenu({ links, signInHref, signInLabel, demoHref, de
     <>
       <button
         type="button"
-        className="lp-mobile-menu-btn"
+        className="inline-flex min-[721px]:hidden w-[38px] h-[38px] rounded-lg border border-slate-200 bg-white text-slate-900 items-center justify-center cursor-pointer shrink-0"
         aria-label="Menu"
         aria-expanded={open}
         onClick={() => setOpen(true)}
-        style={{
-          width: 38, height: 38, borderRadius: 10, border: '1px solid #e2e8f0',
-          background: '#fff', color: INK, alignItems: 'center', justifyContent: 'center',
-          cursor: 'pointer', flexShrink: 0,
-        }}
       >
         <Menu size={20} />
       </button>
@@ -73,11 +65,7 @@ export function LandingMobileMenu({ links, signInHref, signInLabel, demoHref, de
       <div
         onClick={close}
         aria-hidden="true"
-        style={{
-          position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.45)',
-          opacity: open ? 1 : 0, pointerEvents: open ? 'auto' : 'none',
-          transition: 'opacity 0.25s ease', zIndex: 1000,
-        }}
+        className={`fixed inset-0 bg-slate-900/45 transition-opacity duration-250 ease-out z-[1000] ${open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
       />
 
       {/* Right-side drawer */}
@@ -85,60 +73,48 @@ export function LandingMobileMenu({ links, signInHref, signInLabel, demoHref, de
         role="dialog"
         aria-modal="true"
         aria-label="Menu"
+        className={`fixed top-0 right-0 h-[100dvh] w-[min(300px,82vw)] bg-white shadow-[-10px_0_40px_rgba(15,23,42,0.18)] transition-transform duration-280 z-[1001] flex flex-col p-[0.9rem_1.15rem_1.4rem]`}
         style={{
-          position: 'fixed', top: 0, right: 0, height: '100dvh', width: 'min(300px, 82vw)',
-          background: '#fff', boxShadow: '-10px 0 40px rgba(15,23,42,0.18)',
           transform: open ? 'translateX(0)' : 'translateX(100%)',
-          transition: 'transform 0.28s cubic-bezier(0.4,0,0.2,1)', zIndex: 1001,
-          display: 'flex', flexDirection: 'column', padding: '0.9rem 1.15rem 1.4rem',
+          transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
         }}
       >
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <div className="flex justify-end">
           <button
-            type="button" aria-label="Close" onClick={close}
-            style={{
-              width: 38, height: 38, borderRadius: 10, border: '1px solid #e2e8f0',
-              background: '#fff', color: INK, display: 'inline-flex', alignItems: 'center',
-              justifyContent: 'center', cursor: 'pointer',
-            }}
+            type="button"
+            aria-label="Close"
+            onClick={close}
+            className="w-[38px] h-[38px] rounded-lg border border-slate-200 bg-white text-slate-900 inline-flex items-center justify-center cursor-pointer"
           >
             <X size={20} />
           </button>
         </div>
 
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: 2, marginTop: 10 }}>
+        <nav className="flex flex-col gap-0.5 mt-2.5">
           {links.map(l => (
             <a
-              key={l.href} href={l.href} onClick={close}
-              style={{
-                padding: '11px 12px', borderRadius: 10, textDecoration: 'none',
-                color: INK, fontSize: '0.95rem', fontWeight: 600,
-              }}
+              key={l.href}
+              href={l.href}
+              onClick={close}
+              className="px-3 py-2.75 rounded-lg no-underline text-slate-900 text-[0.95rem] font-semibold"
             >
               {l.label}
             </a>
           ))}
         </nav>
 
-        <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 10, paddingTop: 18, borderTop: '1px solid #eef2f7' }}>
+        <div className="mt-auto flex flex-col gap-2.5 pt-4.5 border-t border-slate-100">
           <Link
-            href={signInHref} onClick={close}
-            style={{
-              padding: '12px 16px', borderRadius: 12, textDecoration: 'none', textAlign: 'center',
-              background: '#fff', color: INK, border: '1px solid #e2e8f0',
-              fontSize: '0.95rem', fontWeight: 600,
-            }}
+            href={signInHref}
+            onClick={close}
+            className="px-4 py-3 rounded-xl no-underline text-center bg-white text-slate-900 border border-slate-200 text-[0.95rem] font-semibold"
           >
             {signInLabel}
           </Link>
           <a
-            href={demoHref} onClick={close}
-            style={{
-              padding: '12px 16px', borderRadius: 12, textDecoration: 'none', textAlign: 'center',
-              background: `linear-gradient(135deg, ${ACCENT}, ${ACCENT_DARK})`, color: '#fff',
-              fontSize: '0.95rem', fontWeight: 700, boxShadow: '0 6px 18px rgba(79,110,247,0.3)',
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-            }}
+            href={demoHref}
+            onClick={close}
+            className="px-4 py-3 rounded-xl no-underline text-center bg-[linear-gradient(135deg,#4f6ef7,#3b5bdb)] text-white text-[0.95rem] font-bold shadow-[0_6px_18px_rgba(79,110,247,0.3)] inline-flex items-center justify-center gap-2"
           >
             {demoLabel} <ChevronRight size={17} />
           </a>

@@ -57,37 +57,64 @@ export function ContactWidget(p: Props) {
 
   if (!open) {
     return (
-      <button type="button" className="lp-contact-fab" onClick={() => setOpen(true)} aria-label={p.title}>
+      <button
+        type="button"
+        className="fixed right-5 bottom-5 z-[1200] w-14 h-14 rounded-full border-none cursor-pointer bg-[linear-gradient(135deg,#4f6ef7,#3b5bdb)] text-white shadow-[0_12px_30px_rgba(79,110,247,0.42)] inline-flex items-center justify-center transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 hover:shadow-[0_16px_36px_rgba(79,110,247,0.5)]"
+        onClick={() => setOpen(true)}
+        aria-label={p.title}
+      >
         <PhoneCall size={22} />
       </button>
     )
   }
 
   return (
-    <div className="lp-contact" role="dialog" aria-label={p.title}>
-      <button type="button" className="lp-contact-close" onClick={() => setOpen(false)} aria-label={p.closeLabel}>
+    <div
+      className="fixed right-5 bottom-5 z-[1200] w-[min(340px,calc(100vw-32px))] bg-white border border-slate-200 rounded-2xl shadow-[0_20px_50px_rgba(15,23,42,0.22)] p-[18px_18px_16px] animate-contact-in"
+      role="dialog"
+      aria-label={p.title}
+    >
+      <button
+        type="button"
+        className="absolute top-2.5 right-2.5 w-7 h-7 border-none bg-slate-100 rounded-lg text-slate-500 cursor-pointer inline-flex items-center justify-center"
+        onClick={() => setOpen(false)}
+        aria-label={p.closeLabel}
+      >
         <X size={16} />
       </button>
 
       {status === 'success' ? (
-        <div className="lp-contact-success">✅ {p.successMsg}</div>
+        <div className="py-3 px-1 text-center text-sm font-semibold text-slate-900">✅ {p.successMsg}</div>
       ) : (
         <form onSubmit={submit}>
-          <div className="lp-contact-head">
-            <span className="lp-contact-icon"><PhoneCall size={16} /></span>
+          <div className="flex items-center gap-2 text-[0.98rem] text-slate-900">
+            <span className="inline-flex w-7 h-7 rounded-lg items-center justify-center bg-brand-50 text-brand-500"><PhoneCall size={16} /></span>
             <strong>{p.title}</strong>
           </div>
-          <p className="lp-contact-desc">{p.desc}</p>
+          <p className="my-2 text-[0.82rem] text-slate-500 leading-[1.5]">{p.desc}</p>
           <input
-            className="lp-contact-input" value={name} onChange={e => setName(e.target.value)}
-            placeholder={p.namePlaceholder} required maxLength={120}
+            className="w-full box-border px-3 py-2.5 mb-2 border border-slate-200 rounded-xl text-sm outline-none focus:border-[#4f6ef7] focus:shadow-[0_0_0_3px_rgba(79,110,247,0.14)]"
+            value={name}
+            onChange={e => setName(e.target.value)}
+            placeholder={p.namePlaceholder}
+            required
+            maxLength={120}
           />
           <input
-            className="lp-contact-input" value={phone} onChange={e => setPhone(e.target.value)}
-            placeholder={p.phonePlaceholder} type="tel" required maxLength={40}
+            className="w-full box-border px-3 py-2.5 mb-2 border border-slate-200 rounded-xl text-sm outline-none focus:border-[#4f6ef7] focus:shadow-[0_0_0_3px_rgba(79,110,247,0.14)]"
+            value={phone}
+            onChange={e => setPhone(e.target.value)}
+            placeholder={p.phonePlaceholder}
+            type="tel"
+            required
+            maxLength={40}
           />
-          {status === 'error' && <div className="lp-contact-err">{p.errorMsg}</div>}
-          <button className="lp-contact-submit" type="submit" disabled={status === 'sending'}>
+          {status === 'error' && <div className="text-[0.75rem] text-red-600 mb-2">{p.errorMsg}</div>}
+          <button
+            className="w-full py-[11px] border-none rounded-xl bg-[linear-gradient(135deg,#4f6ef7,#3b5bdb)] text-white font-bold text-[0.9rem] cursor-pointer disabled:opacity-60 disabled:cursor-default"
+            type="submit"
+            disabled={status === 'sending'}
+          >
             {status === 'sending' ? p.sendingLabel : p.submitLabel}
           </button>
         </form>
@@ -95,3 +122,4 @@ export function ContactWidget(p: Props) {
     </div>
   )
 }
+

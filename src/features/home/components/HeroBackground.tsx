@@ -48,11 +48,7 @@ export function HeroBackground() {
     <div
       ref={rootRef}
       aria-hidden="true"
-      className="lp-hero-bg"
-      style={{
-        position: 'absolute', top: 0, bottom: 0, left: '50%', width: '100vw',
-        transform: 'translateX(-50%)', overflow: 'hidden', pointerEvents: 'none', zIndex: 0,
-      }}
+      className="absolute inset-y-0 left-1/2 w-[100vw] -translate-x-1/2 overflow-hidden pointer-events-none z-0"
     >
       {/* Sleek Grid mesh backdrop */}
       <div style={{
@@ -63,10 +59,11 @@ export function HeroBackground() {
         maskImage: 'radial-gradient(ellipse 60% 50% at 50% 30%, #000 70%, transparent 100%)',
         WebkitMaskImage: 'radial-gradient(ellipse 60% 50% at 50% 30%, #000 70%, transparent 100%)',
       }} />
-      <div className="lp-blob lp-blob-1" />
-      <div className="lp-blob lp-blob-2" />
-      <div ref={followRef} className="lp-blob lp-blob-follow" />
+      <div className="absolute rounded-full blur-[90px] opacity-65 pointer-events-none w-[45vw] max-w-[540px] aspect-square left-[4%] top-[-12%] bg-[radial-gradient(circle,rgba(79,110,247,0.32),transparent_65%)] animate-float-1" />
+      <div className="absolute rounded-full blur-[90px] opacity-65 pointer-events-none w-[40vw] max-w-[500px] aspect-square right-[2%] top-[-18%] bg-[radial-gradient(circle,rgba(124,58,237,0.28),transparent_65%)] animate-float-2" />
+      <div ref={followRef} className="absolute rounded-full blur-[90px] opacity-65 pointer-events-none w-[38vw] max-w-[480px] aspect-square left-0 top-0 bg-[radial-gradient(circle,rgba(79,110,247,0.3)_0%,rgba(124,58,237,0.18)_45%,rgba(34,211,238,0.08)_70%,transparent_80%)] transition-opacity duration-300" />
     </div>
+
 
   )
 }
