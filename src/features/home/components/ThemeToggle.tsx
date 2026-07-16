@@ -37,13 +37,14 @@ export function ThemeToggle() {
         onClick={() => setOpen(!open)}
         aria-expanded={open}
         aria-haspopup="listbox"
-        className="w-[105px] h-[38px] px-3.5 inline-flex items-center justify-between rounded-[10px] bg-[var(--gray-100)] hover:bg-[var(--gray-200)] text-[var(--gray-700)] cursor-pointer border border-[var(--surface-border)] transition-all duration-150 text-[0.8rem] font-semibold"
+        aria-label="Theme"
+        className="w-[38px] sm:w-[105px] h-[38px] px-0 sm:px-3.5 justify-center sm:justify-between inline-flex items-center rounded-[10px] bg-[var(--gray-100)] hover:bg-[var(--gray-200)] text-[var(--gray-700)] cursor-pointer border border-[var(--surface-border)] transition-all duration-150 text-[0.8rem] font-semibold"
       >
         <span className="flex items-center gap-1.75">
           <ActiveIcon size={14} className="shrink-0" />
-          {activeOption.label}
+          <span className="hidden sm:inline">{activeOption.label}</span>
         </span>
-        <ChevronDown size={12} className={`shrink-0 text-[var(--gray-400)] transition-transform duration-150 ${open ? 'rotate-180' : 'rotate-0'}`} />
+        <ChevronDown size={12} className={`hidden sm:block shrink-0 text-[var(--gray-400)] transition-transform duration-150 ${open ? 'rotate-180' : 'rotate-0'}`} />
       </button>
 
       {open && (

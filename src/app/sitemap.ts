@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next'
-import { LOCALES, DEFAULT_LOCALE } from '@/i18n/config'
+import { LOCALES, DEFAULT_LOCALE, FALLBACK_LOCALE } from '@/i18n/config'
 
 // Marketing domain — see metadataBase in src/app/[locale]/layout.tsx and the
 // root-domain checks in src/proxy.ts ("The marketing site is always public.").
@@ -16,8 +16,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     LOCALES.map(locale => [locale, `${BASE_URL}/${locale}`]),
   )
   // hreflang requires an x-default fallback for visitors whose language matches
-  // none of ours — point it at the default locale's landing page.
-  languages['x-default'] = `${BASE_URL}/${DEFAULT_LOCALE}`
+  // none of ours — point it at the neutral fallback locale (Russian), matching
+  // where the proxy redirects an undetected-preference visitor.
+  languages['x-default'] = `${BASE_URL}/${FALLBACK_LOCALE}`
 
   return LOCALES.map(locale => ({
     url: `${BASE_URL}/${locale}`,

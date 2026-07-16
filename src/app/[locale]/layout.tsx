@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Zen_Dots } from "next/font/google";
 import "../globals.css";
-import { LOCALES, isLocale, DEFAULT_LOCALE } from "@/i18n/config";
+import { LOCALES, isLocale, FALLBACK_LOCALE } from "@/i18n/config";
 import { LanguageProvider } from "@/i18n";
 import { getT } from "@/i18n/dictionary";
 import { ThemeProvider } from "@/components/ThemeProvider";
@@ -21,7 +21,8 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = getT(locale);
+  const lang = isLocale(locale) ? locale : FALLBACK_LOCALE;
+  const t = getT(lang);
   const title = t("metaTitleDefault");
 
   return {
@@ -31,6 +32,16 @@ export async function generateMetadata({
       template: "%s · Bronit",
     },
     description: t("metaDescription"),
+    // Self-referencing canonical + hreflang alternates so each locale page
+    // declares itself and its siblings (x-default → the neutral fallback locale
+    // for visitors whose language matches none of ours).
+    alternates: {
+      canonical: `/${lang}`,
+      languages: {
+        ...Object.fromEntries(LOCALES.map((l) => [l, `/${l}`])),
+        "x-default": `/${FALLBACK_LOCALE}`,
+      },
+    },
     applicationName: "Bronit",
     keywords: [
       "Bronit",
@@ -54,17 +65,17 @@ export async function generateMetadata({
     openGraph: {
       type: "website",
       siteName: "Bronit",
-      locale: OG_LOCALE[isLocale(locale) ? locale : DEFAULT_LOCALE],
+      locale: OG_LOCALE[lang],
       title,
       description: t("metaOgDescription"),
-      url: `https://bronit.uz/${isLocale(locale) ? locale : DEFAULT_LOCALE}`,
-      images: [{ url: "/assets/bronit-logo.png", width: 1024, height: 1024, alt: "Bronit" }],
+      url: `https://bronit.uz/${lang}`,
+      images: [{ url: "/assets/og-image.jpg", width: 1200, height: 630, alt: "Bronit" }],
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title,
       description: t("metaTwitterDescription"),
-      images: ["/assets/bronit-logo.png"],
+      images: ["/assets/og-image.jpg"],
     },
   };
 }
@@ -82,10 +93,10 @@ export default async function RootLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const lang = isLocale(locale) ? locale : DEFAULT_LOCALE;
+  const lang = isLocale(locale) ? locale : FALLBACK_LOCALE;
 
   return (
-    <html lang={locale} className={zenDots.variable}>
+    <html lang={lang} className={zenDots.variable}>
       <body>
         <ThemeProvider>
           <LanguageProvider lang={lang}>{children}</LanguageProvider>

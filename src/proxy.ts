@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { decrypt, sessionHome, type SessionPayload } from '@/lib/session'
-import { DEFAULT_LOCALE, LOCALE_COOKIE, isLocale } from '@/i18n/config'
+import { FALLBACK_LOCALE, LOCALE_COOKIE, isLocale } from '@/i18n/config'
 import { getSubdomain, isKnownSubdomain } from '@/lib/subdomain'
 
 // A request for a static file — its last path segment has an extension, e.g.
@@ -16,7 +16,8 @@ const HOTEL_ADMIN_RE = /^\/admin\/([a-z0-9-]+)(\/.*)?$/
 const LEGACY_TENANT_RE = /^\/secure\/admin\/([a-z0-9-]+)(\/.*)?$/
 
 // Pick a locale for a request that arrived without one: remembered choice
-// (cookie) first, then the browser's Accept-Language, then the default.
+// (cookie) first, then the browser's Accept-Language, then the neutral fallback
+// (Russian) — used for visitors and crawlers with no detectable preference.
 function pickLocale(request: NextRequest): string {
   const cookie = request.cookies.get(LOCALE_COOKIE)?.value
   if (isLocale(cookie)) return cookie
@@ -25,7 +26,7 @@ function pickLocale(request: NextRequest): string {
   const preferred = header.split(',')[0]?.split('-')[0]?.toLowerCase()
   if (isLocale(preferred)) return preferred
 
-  return DEFAULT_LOCALE
+  return FALLBACK_LOCALE
 }
 
 export async function proxy(request: NextRequest) {

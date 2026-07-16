@@ -1,5 +1,7 @@
 import { headers } from 'next/headers'
 import { getT } from '@/i18n/dictionary'
+import { JsonLd } from '@/components/JsonLd'
+import { PLANS } from './constants'
 import { Navbar } from './components/Navbar'
 import { Hero } from './components/Hero'
 import { Features } from './components/Features'
@@ -34,8 +36,36 @@ export async function HomePage({ locale }: { locale: string }) {
     { href: '#faq', label: 'FAQ' },
   ]
 
+  // Structured data for rich results. Prices are data-driven from PLANS.
+  const prices = PLANS.map(p => Number(p.price.replace(/\s/g, '')))
+  const organizationLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'Bronit',
+    url: 'https://bronit.uz',
+    logo: 'https://bronit.uz/assets/bronit-logo.png',
+  }
+  const softwareLd = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'Bronit',
+    applicationCategory: 'BusinessApplication',
+    operatingSystem: 'Web',
+    description: t('metaDescription'),
+    url: `https://bronit.uz/${locale}`,
+    offers: {
+      '@type': 'AggregateOffer',
+      priceCurrency: 'UZS',
+      lowPrice: String(Math.min(...prices)),
+      highPrice: String(Math.max(...prices)),
+      offerCount: PLANS.length,
+    },
+  }
+
   return (
     <main className="bg-[var(--surface-bg)] text-[var(--gray-900)] min-h-dvh overflow-x-clip transition-colors duration-200">
+      <JsonLd data={organizationLd} />
+      <JsonLd data={softwareLd} />
       <Navbar locale={locale} t={t} demoUrl={demoUrl} loginHref={loginHref} navLinks={navLinks} />
       <Hero t={t} demoUrl={demoUrl} />
       <div className="relative bg-[var(--surface-bg)] transition-colors duration-200">

@@ -30,10 +30,10 @@ const DICTS: Record<LanguageCode, Record<string, string>> = { en, uz, ru }
 // Keys are defined by the English source dictionary; uz/ru mirror the same set.
 export type DictionaryKeys = keyof typeof en
 
-export const LANGUAGES: { code: LanguageCode; label: string }[] = [
-  { code: 'uz', label: "O'Z" },
-  { code: 'ru', label: 'RU' },
-  { code: 'en', label: 'EN' },
+export const LANGUAGES: { code: LanguageCode; label: string; flag: string }[] = [
+  { code: 'uz', label: "O'Z", flag: '🇺🇿' },
+  { code: 'ru', label: 'RU', flag: '🇷🇺' },
+  { code: 'en', label: 'EN', flag: '🇬🇧' },
 ]
 
 interface LanguageContextType {
