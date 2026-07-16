@@ -4,7 +4,6 @@ import IncomeAnalytics from './components/IncomeAnalytics'
 import { OccupancyCard } from './components/OccupancyCard'
 import BookingDrawer from './components/BookingDrawer'
 import { useDashboardPage } from './useDashboardPage'
-import { DashboardStyles } from './components/DashboardStyles'
 import { DashboardHeader } from './components/DashboardHeader'
 import { BookingsToolbar } from './components/BookingsToolbar'
 import { BookingsTable } from './components/BookingsTable'
@@ -13,9 +12,7 @@ export default function DashboardPage() {
   const s = useDashboardPage()
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-      <DashboardStyles />
-
+    <div className="flex flex-col gap-5">
       <DashboardHeader s={s} />
 
       {/* Zone A — Income analytics */}
@@ -27,7 +24,7 @@ export default function DashboardPage() {
       {!s.loading && <OccupancyCard s={s} />}
 
       {/* Zone B — Bookings explorer (separated by a hairline, not a box) */}
-      <div style={{ overflow: 'hidden', borderTop: '1px solid var(--surface-border)', paddingTop: '1.5rem' }}>
+      <div className="overflow-hidden border-t border-surface-border pt-6">
         <BookingsToolbar s={s} />
         <BookingsTable s={s} />
       </div>

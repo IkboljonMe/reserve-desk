@@ -13,14 +13,14 @@ export function BookingsToolbar({ s }: { s: DashboardPageState }) {
   const [filtersOpen, setFiltersOpen] = useState(false)
 
   return (
-    <div style={{ padding: '0.9rem 1.1rem', borderBottom: '1px solid var(--surface-border)', display: 'flex', flexDirection: 'column', gap: 10 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-        <h3 style={{ fontSize: '0.95rem', margin: 0, marginRight: 4 }}>{t('bookings')}</h3>
-        <span style={{ fontSize: '0.75rem', color: 'var(--gray-400)', fontWeight: 600, marginRight: 8 }}>{rows.length} {t('inRange')}</span>
+    <div className="px-[1.1rem] py-[0.9rem] border-b border-surface-border flex flex-col gap-2.5">
+      <div className="flex items-center gap-2.5 flex-wrap">
+        <h3 className="text-[0.95rem] m-0 mr-1">{t('bookings')}</h3>
+        <span className="text-[0.75rem] text-gray-400 font-semibold mr-2">{rows.length} {t('inRange')}</span>
         <Button
           onClick={exportToExcel}
           variant="secondary" size="sm"
-          style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px', height: '30px', fontSize: '0.8rem', cursor: 'pointer' }}
+          className="flex items-center gap-1.5 px-2.5 py-[5px] h-[30px] text-[0.8rem] cursor-pointer"
           title={t('exportTitle')}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -33,25 +33,21 @@ export function BookingsToolbar({ s }: { s: DashboardPageState }) {
         <Button
           onClick={() => setFiltersOpen(true)}
           variant="secondary" size="sm"
-          style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px', height: '30px', fontSize: '0.8rem', cursor: 'pointer', position: 'relative' }}
+          className="flex items-center gap-1.5 px-2.5 py-[5px] h-[30px] text-[0.8rem] cursor-pointer relative"
         >
           <SlidersHorizontal size={13} />
           {t('filters')}
           {activeFilterCount > 0 && (
-            <span style={{
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              minWidth: 16, height: 16, padding: '0 4px', borderRadius: 8,
-              background: 'var(--brand-500)', color: '#fff', fontSize: '0.62rem', fontWeight: 700,
-            }}>
+            <span className="inline-flex items-center justify-center min-w-4 h-4 px-1 rounded-lg bg-brand-500 text-white text-[0.62rem] font-bold">
               {activeFilterCount}
             </span>
           )}
         </Button>
-        <div style={{ position: 'relative', marginLeft: 'auto', flex: '1 1 220px', maxWidth: 320 }}>
-          <Search size={14} style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)', color: 'var(--gray-400)', pointerEvents: 'none' }} />
-          <input className="form-input" style={{ paddingLeft: 32, paddingTop: 6, paddingBottom: 6, fontSize: '0.82rem' }}
+        <div className="relative ml-auto flex-[1_1_220px] max-w-[320px]">
+          <Search size={14} className="absolute left-[11px] top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+          <input className="form-input pl-8 py-1.5 text-[0.82rem]"
             placeholder={t('searchGuestRoomPhone')} value={search} onChange={e => setSearch(e.target.value)} />
-          {search && <button onClick={() => setSearch('')} style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--gray-400)' }} aria-label={t('clear')}><X size={14} /></button>}
+          {search && <button onClick={() => setSearch('')} className="absolute right-2 top-1/2 -translate-y-1/2 bg-transparent border-0 cursor-pointer text-gray-400" aria-label={t('clear')}><X size={14} /></button>}
         </div>
       </div>
 

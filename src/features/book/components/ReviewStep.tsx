@@ -3,7 +3,6 @@
 import { BedDouble } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import { getServiceIcon } from '@/lib/serviceIcons'
-import { chipStyle } from '../styles'
 import { formatDuration, formatUZS, slotEnd } from '../utils'
 import type { BookingWizard } from '../useBookingWizard'
 
@@ -22,62 +21,72 @@ export function ReviewStep({ w }: { w: BookingWizard }) {
 
   return (
     <div>
-      <h2 style={{ marginBottom: 4 }}>{t('confirmBooking')}</h2>
-      <p style={{ color: 'var(--gray-500)', fontSize: '0.875rem', marginTop: 0, marginBottom: '1.25rem' }}>{t('reviewYourBooking')}</p>
+      <h2 className="mb-1">{t('confirmBooking')}</h2>
+      <p className="text-gray-500 text-sm mt-0 mb-5">{t('reviewYourBooking')}</p>
 
       {/* Order summary */}
-      <div style={{
-        background: 'var(--gray-50)', border: '1px solid var(--gray-200)', borderRadius: 10,
-        padding: '1rem', marginBottom: '1.25rem', fontSize: '0.875rem',
-        display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '0.6rem 1rem', color: 'var(--gray-600)',
-      }}>
-        <strong style={{ color: 'var(--gray-800)' }}>{t('hotel')}</strong>
+      <div className="bg-gray-50 border border-gray-200 rounded-[10px] p-4 mb-5 text-sm grid gap-y-[0.6rem] gap-x-4 text-gray-600" style={{ gridTemplateColumns: 'auto 1fr' }}>
+        <strong className="text-gray-800">{t('hotel')}</strong>
         <span>{hotels.find(h => h._id === selectedHotelId)?.shortName || '—'}</span>
 
-        <strong style={{ color: 'var(--gray-800)' }}>{t('service')}</strong>
-        <span style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-          <span style={{ color: selectedService.color, display: 'inline-flex' }}>{getServiceIcon(selectedService.name)}</span>
+        <strong className="text-gray-800">{t('service')}</strong>
+        <span className="flex items-center gap-1.5 flex-wrap">
+          <span className="inline-flex" style={{ color: selectedService.color }}>{getServiceIcon(selectedService.name)}</span>
           {selectedService.name}
-          {selectedVariant && <span style={chipStyle(`${selectedService.color}12`, selectedService.color)}>{selectedVariant.name}</span>}
+          {selectedVariant && (
+            <span
+              className="inline-flex items-center gap-[5px] px-2.5 py-[3px] rounded-full font-semibold text-[0.75rem]"
+              style={{ background: `${selectedService.color}12`, color: selectedService.color }}
+            >
+              {selectedVariant.name}
+            </span>
+          )}
         </span>
 
-        <strong style={{ color: 'var(--gray-800)' }}>{t('toWhom')}</strong>
-        <span style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-          {customerName || <span style={{ color: 'var(--gray-300)' }}>{t('guest')}</span>}
-          {customerPhone && <span style={{ color: 'var(--gray-400)' }}>· {customerPhone}</span>}
+        <strong className="text-gray-800">{t('toWhom')}</strong>
+        <span className="flex items-center gap-1.5 flex-wrap">
+          {customerName || <span className="text-gray-300">{t('guest')}</span>}
+          {customerPhone && <span className="text-gray-400">· {customerPhone}</span>}
           {categoryMeta && (
-            <span style={chipStyle(`${categoryMeta.color}18`, categoryMeta.color)}>{categoryMeta.label}</span>
+            <span
+              className="inline-flex items-center gap-[5px] px-2.5 py-[3px] rounded-full font-semibold text-[0.75rem]"
+              style={{ background: `${categoryMeta.color}18`, color: categoryMeta.color }}
+            >
+              {categoryMeta.label}
+            </span>
           )}
           {bookingType === 'room' && roomNumber && (
-            <span style={chipStyle('var(--gray-100)', 'var(--gray-600)')}><BedDouble size={12} /> {roomNumber}</span>
+            <span className="inline-flex items-center gap-[5px] px-2.5 py-[3px] rounded-full font-semibold text-[0.75rem] bg-gray-100 text-gray-600">
+              <BedDouble size={12} /> {roomNumber}
+            </span>
           )}
         </span>
 
         {bookingType !== 'room' && roomNumber && (
           <>
-            <strong style={{ color: 'var(--gray-800)' }}>{t('roomNumberField')}</strong>
+            <strong className="text-gray-800">{t('roomNumberField')}</strong>
             <span>{roomNumber}</span>
           </>
         )}
 
-        <strong style={{ color: 'var(--gray-800)' }}>{t('whenLabel')}</strong>
+        <strong className="text-gray-800">{t('whenLabel')}</strong>
         <span>{date} · {selectedSlot} – {slotEnd(selectedSlot, activePlan.duration)} ({formatDuration(activePlan.duration)})</span>
 
-        <strong style={{ color: 'var(--gray-800)' }}>{t('howMuch')}</strong>
-        <span style={{ color: 'var(--brand-700)', fontWeight: 700 }}>
+        <strong className="text-gray-800">{t('howMuch')}</strong>
+        <span className="text-brand-700 font-bold">
           {activePlan.price === 0 ? t('isFree') : `${formatUZS(activePlan.price)} ${t('sum')}`}
         </span>
 
         {notes && (
           <>
-            <strong style={{ color: 'var(--gray-800)' }}>{t('notesOptional')}</strong>
+            <strong className="text-gray-800">{t('notesOptional')}</strong>
             <span>{notes}</span>
           </>
         )}
 
         {menuItems.length > 0 && (
           <>
-            <strong style={{ color: 'var(--gray-800)' }}>{t('menu')}</strong>
+            <strong className="text-gray-800">{t('menu')}</strong>
             <span>
               {formatUZS(menuTotal)} {t('sum')}
               {menuReadyTime && ` · ${t('menuReadyTime')} ${menuReadyTime}`}
@@ -87,25 +96,22 @@ export function ReviewStep({ w }: { w: BookingWizard }) {
       </div>
 
       {menuItems.length > 0 && (
-        <div style={{
-          background: 'var(--gray-50)', border: '1px solid var(--gray-200)', borderRadius: 10,
-          padding: '0.85rem 1rem', marginBottom: '1.25rem', fontSize: '0.82rem', color: 'var(--gray-600)',
-        }}>
+        <div className="bg-gray-50 border border-gray-200 rounded-[10px] px-4 py-[0.85rem] mb-5 text-[0.82rem] text-gray-600">
           {menuItems.map((it, i) => (
-            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+            <div key={i} className="flex justify-between mb-[3px]">
               <span>{it.qty}x {it.name}</span>
               <span>{formatUZS(it.qty * it.price)}</span>
             </div>
           ))}
-          <div style={{ borderTop: '1px dashed var(--gray-200)', marginTop: 6, paddingTop: 6 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>{t('menuSubtotal')}</span><span>{formatUZS(menuSubtotal)}</span></div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>{t('menuServiceFee')}</span><span>{formatUZS(menuServiceFee)}</span></div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, color: 'var(--gray-800)' }}><span>{t('menuTotal')}</span><span>{formatUZS(menuTotal)}</span></div>
+          <div className="border-t border-dashed border-gray-200 mt-1.5 pt-1.5">
+            <div className="flex justify-between"><span>{t('menuSubtotal')}</span><span>{formatUZS(menuSubtotal)}</span></div>
+            <div className="flex justify-between"><span>{t('menuServiceFee')}</span><span>{formatUZS(menuServiceFee)}</span></div>
+            <div className="flex justify-between font-bold text-gray-800"><span>{t('menuTotal')}</span><span>{formatUZS(menuTotal)}</span></div>
           </div>
         </div>
       )}
 
-      <div className="form-group" style={{ marginBottom: '1.25rem', maxWidth: 200 }}>
+      <div className="form-group mb-5 max-w-[200px]">
         <label className="form-label">{t('personsCount')}</label>
         <input
           type="number" className="form-input" min={1} step={1}
@@ -115,14 +121,16 @@ export function ReviewStep({ w }: { w: BookingWizard }) {
         />
       </div>
 
-      <div className="form-group" style={{ marginBottom: 0 }}>
+      <div className="form-group mb-0">
         <label className="form-label">{t('payment')}</label>
         {activePlan.price === 0 ? (
-          <div style={{ ...chipStyle('#3b82f618', '#2563eb'), padding: '8px 12px' }}>{t('freeNoPayment')}</div>
+          <div className="inline-flex items-center gap-[5px] px-3 py-2 rounded-full font-semibold text-[0.75rem] bg-blue-500/[0.09] text-blue-600">
+            {t('freeNoPayment')}
+          </div>
         ) : (
           <>
             <select
-              className="form-select" style={{ maxWidth: 200 }}
+              className="form-select max-w-[200px]"
               value={paid ? 'paid' : amountPaid > 0 ? 'deposit' : 'unpaid'}
               onChange={e => {
                 const v = e.target.value
@@ -136,8 +144,8 @@ export function ReviewStep({ w }: { w: BookingWizard }) {
               <option value="paid">{t('paid')}</option>
             </select>
             {!paid && amountPaid > 0 && (
-              <div style={{ marginTop: 10, maxWidth: 200 }}>
-                <label className="form-label" style={{ fontSize: '0.78rem' }}>{t('depositAmount')}</label>
+              <div className="mt-2.5 max-w-[200px]">
+                <label className="form-label text-[0.78rem]">{t('depositAmount')}</label>
                 <input
                   type="text" inputMode="numeric" className="form-input"
                   value={formatUZS(amountPaid)}
@@ -147,7 +155,7 @@ export function ReviewStep({ w }: { w: BookingWizard }) {
                   }}
                   onFocus={e => e.currentTarget.select()}
                 />
-                <p style={{ fontSize: '0.75rem', color: 'var(--gray-500)', margin: '6px 0 0' }}>
+                <p className="text-[0.75rem] text-gray-500 mt-1.5 mb-0">
                   {t('balanceDueAfter', { amount: `${formatUZS(Math.max(0, activePlan.price - amountPaid))} ${t('sum')}` })}
                 </p>
               </div>

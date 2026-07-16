@@ -13,9 +13,9 @@ export function DateTimeSection({ w }: { w: BookingWizard }) {
 
   return (
     <div>
-      <h2 style={{ marginBottom: '1.25rem' }}>{t('pickDateTime')}</h2>
+      <h2 className="mb-5">{t('pickDateTime')}</h2>
 
-      <div className="form-group" style={{ marginBottom: '1.25rem', maxWidth: 240 }}>
+      <div className="form-group mb-5 max-w-[240px]">
         <label className="form-label">{t('date')}</label>
         <input
           type="date" className="form-input"
@@ -26,17 +26,17 @@ export function DateTimeSection({ w }: { w: BookingWizard }) {
         />
       </div>
 
-      <label className="form-label" style={{ marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: 6 }}>
+      <label className="form-label mb-2 flex items-center gap-1.5">
         <Clock size={14} /> {t('availableSlots', { duration: formatDuration(activePlan.duration) })}
       </label>
       {closedOnDate ? (
-        <p style={{ color: 'var(--danger)', fontSize: '0.875rem' }}>{t('serviceClosedOnDate')}</p>
+        <p className="text-danger text-sm">{t('serviceClosedOnDate')}</p>
       ) : availableSlots.length === 0 ? (
-        <p style={{ color: 'var(--gray-400)', fontSize: '0.875rem' }}>{t('noSlotsForDuration')}</p>
+        <p className="text-gray-400 text-sm">{t('noSlotsForDuration')}</p>
       ) : (
         // Only start times where the whole booking fits without colliding with an
         // existing booking (buffer included) are shown. Each shows its full range.
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+        <div className="flex flex-wrap gap-2">
           {availableSlots.map(slot => {
             const selected = selectedSlot === slot
             return (
@@ -44,13 +44,12 @@ export function DateTimeSection({ w }: { w: BookingWizard }) {
                 key={slot}
                 type="button"
                 onClick={() => setSelectedSlot(slot)}
+                className="px-3.5 py-[7px] rounded-lg text-[0.8125rem] cursor-pointer transition-all duration-150 tabular-nums"
                 style={{
-                  padding: '7px 14px', borderRadius: 8,
                   border: `1.5px solid ${selected ? selectedService.color : 'var(--gray-200)'}`,
                   background: selected ? selectedService.color : '#fff',
                   color: selected ? '#fff' : 'var(--gray-700)',
-                  fontSize: '0.8125rem', fontWeight: selected ? 600 : 500,
-                  cursor: 'pointer', fontVariantNumeric: 'tabular-nums',
+                  fontWeight: selected ? 600 : 500,
                 }}
               >
                 {slot} → {slotEnd(slot, activePlan.duration)}

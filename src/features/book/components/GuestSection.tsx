@@ -27,77 +27,62 @@ export function GuestSection({ w }: { w: BookingWizard }) {
     <div>
       {/* CLIENT: search saved clients in group, or add a new one */}
       {bookingType === 'client' && (
-        <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+        <div className="form-group mb-5">
           <label className="form-label">{t('guestsIn', { group: categoryMeta?.label ?? '' })}</label>
 
           {selectedClientId ? (
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 10,
-              padding: '10px 12px', borderRadius: 8,
-              border: '1.5px solid var(--brand-500)', background: 'var(--brand-50)',
-            }}>
-              <div style={{
-                width: 30, height: 30, borderRadius: '50%',
-                background: 'var(--brand-100)', color: 'var(--brand-600)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontWeight: 700, fontSize: '0.8rem', flexShrink: 0,
-              }}>{customerName.charAt(0).toUpperCase()}</div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 600, color: 'var(--gray-800)', fontSize: '0.875rem' }}>{customerName}</div>
-                {customerPhone && <div style={{ fontSize: '0.75rem', color: 'var(--gray-400)' }}>{customerPhone}</div>}
+            <div className="flex items-center gap-2.5 p-[10px_12px] rounded-lg border-[1.5px] border-brand-500 bg-brand-50">
+              <div className="w-[30px] h-[30px] rounded-full bg-brand-100 text-brand-600 flex items-center justify-center font-bold text-[0.8rem] shrink-0">
+                {customerName.charAt(0).toUpperCase()}
               </div>
-              <Button type="button" variant="ghost" size="sm" onClick={clearClient} style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+              <div className="flex-1 min-w-0">
+                <div className="font-semibold text-gray-800 text-sm">{customerName}</div>
+                {customerPhone && <div className="text-[0.75rem] text-gray-400">{customerPhone}</div>}
+              </div>
+              <Button type="button" variant="ghost" size="sm" onClick={clearClient} className="inline-flex items-center gap-1">
                 <X size={14} /> {t('changeGuest')}
               </Button>
             </div>
           ) : (
             <>
-              <div style={{ position: 'relative', marginBottom: 8 }}>
-                <Search size={15} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--gray-400)', pointerEvents: 'none' }} />
+              <div className="relative mb-2">
+                <Search size={15} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                 <input
-                  className="form-input"
-                  style={{ paddingLeft: 34 }}
+                  className="form-input pl-[34px]"
                   placeholder={t('searchThisGroup')}
                   value={clientSearch}
                   onChange={e => setClientSearch(e.target.value)}
                 />
               </div>
               {clientResults.length > 0 ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 4, maxHeight: 168, overflowY: 'auto' }}>
+                <div className="flex flex-col gap-1 max-h-[168px] overflow-y-auto">
                   {clientResults.map(c => (
                     <button
                       key={c._id}
                       type="button"
                       onClick={() => pickClient(c)}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: 10, textAlign: 'left',
-                        padding: '8px 10px', borderRadius: 8, cursor: 'pointer',
-                        border: '1.5px solid var(--gray-200)', background: '#fff', flexShrink: 0,
-                      }}
+                      className="flex items-center gap-2.5 text-left p-[8px_10px] rounded-lg cursor-pointer border-[1.5px] border-gray-200 bg-white shrink-0"
                     >
-                      <div style={{
-                        width: 30, height: 30, borderRadius: '50%',
-                        background: 'var(--brand-100)', color: 'var(--brand-600)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontWeight: 700, fontSize: '0.8rem', flexShrink: 0,
-                      }}>{c.name.charAt(0).toUpperCase()}</div>
+                      <div className="w-[30px] h-[30px] rounded-full bg-brand-100 text-brand-600 flex items-center justify-center font-bold text-[0.8rem] shrink-0">
+                        {c.name.charAt(0).toUpperCase()}
+                      </div>
                       <div>
-                        <div style={{ fontWeight: 600, color: 'var(--gray-800)', fontSize: '0.875rem' }}>{c.name}</div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--gray-400)', display: 'flex', alignItems: 'center', gap: 3 }}>
-                          {c.roomNumber && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}><BedDouble size={11} />{c.roomNumber}</span>}
+                        <div className="font-semibold text-gray-800 text-sm">{c.name}</div>
+                        <div className="text-[0.75rem] text-gray-400 flex items-center gap-[3px]">
+                          {c.roomNumber && <span className="inline-flex items-center gap-[3px]"><BedDouble size={11} />{c.roomNumber}</span>}
                           {c.phone && <span>{c.roomNumber ? ' · ' : ''}{c.phone}</span>}
                         </div>
                       </div>
-                      <Check size={16} style={{ marginLeft: 'auto', color: 'var(--gray-200)' }} />
+                      <Check size={16} className="ml-auto text-gray-200" />
                     </button>
                   ))}
                 </div>
               ) : (
-                <p style={{ fontSize: '0.8rem', color: 'var(--gray-400)', margin: '0 0 10px' }}>
+                <p className="text-[0.8rem] text-gray-400 m-0 mb-2.5">
                   {clientSearch ? t('noClientFoundName', { name: clientSearch.trim() }) : t('noSavedGuests')}
                 </p>
               )}
-              <Button type="button" variant="secondary" size="sm" onClick={openAddClientModal} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: clientResults.length > 0 ? 8 : 0 }}>
+              <Button type="button" variant="secondary" size="sm" onClick={openAddClientModal} className={`inline-flex items-center gap-1.5 ${clientResults.length > 0 ? 'mt-2' : ''}`}>
                 <UserPlus size={14} /> {t('addClient')}
               </Button>
               <AddClientModal w={w} />
@@ -108,14 +93,14 @@ export function GuestSection({ w }: { w: BookingWizard }) {
 
       {/* ROOM: pick a room of the chosen category */}
       {bookingType === 'room' && (
-        <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+        <div className="form-group mb-5">
           <label className="form-label">{t('pickARoom')} ({categoryMeta?.label})</label>
           {categoryRooms.length === 0 ? (
-            <p style={{ fontSize: '0.8rem', color: 'var(--gray-400)', margin: 0 }}>
+            <p className="text-[0.8rem] text-gray-400 m-0">
               {t('noRoomsCategory')}
             </p>
           ) : (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <div className="flex flex-wrap gap-2">
               {categoryRooms.map(r => {
                 const active = selectedRoomId === r._id
                 return (
@@ -123,17 +108,15 @@ export function GuestSection({ w }: { w: BookingWizard }) {
                     key={r._id}
                     type="button"
                     onClick={() => pickRoom(r)}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold text-[0.8125rem] cursor-pointer transition-all duration-150"
                     style={{
-                      display: 'inline-flex', alignItems: 'center', gap: 6,
-                      padding: '8px 14px', borderRadius: 8,
                       border: `1.5px solid ${active ? 'var(--brand-500)' : 'var(--gray-200)'}`,
                       background: active ? 'var(--brand-50)' : '#fff',
                       color: active ? 'var(--brand-700)' : 'var(--gray-700)',
-                      fontWeight: 600, fontSize: '0.8125rem', cursor: 'pointer',
                     }}
                   >
                     <BedDouble size={14} /> {roomLabel(r)}
-                    <span style={{ fontSize: '0.7rem', color: 'var(--gray-400)', fontWeight: 400 }}>· {t('floorShort')} {r.floor}</span>
+                    <span className="text-[0.7rem] text-gray-400 font-normal">· {t('floorShort')} {r.floor}</span>
                   </button>
                 )
               })}
@@ -144,10 +127,10 @@ export function GuestSection({ w }: { w: BookingWizard }) {
 
       {/* Optional guest details — required for "client", optional for "room" */}
       {bookingType === 'room' && (
-        <label className="form-label" style={{ display: 'block', marginBottom: 4 }}>{t('guestDetailsOptional')}</label>
+        <label className="form-label block mb-1">{t('guestDetailsOptional')}</label>
       )}
       {bookingType !== 'client' && (
-        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+        <div className={`grid gap-4 mb-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-2'}`}>
           <div className="form-group">
             <label className="form-label">{t('guestName')}</label>
             <input
@@ -169,7 +152,7 @@ export function GuestSection({ w }: { w: BookingWizard }) {
 
       {/* Room number field for the client type (room type already picks a specific room above) */}
       {bookingType !== 'room' && (
-        <div className="form-group" style={{ marginBottom: '1rem' }}>
+        <div className="form-group mb-4">
           <label className="form-label">{t('roomNumberField')}</label>
           <input
             className="form-input" placeholder={t('roomNumberPlaceholder')}
@@ -179,7 +162,7 @@ export function GuestSection({ w }: { w: BookingWizard }) {
         </div>
       )}
 
-      <div className="form-group" style={{ marginBottom: '1rem' }}>
+      <div className="form-group mb-4">
         <label className="form-label">{t('notesOptional')}</label>
         <textarea
           className="form-textarea" placeholder={t('specialRequirements')}

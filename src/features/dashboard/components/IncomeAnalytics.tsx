@@ -33,10 +33,12 @@ export default function IncomeAnalytics({ analytics, loading, perService }: Inco
   const count = useCountUp(analytics.count)
 
   return (
-    <div className="dash-analytics-grid">
-      <div style={{ minWidth: 0 }}>
+    // Two-column grid: chart left, per-service breakdown right.
+    // Collapses to single column below 860px via responsive modifier.
+    <div className="grid gap-6 max-[860px]:grid-cols-1" style={{ gridTemplateColumns: 'minmax(0,1fr) 260px' }}>
+      <div className="min-w-0">
         {/* KPI strip */}
-        <div style={{ display: 'flex', gap: 22, flexWrap: 'wrap', marginBottom: '1.1rem' }}>
+        <div className="flex gap-[22px] flex-wrap mb-[1.1rem]">
           <DashboardKpi label={t('totalIncome')} value={`${money(total)}`} unit={t('sum')} color="var(--gray-900)" />
           <DashboardKpi label={t('collected')} value={`${money(collected)}`} unit={t('sum')} color={INK_COLLECTED} dot={FILL_COLLECTED} />
           <DashboardKpi label={t('outstanding')} value={`${money(due)}`} unit={t('sum')} color="#b45309" dot="#f59e0b" />
@@ -49,36 +51,36 @@ export default function IncomeAnalytics({ analytics, loading, perService }: Inco
           <IncomeChart key={`${analytics.data.length}-${analytics.total}`} data={analytics.data} />
         )}
         {/* Legend */}
-        <div style={{ display: 'flex', gap: 16, marginTop: 12, fontSize: '0.72rem', color: 'var(--gray-500)' }}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ width: 12, height: 12, borderRadius: 3, background: FILL_COLLECTED }} /> {t('collected')}
+        <div className="flex gap-4 mt-3 text-[0.72rem] text-gray-500">
+          <span className="inline-flex items-center gap-1.5">
+            <span className="w-3 h-3 rounded-[3px]" style={{ background: FILL_COLLECTED }} /> {t('collected')}
           </span>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ width: 12, height: 12, borderRadius: 3, background: `${EXPECTED}33`, border: `1.5px solid ${EXPECTED}` }} /> {t('expectedBooked')}
+          <span className="inline-flex items-center gap-1.5">
+            <span className="w-3 h-3 rounded-[3px]" style={{ background: `${EXPECTED}33`, border: `1.5px solid ${EXPECTED}` }} /> {t('expectedBooked')}
           </span>
         </div>
       </div>
 
       {/* Income by service */}
-      <div className="dash-analytics-side">
-        <h3 style={{ fontSize: '0.8rem', margin: '0 0 0.9rem' }}>{t('incomeByService')}</h3>
+      <div className="border-l border-surface-border pl-[1.4rem] max-[860px]:border-l-0 max-[860px]:border-t max-[860px]:border-surface-border max-[860px]:pl-0 max-[860px]:pt-[1.1rem]">
+        <h3 className="text-[0.8rem] m-0 mb-[0.9rem]">{t('incomeByService')}</h3>
         {perService.length === 0 ? (
-          <p style={{ fontSize: '0.78rem', color: 'var(--gray-400)' }}>{t('noIncomeInPeriod')}</p>
+          <p className="text-[0.78rem] text-gray-400">{t('noIncomeInPeriod')}</p>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div className="flex flex-col gap-3">
             {perService.slice(0, 6).map(({ svc, total: svcTotal }) => {
               const pct = analytics.total > 0 ? (svcTotal / analytics.total) * 100 : 0
               return (
                 <div key={svc._id}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: '0.78rem', color: 'var(--gray-700)', overflow: 'hidden' }}>
-                      <span style={{ width: 8, height: 8, borderRadius: '50%', background: svc.color, flexShrink: 0 }} />
-                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{svc.name}</span>
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="inline-flex items-center gap-1.5 text-[0.78rem] text-gray-700 overflow-hidden">
+                      <span className="w-2 h-2 rounded-full shrink-0" style={{ background: svc.color }} />
+                      <span className="overflow-hidden text-ellipsis whitespace-nowrap">{svc.name}</span>
                     </span>
-                    <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--gray-500)', fontVariantNumeric: 'tabular-nums' }}>{money(svcTotal)}</span>
+                    <span className="text-[0.72rem] font-bold text-gray-500 tabular-nums">{money(svcTotal)}</span>
                   </div>
-                  <div style={{ height: 6, background: 'var(--gray-100)', borderRadius: 3, overflow: 'hidden' }}>
-                    <div style={{ height: '100%', borderRadius: 3, background: svc.color, width: `${pct}%`, transition: 'width 0.7s cubic-bezier(0.22,1,0.36,1)' }} />
+                  <div className="h-1.5 bg-gray-100 rounded-[3px] overflow-hidden">
+                    <div className="h-full rounded-[3px]" style={{ background: svc.color, width: `${pct}%`, transition: 'width 0.7s cubic-bezier(0.22,1,0.36,1)' }} />
                   </div>
                 </div>
               )

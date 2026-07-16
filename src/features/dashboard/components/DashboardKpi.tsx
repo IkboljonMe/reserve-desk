@@ -11,11 +11,11 @@ interface DashboardKpiProps {
 export default function DashboardKpi({ label, value, unit, color, dot }: DashboardKpiProps) {
   return (
     <div>
-      <div style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--gray-400)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: 5 }}>
-        {dot && <span style={{ width: 8, height: 8, borderRadius: '50%', background: dot }} />}{label}
+      <div className="text-[0.68rem] font-bold text-gray-400 uppercase tracking-[0.05em] flex items-center gap-[5px]">
+        {dot && <span className="w-2 h-2 rounded-full" style={{ background: dot }} />}{label}
       </div>
-      <div style={{ fontSize: '1.5rem', fontWeight: 800, color, lineHeight: 1.1, marginTop: 4, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
-        {value}{unit && <span style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--gray-400)', marginLeft: 4 }}>{unit}</span>}
+      <div className="text-2xl font-[800] leading-[1.1] mt-1 tracking-[-0.02em] tabular-nums" style={{ color }}>
+        {value}{unit && <span className="text-[0.72rem] font-semibold text-gray-400 ml-1">{unit}</span>}
       </div>
     </div>
   )
