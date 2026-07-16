@@ -6,6 +6,7 @@ import { useTranslation, LANGUAGES, LanguageCode } from '@/i18n'
 import { useState, useEffect, useCallback } from 'react'
 import { useBookingModal } from '@/components/BookingModalProvider'
 import { BrandMark } from '@/components/BrandMark'
+import { useTheme } from '@/components/ThemeProvider'
 import type { SessionRole } from '@/lib/session'
 
 
@@ -36,6 +37,7 @@ export default function Sidebar({
 }) {
   const pathname = usePathname()
   const { t, lang, setLang } = useTranslation()
+  const { theme, toggleTheme } = useTheme()
   const { openBookingModal } = useBookingModal()
   const [notifCount, setNotifCount] = useState(0)
   const [loggingOut, setLoggingOut] = useState(false)
@@ -176,10 +178,11 @@ export default function Sidebar({
 
   return (
     <aside
+      style={{ background: 'var(--sidebar-bg)' }}
       className={mobile ? (
-        `fixed inset-y-0 left-0 w-[232px] min-w-[232px] z-[150] bg-[var(--sidebar-bg)] flex flex-col overflow-hidden transition-transform duration-240 ease-[cubic-bezier(0.4,0,0.2,1)] ${mobileOpen ? 'translate-x-0 shadow-[8px_0_30px_rgba(0,0,0,0.25)]' : '-translate-x-full'}`
+        `fixed inset-y-0 left-0 w-[232px] min-w-[232px] z-[150] flex flex-col overflow-hidden transition-transform duration-240 ease-[cubic-bezier(0.4,0,0.2,1)] ${mobileOpen ? 'translate-x-0 shadow-[8px_0_30px_rgba(0,0,0,0.25)]' : '-translate-x-full'}`
       ) : (
-        `flex flex-col overflow-hidden bg-[var(--sidebar-bg)] border-r border-white/8 transition-[width,min-width] duration-240 ease-[cubic-bezier(0.4,0,0.2,1)] ${collapsed ? 'w-[72px] min-w-[72px]' : 'w-[232px] min-w-[232px]'}`
+        `flex flex-col overflow-hidden border-r border-white/8 transition-[width,min-width] duration-240 ease-[cubic-bezier(0.4,0,0.2,1)] ${collapsed ? 'w-[72px] min-w-[72px]' : 'w-[232px] min-w-[232px]'}`
       )}
     >
       {/* Brand */}
@@ -359,6 +362,21 @@ export default function Sidebar({
             </svg>
             {!collapsed && (
               <span className="whitespace-nowrap text-[0.8rem] font-medium">{t('signOut')}</span>
+            )}
+          </button>
+
+          {/* Theme Toggle Button */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            title={theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+            aria-label="Theme toggle"
+            className="w-[34px] h-[34px] shrink-0 inline-flex items-center justify-center bg-white/5 border border-white/8 rounded-lg text-white/65 hover:bg-white/12 hover:text-white cursor-pointer transition-colors duration-150"
+          >
+            {theme === 'dark' ? (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+            ) : (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
             )}
           </button>
 

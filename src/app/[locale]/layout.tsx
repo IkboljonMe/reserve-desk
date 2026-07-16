@@ -4,6 +4,7 @@ import "../globals.css";
 import { LOCALES, isLocale, DEFAULT_LOCALE } from "@/i18n/config";
 import { LanguageProvider } from "@/i18n";
 import { getT } from "@/i18n/dictionary";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 // Geometric display face for the brand wordmark / big numbers. Self-hosted by
 // next/font and exposed as the CSS variable --font-zen-dots.
@@ -86,7 +87,9 @@ export default async function RootLayout({
   return (
     <html lang={locale} className={zenDots.variable}>
       <body>
-        <LanguageProvider lang={lang}>{children}</LanguageProvider>
+        <ThemeProvider>
+          <LanguageProvider lang={lang}>{children}</LanguageProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
