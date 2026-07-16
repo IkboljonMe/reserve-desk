@@ -18,9 +18,9 @@ export function CalendarToolbar({ s }: { s: CalendarPageState }) {
   } = s
 
   const navGroup = (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 4, justifyContent: isMobile ? 'center' : undefined, paddingBottom: isMobile ? 0 : 2 }}>
+    <div className={`flex items-center gap-1 ${isMobile ? 'justify-center pb-0' : 'pb-0.5'}`}>
       <button className="cal-icon-btn" onClick={() => navigate(-1)} aria-label={t('previous')}><ChevronLeft size={16} /></button>
-      <button className="cal-pill" onClick={() => setCurrentDate(new Date())} style={{ minWidth: 52, justifyContent: 'center' }}>{t('today')}</button>
+      <button className="cal-pill min-w-[52px] justify-center" onClick={() => setCurrentDate(new Date())}>{t('today')}</button>
       <button className="cal-icon-btn" onClick={() => navigate(1)} aria-label={t('next')}><ChevronRight size={16} /></button>
     </div>
   )
@@ -68,7 +68,7 @@ export function CalendarToolbar({ s }: { s: CalendarPageState }) {
   const newBookingBtn = (
     <Button
       variant="primary" size="md" leftIcon={<Plus size={14} strokeWidth={2.5} />}
-      style={isMobile ? { width: '100%', justifyContent: 'center' } : undefined}
+      className={isMobile ? "w-full justify-center" : undefined}
       onClick={() => goToCreate(format(currentDate, 'yyyy-MM-dd'))}
     >
       {t('newBooking')}
@@ -77,15 +77,15 @@ export function CalendarToolbar({ s }: { s: CalendarPageState }) {
 
   if (isMobile) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: '0.85rem' }}>
-        <span style={{ fontWeight: 700, color: 'var(--gray-800)', fontSize: '1.0625rem', letterSpacing: '-0.01em', textAlign: 'center' }}>
+      <div className="flex flex-col gap-2.5 mb-3.5">
+        <span className="font-bold text-[var(--gray-800)] text-[1.0625rem] tracking-tight text-center">
           {headerLabel}
         </span>
         {navGroup}
-        <div style={{ display: 'flex', gap: 8 }}>
-          <div style={{ flex: 1, minWidth: 0 }}>{viewDropdown}</div>
-          {densityDropdown && <div style={{ flex: 1, minWidth: 0 }}>{densityDropdown}</div>}
-          <div style={{ flex: 1, minWidth: 0 }}>{statusDropdown}</div>
+        <div className="flex gap-2">
+          <div className="flex-1 min-w-0">{viewDropdown}</div>
+          {densityDropdown && <div className="flex-1 min-w-0">{densityDropdown}</div>}
+          <div className="flex-1 min-w-0">{statusDropdown}</div>
         </div>
         {newBookingBtn}
       </div>
@@ -93,13 +93,13 @@ export function CalendarToolbar({ s }: { s: CalendarPageState }) {
   }
 
   return (
-    <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.75rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
+    <div className="flex items-end gap-3 mb-3 flex-wrap">
       {navGroup}
-      <span style={{ fontWeight: 700, color: 'var(--gray-800)', fontSize: '1.0625rem', letterSpacing: '-0.01em', paddingBottom: 2 }}>{headerLabel}</span>
+      <span className="font-bold text-[var(--gray-800)] text-[1.0625rem] tracking-tight pb-0.5">{headerLabel}</span>
 
-      <div style={{ marginLeft: 'auto', minWidth: 110 }}>{viewDropdown}</div>
+      <div className="ml-auto min-w-[110px]">{viewDropdown}</div>
 
-      {densityDropdown && <div style={{ minWidth: 80 }}>{densityDropdown}</div>}
+      {densityDropdown && <div className="min-w-[80px]">{densityDropdown}</div>}
 
       {newBookingBtn}
     </div>

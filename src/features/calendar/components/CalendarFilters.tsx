@@ -13,18 +13,17 @@ export function CalendarFilters({ s }: { s: CalendarPageState }) {
   const { search, setSearch, statusFilter, setStatusFilter } = s
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.85rem', flexWrap: 'wrap' }}>
-      <div style={{ position: 'relative', flex: '1 1 220px', minWidth: 180 }}>
-        <Search size={14} style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)', color: 'var(--gray-400)', pointerEvents: 'none' }} />
+    <div className="flex items-center gap-2.5 mb-3.5 flex-wrap">
+      <div className="relative flex-[1_1_220px] min-w-[180px]">
+        <Search size={14} className="absolute left-[11px] top-1/2 -translate-y-1/2 text-[var(--gray-400)] pointer-events-none" />
         <input
-          className="form-input"
-          style={{ paddingLeft: 32, paddingTop: 7, paddingBottom: 7, fontSize: '0.82rem', borderRadius: 8 }}
+          className="w-full pl-8 py-1.75 text-[0.82rem] rounded-lg border-1.5 border-[var(--gray-200,#e5e7eb)] outline-none bg-white text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
           placeholder={t('searchGuestRoomPhone')}
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
         {search && (
-          <button onClick={() => setSearch('')} style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--gray-400)', padding: 2 }} aria-label={t('clearSearch')}>
+          <button onClick={() => setSearch('')} className="absolute right-2 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-[var(--gray-400)] p-0.5" aria-label={t('clearSearch')}>
             <X size={14} />
           </button>
         )}
@@ -32,7 +31,7 @@ export function CalendarFilters({ s }: { s: CalendarPageState }) {
 
       {/* On mobile this dropdown moves up into CalendarToolbar's compact stack, next to view/density. */}
       {!isMobile && (
-        <div style={{ minWidth: 140 }}>
+        <div className="min-w-[140px]">
           <Dropdown
             value={statusFilter}
             onChange={val => setStatusFilter(val as StatusFilter)}

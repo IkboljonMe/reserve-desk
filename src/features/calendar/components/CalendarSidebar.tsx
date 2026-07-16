@@ -16,23 +16,23 @@ export function CalendarSidebar({ s }: { s: CalendarPageState }) {
   return (
     <div className="cal-sidebar">
       {/* Range summary */}
-      <div className="card" style={{ padding: '0.9rem 1rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+      <div className="bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-[var(--radius-lg)] shadow-sm p-[0.9rem_1rem]">
+        <div className="flex justify-between mb-2">
           <div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--gray-800)', lineHeight: 1 }}>{summary.count}</div>
-            <div style={{ fontSize: '0.7rem', color: 'var(--gray-400)', textTransform: 'uppercase', letterSpacing: '0.04em', marginTop: 2 }}>{t('bookings')}</div>
+            <div className="text-2xl font-extrabold text-[var(--gray-800)] leading-none">{summary.count}</div>
+            <div className="text-[0.7rem] text-[var(--gray-400)] uppercase tracking-wider mt-0.5">{t('bookings')}</div>
           </div>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--brand-600)', lineHeight: 1 }}>{money(summary.revenue)}</div>
-            <div style={{ fontSize: '0.7rem', color: 'var(--gray-400)', textTransform: 'uppercase', letterSpacing: '0.04em', marginTop: 2 }}>{t('sum')} · {view === 'day' ? t('day') : view === 'week' ? t('periodWeek') : t('periodMonth')}</div>
+          <div className="text-right">
+            <div className="text-2xl font-extrabold text-[var(--brand-600)] leading-none">{money(summary.revenue)}</div>
+            <div className="text-[0.7rem] text-[var(--gray-400)] uppercase tracking-wider mt-0.5">{t('sum')} · {view === 'day' ? t('day') : view === 'week' ? t('periodWeek') : t('periodMonth')}</div>
           </div>
         </div>
         {summary.revenue > 0 && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.72rem', color: 'var(--gray-500)', borderTop: '1px dashed var(--gray-200)', paddingTop: 8 }}>
-            <Wallet size={13} style={{ color: '#10b981' }} />
-            <span style={{ fontWeight: 700, color: '#059669' }}>{money(summary.collected)}</span> {t('collected')}
+          <div className="flex items-center gap-1.5 text-[0.72rem] text-[var(--gray-500)] border-t border-dashed border-[var(--gray-200)] pt-2">
+            <Wallet size={13} className="text-emerald-500" />
+            <span className="font-bold text-emerald-600">{money(summary.collected)}</span> {t('collected')}
             {summary.collected < summary.revenue && (
-              <span style={{ marginLeft: 'auto', fontWeight: 700, color: '#d97706' }}>{money(summary.revenue - summary.collected)} {t('due')}</span>
+              <span className="ml-auto font-bold text-amber-600">{money(summary.revenue - summary.collected)} {t('due')}</span>
             )}
           </div>
         )}
@@ -40,19 +40,19 @@ export function CalendarSidebar({ s }: { s: CalendarPageState }) {
 
       {/* Hotel filter */}
       {hotels.length > 0 && (
-        <div className="card" style={{ padding: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-            <h3 style={{ fontSize: '0.8125rem', margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Building2 size={14} style={{ color: 'var(--gray-400)' }} /> {t('hotels')}
+        <div className="bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-[var(--radius-lg)] shadow-sm p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-[0.8125rem] m-0 flex items-center gap-1.5">
+              <Building2 size={14} className="text-[var(--gray-400)]" /> {t('hotels')}
             </h3>
             <button
               onClick={() => setSelectedHotels(allHotelsSelected ? new Set() : new Set(hotels.map(h => h._id)))}
-              style={{ background: 'none', border: 'none', color: 'var(--brand-600)', fontSize: '0.72rem', fontWeight: 600, cursor: 'pointer' }}
+              className="bg-transparent border-none text-[var(--brand-600)] text-[0.72rem] font-semibold cursor-pointer"
             >
               {allHotelsSelected ? t('clear') : t('all')}
             </button>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <div className="flex flex-col gap-1">
             {hotels.map(h => {
               const checked = selectedHotels.has(h._id)
               const count = visibleBookings.filter(b => (serviceHotel.get(svcId(b)) || '') === h._id).length
@@ -64,27 +64,22 @@ export function CalendarSidebar({ s }: { s: CalendarPageState }) {
                     if (checked) next.delete(h._id); else next.add(h._id)
                     return next
                   })}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 9, textAlign: 'left',
-                    padding: '5px 7px', borderRadius: 8, border: 'none', cursor: 'pointer',
-                    background: checked ? 'var(--brand-50)' : 'transparent',
-                    opacity: checked ? 1 : 0.5, transition: 'all .12s', fontFamily: 'inherit',
-                  }}
+                  className={`flex items-center gap-2.25 text-left p-[5px_7px] rounded-lg border-none cursor-pointer transition-all duration-120 font-sans ${
+                    checked ? 'bg-[var(--brand-50)] opacity-100' : 'bg-transparent opacity-50'
+                  }`}
                 >
-                  <span style={{
-                    minWidth: 30, height: 22, padding: '0 6px', borderRadius: 6, flexShrink: 0,
-                    background: checked ? 'var(--brand-500)' : 'var(--gray-200)',
-                    color: checked ? '#fff' : 'var(--gray-500)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontWeight: 700, fontSize: '0.66rem', letterSpacing: '0.03em',
-                  }}>
+                  <span className={`min-w-[30px] h-[22px] px-1.5 rounded-md shrink-0 flex items-center justify-center font-bold text-[0.66rem] tracking-wide ${
+                    checked ? 'bg-[var(--brand-500)] text-white' : 'bg-[var(--gray-200)] text-[var(--gray-500)]'
+                  }`}>
                     {h.shortName}
                   </span>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--gray-700)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: checked ? 600 : 400 }}>
+                  <span className={`text-[0.8rem] text-[var(--gray-700)] flex-1 overflow-hidden text-ellipsis whitespace-nowrap ${
+                    checked ? 'font-semibold' : 'font-normal'
+                  }`}>
                     {h.name}
                   </span>
                   {count > 0 && (
-                    <span style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--brand-600)', background: 'var(--brand-100)', borderRadius: 999, padding: '1px 7px' }}>{count}</span>
+                    <span className="text-[0.68rem] font-bold text-[var(--brand-600)] bg-[var(--brand-100)] rounded-full px-1.75">{count}</span>
                   )}
                 </button>
               )
@@ -94,17 +89,17 @@ export function CalendarSidebar({ s }: { s: CalendarPageState }) {
       )}
 
       {/* Service filter / legend */}
-      <div className="card" style={{ padding: '1rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-          <h3 style={{ fontSize: '0.8125rem', margin: 0 }}>{t('services')}</h3>
+      <div className="bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-[var(--radius-lg)] shadow-sm p-4">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-[0.8125rem] m-0">{t('services')}</h3>
           <button
             onClick={() => setSelectedServices(allSelected ? new Set() : new Set(services.map(svc => svc._id)))}
-            style={{ background: 'none', border: 'none', color: 'var(--brand-600)', fontSize: '0.72rem', fontWeight: 600, cursor: 'pointer' }}
+            className="bg-transparent border-none text-[var(--brand-600)] text-[0.72rem] font-semibold cursor-pointer"
           >
             {allSelected ? t('clear') : t('all')}
           </button>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <div className="flex flex-col gap-1">
           {services.map(svc => {
             const checked = selectedServices.has(svc._id)
             const count = visibleBookings.filter(b => svcId(b) === svc._id && b.status !== 'cancelled').length
@@ -116,31 +111,40 @@ export function CalendarSidebar({ s }: { s: CalendarPageState }) {
                   if (checked) next.delete(svc._id); else next.add(svc._id)
                   return next
                 })}
+                className={`flex items-center gap-2.25 text-left p-[5px_7px] rounded-lg border-none cursor-pointer transition-all duration-120 font-sans ${
+                  checked ? 'opacity-100' : 'bg-transparent opacity-50'
+                }`}
                 style={{
-                  display: 'flex', alignItems: 'center', gap: 9, textAlign: 'left',
-                  padding: '5px 7px', borderRadius: 8, border: 'none', cursor: 'pointer',
                   background: checked ? `${svc.color}0f` : 'transparent',
-                  opacity: checked ? 1 : 0.5, transition: 'all .12s', fontFamily: 'inherit',
                 }}
               >
-                <span style={{
-                  width: 22, height: 22, borderRadius: 6, flexShrink: 0,
-                  background: `${svc.color}22`, color: svc.color,
-                  border: `1.5px solid ${checked ? svc.color : 'transparent'}`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
+                <span
+                  className="w-[22px] h-[22px] rounded-md shrink-0 flex items-center justify-center"
+                  style={{
+                    background: `${svc.color}22`,
+                    color: svc.color,
+                    border: `1.5px solid ${checked ? svc.color : 'transparent'}`,
+                  }}
+                >
                   {getServiceIcon(svc.name)}
                 </span>
-                <span style={{ fontSize: '0.8rem', color: 'var(--gray-700)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: checked ? 600 : 400 }}>
+                <span className={`text-[0.8rem] text-[var(--gray-700)] flex-1 overflow-hidden text-ellipsis whitespace-nowrap ${
+                  checked ? 'font-semibold' : 'font-normal'
+                }`}>
                   {svc.name}
                 </span>
                 {count > 0 && (
-                  <span style={{ fontSize: '0.68rem', fontWeight: 700, color: svc.color, background: `${svc.color}18`, borderRadius: 999, padding: '1px 7px' }}>{count}</span>
+                  <span
+                    className="text-[0.68rem] font-bold rounded-full px-1.75"
+                    style={{ color: svc.color, background: `${svc.color}18` }}
+                  >
+                    {count}
+                  </span>
                 )}
               </button>
             )
           })}
-          {services.length === 0 && <p style={{ fontSize: '0.75rem', color: 'var(--gray-400)' }}>{t('noServicesYet')}</p>}
+          {services.length === 0 && <p className="text-[0.75rem] text-[var(--gray-400)]">{t('noServicesYet')}</p>}
         </div>
       </div>
     </div>
