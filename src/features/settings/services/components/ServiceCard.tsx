@@ -37,77 +37,45 @@ export function ServiceCard({
 
   return (
     <div
-      className="card"
-      style={{
-        padding: 0,
-        overflow: 'hidden',
-        transition: 'box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease',
-        display: 'flex',
-        flexDirection: 'column',
-        borderTop: `3px solid ${svc.color}`,
-      }}
-      onMouseEnter={e => {
-        const el = e.currentTarget as HTMLDivElement
-        el.style.boxShadow = 'var(--shadow-md)'
-        el.style.transform = 'translateY(-2px)'
-        el.style.borderColor = svc.color
-      }}
-      onMouseLeave={e => {
-        const el = e.currentTarget as HTMLDivElement
-        el.style.boxShadow = 'var(--shadow-sm)'
-        el.style.transform = 'translateY(0)'
-        el.style.borderColor = 'var(--surface-border)'
-        el.style.borderTopColor = svc.color
-      }}
+      className="bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-[var(--radius-lg)] shadow-sm flex flex-col overflow-hidden transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 border-t-3"
+      style={{ borderTopColor: svc.color }}
     >
       {/* Card Header */}
-      <div style={{ padding: '1.125rem 1.25rem 0.875rem', display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+      <div className="px-5 py-3.5 flex items-start gap-3">
         {/* Icon */}
-        <div style={{
-          width: 44, height: 44, borderRadius: 12, flexShrink: 0,
-          background: `${svc.color}18`,
-          border: `1.5px solid ${svc.color}40`,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color: svc.color,
-        }}>
+        <div
+          className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border-[1.5px] border-solid"
+          style={{
+            background: `${svc.color}18`,
+            border: `1.5px solid ${svc.color}40`,
+            color: svc.color,
+          }}
+        >
           <ServiceIcon name={svc.icon} serviceName={svc.name} size={22} strokeWidth={1.75} />
         </div>
 
         {/* Name + badges */}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 4 }}>
-            <span style={{
-              fontWeight: 700, fontSize: '0.9375rem',
-              color: 'var(--gray-800)', letterSpacing: '-0.01em',
-              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-            }}>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5 flex-wrap mb-1">
+            <span className="font-bold text-[0.9375rem] text-[var(--gray-800)] tracking-tight overflow-hidden text-ellipsis whitespace-nowrap">
               {svc.name}
             </span>
             {/* Status dot */}
-            <span style={{
-              display: 'inline-flex', alignItems: 'center', gap: 4,
-              padding: '2px 8px', borderRadius: 20,
-              fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.02em',
-              background: svc.isActive ? '#ecfdf5' : 'var(--gray-100)',
-              color: svc.isActive ? '#047857' : 'var(--gray-500)',
-              border: `1px solid ${svc.isActive ? '#a7f3d0' : 'var(--gray-200)'}`,
-            }}>
-              <span style={{
-                width: 5, height: 5, borderRadius: '50%',
-                background: svc.isActive ? '#10b981' : 'var(--gray-400)',
-                flexShrink: 0,
-              }} />
+            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-semibold text-[0.7rem] tracking-wide border ${
+              svc.isActive ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-[var(--gray-100,#f3f4f6)] text-[var(--gray-500,#6b7280)] border-[var(--gray-200,#e5e7eb)]'
+            }`}>
+              <span className={`w-1.25 h-1.25 rounded-full shrink-0 ${svc.isActive ? 'bg-emerald-500' : 'bg-[var(--gray-400)]'}`} />
               {svc.isActive ? t('active') : t('inactive')}
             </span>
           </div>
 
           {/* Hotel tag */}
           {hotelName && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.72rem', color: 'var(--gray-400)' }}>
+            <div className="flex items-center gap-1 text-[0.72rem] text-[var(--gray-400)]">
               <Building2 size={11} />
               <span>{hotelName}</span>
               {(svc.sharedHotelIds?.length ?? 0) > 0 && (
-                <span style={{ color: 'var(--brand-600)', fontWeight: 600 }}>
+                <span className="text-[var(--brand-600,#4f46e5)] font-semibold">
                   {t('plusNHotels', { count: svc.sharedHotelIds!.length })}
                 </span>
               )}
@@ -120,12 +88,9 @@ export function ServiceCard({
           onClick={onToggleActive}
           title={svc.isActive ? t('deactivate') : t('activate')}
           aria-label={svc.isActive ? t('deactivateService') : t('activateService')}
-          style={{
-            background: 'none', border: 'none', cursor: 'pointer', padding: 4,
-            color: svc.isActive ? '#10b981' : 'var(--gray-300)',
-            transition: 'color 0.15s ease',
-            flexShrink: 0,
-          }}
+          className={`bg-transparent border-0 cursor-pointer p-1 shrink-0 transition-colors duration-150 ${
+            svc.isActive ? 'text-emerald-500' : 'text-[var(--gray-300)]'
+          }`}
         >
           {svc.isActive ? <ToggleRight size={24} /> : <ToggleLeft size={24} />}
         </button>
@@ -133,50 +98,56 @@ export function ServiceCard({
 
       {/* Description */}
       {svc.description && (
-        <div style={{ padding: '0 1.25rem 0.75rem', fontSize: '0.775rem', color: 'var(--gray-500)', lineHeight: 1.5 }}>
+        <div className="px-5 pb-3 text-[0.775rem] text-[var(--gray-500)] leading-normal">
           {svc.description}
         </div>
       )}
 
       {/* Pricing chips */}
       {hasPlans && (
-        <div style={{ padding: '0 1.25rem 0.875rem', display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+        <div className="px-5 pb-3.5 flex gap-1.5 flex-wrap">
           {svc.pricingPlans!.map((plan, i) => (
-            <span key={i} style={{
-              background: `${svc.color}12`, color: svc.color,
-              border: `1px solid ${svc.color}30`,
-              padding: '3px 9px', borderRadius: 20, fontSize: '0.72rem', fontWeight: 600,
-            }}>
+            <span
+              key={i}
+              className="px-2.5 py-0.5 rounded-full text-[0.72rem] font-semibold border border-solid"
+              style={{
+                background: `${svc.color}12`,
+                borderColor: `${svc.color}30`,
+                color: svc.color,
+              }}
+            >
               {plan.duration}m · {Number(plan.price).toLocaleString()} {t('sum')}
             </span>
           ))}
         </div>
       )}
       {svc.isFree && !hasPlans && (
-        <div style={{ padding: '0 1.25rem 0.875rem' }}>
+        <div className="px-5 pb-3.5">
           <Badge variant="blue">{t('isFree')}</Badge>
         </div>
       )}
 
       {/* Category pricing summary */}
       {hasGroups && (
-        <div style={{ padding: '0 1.25rem 0.875rem', display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <div className="px-5 pb-3.5 flex flex-col gap-1.5">
           {svc.pricingGroups!.map((g, i) => {
             const meta = groupMeta(g)
             return (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                <span style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 4,
-                  fontSize: '0.68rem', fontWeight: 700, color: meta.color,
-                }}>
+              <div key={i} className="flex items-center gap-1.5 flex-wrap">
+                <span className="inline-flex items-center gap-1 text-[0.68rem] font-bold" style={{ color: meta.color }}>
                   {g.target === 'room' ? <BedDouble size={11} /> : <Users size={11} />}
                   {meta.label}
                 </span>
                 {g.rows.map((r, j) => (
-                  <span key={j} style={{
-                    background: `${meta.color}12`, color: meta.color, border: `1px solid ${meta.color}30`,
-                    padding: '2px 7px', borderRadius: 20, fontSize: '0.68rem', fontWeight: 600,
-                  }}>
+                  <span
+                    key={j}
+                    className="px-2 py-0.5 rounded-full text-[0.68rem] font-semibold border border-solid"
+                    style={{
+                      background: `${meta.color}12`,
+                      borderColor: `${meta.color}30`,
+                      color: meta.color,
+                    }}
+                  >
                     {r.duration}m · {Number(r.price).toLocaleString()}
                   </span>
                 ))}
@@ -187,30 +158,24 @@ export function ServiceCard({
       )}
 
       {/* Footer meta */}
-      <div style={{
-        marginTop: 'auto',
-        borderTop: '1px solid var(--surface-border)',
-        padding: '0.625rem 1.25rem',
-        display: 'flex', alignItems: 'center', gap: 12,
-        background: 'var(--gray-50)',
-      }}>
-        <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.72rem', color: 'var(--gray-400)' }}>
+      <div className="mt-auto border-t border-[var(--surface-border)] px-5 py-2.5 flex items-center gap-3 bg-[var(--gray-50,#f9fafb)]">
+        <span className="flex items-center gap-1 text-[0.72rem] text-[var(--gray-400)]">
           <Clock size={11} />
           {svc.openTime}–{svc.closeTime}
         </span>
-        <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.72rem', color: 'var(--gray-400)' }}>
+        <span className="flex items-center gap-1 text-[0.72rem] text-[var(--gray-400)]">
           <Users size={11} />
           {svc.capacity}
         </span>
         {hasBuffer && (
-          <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: '0.72rem', color: 'var(--warning)' }}>
+          <span className="flex items-center gap-1 text-[0.72rem] text-[var(--warning,#f59e0b)]">
             <Zap size={10} />
             {svc.bufferTimeBefore || 0}+{svc.bufferTimeAfter || 0}m
           </span>
         )}
 
         {/* Action buttons pushed right */}
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: 2 }}>
+        <div className="ml-auto flex gap-0.5">
           {deleteConfirm ? (
             <>
               <Button
@@ -243,7 +208,7 @@ export function ServiceCard({
                 onClick={onDeleteRequest}
                 title={t('delete')}
                 aria-label={t('deleteNamed', { name: svc.name })}
-                style={{ color: 'var(--danger)' }}
+                className="text-[var(--danger)]"
               >
                 <Trash2 size={14} />
               </Button>

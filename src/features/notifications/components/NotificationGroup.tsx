@@ -21,36 +21,36 @@ export function NotificationGroup({
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-        <span style={{ display: 'inline-flex', width: 22, height: 22, alignItems: 'center', justifyContent: 'center', color: meta.color }}>
+      <div className="flex items-center gap-2 mb-2.5">
+        <span className="inline-flex w-5.5 h-5.5 items-center justify-center" style={{ color: meta.color }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{meta.icon}</svg>
         </span>
-        <span style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: meta.color }}>{t(meta.labelKey)}</span>
-        <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--gray-400)', background: 'var(--gray-100)', borderRadius: 20, padding: '1px 8px' }}>{list.length}</span>
+        <span className="text-[0.75rem] font-bold tracking-wider uppercase" style={{ color: meta.color }}>{t(meta.labelKey)}</span>
+        <span className="text-[0.72rem] font-bold text-[var(--gray-400)] bg-[var(--gray-100,#f3f4f6)] rounded-full px-2 py-0.5">{list.length}</span>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <div className="flex flex-col gap-2.5">
         {list.map(n => {
           const key = n.contractId + ':' + n.threshold
           return (
-            <div key={key} className="card" style={{ padding: '1rem 1.1rem', display: 'flex', alignItems: 'flex-start', gap: 14, borderLeft: `3px solid ${meta.color}`, background: meta.bg }}>
-              <div style={{ width: 38, height: 38, borderRadius: 10, background: '#fff', color: meta.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: 'var(--shadow-xs)' }}>
+            <div key={key} className="bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-[var(--radius-lg)] shadow-sm p-[1rem_1.1rem] flex items-start gap-3.5 border-l-3" style={{ borderLeftColor: meta.color, background: meta.bg }}>
+              <div className="w-9.5 h-9.5 rounded-lg bg-white flex items-center justify-center shrink-0 shadow-[var(--shadow-xs)]" style={{ color: meta.color }}>
                 <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{meta.icon}</svg>
               </div>
 
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 700, color: 'var(--gray-800)', fontSize: '0.9rem' }}>{n.title}</div>
-                <div style={{ color: 'var(--gray-600)', fontSize: '0.83rem', marginTop: 2 }}>{n.message}</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 12, marginTop: 8, fontSize: '0.75rem', color: 'var(--gray-500)' }}>
-                  {n.contractNumber && <span style={{ fontWeight: 600, color: 'var(--gray-600)' }}>№ {n.contractNumber}</span>}
+              <div className="flex-1 min-w-0">
+                <div className="font-bold text-[var(--gray-800)] text-[0.9rem]">{n.title}</div>
+                <div className="text-[var(--gray-600)] text-[0.83rem] mt-0.5">{n.message}</div>
+                <div className="flex flex-wrap items-center gap-3 mt-2 text-[0.75rem] text-[var(--gray-500)]">
+                  {n.contractNumber && <span className="font-semibold text-[var(--gray-600)]">№ {n.contractNumber}</span>}
                   <span>{t('finishColon', { date: fmtDate(n.finishDate) })}</span>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+              <div className="flex gap-1.5 shrink-0">
                 <Link
                   href={`/${lang}/contracts`}
-                  className="inline-flex items-center justify-center gap-1.5 rounded-sm border border-gray-200 bg-surface-card py-[6px] px-3 text-[0.8125rem] font-semibold text-gray-700 whitespace-nowrap tracking-[-0.01em] shadow-xs transition-colors duration-150 hover:bg-gray-50 hover:border-gray-300"
+                  className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--gray-200,#e5e7eb)] bg-white py-1.5 px-3 text-[0.8125rem] font-semibold text-[var(--gray-700)] whitespace-nowrap tracking-tight shadow-sm transition-colors duration-150 hover:bg-[var(--gray-50,#f9fafb)] hover:border-[var(--gray-300)]"
                 >
                   {t('view')}
                 </Link>

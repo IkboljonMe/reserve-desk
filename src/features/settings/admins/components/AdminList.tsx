@@ -13,9 +13,9 @@ export function AdminList({ s }: { s: AdminsPageState }) {
   const { admins, loading, noHotels, openAdd, openEdit, deleteConfirm, setDeleteConfirm, handleDelete } = s
 
   return (
-    <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+    <div className="bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-[var(--radius-lg)] shadow-sm p-0 overflow-hidden">
       {loading ? (
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <table className="w-full border-collapse">
           <tbody><SkeletonTableRows rows={4} columns={3} /></tbody>
         </table>
       ) : admins.length === 0 ? (
@@ -23,33 +23,29 @@ export function AdminList({ s }: { s: AdminsPageState }) {
           <h3 className="text-gray-700">{t('noAdminsTitle')}</h3>
           <p>{noHotels ? t('addHotelFirst') : t('noAdminsDesc')}</p>
           {!noHotels && (
-            <Button style={{ marginTop: 8 }} onClick={openAdd}>{t('addFirstAdmin')}</Button>
+            <Button className="mt-2" onClick={openAdd}>{t('addFirstAdmin')}</Button>
           )}
         </EmptyState>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
+        <div className="flex flex-col">
           {admins.map((a, i) => (
             <div
               key={a._id}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 12,
-                padding: '12px 16px',
-                borderTop: i === 0 ? 'none' : '1px solid var(--gray-100)',
-              }}
+              className={`flex items-center gap-3 px-4 py-3 ${i === 0 ? '' : 'border-t border-[var(--gray-100,#f3f4f6)]'}`}
             >
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 600, color: 'var(--gray-800)' }}>{a.name}</div>
-                <div style={{ fontSize: '0.8125rem', color: 'var(--gray-500)' }}>{a.email}</div>
+              <div className="flex-1 min-w-0">
+                <div className="font-semibold text-[var(--gray-800)]">{a.name}</div>
+                <div className="text-[0.8125rem] text-[var(--gray-500)]">{a.email}</div>
               </div>
               <Badge variant="gray" className="shrink-0">
                 {a.hotelId ? `${a.hotelId.name} (${a.hotelId.shortName})` : t('noHotelAssigned')}
               </Badge>
-              <div style={{ display: 'flex', gap: 6 }}>
+              <div className="flex gap-1.5">
                 <Button variant="ghost" icon onClick={() => openEdit(a)} title={t('edit')} aria-label={t('editAdminAria')}>
                   <Pencil size={14} />
                 </Button>
                 {deleteConfirm === a._id ? (
-                  <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                  <div className="flex gap-1 items-center">
                     <Button variant="danger" size="sm" onClick={() => handleDelete(a._id)}>{t('delete')}</Button>
                     <Button variant="ghost" size="sm" onClick={() => setDeleteConfirm(null)}>{t('cancel')}</Button>
                   </div>

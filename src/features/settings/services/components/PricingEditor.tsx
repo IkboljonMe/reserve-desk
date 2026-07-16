@@ -111,24 +111,24 @@ export function PricingEditor({
   }
 
   return (
-    <div style={{ border: '1px solid var(--brand-100)', borderRadius: 10, padding: 16, background: '#fcfdff' }}>
-      <div style={{ marginBottom: '0.875rem' }}>
-        <h3 style={{ fontSize: '0.9rem', color: 'var(--brand-700)', margin: 0 }}>{heading || t('pricingPlans')}</h3>
-        <p style={{ fontSize: '0.72rem', color: 'var(--gray-500)', margin: '2px 0 0' }}>
+    <div className="bg-[var(--surface-card)] border border-[var(--brand-100,#e0e7ff)] rounded-[var(--radius-lg)] shadow-sm p-4 bg-[#fcfdff]">
+      <div className="mb-3.5">
+        <h3 className="text-[0.9rem] font-bold text-[var(--brand-700,#4338ca)] m-0">{heading || t('pricingPlans')}</h3>
+        <p className="text-[0.72rem] text-[var(--gray-500)] mt-0.5">
           {t('pricingPlansDesc')}
         </p>
       </div>
 
       {/* Base duration→price plans */}
       {plans.length > 0 && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12, paddingBottom: 12, borderBottom: '1px dashed var(--gray-200)' }}>
-          <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--gray-500)' }}>{t('generalPlans')}</span>
+        <div className="flex flex-col gap-2 mb-3 pb-3 border-b border-dashed border-[var(--gray-200,#e5e7eb)]">
+          <span className="text-[0.72rem] font-bold text-[var(--gray-500)]">{t('generalPlans')}</span>
           {plans.map((plan, index) => (
-            <div key={index} style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
-              <div className="form-group" style={{ flex: 1 }}>
-                <label className="form-label" style={{ marginBottom: 4 }}>{t('ratePerHour')}</label>
+            <div key={index} className="flex gap-3 items-start">
+              <div className="flex flex-col gap-1.5 flex-1">
+                <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('ratePerHour')}</label>
                 <input
-                  type="text" inputMode="numeric" className="form-input price-input"
+                  type="text" inputMode="numeric" className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] price-input"
                   value={formatPrice(plan.price)}
                   onChange={e => {
                     const digits = e.target.value.replace(/\D/g, '')
@@ -139,7 +139,7 @@ export function PricingEditor({
                   placeholder="0" required
                 />
               </div>
-              <Button type="button" variant="ghost" icon style={{ marginTop: 22, color: 'var(--danger)' }} onClick={() => removePlan(index)} aria-label={t('removePlanAria', { index: index + 1 })}>
+              <Button type="button" variant="ghost" icon className="mt-5.5 text-[var(--danger)]" onClick={() => removePlan(index)} aria-label={t('removePlanAria', { index: index + 1 })}>
                 <Trash2 size={14} />
               </Button>
             </div>
@@ -149,39 +149,39 @@ export function PricingEditor({
 
       {/* Category-scoped pricing group cards */}
       {groups.length > 0 && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 12 }}>
+        <div className="flex flex-col gap-2.5 mb-3">
           {groups.map((group, gi) => {
             const meta = resolveGroupMeta(group)
             const collapsed = collapsedGroups.has(gi)
             return (
-              <div key={gi} style={{ border: `1px solid ${meta.color}40`, borderRadius: 8, overflow: 'hidden', background: '#fff' }}>
+              <div key={gi} className="border rounded-lg overflow-hidden bg-white" style={{ borderColor: `${meta.color}40` }}>
                 {/* Card header */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: `${meta.color}10`, cursor: 'pointer' }} onClick={() => toggleGroupCollapse(gi)}>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, color: meta.color, fontWeight: 700, fontSize: '0.8rem' }}>
+                <div className="flex items-center gap-2 px-2.5 py-2 cursor-pointer" style={{ background: `${meta.color}10` }} onClick={() => toggleGroupCollapse(gi)}>
+                  <span className="inline-flex items-center gap-1.25 font-bold text-[0.8rem]" style={{ color: meta.color }}>
                     {group.target === 'room' ? <BedDouble size={14} /> : <Users size={14} />}
                     {meta.label}
                   </span>
-                  <span style={{ fontSize: '0.68rem', color: 'var(--gray-400)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  <span className="text-[0.68rem] text-[var(--gray-400)] uppercase tracking-wider">
                     {group.target === 'room' ? t('room') : t('typeClient')}
                   </span>
-                  <span style={{ marginLeft: 'auto', fontSize: '0.7rem', color: 'var(--gray-400)' }}>
+                  <span className="ml-auto text-[0.7rem] text-[var(--gray-400)]">
                     {group.rows.length} {group.rows.length === 1 ? t('priceLower') : t('pricesWord')}
                   </span>
-                  <Button type="button" variant="ghost" icon style={{ color: 'var(--danger)' }} onClick={e => { e.stopPropagation(); removeGroup(gi) }} aria-label={t('removeGroupAria', { label: meta.label })}>
+                  <Button type="button" variant="ghost" icon className="text-[var(--danger)]" onClick={e => { e.stopPropagation(); removeGroup(gi) }} aria-label={t('removeGroupAria', { label: meta.label })}>
                     <Trash2 size={13} />
                   </Button>
-                  <ChevronDown size={15} style={{ color: 'var(--gray-400)', transform: collapsed ? 'rotate(-90deg)' : 'none', transition: 'transform 0.15s' }} />
+                  <ChevronDown size={15} className="text-[var(--gray-400)] transition-transform duration-150" style={{ transform: collapsed ? 'rotate(-90deg)' : 'none' }} />
                 </div>
 
                 {/* Card body */}
                 {!collapsed && (
-                  <div style={{ padding: '10px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div className="p-2.5 flex flex-col gap-2">
                     {group.rows.map((row, ri) => (
-                      <div key={ri} style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
-                        <div className="form-group" style={{ flex: 1 }}>
-                          <label className="form-label" style={{ marginBottom: 4 }}>{t('ratePerHour')}</label>
+                      <div key={ri} className="flex gap-3 items-start">
+                        <div className="flex flex-col gap-1.5 flex-1">
+                          <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('ratePerHour')}</label>
                           <input
-                            type="text" inputMode="numeric" className="form-input price-input"
+                            type="text" inputMode="numeric" className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] price-input"
                             value={formatPrice(row.price)}
                             onChange={e => {
                               const digits = e.target.value.replace(/\D/g, '')
@@ -192,12 +192,12 @@ export function PricingEditor({
                             placeholder="0" required
                           />
                         </div>
-                        <Button type="button" variant="ghost" icon style={{ marginTop: 22, color: 'var(--danger)' }} onClick={() => removeGroupRow(gi, ri)} aria-label={t('removePriceAria', { index: ri + 1 })} disabled={group.rows.length === 1}>
+                        <Button type="button" variant="ghost" icon className="mt-5.5 text-[var(--danger)]" onClick={() => removeGroupRow(gi, ri)} aria-label={t('removePriceAria', { index: ri + 1 })} disabled={group.rows.length === 1}>
                           <Trash2 size={14} />
                         </Button>
                       </div>
                     ))}
-                    <Button type="button" variant="ghost" size="sm" style={{ alignSelf: 'flex-start', color: meta.color }} onClick={() => addGroupRow(gi)}>
+                    <Button type="button" variant="ghost" size="sm" className="self-start text-xs font-semibold" style={{ color: meta.color }} onClick={() => addGroupRow(gi)}>
                       <Plus size={13} /> {t('addPrice')}
                     </Button>
                   </div>
@@ -216,9 +216,9 @@ export function PricingEditor({
       )}
 
       {planPicker === 'choose' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--gray-600)' }}>{t('whoIsPriceFor')}</span>
-          <div style={{ display: 'flex', gap: 8 }}>
+        <div className="flex flex-col gap-2">
+          <span className="text-[0.78rem] font-semibold text-[var(--gray-600)]">{t('whoIsPriceFor')}</span>
+          <div className="flex gap-2">
             <Button type="button" variant="secondary" size="sm" onClick={() => { setPlanPicker('room'); setPickerCategory('') }}>
               <BedDouble size={14} /> {t('roomCategoryLabel')}
             </Button>
@@ -236,16 +236,16 @@ export function PricingEditor({
           ? (!hotelSelected ? t('selectHotelFirst') : t('noMoreRoomCats'))
           : t('noMoreClientGroups')
         return (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--gray-600)' }}>
+          <div className="flex flex-col gap-2">
+            <span className="text-[0.78rem] font-semibold text-[var(--gray-600)]">
               {planPicker === 'room' ? t('whichRoomCategory') : t('whichClientGroup')}
             </span>
             {opts.length === 0 ? (
-              <p style={{ fontSize: '0.75rem', color: 'var(--gray-500)', margin: 0 }}>{emptyMsg}</p>
+              <p className="text-[0.75rem] text-[var(--gray-500)] m-0">{emptyMsg}</p>
             ) : (
-              <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+              <div className="flex gap-2 items-center flex-wrap">
                 <select
-                  className="form-select" style={{ width: 'auto', minWidth: 180 }}
+                  className="w-auto min-w-[180px] px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
                   value={pickerCategory} onChange={e => setPickerCategory(e.target.value)}
                   aria-label={t('selectCategory')}
                 >
@@ -257,16 +257,16 @@ export function PricingEditor({
                 </Button>
               </div>
             )}
-            <Button type="button" variant="ghost" size="sm" style={{ alignSelf: 'flex-start' }} onClick={() => { setPlanPicker(null); setPickerCategory('') }}>{t('cancel')}</Button>
+            <Button type="button" variant="ghost" size="sm" className="self-start" onClick={() => { setPlanPicker(null); setPickerCategory('') }}>{t('cancel')}</Button>
           </div>
         )
       })()}
 
       {/* Flat legacy price fallback when nothing else is defined (base editor only) */}
       {onFlatPrice && plans.length === 0 && groups.length === 0 && planPicker === null && (
-        <div className="form-group" style={{ marginTop: 12 }}>
-          <label className="form-label" style={{ color: 'var(--gray-500)' }}>{t('flatPriceOptional')}</label>
-          <input type="number" className="form-input" value={flatPrice ?? 0} onChange={e => onFlatPrice(Number(e.target.value))} />
+        <div className="flex flex-col gap-1.5 mt-3">
+          <label className="text-[0.8125rem] font-semibold text-[var(--gray-500)] tracking-tight">{t('flatPriceOptional')}</label>
+          <input type="number" className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]" value={flatPrice ?? 0} onChange={e => onFlatPrice(Number(e.target.value))} />
         </div>
       )}
     </div>

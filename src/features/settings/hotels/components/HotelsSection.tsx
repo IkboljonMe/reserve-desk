@@ -16,14 +16,14 @@ export function HotelsSection({ s }: { s: HotelsRoomsPageState }) {
     <section>
       <div className="flex items-center justify-between mb-4 flex-wrap gap-4">
         <div>
-          <h2 style={{ fontSize: '1.125rem', color: 'var(--gray-800)', display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Building2 size={18} style={{ color: 'var(--brand-600)' }} /> {t('hotels')}
+          <h2 className="m-0 text-lg font-bold text-[var(--gray-800)] flex items-center gap-2">
+            <Building2 size={18} className="text-[var(--brand-600)]" /> {t('hotels')}
           </h2>
-          <p style={{ fontSize: '0.8125rem', color: 'var(--gray-500)', marginTop: 2 }}>
+          <p className="text-[0.8125rem] text-[var(--gray-500)] mt-0.5">
             {t('hotelCodeDesc')}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: 10 }}>
+        <div className="flex gap-2.5">
           <Button onClick={openHotelModal}>
             <Plus size={15} strokeWidth={2.5} /> {t('addHotel')}
           </Button>
@@ -31,63 +31,57 @@ export function HotelsSection({ s }: { s: HotelsRoomsPageState }) {
       </div>
 
       {loading ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '1rem' }}>
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-4">
           {Array.from({ length: 3 }).map((_, i) => <SkeletonCard key={i} />)}
         </div>
       ) : hotels.length === 0 ? (
-        <div className="card">
+        <div className="bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-[var(--radius-lg)] shadow-sm p-0 overflow-hidden">
           <EmptyState icon={<Building2 size={26} />}>
             <h3 className="text-gray-700">{t('noHotelsAdded')}</h3>
             <p>{t('noHotelsDesc')}</p>
-            <Button style={{ marginTop: 8 }} onClick={openHotelModal}>{t('addFirstHotel')}</Button>
+            <Button className="mt-2" onClick={openHotelModal}>{t('addFirstHotel')}</Button>
           </EmptyState>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '0.875rem' }}>
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-3.5">
           {hotels.map(hotel => {
             const roomCount = (roomsByHotel.get(hotel._id) || []).length
             return (
-              <div key={hotel._id} className="card" style={{ padding: '1.125rem', display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                  <span style={{
-                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                    minWidth: 46, height: 40, padding: '0 10px', borderRadius: 10,
-                    background: 'var(--brand-500)', color: '#fff',
-                    fontWeight: 700, fontSize: '0.9375rem', letterSpacing: '0.04em',
-                    flexShrink: 0,
-                  }}>
+              <div key={hotel._id} className="bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-[var(--radius-lg)] shadow-sm p-4.5 flex flex-col gap-3">
+                <div className="flex items-start gap-3">
+                  <span className="inline-flex items-center justify-center min-w-[46px] h-10 px-2.5 rounded-lg bg-[var(--brand-500,#6366f1)] text-white font-bold text-[0.9375rem] tracking-wider shrink-0">
                     {displayCode(hotel)}
                   </span>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 600, color: 'var(--gray-800)', fontSize: '0.9375rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-[var(--gray-800)] text-[0.9375rem] overflow-hidden text-ellipsis whitespace-nowrap">
                       {hotel.name}
                     </div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--gray-400)', marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <div className="text-[0.75rem] text-[var(--gray-400)] mt-0.5 flex items-center gap-1">
                       <MapPin size={12} /> {hotel.location || t('noLocationSet')}
                     </div>
                   </div>
                   {hotelDeleteConfirm === hotel._id ? (
-                    <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
+                    <div className="flex gap-1 shrink-0">
                       <Button variant="danger" icon onClick={() => handleDeleteHotel(hotel._id)} aria-label={t('confirmDeleteHotel')}><Check size={14} /></Button>
                       <Button variant="ghost" icon onClick={() => setHotelDeleteConfirm(null)} aria-label={t('cancelDelete')}><X size={14} /></Button>
                     </div>
                   ) : (
-                    <div style={{ display: 'flex', gap: 2, flexShrink: 0 }}>
+                    <div className="flex gap-1 shrink-0">
                       <Button variant="ghost" icon onClick={() => openEditHotel(hotel)} title={t('editHotelAria')} aria-label={t('editHotelAria')}>
                         <Pencil size={15} />
                       </Button>
-                      <Button variant="ghost" icon style={{ color: 'var(--danger)' }} onClick={() => setHotelDeleteConfirm(hotel._id)} title={t('deleteHotelAria')} aria-label={t('deleteHotelAria')}>
+                      <Button variant="ghost" icon className="text-[var(--danger)]" onClick={() => setHotelDeleteConfirm(hotel._id)} title={t('deleteHotelAria')} aria-label={t('deleteHotelAria')}>
                         <Trash2 size={15} />
                       </Button>
                     </div>
                   )}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.75rem', color: 'var(--gray-500)', paddingTop: 10, borderTop: '1px solid var(--surface-border)' }}>
+                <div className="flex items-center gap-1.5 text-[0.75rem] text-[var(--gray-500)] pt-2.5 border-t border-[var(--surface-border)]">
                   <BedDouble size={13} />
                   <span className="tabular-nums">{roomCount}</span> {roomCount === 1 ? t('roomLower') : t('roomsLower')}
                   {hotel.roomTypes && hotel.roomTypes.length > 0 && (
-                    <div style={{ marginLeft: 'auto', display: 'flex', gap: 4, alignItems: 'center' }}>
-                      {hotel.roomTypes.slice(0, 3).map(rt => <span key={rt} style={{ background: 'var(--brand-50)', color: 'var(--brand-600)', padding: '2px 6px', borderRadius: 6, fontWeight: 600, fontSize: '0.68rem' }}>{rt}</span>)}
+                    <div className="ml-auto flex gap-1 items-center">
+                      {hotel.roomTypes.slice(0, 3).map(rt => <span key={rt} className="bg-[var(--brand-50,#eef2ff)] text-[var(--brand-600,#4f46e5)] px-1.5 py-0.5 rounded-md font-semibold text-[0.68rem]">{rt}</span>)}
                       {hotel.roomTypes.length > 3 && <span>+{hotel.roomTypes.length - 3}</span>}
                     </div>
                   )}
