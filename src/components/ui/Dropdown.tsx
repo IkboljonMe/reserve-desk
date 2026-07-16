@@ -133,8 +133,8 @@ export default function Dropdown({
           aria-controls={listId}
           aria-label={ariaLabel || label}
           aria-activedescendant={open && activeIndex >= 0 ? `${listId}-${activeIndex}` : undefined}
-          className={`w-full flex items-center gap-2.5 px-3 py-2 min-h-[38px] border-1.5 border-[var(--gray-200,#e5e7eb)] rounded-lg bg-white text-[0.8125rem] font-medium text-[var(--gray-800,#1f2937)] cursor-pointer outline-none text-left transition-all duration-150 box-border hover:not-disabled:border-[var(--gray-300,#d1d5db)] focus-visible:border-[var(--brand-500,#6366f1)] focus-visible:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] disabled:opacity-60 disabled:cursor-not-allowed disabled:bg-[var(--gray-50,#f9fafb)] ${
-            open ? 'border-[var(--brand-500,#6366f1)] shadow-[0_0_0_3px_rgba(99,102,241,0.14)]' : ''
+          className={`w-full flex items-center gap-2.5 px-3 py-2.5 min-h-[40px] border border-[var(--surface-border)] rounded-lg bg-[var(--surface-card)] text-[0.8125rem] font-medium text-[var(--gray-800)] cursor-pointer outline-none text-left transition-all duration-150 box-border hover:not-disabled:border-[var(--gray-400)] focus-visible:border-[var(--brand-500,#6366f1)] focus-visible:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] disabled:opacity-60 disabled:cursor-not-allowed disabled:bg-[var(--gray-50)] ${
+            open ? 'border-[var(--brand-500,#6366f1)] ring-2 ring-[var(--brand-500)]/15 shadow-sm' : ''
           } ${error ? 'border-[var(--color-danger,#ef4444)] focus-visible:shadow-[0_0_0_3px_rgba(239,68,68,0.14)]' : ''}`}
         >
           {icon && (
@@ -144,7 +144,7 @@ export default function Dropdown({
           )}
           <span
             className={`flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap ${
-              selected && selected.value ? 'text-[var(--gray-800,#1f2937)]' : 'text-[var(--gray-400,#9ca3af)]'
+              selected && selected.value ? 'text-[var(--gray-900)] font-semibold' : 'text-[var(--gray-400)]'
             }`}
           >
             {selected && selected.value ? selected.label : placeholder}
@@ -153,23 +153,23 @@ export default function Dropdown({
             size={16}
             aria-hidden="true"
             className={`shrink-0 text-[var(--gray-400)] transition-transform duration-150 ease-out ${
-              open ? 'rotate-180' : 'rotate-0'
+              open ? 'rotate-180 text-[var(--brand-500)]' : 'rotate-0'
             }`}
           />
         </button>
-
+ 
         {open && (
           <ul
             ref={listRef}
             id={listId}
             role="listbox"
             tabIndex={-1}
-            className="absolute top-[calc(100%+6px)] left-0 right-0 z-[9999] list-none m-0 p-1 bg-white border border-[var(--gray-200,#e5e7eb)] rounded-lg shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] max-h-[240px] overflow-y-auto box-border"
+            className="absolute top-[calc(100%+6px)] left-0 right-0 z-[9999] list-none m-0 p-1.5 bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-lg shadow-[0_12px_32px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.04)] max-h-[240px] overflow-y-auto box-border"
           >
             {options.map((opt, idx) => {
               const isSelected = opt.value === value
               const isActive = idx === activeIndex
-
+ 
               return (
                 <li
                   key={opt.value || '__placeholder'}
@@ -183,14 +183,14 @@ export default function Dropdown({
                   }}
                   className={`flex items-center justify-between gap-2 p-2 rounded-md cursor-pointer text-[0.8125rem] transition-all duration-100 ease-in-out box-border ${
                     isSelected
-                      ? 'font-semibold text-[var(--brand-700,#4338ca)] bg-[var(--brand-50,#e0e7ff)] hover:bg-[var(--brand-100,#c7d2fe)]'
-                      : 'text-[var(--gray-700,#374151)] hover:bg-[var(--gray-50,#f9fafb)] hover:text-[var(--gray-900,#111827)]'
-                  } ${isActive && !isSelected ? 'bg-[var(--gray-100,#f3f4f6)] text-[var(--gray-900,#111827)]' : ''}`}
+                      ? 'font-bold text-[var(--brand-600,#4f6ef7)] bg-[var(--brand-50)]/30 dark:bg-[var(--brand-500)]/15 hover:bg-[var(--brand-50)]/50'
+                      : 'text-[var(--gray-700)] hover:bg-[var(--gray-50)] hover:text-[var(--gray-900)]'
+                  } ${isActive && !isSelected ? 'bg-[var(--gray-100)] text-[var(--gray-900)]' : ''}`}
                 >
                   <span className="flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">
                     {opt.label}
                   </span>
-                  {isSelected && <Check size={15} aria-hidden="true" className="shrink-0" />}
+                  {isSelected && <Check size={15} aria-hidden="true" className="shrink-0 text-[var(--brand-500)]" />}
                 </li>
               )
             })}
