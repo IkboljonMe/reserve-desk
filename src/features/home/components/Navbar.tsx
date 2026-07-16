@@ -1,12 +1,10 @@
-'use client'
-
 import Link from 'next/link'
 import { BrandMark } from '@/components/BrandMark'
 import { LandingLangToggle } from './LandingLangToggle'
 import { LandingMobileMenu } from './LandingMobileMenu'
 import { DISPLAY_FONT, type Translate } from '../constants'
-import { CheckCircle2, Sparkles, Brain, Users, ShieldCheck, Sun, Moon } from 'lucide-react'
-import { useTheme } from '@/components/ThemeProvider'
+import { CheckCircle2, Sparkles, Brain, Users, ShieldCheck } from 'lucide-react'
+import { ThemeToggle } from './ThemeToggle'
 
 interface Props {
   locale: string
@@ -17,8 +15,6 @@ interface Props {
 }
 
 export function Navbar({ locale, t, demoUrl, loginHref, navLinks }: Props) {
-  const { theme, toggleTheme } = useTheme()
-
   return (
     <header className="sticky top-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 w-full flex flex-col transition-colors duration-200">
       <div className="w-full px-5 lg:px-10 py-[0.8rem] flex items-center gap-5 flex-wrap">
@@ -44,19 +40,7 @@ export function Navbar({ locale, t, demoUrl, loginHref, navLinks }: Props) {
           </div>
           <LandingLangToggle current={locale} />
           
-          <button
-            type="button"
-            onClick={toggleTheme}
-            title={theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
-            aria-label="Theme toggle"
-            className="w-[38px] h-[38px] inline-flex items-center justify-center rounded-[10px] bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 cursor-pointer border border-slate-200/40 dark:border-slate-700/50 transition-colors duration-150"
-          >
-            {theme === 'dark' ? (
-              <Sun size={16} />
-            ) : (
-              <Moon size={16} />
-            )}
-          </button>
+          <ThemeToggle />
 
           <div className="hidden min-[721px]:flex items-center gap-2">
             <Link
