@@ -717,128 +717,119 @@ button.swiper-button-next::after {
   border-radius: 4px !important;
 }
 
-/* ─── Dark Mode UI Compatibility Overrides ──────────────── */
-.dark {
-  /* Override hardcoded bg-white backgrounds inside dark mode to prevent white panels */
-  .bg-white,
-  .bg-white\/90,
-  .bg-white\/95,
-  div.bg-white,
-  span.bg-white {
-    background-color: var(--surface-card) !important;
-    border-color: var(--surface-border) !important;
-    color: var(--gray-900) !important;
-  }
-  
-  /* Ensure form controls (inputs, selects, textareas) and standard option elements look great */
-  input,
-  select,
-  textarea,
-  .form-input,
-  .form-select,
-  .form-textarea {
-    background-color: var(--surface-card) !important;
-    color: var(--gray-900) !important;
-    border: 1.5px solid var(--surface-border) !important;
-  }
-  
-  /* Native select options styling */
-  option {
-    background-color: var(--surface-card) !important;
-    color: var(--gray-900) !important;
-    border-bottom: 1px solid var(--surface-border) !important;
-  }
+/* ─── Dark Mode UI Compatibility Overrides (Flat CSS to prevent leakage) ─── */
+.dark .bg-white,
+.dark .bg-white\/90,
+.dark .bg-white\/95,
+.dark div.bg-white,
+.dark span.bg-white {
+  background-color: var(--surface-card) !important;
+  border-color: var(--surface-border) !important;
+  color: var(--gray-900) !important;
+}
 
-  /* Table styling compatibility */
-  table {
-    border-color: var(--surface-border) !important;
-  }
-  
-  thead tr,
-  tr.bg-\[var\(--gray-50\)\],
-  tr:nth-child(even) {
-    background-color: var(--surface-muted) !important;
-  }
-  
-  tr.bg-white,
-  tr:nth-child(odd) {
-    background-color: var(--surface-card) !important;
-  }
+.dark input,
+.dark select,
+.dark textarea,
+.dark .form-input,
+.dark .form-select,
+.dark .form-textarea {
+  background-color: var(--surface-card) !important;
+  color: var(--gray-900) !important;
+  border: 1.5px solid var(--surface-border) !important;
+}
 
-  tr {
-    border-color: var(--surface-border) !important;
-  }
+.dark option {
+  background-color: var(--surface-card) !important;
+  color: var(--gray-900) !important;
+  border-bottom: 1px solid var(--surface-border) !important;
+}
 
-  th, td {
-    border-color: var(--surface-border) !important;
-  }
+.dark table {
+  border-color: var(--surface-border) !important;
+}
 
-  th {
-    color: var(--gray-500) !important;
-  }
+.dark thead tr,
+.dark tr.bg-\[var\(--gray-50\)\],
+.dark tr:nth-child(even) {
+  background-color: var(--surface-muted) !important;
+}
 
-  td span.text-\[var\(--gray-800\)\],
-  span.text-slate-900,
-  span.text-slate-800,
-  span.text-slate-700,
-  td {
-    color: var(--gray-800) !important;
-  }
+.dark tr.bg-white,
+.dark tr:nth-child(odd) {
+  background-color: var(--surface-card) !important;
+}
 
-  /* Calendar Specific Elements Readability */
-  .border-l.border-\[var\(--gray-100\)\],
-  .border-t.border-\[var\(--gray-100\)\] {
-    border-color: var(--surface-border) !important;
-  }
+.dark tr {
+  border-color: var(--surface-border) !important;
+}
 
-  .text-\[var\(--gray-300\)\],
-  .text-\[var\(--gray-400\)\] {
-    color: var(--gray-500) !important;
-  }
+.dark th,
+.dark td {
+  border-color: var(--surface-border) !important;
+}
 
-  /* Dropdown search panel custom popups compatibility */
-  div[class*="absolute"][class*="bg-white"],
-  div[class*="absolute"].bg-white {
-    background-color: var(--surface-card) !important;
-    border: 1px solid var(--surface-border) !important;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.4) !important;
-  }
+.dark th {
+  color: var(--gray-500) !important;
+}
 
-  /* ─── Landing Page Dark Mode Overrides ──────────────── */
-  .text-slate-900 {
-    color: var(--gray-900) !important;
-  }
-  .text-slate-800 {
-    color: var(--gray-800) !important;
-  }
-  .text-slate-700 {
-    color: var(--gray-700) !important;
-  }
-  .text-slate-600,
-  .text-slate-500 {
-    color: var(--gray-500) !important;
-  }
-  .text-slate-400 {
-    color: var(--gray-400) !important;
-  }
+.dark td span.text-\[var\(--gray-800\)\],
+.dark span.text-slate-900,
+.dark span.text-slate-800,
+.dark span.text-slate-700,
+.dark td {
+  color: var(--gray-800) !important;
+}
 
-  .border-slate-200,
-  .border-slate-300 {
-    border-color: var(--surface-border) !important;
-  }
+.dark .border-l.border-\[var\(--gray-100\)\],
+.dark .border-t.border-\[var\(--gray-100\)\] {
+  border-color: var(--surface-border) !important;
+}
 
-  /* Section backgrounds mapping overrides */
-  section.bg-white,
-  footer.bg-white,
-  section#pricing,
-  section#reviews {
-    background-color: var(--surface-bg) !important;
-    border-color: var(--surface-border) !important;
-  }
+.dark .text-\[var\(--gray-300\)\],
+.dark .text-\[var\(--gray-400\)\] {
+  color: var(--gray-500) !important;
+}
 
-  /* Force background override for landing cards using constant styles */
-  div.border-slate-200.rounded-2xl {
-    background-color: var(--surface-card) !important;
-    border-color: var(--surface-border) !important;
-  }
+.dark div[class*="absolute"][class*="bg-white"],
+.dark div[class*="absolute"].bg-white {
+  background-color: var(--surface-card) !important;
+  border: 1px solid var(--surface-border) !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* ─── Landing Page Dark Mode Overrides ──────────────── */
+.dark .text-slate-900 {
+  color: var(--gray-900) !important;
+}
+.dark .text-slate-800 {
+  color: var(--gray-800) !important;
+}
+.dark .text-slate-700 {
+  color: var(--gray-700) !important;
+}
+.dark .text-slate-600,
+.dark .text-slate-500 {
+  color: var(--gray-500) !important;
+}
+.dark .text-slate-400 {
+  color: var(--gray-400) !important;
+}
+
+.dark .border-slate-200,
+.dark .border-slate-300 {
+  border-color: var(--surface-border) !important;
+}
+
+.dark section.bg-white,
+.dark footer.bg-white,
+.dark section#pricing,
+.dark section#reviews {
+  background-color: var(--surface-bg) !important;
+  border-color: var(--surface-border) !important;
+}
+
+.dark div.border-slate-200.rounded-2xl {
+  background-color: var(--surface-card) !important;
+  border-color: var(--surface-border) !important;
 }
