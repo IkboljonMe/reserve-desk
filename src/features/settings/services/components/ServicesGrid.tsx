@@ -7,6 +7,7 @@ import { ServiceCard } from './ServiceCard'
 import { SkeletonCard } from '@/components/ui/Skeleton'
 import { EmptyState } from '@/components/ui/EmptyState'
 import type { ServicesPageState } from '../useServicesPage'
+import Button from '@/components/ui/Button'
 
 export function ServicesGrid({ s }: { s: ServicesPageState }) {
   const { t } = useTranslation()
@@ -33,9 +34,9 @@ export function ServicesGrid({ s }: { s: ServicesPageState }) {
         }>
           <h3 className="text-gray-700">{t('noServicesTitle')}</h3>
           <p>{t('noServicesDesc')}</p>
-          <button className="btn btn-primary" style={{ marginTop: 8 }} onClick={openAddForm}>
+          <Button style={{ marginTop: 8 }} onClick={openAddForm}>
             <Plus size={15} /> {t('addService')}
-          </button>
+          </Button>
         </EmptyState>
       </div>
     )
@@ -46,9 +47,9 @@ export function ServicesGrid({ s }: { s: ServicesPageState }) {
         <EmptyState icon={<Search size={26} />}>
           <h3 className="text-gray-700">{t('noResults')}</h3>
           <p>{t('noServicesMatch')}</p>
-          <button className="btn btn-secondary btn-sm" style={{ marginTop: 8 }} onClick={() => { setSearchQuery(''); setFilterHotel(''); setFilterStatus('') }}>
+          <Button variant="secondary" size="sm" style={{ marginTop: 8 }} onClick={() => { setSearchQuery(''); setFilterHotel(''); setFilterStatus('') }}>
             {t('clearFilters')}
-          </button>
+          </Button>
         </EmptyState>
       </div>
     )

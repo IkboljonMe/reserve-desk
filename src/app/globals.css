@@ -181,61 +181,6 @@ p  { color: var(--gray-500); text-wrap: pretty; }
   border-color: var(--brand-100);
 }
 
-/* ─── Badge ─────────────────────────── */
-/* ─── Buttons ─────────────────────────── */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 9px 16px;
-  border-radius: var(--radius-sm);
-  border: 1px solid transparent;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.12s ease, box-shadow 0.15s ease, background 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
-  white-space: nowrap;
-  text-decoration: none;
-  font-family: inherit;
-  letter-spacing: -0.01em;
-}
-.btn:active:not(:disabled) { transform: translateY(1px) scale(0.99); }
-.btn:disabled { opacity: 0.55; cursor: not-allowed; }
-.btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(79, 110, 247, 0.3); }
-
-.btn-primary {
-  background: var(--brand-gradient);
-  color: #fff;
-  box-shadow: var(--shadow-brand);
-}
-.btn-primary:hover:not(:disabled) { filter: brightness(1.06); box-shadow: 0 8px 20px rgba(79, 110, 247, 0.36); transform: translateY(-1px); }
-
-.btn-secondary {
-  background: var(--surface-card);
-  color: var(--gray-700);
-  border: 1px solid var(--gray-200);
-  box-shadow: var(--shadow-xs);
-}
-.btn-secondary:hover:not(:disabled) { background: var(--gray-50); border-color: var(--gray-300); transform: translateY(-1px); box-shadow: var(--shadow-sm); }
-
-.btn-danger {
-  background: #fee2e2;
-  color: var(--danger);
-  border: 1px solid #fecaca;
-}
-.btn-danger:hover:not(:disabled) { background: #fecaca; }
-
-.btn-ghost {
-  background: transparent;
-  color: var(--gray-600);
-}
-.btn-ghost:hover:not(:disabled) { background: var(--gray-100); color: var(--gray-800); }
-
-.btn-sm { padding: 6px 12px; font-size: 0.8125rem; }
-.btn-lg { padding: 11px 22px; font-size: 0.9375rem; }
-.btn-icon { padding: 8px; }
-
 /* ─── Form Elements ─────────────────────────── */
 .form-group { display: flex; flex-direction: column; gap: 6px; }
 .form-label {

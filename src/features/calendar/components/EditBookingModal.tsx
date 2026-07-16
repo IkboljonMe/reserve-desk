@@ -10,6 +10,7 @@ import { MenuItemsEditor, type MenuItem } from '@/components/ui/MenuItemsEditor'
 import Spinner from '@/components/ui/Spinner'
 import type { Booking } from '@/types'
 import type { CalendarPageState } from '../useCalendarPage'
+import Button from '@/components/ui/Button'
 
 type DayRow = { _id: string; startTime: string; endTime: string; status?: string; serviceId: string | { _id: string } }
 
@@ -102,7 +103,7 @@ export function EditBookingModal({ s }: { s: CalendarPageState }) {
       <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 460 }}>
         <div className="modal-header">
           <h2>{t('editBooking')}</h2>
-          <button className="btn btn-ghost btn-icon" onClick={close} aria-label={t('close')}><X size={18} /></button>
+          <Button variant="ghost" icon onClick={close} aria-label={t('close')}><X size={18} /></Button>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
@@ -164,10 +165,10 @@ export function EditBookingModal({ s }: { s: CalendarPageState }) {
 
         <div className="h-px bg-surface-border my-4" />
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
-          <button className="btn btn-secondary" onClick={close}>{t('cancel')}</button>
-          <button className="btn btn-primary" disabled={saving || !changed || !startTime || dayHours.closed} onClick={save}>
+          <Button variant="secondary" onClick={close}>{t('cancel')}</Button>
+          <Button disabled={saving || !changed || !startTime || dayHours.closed} onClick={save}>
             {saving ? <Spinner size={18} dark={false} /> : null}{t('saveChanges')}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

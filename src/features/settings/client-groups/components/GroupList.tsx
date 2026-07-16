@@ -5,6 +5,7 @@ import { useTranslation } from '@/i18n'
 import { SkeletonTableRows } from '@/components/ui/Skeleton'
 import { EmptyState } from '@/components/ui/EmptyState'
 import type { ClientGroupsPageState } from '../useClientGroupsPage'
+import Button from '@/components/ui/Button'
 
 export function GroupList({ s }: { s: ClientGroupsPageState }) {
   const { t } = useTranslation()
@@ -20,7 +21,7 @@ export function GroupList({ s }: { s: ClientGroupsPageState }) {
         <EmptyState icon={<Users size={24} strokeWidth={1.75} />}>
           <h3 className="text-gray-700">{t('noGroupsTitle')}</h3>
           <p>{t('noGroupsDesc')}</p>
-          <button className="btn btn-primary" style={{ marginTop: 8 }} onClick={openAdd}>{t('addFirstGroup')}</button>
+          <Button style={{ marginTop: 8 }} onClick={openAdd}>{t('addFirstGroup')}</Button>
         </EmptyState>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -39,18 +40,18 @@ export function GroupList({ s }: { s: ClientGroupsPageState }) {
               }} />
               <span style={{ fontWeight: 600, color: 'var(--gray-800)', flex: 1 }}>{g.name}</span>
               <div style={{ display: 'flex', gap: 6 }}>
-                <button className="btn btn-ghost btn-sm btn-icon" onClick={() => openEdit(g)} title={t('edit')} aria-label={t('editGroupAria')}>
+                <Button variant="ghost" icon onClick={() => openEdit(g)} title={t('edit')} aria-label={t('editGroupAria')}>
                   <Pencil size={14} />
-                </button>
+                </Button>
                 {deleteConfirm === g._id ? (
                   <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-                    <button className="btn btn-danger btn-sm" onClick={() => handleDelete(g._id)}>{t('delete')}</button>
-                    <button className="btn btn-ghost btn-sm" onClick={() => setDeleteConfirm(null)}>{t('cancel')}</button>
+                    <Button variant="danger" size="sm" onClick={() => handleDelete(g._id)}>{t('delete')}</Button>
+                    <Button variant="ghost" size="sm" onClick={() => setDeleteConfirm(null)}>{t('cancel')}</Button>
                   </div>
                 ) : (
-                  <button className="btn btn-ghost btn-sm btn-icon" onClick={() => setDeleteConfirm(g._id)} title={t('delete')} aria-label={t('deleteGroupAria')}>
+                  <Button variant="ghost" icon onClick={() => setDeleteConfirm(g._id)} title={t('delete')} aria-label={t('deleteGroupAria')}>
                     <Trash2 size={14} color="var(--danger)" />
-                  </button>
+                  </Button>
                 )}
               </div>
             </div>

@@ -5,6 +5,7 @@ import { useTranslation } from '@/i18n'
 import { SkeletonTableRows } from '@/components/ui/Skeleton'
 import { EmptyState } from '@/components/ui/EmptyState'
 import type { ClientsPageState } from '../useClientsPage'
+import Button from '@/components/ui/Button'
 
 export function ClientsTable({ s }: { s: ClientsPageState }) {
   const { t } = useTranslation()
@@ -27,7 +28,7 @@ export function ClientsTable({ s }: { s: ClientsPageState }) {
         }>
           <h3 className="text-gray-700">{t('noClientsYet')}</h3>
           <p>{t('noClientsDesc')}</p>
-          <button className="btn btn-primary" style={{ marginTop: 8 }} onClick={openAdd}>{t('addFirstClient')}</button>
+          <Button style={{ marginTop: 8 }} onClick={openAdd}>{t('addFirstClient')}</Button>
         </EmptyState>
       ) : (
         <div style={{ overflowX: 'auto' }}>
@@ -103,26 +104,26 @@ export function ClientsTable({ s }: { s: ClientsPageState }) {
                 </td>
                 <td style={{ padding: '12px 16px' }}>
                   <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-                    <button className="btn btn-ghost btn-sm btn-icon" onClick={() => setHistoryClient(c)} title={t('bookingHistory')} aria-label={t('bookingHistory')}>
+                    <Button variant="ghost" icon onClick={() => setHistoryClient(c)} title={t('bookingHistory')} aria-label={t('bookingHistory')}>
                       <History size={14} />
-                    </button>
-                    <button className="btn btn-ghost btn-sm btn-icon" onClick={() => openEdit(c)} title={t('edit')} aria-label={t('editClientAria')}>
+                    </Button>
+                    <Button variant="ghost" icon onClick={() => openEdit(c)} title={t('edit')} aria-label={t('editClientAria')}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                       </svg>
-                    </button>
+                    </Button>
                     {deleteConfirm === c._id ? (
                       <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-                        <button className="btn btn-danger btn-sm" onClick={() => handleDelete(c._id)}>{t('delete')}</button>
-                        <button className="btn btn-ghost btn-sm" onClick={() => setDeleteConfirm(null)}>{t('cancel')}</button>
+                        <Button variant="danger" size="sm" onClick={() => handleDelete(c._id)}>{t('delete')}</Button>
+                        <Button variant="ghost" size="sm" onClick={() => setDeleteConfirm(null)}>{t('cancel')}</Button>
                       </div>
                     ) : (
-                      <button className="btn btn-ghost btn-sm btn-icon" onClick={() => setDeleteConfirm(c._id)} title={t('delete')} aria-label={t('deleteClientAria')}>
+                      <Button variant="ghost" icon onClick={() => setDeleteConfirm(c._id)} title={t('delete')} aria-label={t('deleteClientAria')}>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
                         </svg>
-                      </button>
+                      </Button>
                     )}
                   </div>
                 </td>

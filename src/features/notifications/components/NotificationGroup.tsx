@@ -6,6 +6,7 @@ import Spinner from '@/components/ui/Spinner'
 import { ContractNotification, NotificationTier } from '@/types'
 import { TIER_META } from '../constants'
 import { fmtDate } from '../utils'
+import Button from '@/components/ui/Button'
 
 export function NotificationGroup({
   tier, list, dismissing, onDismiss,
@@ -47,10 +48,15 @@ export function NotificationGroup({
               </div>
 
               <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
-                <Link href={`/${lang}/contracts`} className="btn btn-secondary btn-sm">{t('view')}</Link>
-                <button className="btn btn-ghost btn-sm" onClick={() => onDismiss(n)} disabled={dismissing === key}>
+                <Link
+                  href={`/${lang}/contracts`}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-sm border border-gray-200 bg-surface-card py-[6px] px-3 text-[0.8125rem] font-semibold text-gray-700 whitespace-nowrap tracking-[-0.01em] shadow-xs transition-colors duration-150 hover:bg-gray-50 hover:border-gray-300"
+                >
+                  {t('view')}
+                </Link>
+                <Button variant="ghost" size="sm" onClick={() => onDismiss(n)} disabled={dismissing === key}>
                   {dismissing === key ? <Spinner size={18} /> : t('dismiss')}
-                </button>
+                </Button>
               </div>
             </div>
           )

@@ -5,6 +5,7 @@ import { useTranslation } from '@/i18n'
 import { useAdminsPage } from './useAdminsPage'
 import { AdminList } from './components/AdminList'
 import { AdminModal } from './components/AdminModal'
+import Button from '@/components/ui/Button'
 
 export default function AdminsPage() {
   const { t } = useTranslation()
@@ -19,10 +20,10 @@ export default function AdminsPage() {
             {t('adminsSubtitle')}
           </p>
         </div>
-        <button className="btn btn-primary" onClick={s.openAdd} disabled={s.noHotels} title={s.noHotels ? t('addHotelFirst') : undefined}>
+        <Button onClick={s.openAdd} disabled={s.noHotels} title={s.noHotels ? t('addHotelFirst') : undefined}>
           <Plus size={14} strokeWidth={2.5} />
           {t('addAdmin')}
-        </button>
+        </Button>
       </div>
 
       <AdminList s={s} />

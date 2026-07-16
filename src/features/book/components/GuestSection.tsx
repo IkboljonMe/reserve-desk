@@ -6,6 +6,7 @@ import { useIsMobile } from '@/hooks/useIsMobile'
 import { MenuItemsEditor } from '@/components/ui/MenuItemsEditor'
 import { AddClientModal } from './AddClientModal'
 import type { BookingWizard } from '../useBookingWizard'
+import Button from '@/components/ui/Button'
 
 // Guest / room details, shown once the plan (type + category + duration/price) is ready.
 export function GuestSection({ w }: { w: BookingWizard }) {
@@ -45,9 +46,9 @@ export function GuestSection({ w }: { w: BookingWizard }) {
                 <div style={{ fontWeight: 600, color: 'var(--gray-800)', fontSize: '0.875rem' }}>{customerName}</div>
                 {customerPhone && <div style={{ fontSize: '0.75rem', color: 'var(--gray-400)' }}>{customerPhone}</div>}
               </div>
-              <button type="button" className="btn btn-ghost btn-sm" onClick={clearClient} style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+              <Button type="button" variant="ghost" size="sm" onClick={clearClient} style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
                 <X size={14} /> {t('changeGuest')}
-              </button>
+              </Button>
             </div>
           ) : (
             <>
@@ -96,9 +97,9 @@ export function GuestSection({ w }: { w: BookingWizard }) {
                   {clientSearch ? t('noClientFoundName', { name: clientSearch.trim() }) : t('noSavedGuests')}
                 </p>
               )}
-              <button type="button" className="btn btn-secondary btn-sm" onClick={openAddClientModal} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: clientResults.length > 0 ? 8 : 0 }}>
+              <Button type="button" variant="secondary" size="sm" onClick={openAddClientModal} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: clientResults.length > 0 ? 8 : 0 }}>
                 <UserPlus size={14} /> {t('addClient')}
-              </button>
+              </Button>
               <AddClientModal w={w} />
             </>
           )}

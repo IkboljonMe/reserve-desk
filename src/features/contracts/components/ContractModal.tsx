@@ -5,6 +5,7 @@ import Dropdown from '@/components/ui/Dropdown'
 import { useTranslation } from '@/i18n'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import Spinner from '@/components/ui/Spinner'
+import Button from '@/components/ui/Button'
 
 export type ContractStatus = 'awaiting' | 'signed' | 'terminated'
 
@@ -123,12 +124,12 @@ export default function ContractModal({
       <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 640 }}>
         <div className="modal-header">
           <h2>{editContract ? t('editContract') : t('addContract')}</h2>
-          <button className="btn btn-ghost btn-icon" onClick={onClose} aria-label={t('close')}>
+          <Button variant="ghost" icon onClick={onClose} aria-label={t('close')}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="18" y1="6" x2="6" y2="18" />
               <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
-          </button>
+          </Button>
         </div>
 
         <form onSubmit={handleFormSubmit}>
@@ -256,11 +257,11 @@ export default function ContractModal({
 
           <div className="h-px bg-surface-border my-4" />
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-            <button type="button" className="btn btn-secondary" onClick={onClose}>{t('cancel')}</button>
-            <button type="submit" className="btn btn-primary" disabled={saving}>
+            <Button type="button" variant="secondary" onClick={onClose}>{t('cancel')}</Button>
+            <Button type="submit" disabled={saving}>
               {saving ? <Spinner size={18} dark={false} /> : null}
               {saving ? t('saving') : editContract ? t('save') : t('addContract')}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

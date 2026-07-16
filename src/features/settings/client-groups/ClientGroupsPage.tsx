@@ -5,6 +5,7 @@ import { useTranslation } from '@/i18n'
 import { useClientGroupsPage } from './useClientGroupsPage'
 import { GroupList } from './components/GroupList'
 import { GroupModal } from './components/GroupModal'
+import Button from '@/components/ui/Button'
 
 export default function ClientGroupsPage() {
   const { t } = useTranslation()
@@ -19,10 +20,10 @@ export default function ClientGroupsPage() {
             {t('clientGroupsSubtitle')}
           </p>
         </div>
-        <button className="btn btn-primary" onClick={s.openAdd}>
+        <Button onClick={s.openAdd}>
           <Plus size={14} strokeWidth={2.5} />
           {t('addGroup')}
-        </button>
+        </Button>
       </div>
 
       <GroupList s={s} />

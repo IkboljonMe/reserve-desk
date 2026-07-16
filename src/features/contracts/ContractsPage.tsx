@@ -6,6 +6,7 @@ import { useContractsPage } from './useContractsPage'
 import { ContractStats } from './components/ContractStats'
 import { ContractsFilters } from './components/ContractsFilters'
 import { ContractsTable } from './components/ContractsTable'
+import Button from '@/components/ui/Button'
 
 export default function ContractsPage() {
   const { t } = useTranslation()
@@ -18,10 +19,10 @@ export default function ContractsPage() {
           <h1>{t('contracts')}</h1>
           <p style={{ marginTop: 4 }}>{t('contractsSubtitle')}</p>
         </div>
-        <button className="btn btn-primary" onClick={s.openAdd}>
+        <Button onClick={s.openAdd}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14"/></svg>
           {t('addContract')}
-        </button>
+        </Button>
       </div>
 
       <ContractStats stats={s.stats} />

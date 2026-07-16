@@ -5,6 +5,7 @@ import { useTranslation } from '@/i18n'
 import { useCompaniesPage } from './useCompaniesPage'
 import { CompanyList } from './components/CompanyList'
 import { CompanyModal } from './components/CompanyModal'
+import Button from '@/components/ui/Button'
 
 export default function CompaniesPage() {
   const { t } = useTranslation()
@@ -19,10 +20,10 @@ export default function CompaniesPage() {
             {t('companiesSubtitle')}
           </p>
         </div>
-        <button className="btn btn-primary" onClick={s.openAdd}>
+        <Button onClick={s.openAdd}>
           <Plus size={14} strokeWidth={2.5} />
           {t('addCompany')}
-        </button>
+        </Button>
       </div>
 
       <CompanyList s={s} />

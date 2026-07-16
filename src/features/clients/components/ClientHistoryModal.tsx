@@ -7,6 +7,7 @@ import { bookingState, amountCollected, money } from '@/lib/bookingHelpers'
 import { Badge } from '@/components/ui/Badge'
 import type { Booking } from '@/types'
 import type { ClientsPageState } from '../useClientsPage'
+import Button from '@/components/ui/Button'
 
 // A saved client's booking history: quick totals + a chronological list. Fetches
 // on open via the bookings API's clientId filter. Mounted with key={client._id}.
@@ -48,7 +49,7 @@ export function ClientHistoryModal({ s }: { s: ClientsPageState }) {
       <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 560 }}>
         <div className="modal-header">
           <h2>{t('bookingHistory')} · {client.name}</h2>
-          <button className="btn btn-ghost btn-icon" onClick={close} aria-label={t('close')}><X size={18} /></button>
+          <Button variant="ghost" icon onClick={close} aria-label={t('close')}><X size={18} /></Button>
         </div>
 
         {/* Summary tiles */}
@@ -96,7 +97,7 @@ export function ClientHistoryModal({ s }: { s: ClientsPageState }) {
 
         <div className="h-px bg-surface-border my-4" />
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <button className="btn btn-secondary btn-sm" onClick={close}>{t('close')}</button>
+          <Button variant="secondary" size="sm" onClick={close}>{t('close')}</Button>
         </div>
       </div>
     </div>

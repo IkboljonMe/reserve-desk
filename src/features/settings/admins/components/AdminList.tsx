@@ -6,6 +6,7 @@ import { SkeletonTableRows } from '@/components/ui/Skeleton'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Badge } from '@/components/ui/Badge'
 import type { AdminsPageState } from '../useAdminsPage'
+import Button from '@/components/ui/Button'
 
 export function AdminList({ s }: { s: AdminsPageState }) {
   const { t } = useTranslation()
@@ -22,7 +23,7 @@ export function AdminList({ s }: { s: AdminsPageState }) {
           <h3 className="text-gray-700">{t('noAdminsTitle')}</h3>
           <p>{noHotels ? t('addHotelFirst') : t('noAdminsDesc')}</p>
           {!noHotels && (
-            <button className="btn btn-primary" style={{ marginTop: 8 }} onClick={openAdd}>{t('addFirstAdmin')}</button>
+            <Button style={{ marginTop: 8 }} onClick={openAdd}>{t('addFirstAdmin')}</Button>
           )}
         </EmptyState>
       ) : (
@@ -44,18 +45,18 @@ export function AdminList({ s }: { s: AdminsPageState }) {
                 {a.hotelId ? `${a.hotelId.name} (${a.hotelId.shortName})` : t('noHotelAssigned')}
               </Badge>
               <div style={{ display: 'flex', gap: 6 }}>
-                <button className="btn btn-ghost btn-sm btn-icon" onClick={() => openEdit(a)} title={t('edit')} aria-label={t('editAdminAria')}>
+                <Button variant="ghost" icon onClick={() => openEdit(a)} title={t('edit')} aria-label={t('editAdminAria')}>
                   <Pencil size={14} />
-                </button>
+                </Button>
                 {deleteConfirm === a._id ? (
                   <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-                    <button className="btn btn-danger btn-sm" onClick={() => handleDelete(a._id)}>{t('delete')}</button>
-                    <button className="btn btn-ghost btn-sm" onClick={() => setDeleteConfirm(null)}>{t('cancel')}</button>
+                    <Button variant="danger" size="sm" onClick={() => handleDelete(a._id)}>{t('delete')}</Button>
+                    <Button variant="ghost" size="sm" onClick={() => setDeleteConfirm(null)}>{t('cancel')}</Button>
                   </div>
                 ) : (
-                  <button className="btn btn-ghost btn-sm btn-icon" onClick={() => setDeleteConfirm(a._id)} title={t('delete')} aria-label={t('deleteAdminAria')}>
+                  <Button variant="ghost" icon onClick={() => setDeleteConfirm(a._id)} title={t('delete')} aria-label={t('deleteAdminAria')}>
                     <Trash2 size={14} color="var(--danger)" />
-                  </button>
+                  </Button>
                 )}
               </div>
             </div>

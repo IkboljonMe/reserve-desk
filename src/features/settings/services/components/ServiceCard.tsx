@@ -7,6 +7,7 @@ import { useTranslation } from '@/i18n'
 import { ServiceIcon } from '@/lib/serviceIcons'
 import { Badge } from '@/components/ui/Badge'
 import type { Service, PricingGroup } from '../types'
+import Button from '@/components/ui/Button'
 
 export function ServiceCard({
   svc,
@@ -212,40 +213,40 @@ export function ServiceCard({
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 2 }}>
           {deleteConfirm ? (
             <>
-              <button
-                className="btn btn-danger btn-sm btn-icon"
+              <Button
+                variant="danger" icon
                 onClick={onDeleteConfirm}
                 aria-label={t('confirmDelete')}
               >
                 <Check size={13} />
-              </button>
-              <button
-                className="btn btn-ghost btn-sm btn-icon"
+              </Button>
+              <Button
+                variant="ghost" icon
                 onClick={onDeleteCancel}
                 aria-label={t('cancelDelete')}
               >
                 <X size={13} />
-              </button>
+              </Button>
             </>
           ) : (
             <>
-              <button
-                className="btn btn-ghost btn-sm btn-icon"
+              <Button
+                variant="ghost" icon
                 onClick={onEdit}
                 title={t('edit')}
                 aria-label={t('editNamed', { name: svc.name })}
               >
                 <Pencil size={14} />
-              </button>
-              <button
-                className="btn btn-ghost btn-sm btn-icon"
+              </Button>
+              <Button
+                variant="ghost" icon
                 onClick={onDeleteRequest}
                 title={t('delete')}
                 aria-label={t('deleteNamed', { name: svc.name })}
                 style={{ color: 'var(--danger)' }}
               >
                 <Trash2 size={14} />
-              </button>
+              </Button>
             </>
           )}
         </div>

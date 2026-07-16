@@ -4,6 +4,7 @@ import { X } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import Spinner from '@/components/ui/Spinner'
 import type { HotelsRoomsPageState } from '../useHotelsRoomsPage'
+import Button from '@/components/ui/Button'
 
 export function HotelModal({ s }: { s: HotelsRoomsPageState }) {
   const { t } = useTranslation()
@@ -19,9 +20,9 @@ export function HotelModal({ s }: { s: HotelsRoomsPageState }) {
       <div className="modal" style={{ maxWidth: 440 }} onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <h2>{editHotelId ? t('editHotel') : t('addHotel')}</h2>
-          <button className="btn btn-ghost btn-icon" onClick={() => setHotelOpen(false)} aria-label={t('close')}>
+          <Button variant="ghost" icon onClick={() => setHotelOpen(false)} aria-label={t('close')}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </button>
+          </Button>
         </div>
         <form onSubmit={handleSubmitHotel}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.125rem' }}>
@@ -129,11 +130,11 @@ export function HotelModal({ s }: { s: HotelsRoomsPageState }) {
           </div>
           <div className="h-px bg-surface-border my-4" />
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-            <button type="button" className="btn btn-secondary" onClick={() => setHotelOpen(false)}>{t('cancel')}</button>
-            <button type="submit" className="btn btn-primary" disabled={savingHotel || !!shortNameError || !!slugError}>
+            <Button type="button" variant="secondary" onClick={() => setHotelOpen(false)}>{t('cancel')}</Button>
+            <Button type="submit" disabled={savingHotel || !!shortNameError || !!slugError}>
               {savingHotel ? <Spinner size={18} dark={false} /> : null}
               {savingHotel ? (editHotelId ? t('saving') : t('adding')) : (editHotelId ? t('save') : t('addHotel'))}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

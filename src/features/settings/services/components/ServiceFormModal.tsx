@@ -11,6 +11,7 @@ import { PRESET_COLORS, bufferError, selectAllOnFocus } from '../utils'
 import { PricingEditor } from './PricingEditor'
 import { ScheduleEditor } from './ScheduleEditor'
 import type { ServicesPageState } from '../useServicesPage'
+import Button from '@/components/ui/Button'
 
 export function ServiceFormModal({ s }: { s: ServicesPageState }) {
   const { t } = useTranslation()
@@ -37,9 +38,9 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
             </span>
             <h2 style={{ margin: 0 }}>{editService ? t('editColon', { name: editService.name }) : t('addService')}</h2>
           </div>
-          <button className="btn btn-ghost btn-icon" onClick={closeForm} aria-label={t('close')}>
+          <Button variant="ghost" icon onClick={closeForm} aria-label={t('close')}>
             <X size={18} />
-          </button>
+          </Button>
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -210,9 +211,9 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
                   onFlatPrice={n => setForm(f => ({ ...f, price: n }))}
                 />
                 <div>
-                  <button type="button" className="btn btn-secondary btn-sm" onClick={addVariant}>
+                  <Button type="button" variant="secondary" size="sm" onClick={addVariant}>
                     <Layers size={14} /> {t('addVariant')}
-                  </button>
+                  </Button>
                   <small style={{ color: 'var(--gray-400)', fontSize: '0.7rem', display: 'block', marginTop: 6 }}>
                     {t('variantsHint')}
                   </small>
@@ -242,14 +243,14 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
                           required
                         />
                       </div>
-                      <button
-                        type="button" className="btn btn-ghost btn-icon"
+                      <Button
+                        type="button" variant="ghost" icon
                         style={{ color: 'var(--danger)' }}
                         onClick={() => removeVariant(v.id)}
                         aria-label={t('removeVariant', { name: v.name || '' })}
                       >
                         <Trash2 size={16} />
-                      </button>
+                      </Button>
                     </div>
                     <PricingEditor
                       plans={v.pricingPlans}
@@ -264,9 +265,9 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
                   </div>
                 ))}
 
-                <button type="button" className="btn btn-secondary btn-sm" style={{ alignSelf: 'flex-start' }} onClick={addVariant}>
+                <Button type="button" variant="secondary" size="sm" style={{ alignSelf: 'flex-start' }} onClick={addVariant}>
                   <Plus size={14} /> {t('addVariant')}
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -274,16 +275,16 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
           <div className="h-px bg-surface-border my-4" />
           <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'space-between', alignItems: 'center' }}>
             {!editService ? (
-              <button type="button" className="btn btn-ghost btn-sm" onClick={discardDraft} style={{ color: 'var(--gray-400)' }}>
+              <Button type="button" variant="ghost" size="sm" onClick={discardDraft} style={{ color: 'var(--gray-400)' }}>
                 {t('discardDraft')}
-              </button>
+              </Button>
             ) : <span />}
             <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <button type="button" className="btn btn-secondary" onClick={closeForm}>{t('cancel')}</button>
-              <button id="save-service-btn" type="submit" className="btn btn-primary" disabled={saving}>
+              <Button type="button" variant="secondary" onClick={closeForm}>{t('cancel')}</Button>
+              <Button id="save-service-btn" type="submit" disabled={saving}>
                 {saving ? <Spinner size={18} dark={false} /> : null}
                 {saving ? t('saving') : (editService ? t('save') : t('save'))}
-              </button>
+              </Button>
             </div>
           </div>
         </form>

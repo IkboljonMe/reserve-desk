@@ -3,6 +3,7 @@
 import { Search, Filter, X } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import type { ServicesPageState } from '../useServicesPage'
+import Button from '@/components/ui/Button'
 
 export function ServicesFilterBar({ s }: { s: ServicesPageState }) {
   const { t } = useTranslation()
@@ -69,13 +70,13 @@ export function ServicesFilterBar({ s }: { s: ServicesPageState }) {
 
       {/* Clear filters */}
       {hasActiveFilters && (
-        <button
-          className="btn btn-ghost btn-sm"
+        <Button
+          variant="ghost" size="sm"
           onClick={() => { setSearchQuery(''); setFilterHotel(''); setFilterStatus('') }}
           style={{ marginLeft: 'auto', color: 'var(--gray-400)', fontSize: '0.75rem' }}
         >
           <X size={13} /> {t('clear')}
-        </button>
+        </Button>
       )}
     </div>
   )
