@@ -49,7 +49,7 @@ export function HeroClient({ badge, title1, title2, subtitle, ctaLabel, pricingL
       </div>
 
       {/* Swiper Banner - w-full */}
-      <div className="w-full px-4 sm:px-6 md:px-8 max-w-7xl mx-auto">
+      <div className="w-full px-5 lg:px-10">
         <div className="relative rounded-2xl md:rounded-3xl overflow-hidden shadow-xl border border-slate-200/60 bg-white">
           <Swiper
             modules={[Autoplay, Pagination, Navigation]}
