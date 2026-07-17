@@ -2,9 +2,14 @@
 
 import React, { useState } from 'react'
 import { usePathname } from 'next/navigation'
+import { format } from 'date-fns'
+import { Plus } from 'lucide-react'
 import Sidebar from './Sidebar'
+import Button from '@/components/ui/Button'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import { useTranslation } from '@/i18n'
+import { useBookingModal } from '@/components/BookingModalProvider'
+import { nowUZ } from '@/lib/timezone'
 import type { SessionRole } from '@/lib/session'
 
 interface Props {
@@ -23,6 +28,7 @@ export default function DashboardContainer({ children, userName, userEmail, role
   const isMobile = useIsMobile()
   const pathname = usePathname()
   const { t } = useTranslation()
+  const { openBookingModal } = useBookingModal()
 
   // Close the off-canvas nav whenever the route changes (adjusted during
   // render, not an effect, to avoid an extra post-navigation frame).
@@ -73,6 +79,21 @@ export default function DashboardContainer({ children, userName, userEmail, role
               </svg>
             </button>
             <div className="font-extrabold text-[1rem] text-[var(--gray-800)] tracking-tight">Bronit</div>
+
+            {/* New booking lives in the mobile top bar so the dashboard body
+                stays uncluttered on small screens. Hidden when the plan is
+                read-only (expired). */}
+            {!readOnly && (
+              <Button
+                variant="primary"
+                size="sm"
+                className="ml-auto shrink-0"
+                leftIcon={<Plus size={14} strokeWidth={2.5} />}
+                onClick={() => openBookingModal({ date: format(nowUZ(), 'yyyy-MM-dd') })}
+              >
+                {t('newBooking')}
+              </Button>
+            )}
           </div>
 
           {readOnly && (

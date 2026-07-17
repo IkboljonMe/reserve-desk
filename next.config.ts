@@ -6,7 +6,15 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: __dirname,
   },
-  allowedDevOrigins: ['bronit.test', 'app.bronit.test', 'admin.bronit.test', 'demo.bronit.test', 'hilton.bronit.test', 'super.bronit.test'],
+  allowedDevOrigins: [
+    "bronit.test",
+    "app.bronit.test",
+    "admin.bronit.test",
+    "demo.bronit.test",
+    "hilton.bronit.test",
+    "super.bronit.test",
+    "192.168.0.41",
+  ],
 };
 
 export default nextConfig;

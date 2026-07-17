@@ -1,20 +1,28 @@
 'use client'
 
+import { useState } from 'react'
 import { format } from 'date-fns'
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon, SlidersHorizontal } from 'lucide-react'
 import Dropdown from '@/components/ui/Dropdown'
 import Button from '@/components/ui/Button'
+import Calendar from '@/components/ui/Calendar'
+import Modal from '@/components/ui/Modal'
 import { useTranslation } from '@/i18n'
+import { dateLocale } from '@/lib/dateLocale'
 import { useIsMobile } from '@/hooks/useIsMobile'
-import type { ViewMode, Density, StatusFilter } from '../constants'
+import { CalendarFilterModal } from './CalendarFilterModal'
+import type { ViewMode, Density } from '../constants'
 import type { CalendarPageState } from '../useCalendarPage'
 
 export function CalendarToolbar({ s }: { s: CalendarPageState }) {
-  const { t } = useTranslation()
+  const { t, lang } = useTranslation()
+  const locale = dateLocale(lang)
   const isMobile = useIsMobile()
+  const [filterOpen, setFilterOpen] = useState(false)
+  const [dateOpen, setDateOpen] = useState(false)
   const {
     navigate, setCurrentDate, headerLabel, view, setView, density, setDensity,
-    goToCreate, currentDate, statusFilter, setStatusFilter,
+    goToCreate, currentDate,
   } = s
 
   const navGroup = (
@@ -51,20 +59,6 @@ export function CalendarToolbar({ s }: { s: CalendarPageState }) {
     />
   )
 
-  const statusDropdown = (
-    <Dropdown
-      label={t('status')}
-      value={statusFilter}
-      onChange={val => setStatusFilter(val as StatusFilter)}
-      options={[
-        { value: 'all', label: t('allStatuses') },
-        { value: 'unpaid', label: t('unpaid') },
-        { value: 'paid', label: t('paid') },
-        { value: 'finished', label: t('finished') },
-      ]}
-    />
-  )
-
   const newBookingBtn = (
     <Button
       variant="primary" size="md" leftIcon={<Plus size={14} strokeWidth={2.5} />}
@@ -78,16 +72,44 @@ export function CalendarToolbar({ s }: { s: CalendarPageState }) {
   if (isMobile) {
     return (
       <div className="flex flex-col gap-2.5 mb-3.5">
+        {/* Dates */}
         <span className="font-bold text-[var(--gray-800)] text-[1.0625rem] tracking-tight text-center">
           {headerLabel}
         </span>
-        {navGroup}
-        <div className="flex gap-2">
-          <div className="flex-1 min-w-0">{viewDropdown}</div>
-          {densityDropdown && <div className="flex-1 min-w-0">{densityDropdown}</div>}
-          <div className="flex-1 min-w-0">{statusDropdown}</div>
+        {/* Date nav (prev · today · next · pick-a-date) and Filters in one row */}
+        <div className="flex items-center justify-center gap-3">
+          <div className="flex items-center gap-1.5">
+            <button className="cal-icon-btn" onClick={() => navigate(-1)} aria-label={t('previous')}><ChevronLeft size={16} /></button>
+            <button className="cal-pill min-w-[52px] justify-center" onClick={() => setCurrentDate(new Date())}>{t('today')}</button>
+            <button className="cal-icon-btn" onClick={() => navigate(1)} aria-label={t('next')}><ChevronRight size={16} /></button>
+            <button className="cal-icon-btn" onClick={() => setDateOpen(true)} aria-label={t('selectDate')}><CalendarIcon size={16} /></button>
+          </div>
+          <Button
+            variant="secondary"
+            size="md"
+            leftIcon={<SlidersHorizontal size={15} />}
+            onClick={() => setFilterOpen(true)}
+          >
+            {t('filters')}
+          </Button>
         </div>
-        {newBookingBtn}
+
+        <CalendarFilterModal s={s} open={filterOpen} onClose={() => setFilterOpen(false)} />
+        <Modal
+          open={dateOpen}
+          onClose={() => setDateOpen(false)}
+          title={t('selectDate')}
+          size="sm"
+          closeLabel={t('close')}
+          bodyClassName="p-4 flex items-start justify-center"
+        >
+          <Calendar
+            mode="single"
+            locale={locale}
+            value={currentDate}
+            onChange={d => { setCurrentDate(d); setDateOpen(false) }}
+          />
+        </Modal>
       </div>
     )
   }
