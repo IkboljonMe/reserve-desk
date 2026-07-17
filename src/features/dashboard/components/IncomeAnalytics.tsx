@@ -33,12 +33,14 @@ export default function IncomeAnalytics({ analytics, loading, perService }: Inco
   const count = useCountUp(analytics.count)
 
   return (
-    // Two-column grid: chart left, per-service breakdown right.
-    // Collapses to single column below 860px via responsive modifier.
-    <div className="grid gap-6 max-[860px]:grid-cols-1" style={{ gridTemplateColumns: 'minmax(0,1fr) 260px' }}>
+    // Single column on mobile (KPIs + chart, then per-service bars on the next
+    // line); two columns — chart left, per-service breakdown right — from 861px.
+    // NB: keep this as classes, not an inline gridTemplateColumns style, or the
+    // inline value overrides the responsive collapse and squeezes mobile.
+    <div className="grid gap-6 grid-cols-1 min-[861px]:grid-cols-[minmax(0,1fr)_260px]">
       <div className="min-w-0">
-        {/* KPI strip */}
-        <div className="flex gap-[22px] flex-wrap mb-[1.1rem]">
+        {/* KPI strip — 2×2 grid on mobile, inline row on larger screens */}
+        <div className="grid grid-cols-2 gap-x-4 gap-y-3 sm:flex sm:gap-[22px] sm:flex-wrap mb-[1.1rem]">
           <DashboardKpi label={t('totalIncome')} value={`${money(total)}`} unit={t('sum')} color="var(--gray-900)" />
           <DashboardKpi label={t('collected')} value={`${money(collected)}`} unit={t('sum')} color={INK_COLLECTED} dot={FILL_COLLECTED} />
           <DashboardKpi label={t('outstanding')} value={`${money(due)}`} unit={t('sum')} color="#b45309" dot="#f59e0b" />

@@ -29,6 +29,7 @@
   "required": "Required",
   "na": "N/A",
   "today": "Today",
+  "selectDate": "Select date",
   "from": "From",
   "to": "To",
   "total": "Total",

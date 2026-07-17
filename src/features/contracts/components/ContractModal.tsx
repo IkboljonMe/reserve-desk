@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import Dropdown from '@/components/ui/Dropdown'
+import Modal from '@/components/ui/Modal'
 import { useTranslation } from '@/i18n'
 
 import Spinner from '@/components/ui/Spinner'
@@ -118,23 +119,25 @@ export default function ContractModal({
     onSave(form)
   }
 
-  if (!isOpen) return null
-
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal max-w-[640px]" onClick={e => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2>{editContract ? t('editContract') : t('addContract')}</h2>
-          <Button variant="ghost" icon onClick={onClose} aria-label={t('close')}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
+    <Modal
+      open={isOpen}
+      onClose={onClose}
+      title={editContract ? t('editContract') : t('addContract')}
+      size="lg"
+      closeLabel={t('close')}
+      footer={
+        <div className="flex justify-end gap-2">
+          <Button type="button" variant="secondary" onClick={onClose}>{t('cancel')}</Button>
+          <Button type="submit" form="contract-form" disabled={saving}>
+            {saving ? <Spinner size={18} dark={false} /> : null}
+            {saving ? t('saving') : editContract ? t('save') : t('addContract')}
           </Button>
         </div>
-
-        <form onSubmit={handleFormSubmit}>
-          <div className="flex flex-col gap-3.5 max-h-[62vh] overflow-y-auto pr-1">
+      }
+    >
+      <form id="contract-form" onSubmit={handleFormSubmit}>
+        <div className="flex flex-col gap-3.5">
             {multiHotel && (
               <div className="flex flex-col gap-1.5">
                 <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('hotel')} *</label>
@@ -244,17 +247,7 @@ export default function ContractModal({
               <textarea className="w-full px-3 py-2 min-h-[64px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] resize-y" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} placeholder={t('notesContractPlaceholder')} />
             </div>
           </div>
-
-          <div className="h-px bg-surface-border my-4" />
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="secondary" onClick={onClose}>{t('cancel')}</Button>
-            <Button type="submit" disabled={saving}>
-              {saving ? <Spinner size={18} dark={false} /> : null}
-              {saving ? t('saving') : editContract ? t('save') : t('addContract')}
-            </Button>
-          </div>
-        </form>
-      </div>
-    </div>
+      </form>
+    </Modal>
   )
 }

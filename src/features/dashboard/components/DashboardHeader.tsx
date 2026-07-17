@@ -47,13 +47,13 @@ export function DashboardHeader({ s }: { s: DashboardPageState }) {
   ] as [PeriodKey, string][]).map(([value, label]) => ({ value, label }))
 
   return (
-    <div className="flex items-center justify-between flex-wrap gap-4">
-      <div>
+    <div className="flex items-start justify-between gap-3">
+      <div className="min-w-0">
         <h1>{t('dashboard')}</h1>
         <p className="mt-1">{format(nowUZ(), 'EEEE, MMMM d, yyyy', { locale })}</p>
       </div>
-      <div className="flex gap-2 items-center flex-wrap">
-        <div className="w-[140px]">
+      <div className="flex gap-2 items-center flex-wrap justify-end shrink-0">
+        <div className="w-[120px] sm:w-[140px]">
           <Dropdown
             value={period}
             onChange={v => {
@@ -91,9 +91,12 @@ export function DashboardHeader({ s }: { s: DashboardPageState }) {
             )}
           </div>
         )}
-        <Button variant="primary" size="md" leftIcon={<Plus size={14} strokeWidth={2.5} />} onClick={() => openBookingModal({ date: format(nowUZ(), 'yyyy-MM-dd') })}>
-          {t('newBooking')}
-        </Button>
+        {/* Hidden on mobile — the mobile top navbar carries New booking there. */}
+        <div className="hidden md:block">
+          <Button variant="primary" size="md" leftIcon={<Plus size={14} strokeWidth={2.5} />} onClick={() => openBookingModal({ date: format(nowUZ(), 'yyyy-MM-dd') })}>
+            {t('newBooking')}
+          </Button>
+        </div>
       </div>
     </div>
   )
