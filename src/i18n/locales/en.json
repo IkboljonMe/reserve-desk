@@ -69,6 +69,7 @@
   "noCategoriesDesc": "Create your first category to start building the menu.",
   "noProductsYet": "No products in this category yet.",
   "menuLoadFailed": "Failed to load the menu.",
+  "menuEmpty": "No menu available yet.",
   "saved": "Saved",
   "deleted": "Deleted",
   "hotelAdmin": "Hotel Admin",

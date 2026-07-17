@@ -52,7 +52,7 @@ confusion with Bronit's existing `Service` (bookable services), `Room`, `Booking
 - [x] **Phase 0 — Scope & scaffolding.** This doc + module scaffold; naming/conventions fixed; baseline green.
 - [x] **Phase 1 — Data model.** Mongoose models: `MenuCategory`, `MenuProduct`, `MenuRecommendation`, `GuestService`, `HotelMenuSettings` (incl. globally-unique guest `subdomain`) + shared `LocalizedText`. Verified with `scripts/menu-models-check.ts` (DB-free) and `tsc`.
 - [x] **Phase 2 — Menu management (dashboard).** "Menu" nav item (owner/admin) + `/menu` routes; session-scoped API (`/api/menu/categories`, `/api/menu/products` + `[id]`); CRUD categories & products with en/ru/uz (`LocalizedInput`) + price + image + availability, reusing the `Modal`. Owner hotel picker. i18n in en/ru/uz. `tsc` + eslint clean. _Not yet run against a live DB._
-- [ ] **Phase 3 — Guest menu (read-only).** Public in-room page (subdomain + room number), language switch, browse. Tailwind 4.
+- [x] **Phase 3 — Guest menu (read-only).** Proxy routes company-slug subdomains → public `/[locale]/menu` (preserving `?hotel=&room=`); server-rendered guest page resolves company (Host) → hotel (`?hotel`) → menu, with EN/RU/UZ switch and `localized()` fallback. `tsc` + eslint clean. _Not yet run against a live DB/subdomain._
 - [ ] **Phase 4 — Ordering + orders dashboard.** MenuOrder/MenuOrderItem, guest cart + place order, staff Orders page with status flow (React-Query polling first).
 - [ ] **Phase 5 — Telegram for orders.** New "Menu orders" forum topic per hotel; push new-order + status-update messages.
 - [ ] **Phase 6 — Extras.** Room QR + PDF, recommendations of the day, guest service requests, currency FX, AI auto-translate, SSE stream. (Each independent.)
