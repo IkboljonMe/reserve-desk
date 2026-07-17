@@ -1,72 +1,75 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
+import { useState } from "react";
 
-import { useTranslation } from '@/i18n'
-import Spinner from '@/components/ui/Spinner'
-import Button from '@/components/ui/Button'
+import { useTranslation } from "@/i18n";
+import Spinner from "@/components/ui/Spinner";
+import Button from "@/components/ui/Button";
 
 export default function LoginFormClient() {
-
-  const { t, lang } = useTranslation()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  const { t, lang } = useTranslation();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
+    e.preventDefault();
+    setError("");
+    setLoading(true);
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
-      })
-      const data = await res.json()
+      });
+      const data = await res.json();
       if (!res.ok) {
-        setError(data.error || t('loginFailed'))
+        setError(data.error || t("loginFailed"));
       } else {
-        if (data.role === 'superadmin') {
-           window.location.href = `/${lang}/dashboard`
-        } else if (data.role === 'owner') {
-           window.location.href = `/${lang}/dashboard`
+        if (data.role === "superadmin") {
+          window.location.href = `/${lang}/dashboard`;
+        } else if (data.role === "owner") {
+          window.location.href = `/${lang}/dashboard`;
         } else {
-           window.location.href = `/${lang}/calendar`
+          window.location.href = `/${lang}/calendar`;
         }
       }
     } catch {
-      setError(t('networkError'))
+      setError(t("networkError"));
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
-        <label className="text-[0.8125rem] font-semibold text-white/70 tracking-tight">{t('emailAddress')}</label>
+        <label className="text-[0.8125rem] font-semibold text-white/70 tracking-tight">
+          {t("emailAddress")}
+        </label>
         <input
           id="email"
           type="email"
-          className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white/7 border-1.5 border-white/12 text-white placeholder-white/30 focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+          className="w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white/7 border-1.5 border-white/12 text-white placeholder-white/30 focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
           placeholder="example@bronit.uz"
           value={email}
-          onChange={e => setEmail(e.target.value)}
+          onChange={(e) => setEmail(e.target.value)}
           required
         />
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label className="text-[0.8125rem] font-semibold text-white/70 tracking-tight">{t('password')}</label>
+        <label className="text-[0.8125rem] font-semibold text-white/70 tracking-tight">
+          {t("password")}
+        </label>
         <input
           id="password"
           type="password"
-          className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white/7 border-1.5 border-white/12 text-white placeholder-white/30 focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+          className="w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white/7 border-1.5 border-white/12 text-white placeholder-white/30 focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
           placeholder="••••••••"
           value={password}
-          onChange={e => setPassword(e.target.value)}
+          onChange={(e) => setPassword(e.target.value)}
           required
         />
       </div>
@@ -85,8 +88,8 @@ export default function LoginFormClient() {
         className="mt-1 w-full"
       >
         {loading ? <Spinner size={18} dark={false} /> : null}
-        {loading ? t('signingIn') : t('signIn')}
+        {loading ? t("signingIn") : t("signIn")}
       </Button>
     </form>
-  )
+  );
 }
