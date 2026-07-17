@@ -14,7 +14,7 @@ export function ContractsTable({ s }: { s: ContractsPageState }) {
   const { contracts, visible, loading, multiHotel, hotelLabel, openAdd, openEdit, deleteConfirm, setDeleteConfirm, handleDelete } = s
 
   return (
-    <div className="bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-[var(--radius-lg)] shadow-sm p-0 overflow-hidden">
+    <div className="bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-[var(--radius-lg)] shadow-sm p-0 overflow-hidden max-[768px]:-mx-[1.1rem] max-[768px]:rounded-none max-[768px]:border-x-0">
       {loading ? (
         <table className="w-full border-collapse text-sm">
           <tbody><SkeletonTableRows rows={6} columns={multiHotel ? 8 : 7} /></tbody>

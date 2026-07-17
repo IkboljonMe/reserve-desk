@@ -15,7 +15,7 @@ export function StatCard({ label, value, tint, tintBg, icon }: { label: string; 
       >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{paths[icon]}</svg>
       </div>
-      <div>
+      <div className="min-w-0">
         <div className="text-2xl font-extrabold text-[var(--gray-900)] leading-none">{value}</div>
         <div className="text-[0.75rem] text-[var(--gray-500)] mt-1 font-medium">{label}</div>
       </div>
