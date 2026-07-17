@@ -13,6 +13,17 @@ export function sanitizeI18n(input: unknown): LocalizedText {
   }
 }
 
+// Service fee for an order subtotal, given the hotel's fee config. Integer UZS.
+export function computeServiceFee(
+  subtotal: number,
+  feeType: 'none' | 'percent' | 'fixed',
+  feeValue: number,
+): number {
+  if (feeType === 'percent') return Math.round((subtotal * feeValue) / 100)
+  if (feeType === 'fixed') return Math.max(0, Math.round(feeValue))
+  return 0
+}
+
 // Resolve a translated field for display: the requested language, falling back
 // to the record's source-language `name`/`description`, then any non-empty
 // translation. Keeps guest pages readable even with partial translations.

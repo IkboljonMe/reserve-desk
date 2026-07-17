@@ -1,4 +1,4 @@
-import type { MenuCategory, MenuProduct } from '@/features/menu/types'
+import type { MenuCategory, MenuProduct, MenuOrder, OrderStatus } from '@/features/menu/types'
 
 async function json<T>(res: Response): Promise<T> {
   if (!res.ok) {
@@ -56,4 +56,21 @@ export function updateProduct(id: string, data: Partial<MenuProduct>): Promise<M
 
 export function deleteProduct(id: string): Promise<{ ok: true }> {
   return fetch(`/api/menu/products/${id}`, { method: 'DELETE' }).then(r => json<{ ok: true }>(r))
+}
+
+// ── Orders (staff) ──
+export function getOrders(params: { hotelId?: string; status?: string } = {}): Promise<MenuOrder[]> {
+  const qs = new URLSearchParams()
+  if (params.hotelId) qs.set('hotelId', params.hotelId)
+  if (params.status) qs.set('status', params.status)
+  const suffix = qs.toString() ? `?${qs}` : ''
+  return fetch(`/api/menu/orders${suffix}`).then(r => json<MenuOrder[]>(r))
+}
+
+export function updateOrderStatus(id: string, status: OrderStatus): Promise<MenuOrder> {
+  return fetch(`/api/menu/orders/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status }),
+  }).then(r => json<MenuOrder>(r))
 }

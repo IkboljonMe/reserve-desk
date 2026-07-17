@@ -34,3 +34,26 @@ export interface MenuHotel {
   shortName: string
   slug?: string
 }
+
+export type OrderStatus = 'pending' | 'preparing' | 'ready' | 'delivered' | 'cancelled'
+
+export interface MenuOrderItem {
+  productId: string
+  name: string
+  price: number
+  quantity: number
+}
+
+export interface MenuOrder {
+  _id: string
+  hotelId: string
+  roomNumber: string
+  guestName: string
+  note: string
+  status: OrderStatus
+  items: MenuOrderItem[]
+  subtotal: number
+  serviceFee: number
+  total: number
+  createdAt: string
+}
