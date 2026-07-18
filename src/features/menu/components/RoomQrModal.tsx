@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { usePathname } from 'next/navigation'
+import { useQuery } from '@tanstack/react-query'
 import { QRCodeSVG } from 'qrcode.react'
 import QRCode from 'qrcode'
 import jsPDF from 'jspdf'
@@ -36,20 +37,18 @@ export function RoomQrModal({
 }) {
   const { t, lang } = useTranslation()
   const pathname = usePathname()
-  const [rooms, setRooms] = useState<RoomLite[]>([])
-  const [loading, setLoading] = useState(true)
   const [generating, setGenerating] = useState(false)
 
-  useEffect(() => {
-    if (!open) return
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- data load
-    setLoading(true)
-    fetch('/api/rooms')
-      .then(r => r.json())
-      .then((all: RoomLite[]) => setRooms(Array.isArray(all) ? all.filter(r => r.hotelId === hotelId) : []))
-      .catch(() => setRooms([]))
-      .finally(() => setLoading(false))
-  }, [open, hotelId])
+  const roomsQuery = useQuery<RoomLite[]>({
+    queryKey: ['rooms'],
+    queryFn: () => fetch('/api/rooms').then(r => r.json()),
+    enabled: open,
+  })
+  const rooms = useMemo(
+    () => (roomsQuery.data ?? []).filter(r => r.hotelId === hotelId),
+    [roomsQuery.data, hotelId],
+  )
+  const loading = roomsQuery.isLoading
 
   // The dashboard is reached at /secure/company/<slug>/... regardless of
   // owner vs admin — the guest menu lives on that company's own subdomain.

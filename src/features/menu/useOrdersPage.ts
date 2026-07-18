@@ -1,6 +1,7 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useState } from 'react'
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query'
 import { useToast } from '@/components/ToastProvider'
 import { useTranslation } from '@/i18n'
 import { getHotels } from '@/lib/api/hotels'
@@ -10,44 +11,49 @@ import type { MenuOrder, MenuHotel, OrderStatus } from './types'
 export function useOrdersPage() {
   const { t } = useTranslation()
   const { showToast } = useToast()
-  const [hotels, setHotels] = useState<MenuHotel[]>([])
+  const qc = useQueryClient()
+
   const [hotelId, setHotelId] = useState('')
   const [status, setStatus] = useState('')
-  const [orders, setOrders] = useState<MenuOrder[]>([])
-  const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    getHotels().then((hs: MenuHotel[]) => setHotels(hs)).catch(() => {})
-  }, [])
+  const hotelsQuery = useQuery<MenuHotel[]>({ queryKey: ['hotels'], queryFn: getHotels })
+  const hotels = hotelsQuery.data ?? []
 
-  const load = useCallback((silent = false) => {
-    if (!silent) setLoading(true)
-    getOrders({ hotelId: hotelId || undefined, status: status || undefined })
-      .then(setOrders)
-      .catch(() => { if (!silent) showToast(t('menuLoadFailed'), 'error') })
-      .finally(() => setLoading(false))
-  }, [hotelId, status, showToast, t])
+  const ordersKey = ['menu', 'orders', hotelId, status] as const
+  const ordersQuery = useQuery<MenuOrder[]>({
+    queryKey: ordersKey,
+    queryFn: () => getOrders({ hotelId: hotelId || undefined, status: status || undefined }),
+    // Staff see new/updated orders without a manual refresh.
+    refetchInterval: 15000,
+  })
+  const orders = ordersQuery.data ?? []
+  const loading = ordersQuery.isLoading
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect -- data load
-  useEffect(() => { load() }, [load])
-
-  // Poll for new / updated orders so staff see them without a manual refresh.
-  useEffect(() => {
-    const id = setInterval(() => load(true), 15000)
-    return () => clearInterval(id)
-  }, [load])
-
-  const setStatusFor = async (orderId: string, next: OrderStatus) => {
-    setOrders(prev => prev.map(o => (o._id === orderId ? { ...o, status: next } : o)))
-    try {
-      await updateOrderStatus(orderId, next)
-    } catch {
+  const statusMut = useMutation({
+    mutationFn: (vars: { orderId: string; status: OrderStatus }) => updateOrderStatus(vars.orderId, vars.status),
+    onMutate: async vars => {
+      await qc.cancelQueries({ queryKey: ordersKey })
+      const previous = qc.getQueryData<MenuOrder[]>(ordersKey)
+      qc.setQueryData<MenuOrder[]>(ordersKey, prev =>
+        prev?.map(o => (o._id === vars.orderId ? { ...o, status: vars.status } : o)))
+      return { previous }
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) qc.setQueryData(ordersKey, context.previous)
       showToast(t('updateFailed'), 'error')
-      load(true)
-    }
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: ordersKey }),
+  })
+
+  const setStatusFor = (orderId: string, next: OrderStatus) => {
+    statusMut.mutate({ orderId, status: next })
   }
 
-  return { hotels, hotelId, setHotelId, status, setStatus, orders, loading, reload: () => load(), setStatusFor }
+  return {
+    hotels, hotelId, setHotelId, status, setStatus, orders, loading,
+    reload: () => ordersQuery.refetch(),
+    setStatusFor,
+  }
 }
 
 export type OrdersPageState = ReturnType<typeof useOrdersPage>

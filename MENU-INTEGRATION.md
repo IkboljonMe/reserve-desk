@@ -22,6 +22,7 @@ ORM). Menu data hangs off Bronit's existing `Hotel._id`.
 - ✅ **Guest page delivery:** `https://fergana.bronit.uz/en/menu?hotel=safirhotel&room=101` — **subdomain = company** (`fergana` → `Company.slug`, already globally unique), `?hotel=` = hotel (`Hotel.slug`, unique within the company), `?room=` = room, `/en` = locale. No new subdomain field needed — reuse existing company/hotel slugs. (Phase 3 will teach the proxy to route company-slug subdomains to the guest menu.)
 - ✅ **Telegram:** reuse Bronit's `telegram.ts`; menu orders get a **new forum topic** per hotel.
 - ✅ **Auth/tenancy:** drop `hotel-menu`'s own passwords; use Bronit sessions + roles (owner/admin/superadmin), Company → Hotel.
+- ✅ **Client data fetching:** **TanStack React Query**, matching the source app's own stack ("React Query for admin data management"). `QueryProvider` moved from the two dashboard layouts up to the app-root `[locale]/layout.tsx` (one client, available everywhere — guest routes, superadmin, login — not just the owner/admin dashboards). The menu module's dashboard hooks (`useMenuPage`, `useOrdersPage`, `RecommendationsModal`, `RoomQrModal`) are converted; staff order polling now uses `refetchInterval` with an optimistic status-update mutation instead of manual `setInterval`/rollback state. Scope: menu module now, available app-wide for any new data-fetching code going forward — existing non-menu features are not being retrofitted.
 
 ## Entity mapping (source → Bronit)
 

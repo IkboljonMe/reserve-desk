@@ -1,6 +1,7 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useState } from 'react'
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query'
 import { useToast } from '@/components/ToastProvider'
 import { useTranslation } from '@/i18n'
 import { getHotels } from '@/lib/api/hotels'
@@ -13,12 +14,9 @@ import type { MenuCategory, MenuProduct, MenuHotel } from './types'
 export function useMenuPage() {
   const { t } = useTranslation()
   const { showToast } = useToast()
+  const qc = useQueryClient()
 
-  const [hotels, setHotels] = useState<MenuHotel[]>([])
-  const [hotelId, setHotelId] = useState('')
-  const [categories, setCategories] = useState<MenuCategory[]>([])
-  const [products, setProducts] = useState<MenuProduct[]>([])
-  const [loading, setLoading] = useState(true)
+  const [pickedHotelId, setHotelId] = useState('')
 
   // Modal state
   const [editCategory, setEditCategory] = useState<MenuCategory | null>(null)
@@ -26,82 +24,85 @@ export function useMenuPage() {
   const [editProduct, setEditProduct] = useState<MenuProduct | null>(null)
   const [productCategoryId, setProductCategoryId] = useState('')
   const [productOpen, setProductOpen] = useState(false)
-  const [saving, setSaving] = useState(false)
 
-  // Load hotels the user can manage; pick the first by default.
-  useEffect(() => {
-    getHotels()
-      .then((hs: MenuHotel[]) => {
-        setHotels(hs)
-        setHotelId(prev => prev || hs[0]?._id || '')
-      })
-      .catch(() => showToast(t('menuLoadFailed'), 'error'))
-  }, [showToast, t])
+  const hotelsQuery = useQuery<MenuHotel[]>({ queryKey: ['hotels'], queryFn: getHotels })
+  const hotels = hotelsQuery.data ?? []
+  // Sticky default: the first hotel, until the user picks one explicitly.
+  const hotelId = pickedHotelId || hotels[0]?._id || ''
 
-  const loadMenu = useCallback((hid: string) => {
-    if (!hid) { setCategories([]); setProducts([]); setLoading(false); return }
-    setLoading(true)
-    Promise.all([getCategories(hid), getProducts(hid)])
-      .then(([cats, prods]) => { setCategories(cats); setProducts(prods) })
-      .catch(() => showToast(t('menuLoadFailed'), 'error'))
-      .finally(() => setLoading(false))
-  }, [showToast, t])
+  const categoriesQuery = useQuery<MenuCategory[]>({
+    queryKey: ['menu', 'categories', hotelId],
+    queryFn: () => getCategories(hotelId),
+    enabled: !!hotelId,
+  })
+  const productsQuery = useQuery<MenuProduct[]>({
+    queryKey: ['menu', 'products', hotelId],
+    queryFn: () => getProducts(hotelId),
+    enabled: !!hotelId,
+  })
+  const categories = categoriesQuery.data ?? []
+  const products = productsQuery.data ?? []
+  const loading = hotelsQuery.isLoading || categoriesQuery.isLoading || productsQuery.isLoading
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect -- data load
-  useEffect(() => { loadMenu(hotelId) }, [hotelId, loadMenu])
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ['menu', 'categories', hotelId] })
+    qc.invalidateQueries({ queryKey: ['menu', 'products', hotelId] })
+  }
 
-  // ── Category actions ──
+  // ── Category mutations ──
+  const createCategoryMut = useMutation({ mutationFn: createCategory })
+  const updateCategoryMut = useMutation({ mutationFn: (vars: { id: string; data: Partial<MenuCategory> }) => updateCategory(vars.id, vars.data) })
+  const deleteCategoryMut = useMutation({ mutationFn: deleteCategory })
+
   const openAddCategory = () => { setEditCategory(null); setCategoryOpen(true) }
   const openEditCategory = (c: MenuCategory) => { setEditCategory(c); setCategoryOpen(true) }
 
   const saveCategory = async (data: Partial<MenuCategory>) => {
-    setSaving(true)
     try {
-      if (editCategory) await updateCategory(editCategory._id, data)
-      else await createCategory({ ...data, hotelId } as Partial<MenuCategory> & { hotelId: string })
+      if (editCategory) await updateCategoryMut.mutateAsync({ id: editCategory._id, data })
+      else await createCategoryMut.mutateAsync({ ...data, hotelId } as Partial<MenuCategory> & { hotelId: string })
       setCategoryOpen(false)
-      loadMenu(hotelId)
+      invalidate()
       showToast(t('saved'), 'success')
     } catch {
       showToast(t('saveFailed'), 'error')
-    } finally {
-      setSaving(false)
     }
   }
 
   const removeCategory = async (id: string) => {
     try {
-      await deleteCategory(id)
-      loadMenu(hotelId)
+      await deleteCategoryMut.mutateAsync(id)
+      invalidate()
       showToast(t('deleted'), 'success')
     } catch {
       showToast(t('deleteFailed'), 'error')
     }
   }
 
-  // ── Product actions ──
+  // ── Product mutations ──
+  const createProductMut = useMutation({ mutationFn: createProduct })
+  const updateProductMut = useMutation({ mutationFn: (vars: { id: string; data: Partial<MenuProduct> }) => updateProduct(vars.id, vars.data) })
+  const deleteProductMut = useMutation({ mutationFn: deleteProduct })
+
   const openAddProduct = (categoryId: string) => { setEditProduct(null); setProductCategoryId(categoryId); setProductOpen(true) }
   const openEditProduct = (p: MenuProduct) => { setEditProduct(p); setProductCategoryId(p.categoryId); setProductOpen(true) }
 
   const saveProduct = async (data: Partial<MenuProduct>) => {
-    setSaving(true)
     try {
-      if (editProduct) await updateProduct(editProduct._id, data)
-      else await createProduct({ ...data, hotelId } as Partial<MenuProduct> & { hotelId: string; categoryId: string })
+      if (editProduct) await updateProductMut.mutateAsync({ id: editProduct._id, data })
+      else await createProductMut.mutateAsync({ ...data, hotelId } as Partial<MenuProduct> & { hotelId: string; categoryId: string })
       setProductOpen(false)
-      loadMenu(hotelId)
+      invalidate()
       showToast(t('saved'), 'success')
     } catch {
       showToast(t('saveFailed'), 'error')
-    } finally {
-      setSaving(false)
     }
   }
 
   const removeProduct = async (id: string) => {
     try {
-      await deleteProduct(id)
-      loadMenu(hotelId)
+      await deleteProductMut.mutateAsync(id)
+      invalidate()
       showToast(t('deleted'), 'success')
     } catch {
       showToast(t('deleteFailed'), 'error')
@@ -110,6 +111,9 @@ export function useMenuPage() {
 
   const productsByCategory = (categoryId: string) =>
     products.filter(p => p.categoryId === categoryId)
+
+  const saving = createCategoryMut.isPending || updateCategoryMut.isPending
+    || createProductMut.isPending || updateProductMut.isPending
 
   return {
     hotels, hotelId, setHotelId,

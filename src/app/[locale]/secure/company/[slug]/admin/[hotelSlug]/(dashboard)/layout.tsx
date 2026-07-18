@@ -7,7 +7,6 @@ import { Company } from '@/models/Company'
 import { ToastProvider } from '@/components/ToastProvider'
 import { DraftProvider } from '@/components/DraftProvider'
 import { BookingModalProvider } from '@/components/BookingModalProvider'
-import QueryProvider from '@/components/QueryProvider'
 import DashboardContainer from '@/components/layout/DashboardContainer'
 import { getSubdomain } from '@/lib/subdomain'
 
@@ -47,10 +46,9 @@ export default async function HotelAdminLayout({
       : `/secure/company/${slug}/admin/${hotelSlug}`
 
   return (
-    <QueryProvider>
-      <ToastProvider>
-       <DraftProvider>
-         <BookingModalProvider>
+    <ToastProvider>
+      <DraftProvider>
+        <BookingModalProvider>
           <DashboardContainer
             userName={session.name}
             userEmail={session.email}
@@ -61,9 +59,8 @@ export default async function HotelAdminLayout({
           >
             {children}
           </DashboardContainer>
-         </BookingModalProvider>
-        </DraftProvider>
-      </ToastProvider>
-    </QueryProvider>
+        </BookingModalProvider>
+      </DraftProvider>
+    </ToastProvider>
   )
 }

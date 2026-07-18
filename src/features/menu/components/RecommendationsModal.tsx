@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query'
 import { X } from 'lucide-react'
 import Modal from '@/components/ui/Modal'
 import Dropdown from '@/components/ui/Dropdown'
@@ -31,50 +32,37 @@ export function RecommendationsModal({
 }) {
   const { t } = useTranslation()
   const { showToast } = useToast()
-  const [recs, setRecs] = useState<MenuRecommendation[]>([])
-  const [loading, setLoading] = useState(true)
-  const [busy, setBusy] = useState(false)
+  const qc = useQueryClient()
 
-  useEffect(() => {
-    if (!open) return
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- data load
-    setLoading(true)
-    getRecommendations(hotelId)
-      .then(setRecs)
-      .catch(() => showToast(t('menuLoadFailed'), 'error'))
-      .finally(() => setLoading(false))
-  }, [open, hotelId, showToast, t])
+  const recsKey = ['menu', 'recommendations', hotelId] as const
+  const recsQuery = useQuery<MenuRecommendation[]>({
+    queryKey: recsKey,
+    queryFn: () => getRecommendations(hotelId),
+    enabled: open && !!hotelId,
+  })
+  const loading = recsQuery.isLoading
+
+  const addMut = useMutation({
+    mutationFn: (vars: { dayOfWeek: number; productId: string }) => createRecommendation({ hotelId, ...vars }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: recsKey }),
+    onError: () => showToast(t('saveFailed'), 'error'),
+  })
+  const removeMut = useMutation({
+    mutationFn: (id: string) => deleteRecommendation(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: recsKey }),
+    onError: () => showToast(t('deleteFailed'), 'error'),
+  })
+  const busy = addMut.isPending || removeMut.isPending
 
   const byDay = useMemo(() => {
     const map: Record<number, MenuRecommendation[]> = {}
-    for (const r of recs) (map[r.dayOfWeek] ??= []).push(r)
+    for (const r of recsQuery.data ?? []) (map[r.dayOfWeek] ??= []).push(r)
     return map
-  }, [recs])
+  }, [recsQuery.data])
 
-  async function add(dayOfWeek: number, productId: string) {
+  const add = (dayOfWeek: number, productId: string) => {
     if (!productId || busy) return
-    setBusy(true)
-    try {
-      const rec = await createRecommendation({ hotelId, dayOfWeek, productId })
-      setRecs(prev => [...prev, rec])
-    } catch {
-      showToast(t('saveFailed'), 'error')
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  async function remove(id: string) {
-    if (busy) return
-    setBusy(true)
-    try {
-      await deleteRecommendation(id)
-      setRecs(prev => prev.filter(r => r._id !== id))
-    } catch {
-      showToast(t('deleteFailed'), 'error')
-    } finally {
-      setBusy(false)
-    }
+    addMut.mutate({ dayOfWeek, productId })
   }
 
   return (
@@ -112,7 +100,7 @@ export function RecommendationsModal({
                         {r.product?.nameI18n?.[lang as 'en'] || r.product?.name}
                         <button
                           type="button"
-                          onClick={() => remove(r._id)}
+                          onClick={() => removeMut.mutate(r._id)}
                           disabled={busy}
                           className="text-brand-400 hover:text-brand-700"
                           aria-label={t('remove')}
