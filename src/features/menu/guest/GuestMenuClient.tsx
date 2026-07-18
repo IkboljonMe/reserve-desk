@@ -1,12 +1,14 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Plus, Minus, ShoppingBag, Check } from 'lucide-react'
 import Modal from '@/components/ui/Modal'
 import Button from '@/components/ui/Button'
+import Spinner from '@/components/ui/Spinner'
 import { localized, computeServiceFee } from '@/lib/menu'
 import { money } from '@/lib/bookingHelpers'
-import type { MenuCategory, MenuProduct } from '../types'
+import { ORDER_STATUS_META } from '../constants'
+import type { MenuCategory, MenuProduct, OrderStatus } from '../types'
 
 export interface GuestLabels {
   room: string; sum: string; menuEmpty: string; add: string; total: string; close: string; cancel: string
@@ -15,10 +17,23 @@ export interface GuestLabels {
   subtotal: string; serviceFee: string; roomNumber: string
   guestNamePlaceholder: string; orderNotePlaceholder: string
   orderFailed: string; roomRequiredError: string; itemsN: (n: number) => string
+  cancelledTitle: string; cancelledSub: string; orderNo: string
+  couldNotLoad: string; backToMenu: string; orderSummary: string; notes: string
+  orderPending: string; orderPreparing: string; orderReady: string; orderDelivered: string
+}
+
+interface TrackedOrder {
+  status: OrderStatus
+  items: { name: string; price: number; quantity: number }[]
+  subtotal: number
+  serviceFee: number
+  total: number
+  note: string
 }
 
 const LOCALES = ['uz', 'ru', 'en'] as const
 const FIELD = 'w-full px-3 py-2 min-h-[42px] rounded-lg text-sm outline-none bg-[var(--surface-card)] border border-[var(--surface-border)] text-[var(--gray-800)] focus:border-[var(--brand-500)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]'
+const STATUS_FLOW: OrderStatus[] = ['pending', 'preparing', 'ready', 'delivered']
 
 export function GuestMenuClient({
   labels, locale, hotelName, hotelSlug, room, categories, products, serviceFeeType, serviceFeeValue,
@@ -33,14 +48,58 @@ export function GuestMenuClient({
   serviceFeeType: 'none' | 'percent' | 'fixed'
   serviceFeeValue: number
 }) {
+  const cartKey = `bronit-menu-cart:${hotelSlug}:${room || 'guest'}`
   const [cart, setCart] = useState<Record<string, number>>({})
+  const [hydrated, setHydrated] = useState(false)
   const [cartOpen, setCartOpen] = useState(false)
   const [roomNumber, setRoomNumber] = useState(room)
   const [guestName, setGuestName] = useState('')
   const [note, setNote] = useState('')
   const [placing, setPlacing] = useState(false)
-  const [placed, setPlaced] = useState<{ total: number } | null>(null)
+  const [placed, setPlaced] = useState<{ id: string; total: number } | null>(null)
+  const [tracked, setTracked] = useState<TrackedOrder | null>(null)
+  const [trackLoading, setTrackLoading] = useState(true)
   const [error, setError] = useState('')
+
+  // Load any cart the guest left behind (e.g. tab closed mid-browse), scoped to
+  // this hotel+room so two rooms on the same device don't share a basket.
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(cartKey)
+      if (raw) setCart(JSON.parse(raw))
+    } catch {
+      /* ignore corrupt storage */
+    }
+    setHydrated(true)
+  }, [cartKey])
+
+  useEffect(() => {
+    if (!hydrated) return
+    try {
+      localStorage.setItem(cartKey, JSON.stringify(cart))
+    } catch {
+      /* storage full / unavailable */
+    }
+  }, [cart, hydrated, cartKey])
+
+  // Poll the placed order's status so the guest sees it move pending → … → delivered.
+  useEffect(() => {
+    if (!placed) return
+    let alive = true
+    const load = async () => {
+      try {
+        const res = await fetch(`/api/menu/guest/order/${placed.id}`, { cache: 'no-store' })
+        if (res.ok && alive) setTracked(await res.json())
+      } catch {
+        /* keep last known state */
+      } finally {
+        if (alive) setTrackLoading(false)
+      }
+    }
+    load()
+    const timer = setInterval(load, 4000)
+    return () => { alive = false; clearInterval(timer) }
+  }, [placed])
 
   const productById = useMemo(() => new Map(products.map(p => [p._id, p])), [products])
   const setQty = (id: string, qty: number) =>
@@ -72,13 +131,21 @@ export function GuestMenuClient({
       })
       if (!res.ok) throw new Error('failed')
       const data = await res.json()
-      setPlaced({ total: typeof data.total === 'number' ? data.total : total })
+      setPlaced({ id: data.id, total: typeof data.total === 'number' ? data.total : total })
+      setTracked(null)
+      setTrackLoading(true)
       setCart({}); setNote('')
     } catch {
       setError(labels.orderFailed)
     } finally {
       setPlacing(false)
     }
+  }
+
+  function closeCart() {
+    setCartOpen(false)
+    setPlaced(null)
+    setTracked(null)
   }
 
   function Stepper({ id }: { id: string }) {
@@ -162,24 +229,20 @@ export function GuestMenuClient({
 
       <Modal
         open={cartOpen}
-        onClose={() => setCartOpen(false)}
+        onClose={closeCart}
         title={placed ? labels.orderPlaced : labels.yourOrder}
         size="sm"
         closeLabel={labels.close}
-        footer={placed ? undefined : (
+        footer={placed ? (
+          <Button variant="secondary" className="w-full justify-center" onClick={closeCart}>{labels.backToMenu}</Button>
+        ) : (
           <Button className="w-full justify-center" loading={placing} disabled={count === 0} onClick={placeOrder}>
             {placing ? labels.placingOrder : `${labels.placeOrder} · ${money(total)} ${labels.sum}`}
           </Button>
         )}
       >
         {placed ? (
-          <div className="flex flex-col items-center text-center gap-3 py-6">
-            <span className="w-14 h-14 rounded-full bg-emerald-500/15 text-emerald-600 flex items-center justify-center"><Check size={30} /></span>
-            <h3 className="font-extrabold text-[1.1rem] m-0">{labels.orderPlaced}</h3>
-            <p className="text-[var(--gray-500)] text-sm m-0">{labels.orderPlacedDesc}</p>
-            <div className="font-extrabold text-[var(--gray-800)]">{money(placed.total)} {labels.sum}</div>
-            <Button variant="secondary" className="mt-2" onClick={() => { setPlaced(null); setCartOpen(false) }}>{labels.close}</Button>
-          </div>
+          <OrderTracker placed={placed} tracked={tracked} loading={trackLoading} labels={labels} />
         ) : count === 0 ? (
           <p className="text-center text-[var(--gray-400)] py-10">{labels.emptyCart}</p>
         ) : (
@@ -212,6 +275,96 @@ export function GuestMenuClient({
           </div>
         )}
       </Modal>
+    </div>
+  )
+}
+
+/* ------------------------------- Order tracker ------------------------------- */
+
+function OrderTracker({
+  placed, tracked, loading, labels,
+}: {
+  placed: { id: string; total: number }
+  tracked: TrackedOrder | null
+  loading: boolean
+  labels: GuestLabels
+}) {
+  const statusLabel = (s: OrderStatus): string =>
+    ({ pending: labels.orderPending, preparing: labels.orderPreparing, ready: labels.orderReady, delivered: labels.orderDelivered } as Record<string, string>)[s] ?? s
+  const currentIndex = tracked ? STATUS_FLOW.indexOf(tracked.status) : -1
+  const cancelled = tracked?.status === 'cancelled'
+
+  return (
+    <div className="flex flex-col gap-5 py-1">
+      <div className="flex flex-col items-center text-center gap-2.5">
+        <span className="w-14 h-14 rounded-full bg-emerald-500/15 text-emerald-600 flex items-center justify-center"><Check size={30} /></span>
+        <h3 className="font-extrabold text-[1.1rem] m-0">{labels.orderPlaced}</h3>
+        <p className="text-[var(--gray-500)] text-sm m-0">{labels.orderPlacedDesc}</p>
+        <p className="text-[0.78rem] text-[var(--gray-400)] m-0">{labels.orderNo} #{placed.id.slice(-6).toUpperCase()}</p>
+      </div>
+
+      {!tracked ? (
+        loading ? (
+          <div className="flex justify-center py-6"><Spinner /></div>
+        ) : (
+          <p className="text-center text-[var(--gray-400)] text-sm py-6">{labels.couldNotLoad}</p>
+        )
+      ) : cancelled ? (
+        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-center">
+          <p className="font-bold m-0 text-[var(--color-danger)]">{labels.cancelledTitle}</p>
+          <p className="text-sm mt-1 m-0 text-[var(--gray-600)]">{labels.cancelledSub}</p>
+        </div>
+      ) : (
+        <ol className="flex flex-col">
+          {STATUS_FLOW.map((status, idx) => {
+            const done = idx < currentIndex
+            const active = idx === currentIndex
+            const meta = ORDER_STATUS_META[status]
+            return (
+              <li key={status} className="flex items-start gap-3">
+                <div className="flex flex-col items-center">
+                  <span
+                    className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${done ? 'bg-emerald-500 text-white' : !active ? 'bg-[var(--gray-100)] text-[var(--gray-400)]' : 'text-white'}`}
+                    style={active ? { background: meta.color } : undefined}
+                  >
+                    {done ? <Check size={15} /> : <span className="w-2 h-2 rounded-full bg-current" />}
+                  </span>
+                  {idx < STATUS_FLOW.length - 1 && (
+                    <span className={`w-0.5 h-6 ${idx < currentIndex ? 'bg-emerald-500' : 'bg-[var(--gray-100)]'}`} />
+                  )}
+                </div>
+                <p className={`pt-1.5 pb-3 text-sm font-semibold m-0 ${active ? 'text-[var(--gray-800)]' : 'text-[var(--gray-400)]'}`}>{statusLabel(status)}</p>
+              </li>
+            )
+          })}
+        </ol>
+      )}
+
+      {tracked && (
+        <div className="rounded-xl border border-[var(--surface-border)] bg-[var(--surface-card)] p-3.5">
+          <h4 className="text-[0.8rem] font-bold text-[var(--gray-600)] m-0 mb-2">{labels.orderSummary}</h4>
+          <ul className="list-none m-0 p-0 flex flex-col gap-1">
+            {tracked.items.map((it, i) => (
+              <li key={i} className="flex justify-between gap-3 text-[0.82rem] text-[var(--gray-600)]">
+                <span>{it.quantity}× {it.name}</span>
+                <span className="tabular-nums">{money(it.price * it.quantity)} {labels.sum}</span>
+              </li>
+            ))}
+          </ul>
+          <div className="border-t border-[var(--surface-border)] mt-2.5 pt-2.5 flex flex-col gap-1 text-[0.82rem]">
+            {tracked.serviceFee > 0 && (
+              <>
+                <div className="flex justify-between text-[var(--gray-500)]"><span>{labels.subtotal}</span><span className="tabular-nums">{money(tracked.subtotal)} {labels.sum}</span></div>
+                <div className="flex justify-between text-[var(--gray-500)]"><span>{labels.serviceFee}</span><span className="tabular-nums">{money(tracked.serviceFee)} {labels.sum}</span></div>
+              </>
+            )}
+            <div className="flex justify-between font-extrabold text-[var(--gray-900)]"><span>{labels.total}</span><span className="tabular-nums">{money(tracked.total)} {labels.sum}</span></div>
+          </div>
+          {tracked.note && (
+            <p className="mt-2.5 rounded-lg bg-[var(--gray-50)] px-2.5 py-2 text-[0.75rem] text-[var(--gray-500)]">{labels.notes}: {tracked.note}</p>
+          )}
+        </div>
+      )}
     </div>
   )
 }
