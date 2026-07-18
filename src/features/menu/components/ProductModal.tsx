@@ -94,7 +94,7 @@ export function ProductModal({ s }: { s: MenuPageState }) {
             <Dropdown
               value={categoryId}
               onChange={setCategoryId}
-              options={s.categories.map(c => ({ value: c._id, label: c.nameI18n[lang] || c.name }))}
+              options={s.categories.map(c => ({ value: c._id, label: c.nameI18n?.[lang] || c.name }))}
               ariaLabel={t('category')}
             />
           </div>

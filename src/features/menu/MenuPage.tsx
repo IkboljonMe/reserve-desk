@@ -63,7 +63,7 @@ export default function MenuPage() {
         <div className="flex flex-col gap-4">
           {s.categories.map(cat => {
             const prods = s.productsByCategory(cat._id)
-            const cname = cat.nameI18n[lang] || cat.name
+            const cname = cat.nameI18n?.[lang] || cat.name
             return (
               <div key={cat._id} className={CARD}>
                 <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-[var(--surface-border)]">
@@ -91,7 +91,7 @@ export default function MenuPage() {
                 ) : (
                   <ul className="list-none m-0 p-0 divide-y divide-[var(--surface-border)]">
                     {prods.map(p => {
-                      const pname = p.nameI18n[lang] || p.name
+                      const pname = p.nameI18n?.[lang] || p.name
                       return (
                         <li key={p._id} className="flex items-center gap-3 px-4 py-2.5">
                           {p.imageUrl
