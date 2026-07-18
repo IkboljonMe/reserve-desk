@@ -1,30 +1,36 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus, Pencil, Trash2, UtensilsCrossed, QrCode, Sparkles } from 'lucide-react'
+import { Plus, Pencil, Trash2, UtensilsCrossed, QrCode, Sparkles, Settings } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import Button from '@/components/ui/Button'
 import Dropdown from '@/components/ui/Dropdown'
 import { money } from '@/lib/bookingHelpers'
 import { useMenuPage } from './useMenuPage'
+import { useMenuSettings } from './useMenuSettings'
 import { CategoryModal } from './components/CategoryModal'
 import { ProductModal } from './components/ProductModal'
 import { RoomQrModal } from './components/RoomQrModal'
 import { RecommendationsModal } from './components/RecommendationsModal'
+import { MenuSettingsPanel } from './components/MenuSettingsPanel'
 
 const CARD = 'bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-[var(--radius-lg)] shadow-sm'
+
+type Tab = 'menu' | 'settings'
 
 export default function MenuPage() {
   const { t, lang } = useTranslation()
   const s = useMenuPage()
+  const ss = useMenuSettings(s.hotelId)
   const [confirmId, setConfirmId] = useState<string | null>(null)
   const [qrOpen, setQrOpen] = useState(false)
   const [recsOpen, setRecsOpen] = useState(false)
+  const [tab, setTab] = useState<Tab>('menu')
   const selectedHotel = s.hotels.find(h => h._id === s.hotelId)
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+      <div className="flex items-center justify-between mb-4 flex-wrap gap-4">
         <div>
           <h1>{t('menu')}</h1>
           <p className="mt-1">{t('menuSubtitle')}</p>
@@ -40,17 +46,41 @@ export default function MenuPage() {
               />
             </div>
           )}
-          {selectedHotel && (
+          {selectedHotel && tab === 'menu' && (
             <>
               <Button variant="secondary" leftIcon={<Sparkles size={14} />} onClick={() => setRecsOpen(true)}>{t('manageRecommendations')}</Button>
               <Button variant="secondary" leftIcon={<QrCode size={14} />} onClick={() => setQrOpen(true)}>{t('printQrCodes')}</Button>
             </>
           )}
-          <Button leftIcon={<Plus size={14} strokeWidth={2.5} />} onClick={s.openAddCategory}>{t('addCategory')}</Button>
+          {tab === 'menu' && <Button leftIcon={<Plus size={14} strokeWidth={2.5} />} onClick={s.openAddCategory}>{t('addCategory')}</Button>}
         </div>
       </div>
 
-      {s.loading ? (
+      {/* Tab switcher */}
+      <div className="flex gap-1 p-1 bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-xl mb-5 w-fit">
+        <button
+          type="button"
+          onClick={() => setTab('menu')}
+          className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[0.82rem] font-semibold transition-all cursor-pointer border-none ${
+            tab === 'menu' ? 'bg-[var(--brand-500)] text-white shadow-sm' : 'text-[var(--gray-500)] bg-transparent hover:text-[var(--gray-700)]'
+          }`}
+        >
+          <UtensilsCrossed size={13} />{t('menuTab')}
+        </button>
+        <button
+          type="button"
+          onClick={() => setTab('settings')}
+          className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[0.82rem] font-semibold transition-all cursor-pointer border-none ${
+            tab === 'settings' ? 'bg-[var(--brand-500)] text-white shadow-sm' : 'text-[var(--gray-500)] bg-transparent hover:text-[var(--gray-700)]'
+          }`}
+        >
+          <Settings size={13} />{t('hubSettings')}
+        </button>
+      </div>
+
+      {tab === 'settings' ? (
+        <MenuSettingsPanel s={ss} />
+      ) : s.loading ? (
         <p className="text-[var(--gray-400)] text-sm">{t('loading')}</p>
       ) : s.categories.length === 0 ? (
         <div className={`${CARD} p-10 flex flex-col items-center text-center gap-2`}>
