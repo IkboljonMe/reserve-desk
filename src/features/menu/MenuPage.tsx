@@ -79,7 +79,7 @@ export default function MenuPage() {
       </div>
 
       {tab === 'settings' ? (
-        <MenuSettingsPanel s={ss} />
+        <MenuSettingsPanel s={ss} hotelSlug={selectedHotel?.slug || ''} />
       ) : s.loading ? (
         <p className="text-[var(--gray-400)] text-sm">{t('loading')}</p>
       ) : s.categories.length === 0 ? (

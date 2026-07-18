@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# User-uploaded images (compressed to .webp at runtime) — served from disk on the VPS,
+# not committed. Keep the folder via .gitkeep.
+/public/uploads/*
+!/public/uploads/.gitkeep

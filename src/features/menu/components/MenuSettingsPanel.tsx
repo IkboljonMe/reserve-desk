@@ -2,7 +2,9 @@
 
 import { useTranslation } from '@/i18n'
 import Button from '@/components/ui/Button'
-import { Save } from 'lucide-react'
+import { Save, ExternalLink } from 'lucide-react'
+import { ImageUpload } from '@/components/ui/ImageUpload'
+import { publicHubUrl } from '@/lib/menu'
 import type { useMenuSettings } from '../useMenuSettings'
 import { TILE_META } from '@/lib/tiles'
 
@@ -12,34 +14,55 @@ const FIELD = 'w-full px-3 py-2 min-h-[42px] rounded-lg text-sm outline-none bg-
 const LABEL = 'block text-[0.8rem] font-semibold text-[var(--gray-600)] mb-1'
 const SECTION = 'bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-[var(--radius-lg)] p-5 flex flex-col gap-4'
 
-export function MenuSettingsPanel({ s }: { s: S }) {
-  const { t } = useTranslation()
+export function MenuSettingsPanel({ s, hotelSlug }: { s: S; hotelSlug: string }) {
+  const { t, lang } = useTranslation()
   const { form, setField, toggleTile, save, saving } = s
+
+  // Public hub URL for this hotel (menu.bronit.uz/<locale>/<slug>).
+  const hubUrl = hotelSlug && typeof window !== 'undefined'
+    ? publicHubUrl(window.location.host, lang, hotelSlug, undefined, window.location.protocol)
+    : ''
+  const hubDisplay = hubUrl.replace(/^https?:\/\//, '')
 
   return (
     <div className="flex flex-col gap-5 max-w-2xl">
+
+      {/* ── Guest hub: enable + public link ──────────────────── */}
+      <section className={SECTION}>
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h2 className="text-[1rem] font-bold text-[var(--gray-800)] m-0">{t('guestHub')}</h2>
+            <p className="text-[0.8rem] text-[var(--gray-500)] m-0 mt-0.5">{t('menuEnabledDesc')}</p>
+          </div>
+          <label className="relative inline-flex items-center cursor-pointer shrink-0">
+            <input
+              type="checkbox"
+              className="sr-only"
+              checked={form.menuEnabled}
+              onChange={e => setField('menuEnabled', e.target.checked)}
+            />
+            <div className={`w-11 h-6 rounded-full transition-colors ${form.menuEnabled ? 'bg-[var(--brand-500)]' : 'bg-[var(--gray-300)]'}`}>
+              <div className={`w-5 h-5 bg-white rounded-full shadow-sm transition-transform mt-0.5 ml-0.5 ${form.menuEnabled ? 'translate-x-5' : 'translate-x-0'}`} />
+            </div>
+          </label>
+        </div>
+        {hubUrl ? (
+          <a href={hubUrl} target="_blank" rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-[0.85rem] font-medium text-[var(--brand-600)] hover:underline break-all">
+            <ExternalLink size={13} className="shrink-0" />{hubDisplay}
+          </a>
+        ) : (
+          <p className="text-[0.8rem] text-[var(--gray-400)] m-0">{t('hubUrlNeedsSlug')}</p>
+        )}
+      </section>
 
       {/* ── Branding ─────────────────────────────────────────── */}
       <section className={SECTION}>
         <h2 className="text-[1rem] font-bold text-[var(--gray-800)] m-0">{t('hubBranding')}</h2>
 
-        <div>
-          <label className={LABEL}>{t('bannerUrl')}</label>
-          <input className={FIELD} value={form.bannerUrl} onChange={e => setField('bannerUrl', e.target.value)} placeholder="https://..." />
-          {form.bannerUrl && (
-            <img src={form.bannerUrl} alt="" className="mt-2 w-full h-24 object-cover rounded-lg" onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
-          )}
-        </div>
+        <ImageUpload label={t('hubBanner')} value={form.bannerUrl} onChange={url => setField('bannerUrl', url)} scope="banners" variant="wide" />
 
-        <div>
-          <label className={LABEL}>{t('logoUrl')}</label>
-          <input className={FIELD} value={form.logoUrl} onChange={e => setField('logoUrl', e.target.value)} placeholder="https://..." />
-          {form.logoUrl && (
-            <div className="mt-2 flex items-center gap-3">
-              <img src={form.logoUrl} alt="" className="w-12 h-12 rounded-full object-cover border border-[var(--surface-border)]" onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
-            </div>
-          )}
-        </div>
+        <ImageUpload label={t('hubLogo')} value={form.logoUrl} onChange={url => setField('logoUrl', url)} scope="logos" variant="avatar" />
 
         <div>
           <label className={LABEL}>{t('receptionPhone')}</label>

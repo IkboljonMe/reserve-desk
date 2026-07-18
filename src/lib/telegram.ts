@@ -315,11 +315,31 @@ export async function ensureTopicForMenuOrders(
   const hotel = await Hotel.findById(hotelId).lean()
   if (!hotel) return null
 
-  const name = `${hotel.shortName}-Menu`
+  // The guest-hub topic: menu orders and guest reports for this hotel land here.
+  const name = `${hotel.shortName}-HUB`
   const messageThreadId = await createForumTopic(config.groupChatId, name)
   await MenuTelegramTopic.create({ companyId, hotelId, name, messageThreadId })
 
   return { chatId: config.groupChatId, messageThreadId, notificationsEnabled: true }
+}
+
+// Posts a guest hub notification (e.g. a problem report from the in-room page)
+// to the hotel's HUB topic. Best-effort: never throws. Returns false if
+// Telegram isn't set up or the topic is muted.
+export async function notifyHubMessage(
+  companyId: Types.ObjectId | string,
+  hotelId: Types.ObjectId | string,
+  text: string,
+): Promise<boolean> {
+  try {
+    const topic = await ensureTopicForMenuOrders(companyId, hotelId)
+    if (!topic || !topic.notificationsEnabled) return false
+    await sendMessage(topic.chatId, text, topic.messageThreadId)
+    return true
+  } catch (err) {
+    console.error('Failed to send hub notification', err)
+    return false
+  }
 }
 
 // Where a menu order's Telegram message lives, so a status change can edit it.

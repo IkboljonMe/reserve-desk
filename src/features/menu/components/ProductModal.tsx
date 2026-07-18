@@ -9,6 +9,7 @@ import { useToast } from '@/components/ToastProvider'
 import { MENU_LANGS, MENU_LANG_LABELS, type MenuLang } from '@/lib/menu'
 import { translateText } from '@/lib/api/menu'
 import { LocalizedInput, FIELD_INPUT } from './LocalizedInput'
+import { ImageUpload } from '@/components/ui/ImageUpload'
 import type { MenuPageState } from '../useMenuPage'
 import type { LocalizedText } from '../types'
 
@@ -135,15 +136,7 @@ export function ProductModal({ s }: { s: MenuPageState }) {
               onChange={e => setPrice(e.target.value.replace(/\D/g, ''))}
             />
           </div>
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('imageUrl')}</label>
-            <input
-              className={FIELD_INPUT}
-              value={imageUrl}
-              placeholder="https://…"
-              onChange={e => setImageUrl(e.target.value)}
-            />
-          </div>
+          <ImageUpload label={t('productImage')} value={imageUrl} onChange={setImageUrl} scope="products" />
         </div>
 
         <label className="inline-flex items-center gap-2 cursor-pointer select-none">

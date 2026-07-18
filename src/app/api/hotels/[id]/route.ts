@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
-import { Hotel, HOTEL_SLUG_PATTERN, slugifyHotelName } from '@/models/Hotel'
+import { Hotel, HOTEL_SLUG_PATTERN, slugifyHotelName, isHotelSlugTaken } from '@/models/Hotel'
 import { requireOwner, requireWritable } from '@/lib/session'
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -34,15 +34,18 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     return NextResponse.json({ error: 'Slug must be lowercase letters, numbers and hyphens' }, { status: 400 })
   }
 
-  // Enforce uniqueness of the compact code and slug against every *other*
-  // hotel in this company.
-  const clash = await Hotel.findOne({
+  // shortName is unique within this company…
+  const shortClash = await Hotel.findOne({
     companyId: session.companyId,
     _id: { $ne: id },
-    $or: [{ shortName }, { slug }],
+    shortName,
   })
-  if (clash) {
-    return NextResponse.json({ error: 'Short name or slug is already taken by another hotel' }, { status: 409 })
+  if (shortClash) {
+    return NextResponse.json({ error: `Short name "${shortName}" is already taken by another hotel` }, { status: 409 })
+  }
+  // …but the slug (public hub URL) is unique GLOBALLY, across all companies.
+  if (await isHotelSlugTaken(slug, id)) {
+    return NextResponse.json({ error: `The URL "${slug}" is already used by another hotel — pick a different slug` }, { status: 409 })
   }
 
   try {

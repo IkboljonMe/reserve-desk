@@ -59,12 +59,25 @@ HotelSchema.pre('save', function () {
   if (!this.slug) this.slug = slugifyHotelName(this.name as string)
 })
 
-// shortName / slug only need to be unique within a company, not globally.
+// shortName is unique within a company. The slug, however, is GLOBALLY unique:
+// it identifies a hotel's public guest hub at menu.bronit.uz/<locale>/<slug>
+// with no company in the path, so no two hotels anywhere may share one.
+// (Migration for existing per-company data: src/scripts/migrate-hotel-slug-global.ts.)
 HotelSchema.index({ companyId: 1, shortName: 1 }, { unique: true })
 HotelSchema.index(
-  { companyId: 1, slug: 1 },
+  { slug: 1 },
   { unique: true, partialFilterExpression: { slug: { $type: 'string' } } }
 )
 
 delete mongoose.models.Hotel
 export const Hotel = mongoose.model<IHotel>('Hotel', HotelSchema)
+
+// Returns true if `slug` is already used by a hotel other than `excludeId`.
+// The slug is globally unique (see the index note above), so this deliberately
+// checks across ALL companies, not just the caller's.
+export async function isHotelSlugTaken(slug: string, excludeId?: Types.ObjectId | string): Promise<boolean> {
+  const query: Record<string, unknown> = { slug }
+  if (excludeId) query._id = { $ne: excludeId }
+  const clash = await Hotel.findOne(query).select('_id').lean()
+  return !!clash
+}

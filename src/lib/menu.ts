@@ -64,3 +64,33 @@ export function computeServiceFee(
   if (feeType === 'fixed') return Math.max(0, Math.round(feeValue))
   return 0
 }
+
+// ── Guest hub URLs ──────────────────────────────────────────────────────────
+// The public guest hub lives on the `menu` subdomain, path-based by the hotel's
+// (globally-unique) slug: menu.bronit.uz/<locale>/<hotelSlug>. Room is an
+// optional query param carried from the room QR.
+
+// Root domain from any host, stripping a known leading subdomain.
+// "app.bronit.uz" | "menu.bronit.uz" | "bronit.uz" → "bronit.uz".
+export function rootDomain(host: string): string {
+  return host.replace(/^(www|app|admin|super|demo|menu)\./, '')
+}
+
+function roomQuery(room?: string): string {
+  return room ? `?room=${encodeURIComponent(room)}` : ''
+}
+
+// Internal (same-origin) guest paths — used for in-page navigation on the guest
+// site, so they stay on whatever host the guest is already browsing.
+export function guestHubPath(locale: string, hotelSlug: string, room?: string): string {
+  return `/${locale}/menu/${hotelSlug}${roomQuery(room)}`
+}
+export function guestFoodPath(locale: string, hotelSlug: string, room?: string): string {
+  return `/${locale}/menu/${hotelSlug}/food${roomQuery(room)}`
+}
+
+// Absolute public hub URL for sharing / QR codes, on the menu subdomain.
+// `host` is the current window.location.host (any subdomain) — we normalize it.
+export function publicHubUrl(host: string, locale: string, hotelSlug: string, room?: string, protocol = 'https:'): string {
+  return `${protocol}//menu.${rootDomain(host)}/${locale}/${hotelSlug}${roomQuery(room)}`
+}

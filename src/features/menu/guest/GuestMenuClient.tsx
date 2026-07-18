@@ -5,7 +5,7 @@ import { Plus, Minus, ShoppingBag, Check, Sparkles, UtensilsCrossed } from 'luci
 import Modal from '@/components/ui/Modal'
 import Button from '@/components/ui/Button'
 import Spinner from '@/components/ui/Spinner'
-import { localized, computeServiceFee, MENU_LANGS, MENU_LANG_LABELS } from '@/lib/menu'
+import { localized, computeServiceFee, guestFoodPath, MENU_LANGS, MENU_LANG_LABELS } from '@/lib/menu'
 import { money } from '@/lib/bookingHelpers'
 import { ORDER_STATUS_META } from '../constants'
 import type { MenuCategory, MenuProduct, OrderStatus } from '../types'
@@ -118,7 +118,6 @@ export function GuestMenuClient({
   const fee = computeServiceFee(subtotal, serviceFeeType, serviceFeeValue)
   const total = subtotal + fee
 
-  const query = `hotel=${encodeURIComponent(hotelSlug)}${room ? `&room=${encodeURIComponent(room)}` : ''}`
   const byCategory = (cid: string) => products.filter(p => p.categoryId === cid && p.available)
 
   async function placeOrder() {
@@ -189,7 +188,7 @@ export function GuestMenuClient({
           </select>
           <div className="flex items-center gap-1">
             {LOCALES.map(l => (
-              <a key={l} href={`/${l}/menu?${query}`} className={`px-2 py-1 rounded-md text-[0.75rem] font-bold uppercase ${l === locale ? 'bg-[var(--brand-500)] text-white' : 'text-[var(--gray-500)] hover:bg-[var(--gray-100)]'}`}>{l}</a>
+              <a key={l} href={guestFoodPath(l, hotelSlug, room)} className={`px-2 py-1 rounded-md text-[0.75rem] font-bold uppercase ${l === locale ? 'bg-[var(--brand-500)] text-white' : 'text-[var(--gray-500)] hover:bg-[var(--gray-100)]'}`}>{l}</a>
             ))}
           </div>
         </nav>

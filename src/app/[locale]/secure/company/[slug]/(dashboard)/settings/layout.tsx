@@ -9,6 +9,7 @@ const TABS: { labelKey: DictionaryKeys; href: string }[] = [
   { labelKey: 'services', href: '/settings/services' },
   { labelKey: 'hotelsAndRooms', href: '/settings/hotels' },
   { labelKey: 'clientGroups', href: '/settings/client-groups' },
+  { labelKey: 'menu', href: '/settings/menu' },
   { labelKey: 'telegram', href: '/settings/telegram' },
 ]
 

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
+import { guestFoodPath } from '@/lib/menu'
 import type { TileId, HubLang, ResolvedTile } from '@/lib/tiles'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -188,8 +189,8 @@ export function GuestHubClient({
 
   const enabledTiles = tiles.filter(t => t.enabled)
 
-  // Build the URL base (strip locale prefix, it's re-added by router)
-  const menuFoodHref = `/${lang}/menu/food?hotel=${hotelSlug}${room ? `&room=${encodeURIComponent(room)}` : ''}`
+  // Path-based food page on the menu subdomain (same-origin nav).
+  const menuFoodHref = guestFoodPath(lang, hotelSlug, room)
 
   const handleTileClick = (id: TileId) => {
     if (id === 'menu') {

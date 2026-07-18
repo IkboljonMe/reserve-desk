@@ -42,7 +42,7 @@ export function getClientSubdomain(): string | null {
 }
 
 // Well-known subdomains (anything else is treated as invalid and redirected to root).
-export type KnownSubdomain = 'app' | 'admin' | 'super' | 'demo'
+export type KnownSubdomain = 'app' | 'admin' | 'super' | 'demo' | 'menu'
 export function isKnownSubdomain(sub: string | null): sub is KnownSubdomain {
-  return sub === 'app' || sub === 'admin' || sub === 'super' || sub === 'demo'
+  return sub === 'app' || sub === 'admin' || sub === 'super' || sub === 'demo' || sub === 'menu'
 }

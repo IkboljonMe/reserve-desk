@@ -1,7 +1,8 @@
-import { NextRequest } from 'next/server'
+import { NextRequest, after } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { HotelMenuSettings } from '@/models/HotelMenuSettings'
 import { requireDashboard, writeHotelId } from '@/lib/session'
+import { ensureTopicForMenuOrders } from '@/lib/telegram'
 import type { TileConfig } from '@/models/HotelMenuSettings'
 
 // GET /api/menu/settings?hotelId=... — full hub settings for admin.
@@ -69,6 +70,13 @@ export async function PUT(req: NextRequest) {
       { $set: { companyId: session.companyId, hotelId, ...update } },
       { upsert: true, new: true },
     ).lean()
+
+    // When the guest hub is enabled, proactively create its "HUB" Telegram
+    // topic (if Telegram is connected) so orders/reports have somewhere to land
+    // without waiting for the first one. Best-effort, post-response.
+    if (update.menuEnabled === true) {
+      after(() => ensureTopicForMenuOrders(session.companyId, hotelId).catch(() => {}))
+    }
 
     return Response.json(settings)
   } catch (err) {

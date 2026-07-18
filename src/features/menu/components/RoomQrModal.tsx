@@ -9,6 +9,7 @@ import { Download } from 'lucide-react'
 import Modal from '@/components/ui/Modal'
 import Button from '@/components/ui/Button'
 import { useTranslation } from '@/i18n'
+import { publicHubUrl } from '@/lib/menu'
 
 interface RoomLite {
   _id: string
@@ -48,13 +49,11 @@ export function RoomQrModal({
   )
   const loading = roomsQuery.isLoading
 
-  // Guest menu is public on the root domain:
-  //   bronit.uz/<locale>/menu?hotel=<hotelSlug>&room=<roomNumber>
+  // Guest hub is public on the menu subdomain:
+  //   menu.bronit.uz/<locale>/<hotelSlug>?room=<roomNumber>
   function roomUrl(roomNumber: string): string {
     if (typeof window === 'undefined') return ''
-    const baseDomain = window.location.host.replace(/^(www|app|admin|super|demo)\./, '')
-    const params = `hotel=${encodeURIComponent(hotelSlug || '')}&room=${encodeURIComponent(roomNumber)}`
-    return `${window.location.protocol}//${baseDomain}/${lang}/menu?${params}`
+    return publicHubUrl(window.location.host, lang, hotelSlug || '', roomNumber, window.location.protocol)
   }
 
   const canGenerate = !!hotelSlug && rooms.length > 0

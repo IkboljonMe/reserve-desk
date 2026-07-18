@@ -17,9 +17,14 @@ const NAV_FEATURE_GATE: Record<string, FeatureKey> = {
   "/book": "calendar",
   "/clients": "clients",
   "/contracts": "contracts",
-  "/menu": "menu",
   "/orders": "menu",
   "/notifications": "notifications",
+};
+
+// Settings sub-pages gated by a plan feature (others are always shown to the
+// owner). Menu management lives under Settings now, so it follows the plan.
+const SETTINGS_CHILD_FEATURE_GATE: Record<string, FeatureKey> = {
+  "/settings/menu": "menu",
 };
 
 export default function Sidebar({
@@ -212,27 +217,6 @@ export default function Sidebar({
       ),
     },
     {
-      label: t("menu"),
-      href: "/menu",
-      icon: (
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M3 11h18" />
-          <path d="M12 11V3" />
-          <path d="M7 11a5 5 0 0 1 10 0" />
-          <path d="M5 15h14a2 2 0 0 1 2 2 4 4 0 0 1-4 4H7a4 4 0 0 1-4-4 2 2 0 0 1 2-2z" />
-        </svg>
-      ),
-    },
-    {
       label: t("orders"),
       href: "/orders",
       icon: (
@@ -295,8 +279,12 @@ export default function Sidebar({
         { label: t("services"), href: "/settings/services" },
         { label: t("hotelsAndRooms"), href: "/settings/hotels" },
         { label: t("clientGroups"), href: "/settings/client-groups" },
+        { label: t("menu"), href: "/settings/menu" },
         { label: t("telegram"), href: "/settings/telegram" },
-      ],
+      ].filter((child) => {
+        const gate = SETTINGS_CHILD_FEATURE_GATE[child.href];
+        return !gate || !planFeatures || planFeatures.includes(gate);
+      }),
     },
   ];
 

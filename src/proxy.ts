@@ -102,6 +102,17 @@ export async function proxy(request: NextRequest) {
 
   // --- SUBDOMAIN ROUTING ----------------------------------------------------
   if (sub) {
+    // Public guest hub — menu.bronit.uz/<locale>/<hotelSlug>[/food][?room=].
+    // Fully public (no auth). The clean path maps onto the internal guest
+    // route by prefixing /menu; the room query is preserved.
+    if (sub === 'menu') {
+      if (rest === '/' || rest === '') {
+        // Bare menu subdomain has no hotel to show — send to the marketing site.
+        return NextResponse.redirect(getRootUrl('/'))
+      }
+      return rewriteTo(`/menu${rest}${request.nextUrl.search}`)
+    }
+
     let cleanRest = rest
     const tenantMatch = rest.match(/^\/secure\/company\/[a-z0-9-]+(?:\/admin\/[a-z0-9-]+)?(\/.*)?$/)
     if (tenantMatch) {

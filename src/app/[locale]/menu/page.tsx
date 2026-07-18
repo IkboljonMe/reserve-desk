@@ -1,15 +1,9 @@
-import { notFound } from 'next/navigation'
-import type { Types } from 'mongoose'
-import { connectDB } from '@/lib/mongodb'
-import { Hotel } from '@/models/Hotel'
-import { HotelMenuSettings } from '@/models/HotelMenuSettings'
-import { resolveTiles } from '@/lib/tiles'
-import { GuestHubClient } from '@/features/menu/guest/GuestHubClient'
+import { redirect, notFound } from 'next/navigation'
+import { guestHubPath } from '@/lib/menu'
 
-// Public guest hub — the hotel landing page with service tiles.
-// URL: bronit.uz/<locale>/menu?hotel=<slug>&room=<n>
-// No auth required — hotel slug is globally unique.
-export default async function GuestHubPage({
+// Legacy hub URL (bronit.uz/<locale>/menu?hotel=<slug>&room=<n>) — kept so old
+// QR codes / links keep working. Redirects to the path-based hub.
+export default async function LegacyGuestHubPage({
   params,
   searchParams,
 }: {
@@ -17,51 +11,7 @@ export default async function GuestHubPage({
   searchParams: Promise<{ hotel?: string; room?: string }>
 }) {
   const { locale } = await params
-  const { hotel: hotelSlug, room } = await searchParams
-
-  if (!hotelSlug) notFound()
-
-  await connectDB()
-
-  const hotel = await Hotel.findOne({ slug: hotelSlug })
-    .select('_id name slug companyId')
-    .lean<{ _id: Types.ObjectId; name: string; slug?: string; companyId: Types.ObjectId } | null>()
+  const { hotel, room } = await searchParams
   if (!hotel) notFound()
-
-  const settings = await HotelMenuSettings.findOne({ hotelId: hotel._id })
-    .lean<{
-      bannerUrl?: string
-      logoUrl?: string
-      receptionPhone?: string
-      wifiName?: string
-      wifiPassword?: string
-      instagramUrl?: string
-      telegramUrl?: string
-      tripadvisorUrl?: string
-      googleMapsUrl?: string
-      tiles?: NonNullable<unknown>[]
-    } | null>()
-
-  const tiles = resolveTiles((settings?.tiles as Parameters<typeof resolveTiles>[0]) ?? [])
-
-  // First non-empty review URL becomes the reviews tile target.
-  const reviewUrl = settings?.tripadvisorUrl || settings?.googleMapsUrl || ''
-
-  return (
-    <GuestHubClient
-      hotelName={hotel.name}
-      hotelSlug={hotel.slug || hotelSlug}
-      logoUrl={settings?.logoUrl || ''}
-      bannerUrl={settings?.bannerUrl || ''}
-      room={typeof room === 'string' ? room : ''}
-      locale={locale}
-      tiles={tiles}
-      wifiName={settings?.wifiName || ''}
-      wifiPassword={settings?.wifiPassword || ''}
-      instagramUrl={settings?.instagramUrl || ''}
-      telegramUrl={settings?.telegramUrl || ''}
-      receptionPhone={settings?.receptionPhone || ''}
-      reviewUrl={reviewUrl}
-    />
-  )
+  redirect(guestHubPath(locale, hotel, room))
 }

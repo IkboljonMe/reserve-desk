@@ -1,11 +1,12 @@
-import { NextRequest } from 'next/server'
+import { NextRequest, after } from 'next/server'
+import type { Types } from 'mongoose'
 import { connectDB } from '@/lib/mongodb'
 import { Hotel } from '@/models/Hotel'
+import { notifyHubMessage } from '@/lib/telegram'
 
 // POST /api/menu/guest/report — anonymous guest problem report.
 // Body: { hotel: string, room: string, message: string }
-// For MVP: logs to the console and returns 200. A future version will forward
-// to the hotel's Telegram bot.
+// Forwards the report to the hotel's HUB Telegram topic (best-effort).
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
@@ -16,10 +17,14 @@ export async function POST(req: NextRequest) {
     }
 
     await connectDB()
-    const hotel = await Hotel.findOne({ slug: hotelSlug }).select('name').lean<{ name: string } | null>()
+    const hotel = await Hotel.findOne({ slug: hotelSlug })
+      .select('name companyId')
+      .lean<{ _id: Types.ObjectId; name: string; companyId: Types.ObjectId } | null>()
 
-    // Log the report. TODO: forward to Telegram when the hotel has a bot token.
-    console.info(`[guest-report] Hotel: ${hotel?.name ?? hotelSlug} | Room: ${room || '?'} | ${message.trim()}`)
+    if (hotel) {
+      const text = `⚠️ <b>Guest report</b>\n🏨 ${hotel.name}\n🛏️ ${room || '—'}\n\n${String(message).trim()}`
+      after(() => notifyHubMessage(hotel.companyId, hotel._id, text))
+    }
 
     return Response.json({ ok: true })
   } catch (err) {

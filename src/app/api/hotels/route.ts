@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
-import { Hotel, HOTEL_SLUG_PATTERN } from '@/models/Hotel'
+import { Hotel, HOTEL_SLUG_PATTERN, slugifyHotelName, isHotelSlugTaken } from '@/models/Hotel'
 import { getSession, requireOwner, requireWritable } from '@/lib/session'
 
 export async function GET() {
@@ -51,6 +51,12 @@ export async function POST(req: Request) {
   const existing = await Hotel.findOne({ shortName, companyId: session.companyId })
   if (existing) {
     return NextResponse.json({ error: `Short name "${shortName}" is already taken` }, { status: 409 })
+  }
+
+  // The slug is globally unique (public hub URL), so check across all companies.
+  const effectiveSlug = slug || slugifyHotelName(name)
+  if (await isHotelSlugTaken(effectiveSlug)) {
+    return NextResponse.json({ error: `The URL "${effectiveSlug}" is already used by another hotel — pick a different slug` }, { status: 409 })
   }
 
   try {
