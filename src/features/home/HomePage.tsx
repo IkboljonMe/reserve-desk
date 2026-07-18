@@ -1,13 +1,15 @@
 import { headers } from 'next/headers'
 import { getT } from '@/i18n/dictionary'
 import { JsonLd } from '@/components/JsonLd'
-import { PLANS } from './constants'
+import { connectDB } from '@/lib/mongodb'
+import { Plan } from '@/models/Plan'
+import type { FeatureKey } from '@/lib/planFeatures'
 import { Navbar } from './components/Navbar'
 import { Hero } from './components/Hero'
 import { Features } from './components/Features'
 import { Reviews } from './components/Reviews'
 import { Modules } from './components/Modules'
-import { Pricing } from './components/Pricing'
+import { Pricing, type PricingPlan } from './components/Pricing'
 import { Faq } from './components/Faq'
 import { FinalCta } from './components/FinalCta'
 import { Footer } from './components/Footer'
@@ -36,8 +38,23 @@ export async function HomePage({ locale }: { locale: string }) {
     { href: '#faq', label: 'FAQ' },
   ]
 
-  // Structured data for rich results. Prices are data-driven from PLANS.
-  const prices = PLANS.map(p => Number(p.price.replace(/\s/g, '')))
+  // Pricing is data-driven from the superadmin-managed Plans in the DB.
+  await connectDB()
+  const planDocs = await Plan.find()
+    .select('key name price description features highlight sortOrder')
+    .sort({ sortOrder: 1, price: 1, createdAt: 1 })
+    .lean()
+  const plans: PricingPlan[] = planDocs.map(p => ({
+    key: p.key,
+    name: p.name,
+    price: p.price ?? 0,
+    description: p.description ?? '',
+    features: (p.features ?? []) as FeatureKey[],
+    highlight: !!p.highlight,
+  }))
+
+  // Structured data for rich results, from the same plan prices.
+  const prices = plans.map(p => p.price).filter(p => p > 0)
   const organizationLd = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
@@ -53,13 +70,13 @@ export async function HomePage({ locale }: { locale: string }) {
     operatingSystem: 'Web',
     description: t('metaDescription'),
     url: `https://bronit.uz/${locale}`,
-    offers: {
+    offers: prices.length ? {
       '@type': 'AggregateOffer',
       priceCurrency: 'UZS',
       lowPrice: String(Math.min(...prices)),
       highPrice: String(Math.max(...prices)),
-      offerCount: PLANS.length,
-    },
+      offerCount: plans.length,
+    } : undefined,
   }
 
   return (
@@ -72,7 +89,7 @@ export async function HomePage({ locale }: { locale: string }) {
         <Features t={t} />
         <Reviews t={t} />
         <Modules t={t} />
-        <Pricing t={t} demoUrl={demoUrl} />
+        <Pricing t={t} demoUrl={demoUrl} plans={plans} />
         <Faq t={t} />
         <FinalCta t={t} demoUrl={demoUrl} />
         <Footer t={t} demoUrl={demoUrl} loginHref={loginHref} />

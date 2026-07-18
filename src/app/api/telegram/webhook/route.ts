@@ -6,6 +6,7 @@ import { TelegramTopic } from '@/models/TelegramTopic'
 import { MenuTelegramTopic } from '@/models/MenuTelegramTopic'
 import { TelegramSession } from '@/models/TelegramSession'
 import { deleteMessage, sendMessage, syncAllTopics } from '@/lib/telegram'
+import { companyHasFeature } from '@/lib/planAccess'
 
 interface TelegramUpdate {
   message?: {

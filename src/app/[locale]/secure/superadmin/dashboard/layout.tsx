@@ -1,7 +1,10 @@
 import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
 import { getSession } from '@/lib/session'
 import { connectDB } from '@/lib/mongodb'
 import { Company } from '@/models/Company'
+import { getSubdomain } from '@/lib/subdomain'
+import { DEMO_SLUG } from '@/features/demo/config'
 import { ToastProvider } from '@/components/ToastProvider'
 import LogoutButton from './LogoutButton'
 import MyAccountButton from './MyAccountButton'
@@ -31,7 +34,16 @@ export default async function SuperadminLayout({
   }
 
   await connectDB()
-  const notifCount = await Company.countDocuments({ expiresAt: { $lte: soonCutoff() } })
+  const notifCount = await Company.countDocuments({ slug: { $ne: DEMO_SLUG }, expiresAt: { $lte: soonCutoff() } })
+
+  // On the `super.` subdomain the proxy serves the superadmin tree at clean
+  // paths (super.bronit.uz/<locale>/dashboard/…), so drop the /secure/superadmin
+  // prefix from nav links there. On the root domain the full path is needed.
+  const host = (await headers()).get('host') || ''
+  const onSuperSubdomain = getSubdomain(host) === 'super'
+  const navBase = onSuperSubdomain
+    ? `/${locale}/dashboard`
+    : `/${locale}/secure/superadmin/dashboard`
 
   return (
     <ToastProvider>
@@ -51,7 +63,7 @@ export default async function SuperadminLayout({
             <LogoutButton />
           </div>
         </div>
-        <SuperadminNav locale={locale} notifCount={notifCount} />
+        <SuperadminNav basePath={navBase} notifCount={notifCount} />
         <main style={{ padding: '1.75rem 2rem', maxWidth: 960, margin: '0 auto' }}>
           {children}
         </main>

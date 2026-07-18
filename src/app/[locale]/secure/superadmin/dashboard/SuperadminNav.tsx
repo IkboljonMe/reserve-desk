@@ -4,15 +4,14 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslation } from '@/i18n'
 
-export default function SuperadminNav({ locale, notifCount }: { locale: string; notifCount: number }) {
+export default function SuperadminNav({ basePath, notifCount }: { basePath: string; notifCount: number }) {
   const { t } = useTranslation()
   const pathname = usePathname()
 
-  const base = `/${locale}/secure/superadmin/dashboard`
   const tabs = [
-    { href: base, label: t('companies') },
-    { href: `${base}/plans`, label: t('plans') },
-    { href: `${base}/notifications`, label: t('notifications'), badge: notifCount },
+    { href: basePath, label: t('companies') },
+    { href: `${basePath}/plans`, label: t('plans') },
+    { href: `${basePath}/notifications`, label: t('notifications'), badge: notifCount },
   ]
 
   return (
