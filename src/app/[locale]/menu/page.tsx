@@ -43,7 +43,8 @@ export default async function GuestMenuPage({
     .select('menuEnabled serviceFeeType serviceFeeValue')
     .lean<{ menuEnabled: boolean; serviceFeeType: 'none' | 'percent' | 'fixed'; serviceFeeValue: number } | null>()
 
-  if (!settings?.menuEnabled) {
+  // If settings don't exist yet, we default to showing the menu.
+  if (settings && !settings.menuEnabled) {
     return (
       <div className="min-h-dvh flex items-center justify-center bg-[var(--surface-bg)] text-[var(--gray-400)] text-sm px-4 text-center">
         {t('menuEmpty')}
@@ -76,7 +77,7 @@ export default async function GuestMenuPage({
     subtotal: t('subtotal'), serviceFee: t('serviceFee'), roomNumber: t('roomNumber'),
     guestNamePlaceholder: t('guestNamePlaceholder'), orderNotePlaceholder: t('orderNotePlaceholder'),
     orderFailed: t('orderFailed'), roomRequiredError: t('roomRequiredError'),
-    itemsN: n => t('cartItemsCount', { n }),
+    itemsN: t('cartItemsCount'),
     cancelledTitle: t('cancelledTitle'), cancelledSub: t('cancelledSub'),
     orderNo: t('orderNo'), couldNotLoad: t('couldNotLoad'), backToMenu: t('backToMenu'), orderSummary: t('orderSummary'),
     notes: t('notes'),
@@ -94,8 +95,8 @@ export default async function GuestMenuPage({
       categories={serialize(categories) as unknown as TCategory[]}
       products={serialize(products) as unknown as TProduct[]}
       recommendations={serialize(recommendations)}
-      serviceFeeType={settings.serviceFeeType}
-      serviceFeeValue={settings.serviceFeeValue}
+      serviceFeeType={settings?.serviceFeeType || 'none'}
+      serviceFeeValue={settings?.serviceFeeValue || 0}
     />
   )
 }

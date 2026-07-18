@@ -16,7 +16,7 @@ export interface GuestLabels {
   orderPlaced: string; orderPlacedDesc: string; emptyCart: string
   subtotal: string; serviceFee: string; roomNumber: string
   guestNamePlaceholder: string; orderNotePlaceholder: string
-  orderFailed: string; roomRequiredError: string; itemsN: (n: number) => string
+  orderFailed: string; roomRequiredError: string; itemsN: string
   cancelledTitle: string; cancelledSub: string; orderNo: string
   couldNotLoad: string; backToMenu: string; orderSummary: string; notes: string
   orderPending: string; orderPreparing: string; orderReady: string; orderDelivered: string
@@ -244,7 +244,7 @@ export function GuestMenuClient({
             onClick={() => { setError(''); setCartOpen(true) }}
             className="max-w-[680px] mx-auto w-full flex items-center justify-between gap-3 px-5 py-3.5 rounded-2xl bg-[var(--brand-500)] text-white font-bold shadow-lg"
           >
-            <span className="inline-flex items-center gap-2"><ShoppingBag size={18} /> {labels.itemsN(count)}</span>
+            <span className="inline-flex items-center gap-2"><ShoppingBag size={18} /> {labels.itemsN.replace('{n}', String(count))}</span>
             <span className="tabular-nums">{labels.viewOrder} · {money(total)} {labels.sum}</span>
           </button>
         </div>
