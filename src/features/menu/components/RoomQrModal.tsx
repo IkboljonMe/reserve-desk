@@ -48,13 +48,13 @@ export function RoomQrModal({
   )
   const loading = roomsQuery.isLoading
 
-  // Guest menu always lives on the app subdomain:
-  //   app.<baseDomain>/<locale>/menu?hotel=<hotelSlug>&room=<roomNumber>
+  // Guest menu is public on the root domain:
+  //   bronit.uz/<locale>/menu?hotel=<hotelSlug>&room=<roomNumber>
   function roomUrl(roomNumber: string): string {
     if (typeof window === 'undefined') return ''
     const baseDomain = window.location.host.replace(/^(www|app|admin|super|demo)\./, '')
     const params = `hotel=${encodeURIComponent(hotelSlug || '')}&room=${encodeURIComponent(roomNumber)}`
-    return `${window.location.protocol}//app.${baseDomain}/${lang}/menu?${params}`
+    return `${window.location.protocol}//${baseDomain}/${lang}/menu?${params}`
   }
 
   const canGenerate = !!hotelSlug && rooms.length > 0

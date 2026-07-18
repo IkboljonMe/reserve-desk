@@ -117,10 +117,6 @@ export async function proxy(request: NextRequest) {
         // If not logged in, just let them see the login page for app.
         return NextResponse.next()
       }
-      // Guest menu is public — no auth required.
-      if (cleanRest === '/menu' || cleanRest.startsWith('/menu/')) {
-        return NextResponse.next()
-      }
       if (!session || session.role !== 'owner') {
         return NextResponse.redirect(new URL(`/${locale}/login`, request.url))
       }
@@ -188,6 +184,12 @@ export async function proxy(request: NextRequest) {
 
   // The marketing site is always public. 
   if (rest === '/') {
+    return NextResponse.next()
+  }
+
+  // Guest menu — public, no auth. Served at bronit.uz/<locale>/menu?hotel=<slug>&room=<n>
+  // Owners reach their menu management at app.bronit.uz which rewrites to the dashboard.
+  if (rest === '/menu' || rest.startsWith('/menu/')) {
     return NextResponse.next()
   }
 
