@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "plans/VPS-Setup-and-Cloudflare.md",
+                "file": "plans/To_Botirjon/Login Credentials.md",
                 "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "VPS-Setup-and-Cloudflare"
+              "title": "Login Credentials"
             }
           }
         ]
@@ -185,11 +185,11 @@
   },
   "active": "4daf78ac7387fca7",
   "lastOpenFiles": [
+    "plans/VPS-Setup-and-Cloudflare.md",
     "plans/MongoDB-Strategy.md",
     "plans/MOC.md",
     "plans/Backend-and-Telegram-Bot.md",
     "plans/API-Design.md",
-    "plans/VPS-Setup-and-Cloudflare.md",
     "2026-07-11-mehmonxona-boshqaruv-tizimlari-raqobatchilar/Xulosa.md",
     "plans/API-Endpoints-Reference.md",
     "plans/MOC.md.tmp.2567967.3f941dff2ef7",
