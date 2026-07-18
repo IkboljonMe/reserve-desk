@@ -93,7 +93,7 @@ export function GuestMenuClient({
     let alive = true
     const load = async () => {
       try {
-        const res = await fetch(`/api/menu/guest/order/${placed.id}`, { cache: 'no-store' })
+        const res = await fetch(`/api/menu/guest/order/${placed.id}?hotel=${encodeURIComponent(hotelSlug)}`, { cache: 'no-store' })
         if (res.ok && alive) setTracked(await res.json())
       } catch {
         /* keep last known state */
