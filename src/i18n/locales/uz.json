@@ -694,6 +694,7 @@
   "noIconsMatch": "\"{query}\" ga mos belgi yo'q.",
   "iconsCount": "{count} ta belgi",
   "planExpiredBanner": "Tarifingiz muddati tugagan. Yangilanmaguncha ilova faqat ko'rish uchun ishlaydi.",
+  "demoModeBanner": "Demo rejimi — bu yerda kiritgan o'zgarishlaringiz saqlanmaydi.",
   "superadminPortal": "Superadmin portali",
   "companies": "Kompaniyalar",
   "companiesSubtitle": "Bronit'dan foydalanuvchi barcha kompaniyalarni, ularning tarifi va owner hisoblarini boshqaring.",

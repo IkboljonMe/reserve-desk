@@ -9,7 +9,7 @@ import Button from '@/components/ui/Button'
 
 export function CompanyModal({ s }: { s: CompaniesPageState }) {
   const { t } = useTranslation()
-  const { modalOpen, editCompany, closeModal, handleSave, saving, form, setForm, setName, setSlug, setOwnerEmailLocalPart, plans } = s
+  const { modalOpen, editCompany, closeModal, handleSave, saving, form, setForm, setName, setOwnerEmailLocalPart, plans } = s
   if (!modalOpen) return null
 
   return (
@@ -29,14 +29,6 @@ export function CompanyModal({ s }: { s: CompaniesPageState }) {
               <input className="form-input" required autoFocus value={form.name} onChange={e => setName(e.target.value)} />
             </div>
 
-            <div className="form-group">
-              <label className="form-label">{t('companySlug')} *</label>
-              <input className="form-input" required value={form.slug} onChange={e => setSlug(e.target.value)} />
-              <p className="mt-1 text-[0.75rem] text-gray-500">
-                {t('companySlugHint')}
-              </p>
-            </div>
-
             <div className="flex gap-3">
               <div className="form-group flex-1">
                 <label className="form-label">{t('plan')} *</label>
@@ -53,26 +45,22 @@ export function CompanyModal({ s }: { s: CompaniesPageState }) {
             </div>
 
             <div className="form-group">
-              <label className="form-label">{t('contactName')}</label>
-              <input className="form-input" value={form.contactName} onChange={e => setForm(f => ({ ...f, contactName: e.target.value }))} />
-            </div>
-            <div className="form-group">
-              <label className="form-label">{t('contactPhone')}</label>
-              <input className="form-input" value={form.contactPhone} onChange={e => setForm(f => ({ ...f, contactPhone: e.target.value }))} />
+              <label className="form-label">{t('fullName')} *</label>
+              <input className="form-input" required value={form.fullName} onChange={e => setForm(f => ({ ...f, fullName: e.target.value }))} />
             </div>
             <div className="form-group">
               <label className="form-label">{t('paymentMethod')}</label>
               <input className="form-input" placeholder="Payme, Click, cash…" value={form.paymentMethod} onChange={e => setForm(f => ({ ...f, paymentMethod: e.target.value }))} />
+            </div>
+            <div className="form-group">
+              <label className="form-label">{t('notes')}</label>
+              <textarea className="form-input" rows={2} value={form.note} onChange={e => setForm(f => ({ ...f, note: e.target.value }))} />
             </div>
 
             {!editCompany && (
               <>
                 <div className="h-px bg-surface-border my-1" />
                 <p className="text-[0.8125rem] font-semibold text-gray-700">{t('ownerAccount')}</p>
-                <div className="form-group">
-                  <label className="form-label">{t('fullName')} *</label>
-                  <input className="form-input" required value={form.ownerName} onChange={e => setForm(f => ({ ...f, ownerName: e.target.value }))} />
-                </div>
                 <div className="form-group">
                   <label className="form-label">{t('email')} *</label>
                   <div className="flex items-stretch">

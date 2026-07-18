@@ -3,7 +3,7 @@ import { getT } from '@/i18n/dictionary'
 import { JsonLd } from '@/components/JsonLd'
 import { connectDB } from '@/lib/mongodb'
 import { Plan } from '@/models/Plan'
-import type { FeatureKey } from '@/lib/planFeatures'
+import { planDescriptionFor, type FeatureKey } from '@/lib/planFeatures'
 import { Navbar } from './components/Navbar'
 import { Hero } from './components/Hero'
 import { Features } from './components/Features'
@@ -48,7 +48,8 @@ export async function HomePage({ locale }: { locale: string }) {
     key: p.key,
     name: p.name,
     price: p.price ?? 0,
-    description: p.description ?? '',
+    // Resolve the trilingual description to the landing page's language.
+    description: planDescriptionFor(p.description as Parameters<typeof planDescriptionFor>[0], locale),
     features: (p.features ?? []) as FeatureKey[],
     highlight: !!p.highlight,
   }))

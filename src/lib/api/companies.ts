@@ -10,6 +10,7 @@ export interface CompanyRecord {
   contactName: string
   contactPhone: string
   paymentMethod: string
+  note: string
   createdAt: string
   // Owner login (attached by the list endpoint) — so the superadmin can see
   // the account they created without opening the details modal.
@@ -25,13 +26,11 @@ export async function getCompanies(): Promise<CompanyRecord[]> {
 
 export interface CompanyInput {
   name: string
-  slug: string
   plan: CompanyPlan
   expiresAt: string
-  contactName?: string
-  contactPhone?: string
+  fullName?: string
   paymentMethod?: string
-  ownerName?: string
+  note?: string
   ownerEmail?: string
   ownerPassword?: string
 }

@@ -3,14 +3,14 @@
 import { Pencil, Trash2, Layers, Check, Star } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { FEATURE_LABELS } from '@/lib/planFeatures'
+import { FEATURE_LABELS, planDescriptionFor } from '@/lib/planFeatures'
 import type { PlansPageState } from '../usePlansPage'
 import Button from '@/components/ui/Button'
 
 const money = (v: number) => v.toLocaleString('en-US').replace(/,/g, ' ')
 
 export function PlanList({ s }: { s: PlansPageState }) {
-  const { t } = useTranslation()
+  const { t, lang } = useTranslation()
   const { plans, loading, openAdd, openEdit, deleteConfirm, setDeleteConfirm, handleDelete } = s
 
   if (loading) {
@@ -77,7 +77,9 @@ export function PlanList({ s }: { s: PlansPageState }) {
             {p.price > 0 && <span className="text-[0.8rem] text-gray-500 font-medium"> {t('uzsPerMonth')}</span>}
           </div>
 
-          {p.description && <p className="text-[0.8rem] text-gray-500 mb-3">{p.description}</p>}
+          {planDescriptionFor(p.description, lang) && (
+            <p className="text-[0.8rem] text-gray-500 mb-3">{planDescriptionFor(p.description, lang)}</p>
+          )}
 
           <ul className="flex flex-col gap-1.5 mt-auto pt-2">
             {p.features.length === 0 ? (

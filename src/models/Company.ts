@@ -24,8 +24,20 @@ export interface ICompany extends Document {
   contactName: string
   contactPhone: string
   paymentMethod: string
+  note: string
   createdAt: Date
   updatedAt: Date
+}
+
+// Generates a URL-safe slug from a company name (used internally for routing).
+export function slugifyCompanyName(name: string): string {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
 }
 
 const CompanySchema = new Schema<ICompany>(
@@ -47,6 +59,7 @@ const CompanySchema = new Schema<ICompany>(
     contactName: { type: String, default: '', trim: true },
     contactPhone: { type: String, default: '', trim: true },
     paymentMethod: { type: String, default: '', trim: true },
+    note: { type: String, default: '', trim: true },
   },
   { timestamps: true }
 )

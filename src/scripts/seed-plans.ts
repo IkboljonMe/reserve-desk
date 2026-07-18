@@ -32,7 +32,7 @@ type SeedPlan = {
   name: string
   features: FeatureKey[]
   price: number
-  description: string
+  description: { en: string; uz: string; ru: string }
   highlight: boolean
   sortOrder: number
 }
@@ -40,17 +40,29 @@ type SeedPlan = {
 const DEFAULT_PLANS: SeedPlan[] = [
   {
     key: 'standard', name: 'Standard', price: 300000, sortOrder: 0, highlight: false,
-    description: 'Bookings, clients and reminders for a single hotel.',
+    description: {
+      en: 'Bookings, clients and reminders for a single hotel.',
+      uz: 'Bitta mehmonxona uchun bronlar, mijozlar va eslatmalar.',
+      ru: 'Бронирования, клиенты и напоминания для одного отеля.',
+    },
     features: ['calendar', 'clients', 'notifications'],
   },
   {
     key: 'pro', name: 'Pro', price: 600000, sortOrder: 1, highlight: true,
-    description: 'Everything in Standard plus contracts and the room-service menu.',
+    description: {
+      en: 'Everything in Standard plus contracts and the room-service menu.',
+      uz: 'Standarddagi hamma narsa, ustiga shartnomalar va xona xizmati menyusi.',
+      ru: 'Всё из Standard плюс договоры и меню обслуживания в номерах.',
+    },
     features: ['calendar', 'clients', 'contracts', 'notifications', 'menu'],
   },
   {
     key: 'vip', name: 'VIP', price: 1000000, sortOrder: 2, highlight: false,
-    description: 'The full suite: guest hub and Telegram bot notifications included.',
+    description: {
+      en: 'The full suite: guest hub and Telegram bot notifications included.',
+      uz: "To'liq to'plam: mehmon hubi va Telegram bot bildirishnomalari ham bor.",
+      ru: 'Полный набор: гостевой хаб и уведомления Telegram-бота включены.',
+    },
     features: ['calendar', 'clients', 'contracts', 'notifications', 'menu', 'guestHub', 'telegram'],
   },
 ]

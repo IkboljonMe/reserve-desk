@@ -694,6 +694,7 @@
   "noIconsMatch": "No icons match \"{query}\".",
   "iconsCount": "{count} icons",
   "planExpiredBanner": "Your plan has expired. The app is read-only until it's renewed.",
+  "demoModeBanner": "Demo mode — changes you make here are not saved.",
   "superadminPortal": "Superadmin portal",
   "companies": "Companies",
   "companiesSubtitle": "Manage every company using Bronit, their plan, and their owner accounts.",

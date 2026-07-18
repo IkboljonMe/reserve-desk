@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose'
-import { FEATURE_KEYS, type FeatureKey } from '@/lib/planFeatures'
+import { FEATURE_KEYS, type FeatureKey, type PlanDescription } from '@/lib/planFeatures'
 
 export const PLAN_KEY_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/
 
@@ -8,7 +8,7 @@ export interface IPlan extends Document {
   name: string
   features: FeatureKey[]
   price: number        // integer UZS per month (0 = "contact us" / free)
-  description: string  // short marketing line shown on the landing card
+  description: PlanDescription  // short marketing line (per language) on the landing card
   highlight: boolean   // the "most popular" card on the landing page
   sortOrder: number    // ascending display order on the landing page
   createdAt: Date
@@ -31,7 +31,11 @@ const PlanSchema = new Schema<IPlan>(
     name: { type: String, required: true, trim: true },
     features: [{ type: String, enum: FEATURE_KEYS }],
     price: { type: Number, default: 0, min: 0 },
-    description: { type: String, default: '', trim: true },
+    description: {
+      en: { type: String, default: '', trim: true },
+      uz: { type: String, default: '', trim: true },
+      ru: { type: String, default: '', trim: true },
+    },
     highlight: { type: Boolean, default: false },
     sortOrder: { type: Number, default: 0 },
   },

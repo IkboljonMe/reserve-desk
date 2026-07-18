@@ -12,6 +12,7 @@ import { useBookingModal } from "@/components/BookingModalProvider";
 import { nowUZ } from "@/lib/timezone";
 import type { SessionRole } from "@/lib/session";
 import type { FeatureKey } from "@/lib/planFeatures";
+import { DemoGuard } from "@/components/DemoGuard";
 
 interface Props {
   children: React.ReactNode;
@@ -128,6 +129,9 @@ export default function DashboardContainer({
               {t("planExpiredBanner")}
             </div>
           )}
+
+          {/* Demo mode: blocks all writes client-side + shows a banner. */}
+          <DemoGuard />
 
           <main
             className={`flex-1 overflow-auto bg-(--surface-card) ${isMobile ? "p-[1.1rem]" : "py-7 px-8"}`}

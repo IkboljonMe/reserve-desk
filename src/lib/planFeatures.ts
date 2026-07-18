@@ -38,3 +38,17 @@ export const FEATURE_LABEL_I18N: Record<FeatureKey, string> = {
 export function isFeatureKey(v: unknown): v is FeatureKey {
   return typeof v === 'string' && (FEATURE_KEYS as readonly string[]).includes(v)
 }
+
+// A plan's marketing description, translated for the three app languages.
+export type PlanDescription = { en: string; uz: string; ru: string }
+
+export const EMPTY_PLAN_DESCRIPTION: PlanDescription = { en: '', uz: '', ru: '' }
+
+// Picks the description for a locale, with fallbacks. Tolerates a legacy plain
+// string (pre-trilingual data) by treating it as the value for every language.
+export function planDescriptionFor(desc: PlanDescription | string | undefined | null, locale: string): string {
+  if (!desc) return ''
+  if (typeof desc === 'string') return desc
+  const l = locale as keyof PlanDescription
+  return desc[l] || desc.en || desc.ru || desc.uz || ''
+}

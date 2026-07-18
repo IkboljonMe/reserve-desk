@@ -53,12 +53,21 @@ export function PlanModal({ s }: { s: PlansPageState }) {
 
             <div className="form-group">
               <label className="form-label">{t('planDescription')}</label>
-              <input
-                className="form-input"
-                value={form.description}
-                placeholder={t('planDescriptionPlaceholder')}
-                onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-              />
+              <p className="mb-1.5 text-[0.75rem] text-gray-500">{t('planDescriptionPlaceholder')}</p>
+              <div className="flex flex-col gap-2">
+                {(['en', 'ru', 'uz'] as const).map(lng => (
+                  <div key={lng} className="flex items-stretch">
+                    <span className="inline-flex items-center px-2.5 rounded-l-lg border border-r-0 border-gray-200 bg-gray-50 text-gray-500 text-[0.7rem] font-bold uppercase w-11 justify-center">
+                      {lng}
+                    </span>
+                    <input
+                      className="form-input rounded-l-none"
+                      value={form.description[lng]}
+                      onChange={e => setForm(f => ({ ...f, description: { ...f.description, [lng]: e.target.value } }))}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
 
             <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer select-none">

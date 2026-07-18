@@ -29,9 +29,13 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       if (Number.isNaN(d.getTime())) return Response.json({ error: 'Invalid expiry date' }, { status: 400 })
       update.expiresAt = d
     }
-    if (typeof body.contactName === 'string') update.contactName = body.contactName.trim()
+    // "Full name" edits the company contact name (owner login name is managed
+    // via the accounts modal, not here).
+    if (typeof body.fullName === 'string') update.contactName = body.fullName.trim()
+    else if (typeof body.contactName === 'string') update.contactName = body.contactName.trim()
     if (typeof body.contactPhone === 'string') update.contactPhone = body.contactPhone.trim()
     if (typeof body.paymentMethod === 'string') update.paymentMethod = body.paymentMethod.trim()
+    if (typeof body.note === 'string') update.note = body.note.trim()
 
     await connectDB()
 

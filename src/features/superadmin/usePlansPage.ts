@@ -5,6 +5,7 @@ import { useToast } from '@/components/ToastProvider'
 import { useTranslation } from '@/i18n'
 import { getPlans, savePlan, deletePlan, type PlanRecord } from '@/lib/api/plans'
 import type { FeatureKey } from '@/lib/planFeatures'
+import { EMPTY_PLAN_DESCRIPTION } from '@/lib/planFeatures'
 
 function slugify(name: string) {
   return name
@@ -18,7 +19,7 @@ function slugify(name: string) {
 
 export const EMPTY_FORM = {
   key: '', name: '', features: [] as FeatureKey[],
-  price: 0, description: '', highlight: false,
+  price: 0, description: { ...EMPTY_PLAN_DESCRIPTION }, highlight: false,
 }
 
 export function usePlansPage() {
@@ -57,7 +58,13 @@ export function usePlansPage() {
   function openEdit(p: PlanRecord) {
     setEditPlan(p)
     setKeyTouched(true)
-    setForm({ key: p.key, name: p.name, features: p.features, price: p.price, description: p.description, highlight: p.highlight })
+    setForm({
+      key: p.key, name: p.name, features: p.features, price: p.price, highlight: p.highlight,
+      // Tolerate legacy string descriptions by lifting them into `en`.
+      description: typeof p.description === 'string'
+        ? { ...EMPTY_PLAN_DESCRIPTION, en: p.description }
+        : { ...EMPTY_PLAN_DESCRIPTION, ...p.description },
+    })
     setModalOpen(true)
   }
 
@@ -93,7 +100,7 @@ export function usePlansPage() {
           name: form.name.trim(),
           features: form.features,
           price: form.price,
-          description: form.description.trim(),
+          description: form.description,
           highlight: form.highlight,
           ...(editPlan ? {} : { key: form.key.trim() }),
         },

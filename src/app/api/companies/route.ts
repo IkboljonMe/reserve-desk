@@ -1,11 +1,26 @@
 import { NextRequest } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
-import { Company, RESERVED_SLUGS, SLUG_PATTERN } from '@/models/Company'
+import { Company, RESERVED_SLUGS, slugifyCompanyName } from '@/models/Company'
 import { Admin } from '@/models/Admin'
 import { Plan } from '@/models/Plan'
 import { requireSuperadmin } from '@/lib/session'
 import { isBronitEmail } from '@/lib/bronitEmail'
 import { DEMO_SLUG } from '@/features/demo/config'
+
+// Derives a URL-safe, globally-unique company slug from its name — appending
+// -2, -3, … on a clash and avoiding reserved words. Returns '' if the name has
+// no slug-able characters. Assumes an open DB connection.
+async function uniqueCompanySlug(name: string): Promise<string> {
+  const base = slugifyCompanyName(name)
+  if (!base) return ''
+  let candidate = base
+  let n = 1
+  while (RESERVED_SLUGS.includes(candidate) || (await Company.findOne({ slug: candidate }).select('_id').lean())) {
+    n += 1
+    candidate = `${base}-${n}`
+  }
+  return candidate
+}
 
 export async function GET() {
   const session = await requireSuperadmin()
@@ -40,26 +55,24 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
     const name = typeof body.name === 'string' ? body.name.trim() : ''
-    const slug = typeof body.slug === 'string' ? body.slug.trim().toLowerCase() : ''
     const plan = typeof body.plan === 'string' ? body.plan.trim().toLowerCase() : ''
-    const contactName = typeof body.contactName === 'string' ? body.contactName.trim() : ''
-    const contactPhone = typeof body.contactPhone === 'string' ? body.contactPhone.trim() : ''
+    // "Full name" — the person we deal with; used for both the company contact
+    // and the owner login's display name.
+    const fullName = typeof body.fullName === 'string' ? body.fullName.trim() : ''
     const paymentMethod = typeof body.paymentMethod === 'string' ? body.paymentMethod.trim() : ''
+    const note = typeof body.note === 'string' ? body.note.trim() : ''
     const expiresAt = body.expiresAt ? new Date(body.expiresAt) : null
 
-    const ownerName = typeof body.ownerName === 'string' ? body.ownerName.trim() : ''
     const ownerEmail = typeof body.ownerEmail === 'string' ? body.ownerEmail.toLowerCase().trim() : ''
     const ownerPassword = typeof body.ownerPassword === 'string' ? body.ownerPassword : ''
 
     if (!name) return Response.json({ error: 'Company name is required' }, { status: 400 })
-    if (!slug || !SLUG_PATTERN.test(slug) || RESERVED_SLUGS.includes(slug)) {
-      return Response.json({ error: 'Slug must be lowercase letters, numbers and hyphens, and not a reserved word' }, { status: 400 })
-    }
     if (!expiresAt || Number.isNaN(expiresAt.getTime())) {
       return Response.json({ error: 'A valid expiry date is required' }, { status: 400 })
     }
-    if (!ownerName || !ownerEmail || !ownerPassword) {
-      return Response.json({ error: 'Owner name, email, and password are required' }, { status: 400 })
+    if (!fullName) return Response.json({ error: 'Full name is required' }, { status: 400 })
+    if (!ownerEmail || !ownerPassword) {
+      return Response.json({ error: 'Email and password are required' }, { status: 400 })
     }
     if (!isBronitEmail(ownerEmail)) {
       return Response.json({ error: 'Owner email must end with @bronit.uz' }, { status: 400 })
@@ -73,15 +86,17 @@ export async function POST(req: NextRequest) {
     const planDoc = await Plan.findOne({ key: plan })
     if (!planDoc) return Response.json({ error: 'Unknown plan' }, { status: 400 })
 
-    const slugClash = await Company.findOne({ slug })
-    if (slugClash) return Response.json({ error: `Slug "${slug}" is already taken` }, { status: 409 })
-
     const emailClash = await Admin.findOne({ email: ownerEmail })
     if (emailClash) return Response.json({ error: 'An account with that email already exists' }, { status: 409 })
 
-    const company = await Company.create({ name, slug, plan, expiresAt, contactName, contactPhone, paymentMethod })
+    // Slug is derived from the name (no longer entered by hand) and made unique
+    // by appending -2, -3, … since it's still the internal routing identifier.
+    const slug = await uniqueCompanySlug(name)
+    if (!slug) return Response.json({ error: 'Could not derive a URL from that company name — use letters or numbers' }, { status: 400 })
+
+    const company = await Company.create({ name, slug, plan, expiresAt, contactName: fullName, paymentMethod, note })
     const owner = await Admin.create({
-      name: ownerName,
+      name: fullName,
       email: ownerEmail,
       password: ownerPassword,
       role: 'owner',

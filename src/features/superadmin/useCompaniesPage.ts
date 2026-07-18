@@ -7,26 +7,17 @@ import { getCompanies, saveCompany, deleteCompany, type CompanyRecord, type Comp
 import { getPlans, type PlanRecord } from '@/lib/api/plans'
 import { toBronitEmail } from '@/lib/bronitEmail'
 
-function slugify(name: string) {
-  return name
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '')
-}
-
 function defaultExpiry() {
   const d = new Date()
   d.setFullYear(d.getFullYear() + 1)
   return d.toISOString().slice(0, 10)
 }
 
+// The slug is derived from the name server-side (no longer entered here).
 export const EMPTY_FORM = {
-  name: '', slug: '', plan: 'standard' as CompanyPlan, expiresAt: defaultExpiry(),
-  contactName: '', contactPhone: '', paymentMethod: '',
-  ownerName: '', ownerEmail: '', ownerPassword: '',
+  name: '', plan: 'standard' as CompanyPlan, expiresAt: defaultExpiry(),
+  fullName: '', paymentMethod: '', note: '',
+  ownerEmail: '', ownerPassword: '',
 }
 
 export function useCompaniesPage() {
@@ -38,7 +29,6 @@ export function useCompaniesPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const [editCompany, setEditCompany] = useState<CompanyRecord | null>(null)
   const [form, setForm] = useState(EMPTY_FORM)
-  const [slugTouched, setSlugTouched] = useState(false)
   const [saving, setSaving] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [accountsCompany, setAccountsCompany] = useState<CompanyRecord | null>(null)
@@ -61,18 +51,16 @@ export function useCompaniesPage() {
 
   function openAdd() {
     setEditCompany(null)
-    setSlugTouched(false)
     setForm({ ...EMPTY_FORM, plan: plans[0]?.key ?? EMPTY_FORM.plan })
     setModalOpen(true)
   }
 
   function openEdit(c: CompanyRecord) {
     setEditCompany(c)
-    setSlugTouched(true)
     setForm({
       ...EMPTY_FORM,
-      name: c.name, slug: c.slug, plan: c.plan, expiresAt: c.expiresAt.slice(0, 10),
-      contactName: c.contactName, contactPhone: c.contactPhone, paymentMethod: c.paymentMethod,
+      name: c.name, plan: c.plan, expiresAt: c.expiresAt.slice(0, 10),
+      fullName: c.contactName, paymentMethod: c.paymentMethod, note: c.note ?? '',
     })
     setModalOpen(true)
   }
@@ -84,12 +72,7 @@ export function useCompaniesPage() {
   }
 
   function setName(name: string) {
-    setForm(f => ({ ...f, name, slug: slugTouched ? f.slug : slugify(name) }))
-  }
-
-  function setSlug(slug: string) {
-    setSlugTouched(true)
-    setForm(f => ({ ...f, slug: slugify(slug) }))
+    setForm(f => ({ ...f, name }))
   }
 
   function setOwnerEmailLocalPart(localPart: string) {
@@ -98,21 +81,19 @@ export function useCompaniesPage() {
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
-    if (!form.name.trim() || !form.slug.trim() || !form.expiresAt) return
-    if (!editCompany && (!form.ownerName.trim() || !form.ownerEmail.trim() || !form.ownerPassword)) return
+    if (!form.name.trim() || !form.expiresAt || !form.fullName.trim()) return
+    if (!editCompany && (!form.ownerEmail.trim() || !form.ownerPassword)) return
     setSaving(true)
     try {
       await saveCompany(
         {
           name: form.name.trim(),
-          slug: form.slug.trim(),
           plan: form.plan,
           expiresAt: form.expiresAt,
-          contactName: form.contactName.trim(),
-          contactPhone: form.contactPhone.trim(),
+          fullName: form.fullName.trim(),
           paymentMethod: form.paymentMethod.trim(),
+          note: form.note.trim(),
           ...(editCompany ? {} : {
-            ownerName: form.ownerName.trim(),
             ownerEmail: form.ownerEmail.trim(),
             ownerPassword: form.ownerPassword,
           }),
@@ -141,7 +122,7 @@ export function useCompaniesPage() {
   }
 
   return {
-    companies, plans, loading, modalOpen, editCompany, form, setForm, setName, setSlug, setOwnerEmailLocalPart, saving,
+    companies, plans, loading, modalOpen, editCompany, form, setForm, setName, setOwnerEmailLocalPart, saving,
     deleteConfirm, setDeleteConfirm, openAdd, openEdit, closeModal, handleSave, handleDelete,
     accountsCompany, openAccounts: setAccountsCompany, closeAccounts: () => setAccountsCompany(null),
   }

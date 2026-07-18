@@ -1,4 +1,4 @@
-import type { FeatureKey } from '@/lib/planFeatures'
+import type { FeatureKey, PlanDescription } from '@/lib/planFeatures'
 
 export interface PlanRecord {
   _id: string
@@ -6,7 +6,7 @@ export interface PlanRecord {
   name: string
   features: FeatureKey[]
   price: number
-  description: string
+  description: PlanDescription
   highlight: boolean
   sortOrder: number
   createdAt: string
@@ -23,7 +23,7 @@ export interface PlanInput {
   name: string
   features: FeatureKey[]
   price: number
-  description: string
+  description: PlanDescription
   highlight: boolean
 }
 

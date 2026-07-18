@@ -19,7 +19,11 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       update.features = body.features.filter((f: unknown) => FEATURE_KEYS.includes(f as never))
     }
     if (body.price !== undefined) update.price = Math.max(0, Math.round(Number(body.price) || 0))
-    if (typeof body.description === 'string') update.description = body.description.trim()
+    if (body.description !== undefined && typeof body.description === 'object') {
+      const d = body.description as Record<string, unknown>
+      const s = (x: unknown) => (typeof x === 'string' ? x.trim() : '')
+      update.description = { en: s(d.en), uz: s(d.uz), ru: s(d.ru) }
+    }
     if (body.highlight !== undefined) update.highlight = Boolean(body.highlight)
     if (body.sortOrder !== undefined) update.sortOrder = Math.round(Number(body.sortOrder) || 0)
 
