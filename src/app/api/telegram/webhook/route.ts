@@ -79,6 +79,13 @@ export async function POST(req: NextRequest) {
         return new Response('OK')
       }
 
+      // Telegram notifications are a plan feature — only companies whose plan
+      // includes it may connect a group.
+      if (!(await companyHasFeature(admin.companyId, 'telegram'))) {
+        await sendMessage(chatId, 'Уведомления в Telegram недоступны на вашем тарифе. Обновите тариф, чтобы подключить группу.', message.message_thread_id)
+        return new Response('OK')
+      }
+
       // Moving to a different group invalidates this company's old topics —
       // their messageThreadIds belong to the old chat. Same-group re-login
       // (e.g. after /login was interrupted) leaves existing topics intact.

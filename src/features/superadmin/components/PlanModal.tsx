@@ -9,7 +9,7 @@ import Button from '@/components/ui/Button'
 
 export function PlanModal({ s }: { s: PlansPageState }) {
   const { t } = useTranslation()
-  const { modalOpen, editPlan, closeModal, handleSave, saving, form, setName, setKey, toggleFeature } = s
+  const { modalOpen, editPlan, closeModal, handleSave, saving, form, setForm, setName, setKey, toggleFeature } = s
   if (!modalOpen) return null
 
   return (
@@ -36,6 +36,39 @@ export function PlanModal({ s }: { s: PlansPageState }) {
                 <p className="mt-1 text-[0.75rem] text-gray-500">{t('planKeyHelp')}</p>
               </div>
             )}
+
+            <div className="flex gap-3">
+              <div className="form-group flex-1">
+                <label className="form-label">{t('planPrice')}</label>
+                <input
+                  className="form-input"
+                  inputMode="numeric"
+                  value={form.price ? String(form.price) : ''}
+                  placeholder="0"
+                  onChange={e => setForm(f => ({ ...f, price: Math.max(0, Number(e.target.value.replace(/\D/g, '')) || 0) }))}
+                />
+                <p className="mt-1 text-[0.75rem] text-gray-500">{t('planPriceHelp')}</p>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">{t('planDescription')}</label>
+              <input
+                className="form-input"
+                value={form.description}
+                placeholder={t('planDescriptionPlaceholder')}
+                onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
+              />
+            </div>
+
+            <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={form.highlight}
+                onChange={e => setForm(f => ({ ...f, highlight: e.target.checked }))}
+              />
+              {t('planHighlight')}
+            </label>
 
             <div className="form-group">
               <label className="form-label">{t('planFeatures')}</label>

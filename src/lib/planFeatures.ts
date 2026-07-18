@@ -8,6 +8,7 @@ export const FEATURE_KEYS = [
   'menu',
   'notifications',
   'guestHub',
+  'telegram',
 ] as const
 
 export type FeatureKey = typeof FEATURE_KEYS[number]
@@ -19,6 +20,19 @@ export const FEATURE_LABELS: Record<FeatureKey, string> = {
   menu: 'Menu & Orders',
   notifications: 'Notifications',
   guestHub: 'Guest Hub',
+  telegram: 'Telegram Bot Notifications',
+}
+
+// i18n key for each feature's label, so localized surfaces (the landing page)
+// can translate them. The superadmin UI uses FEATURE_LABELS (English) directly.
+export const FEATURE_LABEL_I18N: Record<FeatureKey, string> = {
+  calendar: 'featureCalendar',
+  clients: 'featureClients',
+  contracts: 'featureContracts',
+  menu: 'featureMenu',
+  notifications: 'featureNotifications',
+  guestHub: 'featureGuestHub',
+  telegram: 'featureTelegram',
 }
 
 export function isFeatureKey(v: unknown): v is FeatureKey {

@@ -7,6 +7,10 @@ export interface IPlan extends Document {
   key: string // matches Company.plan, e.g. "standard" — immutable after creation
   name: string
   features: FeatureKey[]
+  price: number        // integer UZS per month (0 = "contact us" / free)
+  description: string  // short marketing line shown on the landing card
+  highlight: boolean   // the "most popular" card on the landing page
+  sortOrder: number    // ascending display order on the landing page
   createdAt: Date
   updatedAt: Date
 }
@@ -26,6 +30,10 @@ const PlanSchema = new Schema<IPlan>(
     },
     name: { type: String, required: true, trim: true },
     features: [{ type: String, enum: FEATURE_KEYS }],
+    price: { type: Number, default: 0, min: 0 },
+    description: { type: String, default: '', trim: true },
+    highlight: { type: Boolean, default: false },
+    sortOrder: { type: Number, default: 0 },
   },
   { timestamps: true }
 )

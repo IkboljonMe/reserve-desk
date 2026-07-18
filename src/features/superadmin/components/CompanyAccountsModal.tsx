@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Copy, KeyRound, Check } from 'lucide-react'
+import { Copy, KeyRound, Check, LogIn } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import { useToast } from '@/components/ToastProvider'
 import { getCompanyAdmins, resetCompanyAdminPassword, type CompanyAdminRecord, type CompanyRecord } from '@/lib/api/companies'
@@ -24,7 +24,7 @@ function generatePassword(): string {
 }
 
 export function CompanyAccountsModal({ company, onClose }: { company: CompanyRecord | null; onClose: () => void }) {
-  const { t } = useTranslation()
+  const { t, lang } = useTranslation()
   const { showToast } = useToast()
   const [admins, setAdmins] = useState<CompanyAdminRecord[]>([])
   const [loading, setLoading] = useState(false)
@@ -56,6 +56,16 @@ export function CompanyAccountsModal({ company, onClose }: { company: CompanyRec
   /* eslint-enable react-hooks/set-state-in-effect */
 
   if (!company) return null
+
+  // Opens the account's own login page in a new tab with the email prefilled —
+  // the superadmin just types the (master or account) password. Returns '' for
+  // an admin whose hotel has no slug yet (can't build the area login path).
+  function loginUrl(a: CompanyAdminRecord): string {
+    const q = `?email=${encodeURIComponent(a.email)}`
+    if (a.role === 'owner') return `/${lang}/secure/company/${company!.slug}/login${q}`
+    if (a.hotelId?.slug) return `/${lang}/secure/company/${company!.slug}/admin/${a.hotelId.slug}/login${q}`
+    return ''
+  }
 
   function startReset(id: string) {
     setResettingId(id)
@@ -121,6 +131,16 @@ export function CompanyAccountsModal({ company, onClose }: { company: CompanyRec
                 >
                   {copiedId === `email-${a._id}` ? <Check size={13} /> : <Copy size={13} />}
                 </button>
+                {loginUrl(a) && (
+                  <a
+                    href={loginUrl(a)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ml-auto inline-flex items-center gap-1 text-brand-600 hover:underline font-medium"
+                  >
+                    <LogIn size={13} /> {t('openLogin')}
+                  </a>
+                )}
               </div>
 
               {resettingId === a._id ? (

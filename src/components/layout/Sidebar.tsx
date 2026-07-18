@@ -25,6 +25,7 @@ const NAV_FEATURE_GATE: Record<string, FeatureKey> = {
 // owner). Menu management lives under Settings now, so it follows the plan.
 const SETTINGS_CHILD_FEATURE_GATE: Record<string, FeatureKey> = {
   "/settings/menu": "menu",
+  "/settings/telegram": "telegram",
 };
 
 export default function Sidebar({

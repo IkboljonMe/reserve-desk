@@ -725,6 +725,7 @@
   "accountUpdated": "Hisob yangilandi",
   "accountUpdateFailed": "Hisobni yangilab bo'lmadi",
   "loginDetails": "Kirish ma'lumotlari",
+  "openLogin": "Kirishni ochish",
   "viewLoginDetailsAria": "Kirish ma'lumotlarini ko'rish",
   "loadAccountsFailed": "Hisoblarni yuklab bo'lmadi",
   "noAccountsYet": "Hozircha hisoblar yo'q",

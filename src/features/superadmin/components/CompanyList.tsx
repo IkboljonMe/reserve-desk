@@ -49,6 +49,9 @@ export function CompanyList({ s }: { s: CompaniesPageState }) {
                 <div className="flex-1 min-w-0">
                   <div className="font-semibold text-gray-800">{c.name}</div>
                   <div className="text-[0.8125rem] text-gray-500">/{c.slug}</div>
+                  {c.ownerEmail && (
+                    <div className="text-[0.8125rem] text-gray-500 truncate">{c.ownerEmail}</div>
+                  )}
                 </div>
                 <Badge variant="gray" className="shrink-0">
                   {planName(c.plan)}

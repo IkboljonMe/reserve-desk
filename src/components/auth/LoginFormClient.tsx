@@ -6,9 +6,13 @@ import { useTranslation } from "@/i18n";
 import Spinner from "@/components/ui/Spinner";
 import Button from "@/components/ui/Button";
 
-export default function LoginFormClient() {
+// `initialEmail` prefills the field when a login link supplies it (e.g. the
+// superadmin "open login" shortcut passes ?email=). The password is never
+// prefilled. Passed from the server page so we avoid useSearchParams (which
+// would force a Suspense boundary / dynamic rendering on the login pages).
+export default function LoginFormClient({ initialEmail = "" }: { initialEmail?: string }) {
   const { t, lang } = useTranslation();
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);

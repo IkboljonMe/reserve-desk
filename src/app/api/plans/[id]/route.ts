@@ -18,6 +18,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     if (Array.isArray(body.features)) {
       update.features = body.features.filter((f: unknown) => FEATURE_KEYS.includes(f as never))
     }
+    if (body.price !== undefined) update.price = Math.max(0, Math.round(Number(body.price) || 0))
+    if (typeof body.description === 'string') update.description = body.description.trim()
+    if (body.highlight !== undefined) update.highlight = Boolean(body.highlight)
+    if (body.sortOrder !== undefined) update.sortOrder = Math.round(Number(body.sortOrder) || 0)
 
     await connectDB()
     const plan = await Plan.findByIdAndUpdate(id, update, { new: true, runValidators: true })

@@ -725,6 +725,7 @@
   "accountUpdated": "Аккаунт обновлён",
   "accountUpdateFailed": "Не удалось обновить аккаунт",
   "loginDetails": "Данные для входа",
+  "openLogin": "Открыть вход",
   "viewLoginDetailsAria": "Посмотреть данные для входа",
   "loadAccountsFailed": "Не удалось загрузить аккаунты",
   "noAccountsYet": "Пока нет аккаунтов",

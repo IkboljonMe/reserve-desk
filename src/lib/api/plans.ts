@@ -5,6 +5,10 @@ export interface PlanRecord {
   key: string
   name: string
   features: FeatureKey[]
+  price: number
+  description: string
+  highlight: boolean
+  sortOrder: number
   createdAt: string
 }
 
@@ -18,6 +22,9 @@ export interface PlanInput {
   key?: string
   name: string
   features: FeatureKey[]
+  price: number
+  description: string
+  highlight: boolean
 }
 
 export async function savePlan(input: PlanInput, id?: string) {

@@ -16,7 +16,10 @@ function slugify(name: string) {
     .replace(/^-|-$/g, '')
 }
 
-export const EMPTY_FORM = { key: '', name: '', features: [] as FeatureKey[] }
+export const EMPTY_FORM = {
+  key: '', name: '', features: [] as FeatureKey[],
+  price: 0, description: '', highlight: false,
+}
 
 export function usePlansPage() {
   const { showToast } = useToast()
@@ -54,7 +57,7 @@ export function usePlansPage() {
   function openEdit(p: PlanRecord) {
     setEditPlan(p)
     setKeyTouched(true)
-    setForm({ key: p.key, name: p.name, features: p.features })
+    setForm({ key: p.key, name: p.name, features: p.features, price: p.price, description: p.description, highlight: p.highlight })
     setModalOpen(true)
   }
 
@@ -86,7 +89,14 @@ export function usePlansPage() {
     setSaving(true)
     try {
       await savePlan(
-        { name: form.name.trim(), features: form.features, ...(editPlan ? {} : { key: form.key.trim() }) },
+        {
+          name: form.name.trim(),
+          features: form.features,
+          price: form.price,
+          description: form.description.trim(),
+          highlight: form.highlight,
+          ...(editPlan ? {} : { key: form.key.trim() }),
+        },
         editPlan?._id
       )
       showToast(editPlan ? t('planUpdated') : t('planAdded'), 'success')

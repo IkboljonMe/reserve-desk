@@ -725,6 +725,7 @@
   "accountUpdated": "Account updated",
   "accountUpdateFailed": "Failed to update account",
   "loginDetails": "Login Details",
+  "openLogin": "Open login",
   "viewLoginDetailsAria": "View login details",
   "loadAccountsFailed": "Failed to load accounts",
   "noAccountsYet": "No accounts yet",

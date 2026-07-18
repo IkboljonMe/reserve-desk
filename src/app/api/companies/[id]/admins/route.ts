@@ -14,7 +14,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 
   const admins = await Admin.find({ companyId: id, role: { $in: ['owner', 'admin'] } })
     .select('-password')
-    .populate('hotelId', 'name shortName')
+    .populate('hotelId', 'name shortName slug')
     .sort({ role: 1, createdAt: 1 })
     .lean()
 

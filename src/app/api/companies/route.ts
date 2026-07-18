@@ -5,14 +5,30 @@ import { Admin } from '@/models/Admin'
 import { Plan } from '@/models/Plan'
 import { requireSuperadmin } from '@/lib/session'
 import { isBronitEmail } from '@/lib/bronitEmail'
+import { DEMO_SLUG } from '@/features/demo/config'
 
 export async function GET() {
   const session = await requireSuperadmin()
   if (session instanceof Response) return session
 
   await connectDB()
-  const companies = await Company.find().sort({ createdAt: -1 }).lean()
-  return Response.json(companies)
+  // The demo tenant is public/seeded — hide it from the real customer list.
+  const companies = await Company.find({ slug: { $ne: DEMO_SLUG } }).sort({ createdAt: -1 }).lean()
+
+  // Attach each company's owner email/name so the superadmin can see the login
+  // they created at a glance (one query, then map in memory).
+  const owners = await Admin.find({
+    role: 'owner',
+    companyId: { $in: companies.map(c => c._id) },
+  }).select('companyId name email').lean()
+
+  const ownerByCompany = new Map(owners.map(o => [String(o.companyId), o]))
+  const withOwners = companies.map(c => {
+    const owner = ownerByCompany.get(String(c._id))
+    return { ...c, ownerEmail: owner?.email ?? '', ownerName: owner?.name ?? '' }
+  })
+
+  return Response.json(withOwners)
 }
 
 // Creates a Company AND its first Owner admin account in one step — a company
