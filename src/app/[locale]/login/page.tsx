@@ -6,8 +6,15 @@ import { getSubdomain } from '@/lib/subdomain'
 
 // On the root domain this shows selecting the owner/admin portal,
 // while on correct subdomains it displays the real login form.
-export default async function UniversalLoginPage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function UniversalLoginPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>
+  searchParams: Promise<{ email?: string }>
+}) {
   const { locale } = await params
+  const { email } = await searchParams
   const t = getT(locale)
   const reqHeaders = await headers()
   const host = reqHeaders.get('host') || ''
@@ -55,7 +62,7 @@ export default async function UniversalLoginPage({ params }: { params: Promise<{
           ) : (
              <>
                <h2 className="text-white text-[1.125rem] font-semibold mb-6">{t('signInToAccount')}</h2>
-               <LoginFormClient />
+               <LoginFormClient initialEmail={typeof email === 'string' ? email : ''} />
              </>
           )}
         </div>

@@ -57,14 +57,16 @@ export function CompanyAccountsModal({ company, onClose }: { company: CompanyRec
 
   if (!company) return null
 
-  // Opens the account's own login page in a new tab with the email prefilled —
-  // the superadmin just types the (master or account) password. Returns '' for
-  // an admin whose hotel has no slug yet (can't build the area login path).
+  // Opens the account's own portal login in a new tab with the email prefilled
+  // — owners at app.<domain>, branch admins at admin.<domain> (the portal's
+  // subdomain both blocks the wrong role and gives the login API its context).
+  // The superadmin just types the master (or the account's) password.
   function loginUrl(a: CompanyAdminRecord): string {
-    const q = `?email=${encodeURIComponent(a.email)}`
-    if (a.role === 'owner') return `/${lang}/secure/company/${company!.slug}/login${q}`
-    if (a.hotelId?.slug) return `/${lang}/secure/company/${company!.slug}/admin/${a.hotelId.slug}/login${q}`
-    return ''
+    if (typeof window === 'undefined') return ''
+    const { host, protocol } = window.location
+    const base = host.replace(/^(www|app|admin|super|demo|menu)\./, '') // → bronit.uz
+    const portal = a.role === 'owner' ? 'app' : 'admin'
+    return `${protocol}//${portal}.${base}/${lang}/login?email=${encodeURIComponent(a.email)}`
   }
 
   function startReset(id: string) {
