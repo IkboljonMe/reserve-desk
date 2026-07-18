@@ -7,8 +7,9 @@ export interface IMenuCategory extends Document {
   companyId: Types.ObjectId    // tenant (denormalized for scoped queries)
   hotelId: Types.ObjectId
   name: string                 // source/fallback text (in sourceLang)
-  sourceLang: string           // 'en' | 'ru' | 'uz'
-  nameI18n: LocalizedText      // { en, ru, uz } — empty entries fall back to `name`
+  sourceLang: string           // one of MENU_LANGS
+  nameI18n: LocalizedText      // 10-language map — empty entries fall back to `name`
+  nameI18nLocked: string[]     // languages kept as sourceLang text, not auto-translated
   sortOrder: number
   createdAt: Date
   updatedAt: Date
@@ -21,6 +22,7 @@ const MenuCategorySchema = new Schema<IMenuCategory>(
     name: { type: String, required: true, trim: true },
     sourceLang: { type: String, default: 'en' },
     nameI18n: { type: LocalizedSchema, default: () => ({}) },
+    nameI18nLocked: { type: [String], default: [] },
     sortOrder: { type: Number, default: 0 },
   },
   { timestamps: true },

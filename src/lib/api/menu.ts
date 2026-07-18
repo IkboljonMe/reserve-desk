@@ -75,6 +75,19 @@ export function deleteRecommendation(id: string): Promise<{ ok: true }> {
   return fetch(`/api/menu/recommendations/${id}`, { method: 'DELETE' }).then(r => json<{ ok: true }>(r))
 }
 
+// ── Translate ──
+export function translateText(
+  text: string,
+  sourceLang: string,
+  skip: string[] = [],
+): Promise<Record<string, string>> {
+  return fetch('/api/menu/translate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text, sourceLang, skip }),
+  }).then(r => json<{ translations: Record<string, string> }>(r)).then(d => d.translations)
+}
+
 // ── Orders (staff) ──
 export function getOrders(params: { hotelId?: string; status?: string } = {}): Promise<MenuOrder[]> {
   const qs = new URLSearchParams()

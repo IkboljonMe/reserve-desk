@@ -5,17 +5,25 @@ import Modal from '@/components/ui/Modal'
 import Button from '@/components/ui/Button'
 import Dropdown from '@/components/ui/Dropdown'
 import { useTranslation } from '@/i18n'
+import { useToast } from '@/components/ToastProvider'
+import { MENU_LANGS, MENU_LANG_LABELS, type MenuLang } from '@/lib/menu'
+import { translateText } from '@/lib/api/menu'
 import { LocalizedInput, FIELD_INPUT } from './LocalizedInput'
 import type { MenuPageState } from '../useMenuPage'
 import type { LocalizedText } from '../types'
 
-const EMPTY: LocalizedText = { en: '', ru: '', uz: '' }
+const EMPTY: LocalizedText = { en: '', ru: '', uz: '', ar: '', zh: '', fr: '', es: '', de: '', kk: '', tr: '' }
+const LANG_OPTIONS = MENU_LANGS.map(l => ({ value: l, label: MENU_LANG_LABELS[l] }))
 
 export function ProductModal({ s }: { s: MenuPageState }) {
   const { t, lang } = useTranslation()
+  const { showToast } = useToast()
   const [categoryId, setCategoryId] = useState('')
   const [name, setName] = useState<LocalizedText>(EMPTY)
+  const [nameLocked, setNameLocked] = useState<string[]>([])
   const [desc, setDesc] = useState<LocalizedText>(EMPTY)
+  const [descLocked, setDescLocked] = useState<string[]>([])
+  const [sourceLang, setSourceLang] = useState<MenuLang>('en')
   const [price, setPrice] = useState('')
   const [imageUrl, setImageUrl] = useState('')
   const [available, setAvailable] = useState(true)
@@ -27,7 +35,10 @@ export function ProductModal({ s }: { s: MenuPageState }) {
     /* eslint-disable react-hooks/set-state-in-effect -- form reset on open */
     setCategoryId(p?.categoryId || s.productCategoryId || s.categories[0]?._id || '')
     setName(p ? { ...EMPTY, ...p.nameI18n } : EMPTY)
+    setNameLocked(p?.nameI18nLocked || [])
     setDesc(p ? { ...EMPTY, ...p.descI18n } : EMPTY)
+    setDescLocked(p?.descI18nLocked || [])
+    setSourceLang((p?.sourceLang as MenuLang) || 'en')
     setPrice(p ? String(p.price) : '')
     setImageUrl(p?.imageUrl || '')
     setAvailable(p ? p.available : true)
@@ -36,19 +47,30 @@ export function ProductModal({ s }: { s: MenuPageState }) {
 
   const submit = (e: FormEvent) => {
     e.preventDefault()
-    const source = name.en || name.ru || name.uz
+    const source = name[sourceLang]
     if (!source.trim() || !categoryId) return
     s.saveProduct({
       categoryId,
       name: source,
       nameI18n: name,
-      description: desc.en || desc.ru || desc.uz,
+      nameI18nLocked: nameLocked,
+      description: desc[sourceLang],
       descI18n: desc,
+      descI18nLocked: descLocked,
       price: Math.max(0, Math.round(Number(price) || 0)),
       imageUrl,
       available,
-      sourceLang: 'en',
+      sourceLang,
     })
+  }
+
+  async function handleTranslate(text: string, source: string, skip: string[]) {
+    try {
+      return await translateText(text, source, skip)
+    } catch {
+      showToast(t('translateNotConfigured'), 'error')
+      return {}
+    }
   }
 
   return (
@@ -66,18 +88,41 @@ export function ProductModal({ s }: { s: MenuPageState }) {
       }
     >
       <form id="product-form" onSubmit={submit} className="flex flex-col gap-3.5">
-        <div className="flex flex-col gap-1.5">
-          <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('category')}</label>
-          <Dropdown
-            value={categoryId}
-            onChange={setCategoryId}
-            options={s.categories.map(c => ({ value: c._id, label: c.nameI18n[lang] || c.name }))}
-            ariaLabel={t('category')}
-          />
+        <div className="grid grid-cols-2 max-[480px]:grid-cols-1 gap-4">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('category')}</label>
+            <Dropdown
+              value={categoryId}
+              onChange={setCategoryId}
+              options={s.categories.map(c => ({ value: c._id, label: c.nameI18n[lang] || c.name }))}
+              ariaLabel={t('category')}
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('inputLanguage')}</label>
+            <Dropdown value={sourceLang} onChange={v => setSourceLang(v as MenuLang)} options={LANG_OPTIONS} ariaLabel={t('inputLanguage')} />
+          </div>
         </div>
 
-        <LocalizedInput label={t('productName')} value={name} onChange={setName} />
-        <LocalizedInput label={t('description')} value={desc} onChange={setDesc} textarea />
+        <LocalizedInput
+          label={t('productName')}
+          value={name}
+          onChange={setName}
+          sourceLang={sourceLang}
+          locked={nameLocked}
+          onLockedChange={setNameLocked}
+          onTranslate={handleTranslate}
+        />
+        <LocalizedInput
+          label={t('description')}
+          value={desc}
+          onChange={setDesc}
+          sourceLang={sourceLang}
+          locked={descLocked}
+          onLockedChange={setDescLocked}
+          onTranslate={handleTranslate}
+          textarea
+        />
 
         <div className="grid grid-cols-2 max-[480px]:grid-cols-1 gap-4">
           <div className="flex flex-col gap-1.5">

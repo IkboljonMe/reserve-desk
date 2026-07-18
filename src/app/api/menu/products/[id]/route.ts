@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { MenuProduct } from '@/models/MenuProduct'
 import { requireDashboard, requireWritable, idScope } from '@/lib/session'
-import { sanitizeI18n } from '@/lib/menu'
+import { sanitizeI18n, sanitizeLocked } from '@/lib/menu'
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireDashboard()
@@ -20,7 +20,9 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     if (typeof body.categoryId === 'string' && body.categoryId) update.categoryId = body.categoryId
     if (typeof body.sourceLang === 'string') update.sourceLang = body.sourceLang
     if (body.nameI18n !== undefined) update.nameI18n = sanitizeI18n(body.nameI18n)
+    if (body.nameI18nLocked !== undefined) update.nameI18nLocked = sanitizeLocked(body.nameI18nLocked)
     if (body.descI18n !== undefined) update.descI18n = sanitizeI18n(body.descI18n)
+    if (body.descI18nLocked !== undefined) update.descI18nLocked = sanitizeLocked(body.descI18nLocked)
     if (body.price !== undefined) update.price = Math.max(0, Math.round(Number(body.price) || 0))
     if (typeof body.imageUrl === 'string') update.imageUrl = body.imageUrl
     if (typeof body.available === 'boolean') update.available = body.available

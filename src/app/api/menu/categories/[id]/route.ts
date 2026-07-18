@@ -3,7 +3,7 @@ import { connectDB } from '@/lib/mongodb'
 import { MenuCategory } from '@/models/MenuCategory'
 import { MenuProduct } from '@/models/MenuProduct'
 import { requireDashboard, requireWritable, idScope } from '@/lib/session'
-import { sanitizeI18n } from '@/lib/menu'
+import { sanitizeI18n, sanitizeLocked } from '@/lib/menu'
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireDashboard()
@@ -19,6 +19,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     if (typeof body.name === 'string' && body.name.trim()) update.name = body.name.trim()
     if (typeof body.sourceLang === 'string') update.sourceLang = body.sourceLang
     if (body.nameI18n !== undefined) update.nameI18n = sanitizeI18n(body.nameI18n)
+    if (body.nameI18nLocked !== undefined) update.nameI18nLocked = sanitizeLocked(body.nameI18nLocked)
     if (typeof body.sortOrder === 'number') update.sortOrder = body.sortOrder
 
     await connectDB()

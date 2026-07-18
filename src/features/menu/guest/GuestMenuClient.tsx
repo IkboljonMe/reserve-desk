@@ -5,7 +5,7 @@ import { Plus, Minus, ShoppingBag, Check, Sparkles, UtensilsCrossed } from 'luci
 import Modal from '@/components/ui/Modal'
 import Button from '@/components/ui/Button'
 import Spinner from '@/components/ui/Spinner'
-import { localized, computeServiceFee } from '@/lib/menu'
+import { localized, computeServiceFee, MENU_LANGS, MENU_LANG_LABELS } from '@/lib/menu'
 import { money } from '@/lib/bookingHelpers'
 import { ORDER_STATUS_META } from '../constants'
 import type { MenuCategory, MenuProduct, OrderStatus } from '../types'
@@ -51,6 +51,9 @@ export function GuestMenuClient({
   serviceFeeValue: number
 }) {
   const cartKey = `bronit-menu-cart:${hotelSlug}:${room || 'guest'}`
+  // The menu's food/category text can be shown in any of the 10 content
+  // languages, independent of the page chrome's locale (uz/ru/en, ?locale).
+  const [contentLang, setContentLang] = useState(locale)
   const [cart, setCart] = useState<Record<string, number>>({})
   const [hydrated, setHydrated] = useState(false)
   const [cartOpen, setCartOpen] = useState(false)
@@ -173,17 +176,29 @@ export function GuestMenuClient({
           <h1 className="text-[1.05rem] font-extrabold truncate m-0">{hotelName}</h1>
           {room && <p className="text-[0.8rem] text-[var(--gray-500)] m-0 mt-0.5">{labels.room} {room}</p>}
         </div>
-        <nav className="flex items-center gap-1 shrink-0">
-          {LOCALES.map(l => (
-            <a key={l} href={`/${l}/menu?${query}`} className={`px-2 py-1 rounded-md text-[0.75rem] font-bold uppercase ${l === locale ? 'bg-[var(--brand-500)] text-white' : 'text-[var(--gray-500)] hover:bg-[var(--gray-100)]'}`}>{l}</a>
-          ))}
+        <nav className="flex items-center gap-1.5 shrink-0">
+          <select
+            value={contentLang}
+            onChange={e => setContentLang(e.target.value)}
+            aria-label="Menu language"
+            className="px-2 py-1 rounded-md text-[0.75rem] font-bold bg-[var(--gray-100)] text-[var(--gray-700)] border-none outline-none cursor-pointer"
+          >
+            {MENU_LANGS.map(l => (
+              <option key={l} value={l}>{MENU_LANG_LABELS[l]}</option>
+            ))}
+          </select>
+          <div className="flex items-center gap-1">
+            {LOCALES.map(l => (
+              <a key={l} href={`/${l}/menu?${query}`} className={`px-2 py-1 rounded-md text-[0.75rem] font-bold uppercase ${l === locale ? 'bg-[var(--brand-500)] text-white' : 'text-[var(--gray-500)] hover:bg-[var(--gray-100)]'}`}>{l}</a>
+            ))}
+          </div>
         </nav>
       </header>
 
       <main className="max-w-[680px] mx-auto px-4 py-5 flex flex-col gap-6">
         <RecommendationBanner
           items={recommendations}
-          locale={locale}
+          contentLang={contentLang}
           labels={labels}
           onAdd={p => setQty(p._id, (cart[p._id] || 0) + 1)}
         />
@@ -195,11 +210,11 @@ export function GuestMenuClient({
             if (prods.length === 0) return null
             return (
               <section key={cat._id}>
-                <h2 className="text-[1.1rem] font-bold mb-3 text-[var(--gray-800)]">{localized(cat.nameI18n, cat.name, locale)}</h2>
+                <h2 className="text-[1.1rem] font-bold mb-3 text-[var(--gray-800)]">{localized(cat.nameI18n, cat.name, contentLang)}</h2>
                 <ul className="list-none m-0 p-0 flex flex-col gap-2.5">
                   {prods.map(p => {
-                    const name = localized(p.nameI18n, p.name, locale)
-                    const desc = localized(p.descI18n, p.description, locale)
+                    const name = localized(p.nameI18n, p.name, contentLang)
+                    const desc = localized(p.descI18n, p.description, contentLang)
                     return (
                       <li key={p._id} className="flex gap-3 items-center bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-xl p-3 shadow-sm">
                         {p.imageUrl && (
@@ -259,7 +274,7 @@ export function GuestMenuClient({
               {lines.map(l => (
                 <li key={l.p._id} className="flex items-center gap-3">
                   <div className="min-w-0 flex-1">
-                    <div className="font-semibold text-[0.9rem] text-[var(--gray-800)] truncate">{localized(l.p.nameI18n, l.p.name, locale)}</div>
+                    <div className="font-semibold text-[0.9rem] text-[var(--gray-800)] truncate">{localized(l.p.nameI18n, l.p.name, contentLang)}</div>
                     <div className="text-[0.78rem] text-[var(--gray-500)] tabular-nums">{money(l.p.price)} {labels.sum}</div>
                   </div>
                   <Stepper id={l.p._id} />
@@ -292,10 +307,10 @@ export function GuestMenuClient({
 // Auto-rotating, swipeable banner of "today's picks" (scroll-snap, no extra
 // animation dependency). Hidden entirely when nothing is featured today.
 function RecommendationBanner({
-  items, locale, labels, onAdd,
+  items, contentLang, labels, onAdd,
 }: {
   items: MenuProduct[]
-  locale: string
+  contentLang: string
   labels: GuestLabels
   onAdd: (product: MenuProduct) => void
 }) {
@@ -335,8 +350,8 @@ function RecommendationBanner({
         className="flex snap-x snap-mandatory overflow-x-auto scroll-smooth rounded-xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {items.map(p => {
-          const name = localized(p.nameI18n, p.name, locale)
-          const desc = localized(p.descI18n, p.description, locale)
+          const name = localized(p.nameI18n, p.name, contentLang)
+          const desc = localized(p.descI18n, p.description, contentLang)
           return (
             <div key={p._id} className="relative h-36 w-full shrink-0 snap-center overflow-hidden">
               {p.imageUrl ? (

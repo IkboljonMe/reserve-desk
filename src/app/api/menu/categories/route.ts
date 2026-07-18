@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { MenuCategory } from '@/models/MenuCategory'
 import { requireDashboard, requireWritable, writeHotelId } from '@/lib/session'
-import { sanitizeI18n } from '@/lib/menu'
+import { sanitizeI18n, sanitizeLocked } from '@/lib/menu'
 
 // GET /api/menu/categories?hotelId=… — categories for one hotel's menu.
 export async function GET(req: NextRequest) {
@@ -41,6 +41,7 @@ export async function POST(req: NextRequest) {
       name: body.name.trim(),
       sourceLang: body.sourceLang || 'en',
       nameI18n: sanitizeI18n(body.nameI18n),
+      nameI18nLocked: sanitizeLocked(body.nameI18nLocked),
       sortOrder: typeof body.sortOrder === 'number' ? body.sortOrder : 0,
     })
     return Response.json(category, { status: 201 })

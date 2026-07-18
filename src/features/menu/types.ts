@@ -2,6 +2,13 @@ export interface LocalizedText {
   en: string
   ru: string
   uz: string
+  ar: string
+  zh: string
+  fr: string
+  es: string
+  de: string
+  kk: string
+  tr: string
 }
 
 export interface MenuCategory {
@@ -10,6 +17,7 @@ export interface MenuCategory {
   name: string
   sourceLang: string
   nameI18n: LocalizedText
+  nameI18nLocked: string[]   // languages kept as sourceLang text, not auto-translated
   sortOrder: number
 }
 
@@ -21,7 +29,9 @@ export interface MenuProduct {
   description: string
   sourceLang: string
   nameI18n: LocalizedText
+  nameI18nLocked: string[]
   descI18n: LocalizedText
+  descI18nLocked: string[]
   price: number
   imageUrl: string
   available: boolean

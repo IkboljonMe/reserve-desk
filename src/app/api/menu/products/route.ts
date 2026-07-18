@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { MenuProduct } from '@/models/MenuProduct'
 import { requireDashboard, requireWritable, writeHotelId } from '@/lib/session'
-import { sanitizeI18n } from '@/lib/menu'
+import { sanitizeI18n, sanitizeLocked } from '@/lib/menu'
 
 function toUZS(v: unknown): number {
   return Math.max(0, Math.round(Number(v) || 0))
@@ -48,7 +48,9 @@ export async function POST(req: NextRequest) {
       description: typeof body.description === 'string' ? body.description : '',
       sourceLang: body.sourceLang || 'en',
       nameI18n: sanitizeI18n(body.nameI18n),
+      nameI18nLocked: sanitizeLocked(body.nameI18nLocked),
       descI18n: sanitizeI18n(body.descI18n),
+      descI18nLocked: sanitizeLocked(body.descI18nLocked),
       price: toUZS(body.price),
       imageUrl: typeof body.imageUrl === 'string' ? body.imageUrl : '',
       available: body.available !== false,

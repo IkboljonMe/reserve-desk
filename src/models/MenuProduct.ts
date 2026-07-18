@@ -11,7 +11,9 @@ export interface IMenuProduct extends Document {
   description: string          // source/fallback text
   sourceLang: string
   nameI18n: LocalizedText
+  nameI18nLocked: string[]
   descI18n: LocalizedText
+  descI18nLocked: string[]
   price: number                // integer UZS (so'm) — whole units, no minor units
   imageUrl: string
   available: boolean
@@ -29,7 +31,9 @@ const MenuProductSchema = new Schema<IMenuProduct>(
     description: { type: String, default: '' },
     sourceLang: { type: String, default: 'en' },
     nameI18n: { type: LocalizedSchema, default: () => ({}) },
+    nameI18nLocked: { type: [String], default: [] },
     descI18n: { type: LocalizedSchema, default: () => ({}) },
+    descI18nLocked: { type: [String], default: [] },
     price: { type: Number, required: true, min: 0 },
     imageUrl: { type: String, default: '' },
     available: { type: Boolean, default: true },
