@@ -2,7 +2,9 @@ import { NextRequest } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Company, RESERVED_SLUGS, SLUG_PATTERN } from '@/models/Company'
 import { Admin } from '@/models/Admin'
+import { Plan } from '@/models/Plan'
 import { requireSuperadmin } from '@/lib/session'
+import { isBronitEmail } from '@/lib/bronitEmail'
 
 export async function GET() {
   const session = await requireSuperadmin()
@@ -23,7 +25,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const name = typeof body.name === 'string' ? body.name.trim() : ''
     const slug = typeof body.slug === 'string' ? body.slug.trim().toLowerCase() : ''
-    const plan = ['standard', 'pro', 'vip'].includes(body.plan) ? body.plan : 'standard'
+    const plan = typeof body.plan === 'string' ? body.plan.trim().toLowerCase() : ''
     const contactName = typeof body.contactName === 'string' ? body.contactName.trim() : ''
     const contactPhone = typeof body.contactPhone === 'string' ? body.contactPhone.trim() : ''
     const paymentMethod = typeof body.paymentMethod === 'string' ? body.paymentMethod.trim() : ''
@@ -43,11 +45,17 @@ export async function POST(req: NextRequest) {
     if (!ownerName || !ownerEmail || !ownerPassword) {
       return Response.json({ error: 'Owner name, email, and password are required' }, { status: 400 })
     }
+    if (!isBronitEmail(ownerEmail)) {
+      return Response.json({ error: 'Owner email must end with @bronit.uz' }, { status: 400 })
+    }
     if (ownerPassword.length < 6) {
       return Response.json({ error: 'Owner password must be at least 6 characters' }, { status: 400 })
     }
 
     await connectDB()
+
+    const planDoc = await Plan.findOne({ key: plan })
+    if (!planDoc) return Response.json({ error: 'Unknown plan' }, { status: 400 })
 
     const slugClash = await Company.findOne({ slug })
     if (slugClash) return Response.json({ error: `Slug "${slug}" is already taken` }, { status: 409 })

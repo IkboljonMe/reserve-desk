@@ -11,6 +11,7 @@ import { useTranslation } from "@/i18n";
 import { useBookingModal } from "@/components/BookingModalProvider";
 import { nowUZ } from "@/lib/timezone";
 import type { SessionRole } from "@/lib/session";
+import type { FeatureKey } from "@/lib/planFeatures";
 
 interface Props {
   children: React.ReactNode;
@@ -20,6 +21,7 @@ interface Props {
   basePath: string;
   hotelName: string;
   readOnly?: boolean;
+  planFeatures?: FeatureKey[];
 }
 
 export default function DashboardContainer({
@@ -30,6 +32,7 @@ export default function DashboardContainer({
   basePath,
   hotelName,
   readOnly,
+  planFeatures,
 }: Props) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -72,6 +75,7 @@ export default function DashboardContainer({
           mobile={isMobile}
           mobileOpen={mobileNavOpen}
           onCloseMobile={() => setMobileNavOpen(false)}
+          planFeatures={planFeatures}
         />
 
         <div className="flex-1 flex flex-col overflow-hidden min-w-0">

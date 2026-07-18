@@ -1,4 +1,5 @@
-export type CompanyPlan = 'standard' | 'pro' | 'vip'
+// A free-form key referencing Plan.key — see src/models/Plan.ts.
+export type CompanyPlan = string
 
 export interface CompanyRecord {
   _id: string

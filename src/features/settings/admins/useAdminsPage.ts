@@ -5,6 +5,7 @@ import { useToast } from '@/components/ToastProvider'
 import { useTranslation } from '@/i18n'
 import { getAdmins, saveAdmin, deleteAdmin, type AdminRecord } from '@/lib/api/admins'
 import { getHotels } from '@/lib/api/hotels'
+import { toBronitEmail } from '@/lib/bronitEmail'
 
 export interface Hotel {
   _id: string
@@ -60,6 +61,10 @@ export function useAdminsPage() {
     setForm(EMPTY_FORM)
   }
 
+  function setEmailLocalPart(localPart: string) {
+    setForm(f => ({ ...f, email: toBronitEmail(localPart) }))
+  }
+
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
     if (!form.name.trim() || !form.email.trim() || !form.hotelId) return
@@ -97,7 +102,7 @@ export function useAdminsPage() {
   const noHotels = hotels.length === 0
 
   return {
-    admins, hotels, loading, modalOpen, editAdmin, form, setForm, saving,
+    admins, hotels, loading, modalOpen, editAdmin, form, setForm, setEmailLocalPart, saving,
     deleteConfirm, setDeleteConfirm, openAdd, openEdit, closeModal, handleSave, handleDelete, noHotels,
   }
 }

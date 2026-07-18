@@ -3,12 +3,15 @@
 import { X } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import Spinner from '@/components/ui/Spinner'
+import { bronitLocalPart, BRONIT_DOMAIN } from '@/lib/bronitEmail'
 import type { AdminsPageState } from '../useAdminsPage'
 import Button from '@/components/ui/Button'
 
+const FIELD_CLASS = "w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+
 export function AdminModal({ s }: { s: AdminsPageState }) {
   const { t } = useTranslation()
-  const { modalOpen, editAdmin, closeModal, handleSave, saving, form, setForm, hotels } = s
+  const { modalOpen, editAdmin, closeModal, handleSave, saving, form, setForm, setEmailLocalPart, hotels } = s
   if (!modalOpen) return null
 
   return (
@@ -30,7 +33,21 @@ export function AdminModal({ s }: { s: AdminsPageState }) {
 
             <div className="flex flex-col gap-1.5">
               <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">{t('email')} *</label>
-              <input className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[var(--gray-800)] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]" type="email" required value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
+              {editAdmin ? (
+                <input className={FIELD_CLASS} type="email" required value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
+              ) : (
+                <div className="flex items-stretch">
+                  <input
+                    className={`${FIELD_CLASS} rounded-r-none`}
+                    required
+                    value={bronitLocalPart(form.email)}
+                    onChange={e => setEmailLocalPart(e.target.value)}
+                  />
+                  <span className="inline-flex items-center px-3 rounded-r-lg border border-l-0 border-[var(--gray-200)] bg-[var(--gray-50)] text-[var(--gray-500)] text-sm whitespace-nowrap">
+                    {BRONIT_DOMAIN}
+                  </span>
+                </div>
+              )}
             </div>
 
             <div className="flex flex-col gap-1.5">

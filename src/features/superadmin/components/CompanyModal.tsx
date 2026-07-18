@@ -3,12 +3,13 @@
 import { X } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import Spinner from '@/components/ui/Spinner'
+import { bronitLocalPart, BRONIT_DOMAIN } from '@/lib/bronitEmail'
 import type { CompaniesPageState } from '../useCompaniesPage'
 import Button from '@/components/ui/Button'
 
 export function CompanyModal({ s }: { s: CompaniesPageState }) {
   const { t } = useTranslation()
-  const { modalOpen, editCompany, closeModal, handleSave, saving, form, setForm, setName, setSlug } = s
+  const { modalOpen, editCompany, closeModal, handleSave, saving, form, setForm, setName, setSlug, setOwnerEmailLocalPart, plans } = s
   if (!modalOpen) return null
 
   return (
@@ -39,10 +40,10 @@ export function CompanyModal({ s }: { s: CompaniesPageState }) {
             <div className="flex gap-3">
               <div className="form-group flex-1">
                 <label className="form-label">{t('plan')} *</label>
-                <select className="form-input" required value={form.plan} onChange={e => setForm(f => ({ ...f, plan: e.target.value as typeof f.plan }))}>
-                  <option value="standard">Standard</option>
-                  <option value="pro">Pro</option>
-                  <option value="vip">VIP</option>
+                <select className="form-input" required value={form.plan} onChange={e => setForm(f => ({ ...f, plan: e.target.value }))}>
+                  {plans.map(p => (
+                    <option key={p._id} value={p.key}>{p.name}</option>
+                  ))}
                 </select>
               </div>
               <div className="form-group flex-1">
@@ -74,7 +75,17 @@ export function CompanyModal({ s }: { s: CompaniesPageState }) {
                 </div>
                 <div className="form-group">
                   <label className="form-label">{t('email')} *</label>
-                  <input className="form-input" type="email" required value={form.ownerEmail} onChange={e => setForm(f => ({ ...f, ownerEmail: e.target.value }))} />
+                  <div className="flex items-stretch">
+                    <input
+                      className="form-input rounded-r-none"
+                      required
+                      value={bronitLocalPart(form.ownerEmail)}
+                      onChange={e => setOwnerEmailLocalPart(e.target.value)}
+                    />
+                    <span className="inline-flex items-center px-3 rounded-r-lg border border-l-0 border-gray-200 bg-gray-50 text-gray-500 text-sm whitespace-nowrap">
+                      {BRONIT_DOMAIN}
+                    </span>
+                  </div>
                 </div>
                 <div className="form-group">
                   <label className="form-label">{t('password')} *</label>

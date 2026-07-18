@@ -3,6 +3,7 @@ import { connectDB } from '@/lib/mongodb'
 import { Company, RESERVED_SLUGS, SLUG_PATTERN } from '@/models/Company'
 import { Hotel } from '@/models/Hotel'
 import { Admin } from '@/models/Admin'
+import { Plan } from '@/models/Plan'
 import { requireSuperadmin } from '@/lib/session'
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -22,7 +23,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       }
       update.slug = slug
     }
-    if (['standard', 'pro', 'vip'].includes(body.plan)) update.plan = body.plan
+    if (typeof body.plan === 'string' && body.plan.trim()) update.plan = body.plan.trim().toLowerCase()
     if (body.expiresAt) {
       const d = new Date(body.expiresAt)
       if (Number.isNaN(d.getTime())) return Response.json({ error: 'Invalid expiry date' }, { status: 400 })
@@ -33,6 +34,12 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     if (typeof body.paymentMethod === 'string') update.paymentMethod = body.paymentMethod.trim()
 
     await connectDB()
+
+    if (update.plan) {
+      const planDoc = await Plan.findOne({ key: update.plan })
+      if (!planDoc) return Response.json({ error: 'Unknown plan' }, { status: 400 })
+    }
+
     const company = await Company.findByIdAndUpdate(id, update, { new: true, runValidators: true })
     if (!company) return Response.json({ error: 'Not found' }, { status: 404 })
     return Response.json(company)

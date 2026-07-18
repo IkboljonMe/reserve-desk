@@ -8,7 +8,6 @@ import { Badge } from '@/components/ui/Badge'
 import type { CompaniesPageState } from '../useCompaniesPage'
 import Button from '@/components/ui/Button'
 
-const PLAN_LABEL: Record<string, string> = { standard: 'Standard', pro: 'Pro', vip: 'VIP' }
 const EXPIRING_SOON_DAYS = 14
 
 // Kept as its own function (not inlined in the render body) so the impure
@@ -23,7 +22,8 @@ function expiryStatus(expiresAt: string): ExpiryStatus {
 
 export function CompanyList({ s }: { s: CompaniesPageState }) {
   const { t } = useTranslation()
-  const { companies, loading, openAdd, openEdit, deleteConfirm, setDeleteConfirm, handleDelete, openAccounts } = s
+  const { companies, plans, loading, openAdd, openEdit, deleteConfirm, setDeleteConfirm, handleDelete, openAccounts } = s
+  const planName = (key: string) => plans.find(p => p.key === key)?.name ?? key
 
   return (
     <div className="card p-0 overflow-hidden">
@@ -51,7 +51,7 @@ export function CompanyList({ s }: { s: CompaniesPageState }) {
                   <div className="text-[0.8125rem] text-gray-500">/{c.slug}</div>
                 </div>
                 <Badge variant="gray" className="shrink-0">
-                  {PLAN_LABEL[c.plan] ?? c.plan}
+                  {planName(c.plan)}
                 </Badge>
                 <span
                   className={`inline-flex items-center gap-1 px-[9px] py-[3px] rounded-full text-xs font-semibold tracking-[0.01em] border border-transparent shrink-0 ${

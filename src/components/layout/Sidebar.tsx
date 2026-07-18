@@ -8,6 +8,19 @@ import { useBookingModal } from "@/components/BookingModalProvider";
 import { BrandMark } from "@/components/BrandMark";
 import { useTheme } from "@/components/ThemeProvider";
 import type { SessionRole } from "@/lib/session";
+import type { FeatureKey } from "@/lib/planFeatures";
+
+// Which plan feature (if any) gates each nav item's href. Items not listed
+// here (dashboard, settings) are core and always visible.
+const NAV_FEATURE_GATE: Record<string, FeatureKey> = {
+  "/calendar": "calendar",
+  "/book": "calendar",
+  "/clients": "clients",
+  "/contracts": "contracts",
+  "/menu": "menu",
+  "/orders": "menu",
+  "/notifications": "notifications",
+};
 
 export default function Sidebar({
   collapsed = false,
@@ -20,6 +33,7 @@ export default function Sidebar({
   mobile = false,
   mobileOpen = false,
   onCloseMobile,
+  planFeatures,
 }: {
   collapsed?: boolean;
   role?: SessionRole;
@@ -33,6 +47,9 @@ export default function Sidebar({
   mobile?: boolean;
   mobileOpen?: boolean;
   onCloseMobile?: () => void;
+  // The tenant's plan's enabled feature keys. `undefined` means "don't gate"
+  // (e.g. a plan lookup failure shouldn't lock an owner out of their own app).
+  planFeatures?: FeatureKey[];
 }) {
   const pathname = usePathname();
   const { t, lang, setLang } = useTranslation();
@@ -283,11 +300,16 @@ export default function Sidebar({
   ];
 
   // The owner sees everything (all hotels + Settings); admins get every
-  // operational item but Settings.
-  const visibleItems =
+  // operational item but Settings. Then filter out anything the company's
+  // plan doesn't include (dashboard/settings are core and never gated).
+  const visibleItems = (
     role === "owner"
       ? NAV_ITEMS
-      : NAV_ITEMS.filter((item) => item.href !== "/settings");
+      : NAV_ITEMS.filter((item) => item.href !== "/settings")
+  ).filter((item) => {
+    const gate = NAV_FEATURE_GATE[item.href];
+    return !gate || !planFeatures || planFeatures.includes(gate);
+  });
 
   return (
     <aside

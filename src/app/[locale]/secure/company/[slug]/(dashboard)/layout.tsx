@@ -3,6 +3,8 @@ import { headers } from 'next/headers'
 import { getSession, isCompanyExpired } from '@/lib/session'
 import { connectDB } from '@/lib/mongodb'
 import { Company } from '@/models/Company'
+import { Plan } from '@/models/Plan'
+import type { FeatureKey } from '@/lib/planFeatures'
 import { ToastProvider } from '@/components/ToastProvider'
 import { DraftProvider } from '@/components/DraftProvider'
 import { BookingModalProvider } from '@/components/BookingModalProvider'
@@ -30,8 +32,10 @@ export default async function OwnerDashboardLayout({
   }
 
   await connectDB()
-  const company = await Company.findById(session.companyId).select('expiresAt').lean<{ expiresAt: Date }>()
+  const company = await Company.findById(session.companyId).select('expiresAt plan').lean<{ expiresAt: Date; plan: string }>()
   const readOnly = !!company && isCompanyExpired(company.expiresAt)
+  const planDoc = company ? await Plan.findOne({ key: company.plan }).select('features').lean<{ features: FeatureKey[] }>() : null
+  const planFeatures = planDoc?.features
 
   // Detect subdomain → clean basePath for the sidebar.
   const headersList = await headers()
@@ -50,6 +54,7 @@ export default async function OwnerDashboardLayout({
             basePath={basePath}
             hotelName=""
             readOnly={readOnly}
+            planFeatures={planFeatures}
           >
             {children}
           </DashboardContainer>

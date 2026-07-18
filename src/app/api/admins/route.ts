@@ -3,6 +3,7 @@ import { connectDB } from '@/lib/mongodb'
 import { Admin } from '@/models/Admin'
 import { Hotel } from '@/models/Hotel'
 import { requireOwner, requireWritable } from '@/lib/session'
+import { isBronitEmail } from '@/lib/bronitEmail'
 
 // Owner-only management of hotel admins. Each admin is bound to exactly one hotel.
 export async function GET() {
@@ -33,6 +34,9 @@ export async function POST(req: NextRequest) {
 
     if (!name || !email || !password) {
       return Response.json({ error: 'Name, email, and password are required' }, { status: 400 })
+    }
+    if (!isBronitEmail(email)) {
+      return Response.json({ error: 'Admin email must end with @bronit.uz' }, { status: 400 })
     }
     if (password.length < 6) {
       return Response.json({ error: 'Password must be at least 6 characters' }, { status: 400 })

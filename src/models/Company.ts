@@ -1,6 +1,10 @@
 import mongoose, { Schema, Document, Types } from 'mongoose'
 
-export type CompanyPlan = 'standard' | 'pro' | 'vip'
+// A company's plan is a free-form key referencing Plan.key (see
+// src/models/Plan.ts) — superadmins can create plans beyond the seeded
+// standard/pro/vip, so this isn't a fixed union anymore. Validity against the
+// current Plan catalog is checked at the API layer, not in the schema.
+export type CompanyPlan = string
 
 // Slugs that would collide with real routes under /secure/company/{slug} or
 // with other top-level app paths.
@@ -38,7 +42,7 @@ const CompanySchema = new Schema<ICompany>(
         message: 'Slug must be lowercase letters, numbers and hyphens, and not a reserved word.',
       },
     },
-    plan: { type: String, enum: ['standard', 'pro', 'vip'], default: 'standard' },
+    plan: { type: String, default: 'standard', trim: true, lowercase: true },
     expiresAt: { type: Date, required: true },
     contactName: { type: String, default: '', trim: true },
     contactPhone: { type: String, default: '', trim: true },

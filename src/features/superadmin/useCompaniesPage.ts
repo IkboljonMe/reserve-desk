@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { useToast } from '@/components/ToastProvider'
 import { useTranslation } from '@/i18n'
 import { getCompanies, saveCompany, deleteCompany, type CompanyRecord, type CompanyPlan } from '@/lib/api/companies'
+import { getPlans, type PlanRecord } from '@/lib/api/plans'
+import { toBronitEmail } from '@/lib/bronitEmail'
 
 function slugify(name: string) {
   return name
@@ -31,6 +33,7 @@ export function useCompaniesPage() {
   const { showToast } = useToast()
   const { t } = useTranslation()
   const [companies, setCompanies] = useState<CompanyRecord[]>([])
+  const [plans, setPlans] = useState<PlanRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [modalOpen, setModalOpen] = useState(false)
   const [editCompany, setEditCompany] = useState<CompanyRecord | null>(null)
@@ -43,7 +46,9 @@ export function useCompaniesPage() {
   const loadData = useCallback(async () => {
     setLoading(true)
     try {
-      setCompanies(await getCompanies())
+      const [companyList, planList] = await Promise.all([getCompanies(), getPlans()])
+      setCompanies(companyList)
+      setPlans(planList)
     } catch {
       showToast(t('loadCompaniesFailed'), 'error')
     } finally {
@@ -57,7 +62,7 @@ export function useCompaniesPage() {
   function openAdd() {
     setEditCompany(null)
     setSlugTouched(false)
-    setForm(EMPTY_FORM)
+    setForm({ ...EMPTY_FORM, plan: plans[0]?.key ?? EMPTY_FORM.plan })
     setModalOpen(true)
   }
 
@@ -85,6 +90,10 @@ export function useCompaniesPage() {
   function setSlug(slug: string) {
     setSlugTouched(true)
     setForm(f => ({ ...f, slug: slugify(slug) }))
+  }
+
+  function setOwnerEmailLocalPart(localPart: string) {
+    setForm(f => ({ ...f, ownerEmail: toBronitEmail(localPart) }))
   }
 
   async function handleSave(e: React.FormEvent) {
@@ -132,7 +141,7 @@ export function useCompaniesPage() {
   }
 
   return {
-    companies, loading, modalOpen, editCompany, form, setForm, setName, setSlug, saving,
+    companies, plans, loading, modalOpen, editCompany, form, setForm, setName, setSlug, setOwnerEmailLocalPart, saving,
     deleteConfirm, setDeleteConfirm, openAdd, openEdit, closeModal, handleSave, handleDelete,
     accountsCompany, openAccounts: setAccountsCompany, closeAccounts: () => setAccountsCompany(null),
   }

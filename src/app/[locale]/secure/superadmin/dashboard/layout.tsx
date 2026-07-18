@@ -1,8 +1,19 @@
 import { redirect } from 'next/navigation'
 import { getSession } from '@/lib/session'
+import { connectDB } from '@/lib/mongodb'
+import { Company } from '@/models/Company'
 import { ToastProvider } from '@/components/ToastProvider'
 import LogoutButton from './LogoutButton'
 import MyAccountButton from './MyAccountButton'
+import SuperadminNav from './SuperadminNav'
+
+const EXPIRING_SOON_DAYS = 14
+
+// Kept as its own function (not inlined at the call site) so the impure
+// `Date.now()` read doesn't happen directly in the component body.
+function soonCutoff(): Date {
+  return new Date(Date.now() + EXPIRING_SOON_DAYS * 24 * 60 * 60 * 1000)
+}
 
 // proxy.ts already gates this tree to superadmin sessions — this check is
 // defense in depth in case the layout is ever reached directly.
@@ -18,6 +29,9 @@ export default async function SuperadminLayout({
   if (!session || session.role !== 'superadmin') {
     redirect(`/${locale}/secure/superadmin/login`)
   }
+
+  await connectDB()
+  const notifCount = await Company.countDocuments({ expiresAt: { $lte: soonCutoff() } })
 
   return (
     <ToastProvider>
@@ -37,6 +51,7 @@ export default async function SuperadminLayout({
             <LogoutButton />
           </div>
         </div>
+        <SuperadminNav locale={locale} notifCount={notifCount} />
         <main style={{ padding: '1.75rem 2rem', maxWidth: 960, margin: '0 auto' }}>
           {children}
         </main>

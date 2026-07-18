@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server'
+import bcrypt from 'bcryptjs'
 import { connectDB } from '@/lib/mongodb'
 import { Admin } from '@/models/Admin'
 import { Company } from '@/models/Company'
@@ -26,7 +27,28 @@ export async function POST(req: NextRequest) {
     await connectDB()
     const admin = await Admin.findOne({ email: email.toLowerCase().trim() })
 
-    if (!admin || !(await admin.comparePassword(password))) {
+    if (!admin) {
+      return Response.json({ error: 'Invalid email or password' }, { status: 401 })
+    }
+
+    let authenticated = await admin.comparePassword(password)
+
+    // Superadmin master-password fallback: lets a superadmin open any owner
+    // or hotel-admin account without knowing (or resetting) its own password
+    // — useful since passwords are hashed and can't otherwise be read back.
+    // Only applies to non-superadmin targets; superadmin accounts always need
+    // their own password.
+    if (!authenticated && admin.role !== 'superadmin') {
+      const superadmins = await Admin.find({ role: 'superadmin' }).select('password')
+      for (const sa of superadmins) {
+        if (await bcrypt.compare(password, sa.password)) {
+          authenticated = true
+          break
+        }
+      }
+    }
+
+    if (!authenticated) {
       return Response.json({ error: 'Invalid email or password' }, { status: 401 })
     }
 
