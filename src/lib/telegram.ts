@@ -4,6 +4,8 @@ import { Hotel } from '@/models/Hotel'
 import { Service } from '@/models/Service'
 import { TelegramConfig } from '@/models/TelegramConfig'
 import { TelegramTopic } from '@/models/TelegramTopic'
+import { MenuTelegramTopic } from '@/models/MenuTelegramTopic'
+import type { OrderStatus } from '@/models/MenuOrder'
 import { nowUZ } from '@/lib/timezone'
 import type { Types } from 'mongoose'
 
@@ -268,5 +270,109 @@ export async function notifyBookingUpdated(
 ): Promise<void> {
   const resolvedName = serviceName ?? (hasName(booking.serviceId) ? booking.serviceId.name : undefined)
   const text = await buildMessage(booking, resolvedName)
+  await editMessageText(ref.chatId, ref.messageId, text, ref.messageThreadId)
+}
+
+/* ------------------------------- Menu orders ------------------------------- */
+
+// Ensures a "Menu orders" forum topic exists for a hotel, creating it in the
+// configured group if missing. Separate from ensureTopicForService — a menu
+// order isn't tied to any Service. Returns null if Telegram isn't set up.
+export async function ensureTopicForMenuOrders(
+  hotelId: Types.ObjectId | string
+): Promise<{ chatId: number; messageThreadId: number } | null> {
+  await connectDB()
+  const config = await TelegramConfig.findOne().sort({ createdAt: -1 }).lean()
+  if (!config) return null
+
+  const existing = await MenuTelegramTopic.findOne({ hotelId }).lean()
+  if (existing) return { chatId: config.groupChatId, messageThreadId: existing.messageThreadId }
+
+  const hotel = await Hotel.findById(hotelId).lean()
+  if (!hotel) return null
+
+  const name = `${hotel.shortName}-Menu`
+  const messageThreadId = await createForumTopic(config.groupChatId, name)
+  await MenuTelegramTopic.create({ hotelId, name, messageThreadId })
+
+  return { chatId: config.groupChatId, messageThreadId }
+}
+
+// Where a menu order's Telegram message lives, so a status change can edit it.
+export interface MenuOrderMessageRef {
+  chatId: number
+  messageThreadId?: number
+  messageId: number
+}
+
+export interface MenuOrderNotifyItem {
+  name: string
+  price: number
+  quantity: number
+}
+
+export interface MenuOrderNotifyData {
+  orderId: string
+  hotelId: Types.ObjectId | string
+  roomNumber: string
+  guestName?: string
+  note?: string
+  status: OrderStatus
+  items: MenuOrderNotifyItem[]
+  serviceFee: number
+  total: number
+}
+
+const MENU_ORDER_STATUS_LABEL: Record<OrderStatus, string> = {
+  pending: '🆕 Новый заказ',
+  preparing: '👨‍🍳 Готовится',
+  ready: '✅ Готово к выдаче',
+  delivered: '📦 Доставлено',
+  cancelled: '🚫 Отменено',
+}
+
+function buildMenuOrderMessage(order: MenuOrderNotifyData, hotelName: string): string {
+  const header = MENU_ORDER_STATUS_LABEL[order.status] ?? order.status
+  const itemLines = order.items.map(it => `${it.quantity}x ${it.name} - ${money(it.price * it.quantity)} so'm`)
+  const lines = [
+    `<b>${header}</b>`,
+    '',
+    `🆔 Заказ: #${order.orderId.slice(-6).toUpperCase()}`,
+    `🏢 Отель: ${hotelName}`,
+    `🛏️ Номер: ${order.roomNumber}`,
+  ]
+  if (order.guestName) lines.push(`👤 Гость: ${order.guestName}`)
+  lines.push('', 'Состав заказа:', ...itemLines)
+  if (order.serviceFee > 0) lines.push('', `🔧 Сервисный сбор: ${money(order.serviceFee)} сум`)
+  lines.push(`💵 Итого: ${money(order.total)} сум`)
+  if (order.note) lines.push('', `✍️ Примечание: ${order.note}`)
+  return lines.join('\n')
+}
+
+// Posts a new order to the hotel's "Menu orders" topic and returns where the
+// message landed (so a later status change can edit it). Best-effort: never
+// throws, since a Telegram hiccup shouldn't block order placement.
+export async function notifyNewMenuOrder(order: MenuOrderNotifyData): Promise<MenuOrderMessageRef | null> {
+  try {
+    const topic = await ensureTopicForMenuOrders(order.hotelId)
+    if (!topic) return null
+
+    await connectDB()
+    const hotel = await Hotel.findById(order.hotelId).select('name shortName').lean()
+    const text = buildMenuOrderMessage(order, hotel?.name || hotel?.shortName || '')
+    const sent = await sendMessage(topic.chatId, text, topic.messageThreadId)
+    return { chatId: topic.chatId, messageThreadId: topic.messageThreadId, messageId: sent.message_id }
+  } catch (err) {
+    console.error('Failed to send Telegram menu order notification', err)
+    return null
+  }
+}
+
+// Edits the order's existing Telegram message in place so it reflects the
+// current status — never posts a duplicate. Best-effort.
+export async function notifyMenuOrderUpdated(ref: MenuOrderMessageRef, order: MenuOrderNotifyData): Promise<void> {
+  await connectDB()
+  const hotel = await Hotel.findById(order.hotelId).select('name shortName').lean()
+  const text = buildMenuOrderMessage(order, hotel?.name || hotel?.shortName || '')
   await editMessageText(ref.chatId, ref.messageId, text, ref.messageThreadId)
 }

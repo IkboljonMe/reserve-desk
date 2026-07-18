@@ -120,7 +120,7 @@ export async function proxy(request: NextRequest) {
       if (!session || session.role !== 'owner') {
         return NextResponse.redirect(new URL(`/${locale}/login`, request.url))
       }
-      let targetPath = `/secure/company/${session.companySlug}${cleanRest === '/' ? '/dashboard' : cleanRest}`
+      const targetPath = `/secure/company/${session.companySlug}${cleanRest === '/' ? '/dashboard' : cleanRest}`
       return rewriteTo(targetPath)
     }
 
@@ -133,7 +133,7 @@ export async function proxy(request: NextRequest) {
       if (!session || session.role !== 'admin') {
         return NextResponse.redirect(new URL(`/${locale}/login`, request.url))
       }
-      let targetPath = `/secure/company/${session.companySlug}/admin/${session.hotelSlug}${cleanRest === '/' ? '/calendar' : cleanRest}`
+      const targetPath = `/secure/company/${session.companySlug}/admin/${session.hotelSlug}${cleanRest === '/' ? '/calendar' : cleanRest}`
       return rewriteTo(targetPath)
     }
 
@@ -167,8 +167,17 @@ export async function proxy(request: NextRequest) {
       return rewriteTo(targetPath)
     }
 
-    // Dynamic custom subdomains have been disabled as per architecture change
+    // A non-reserved subdomain is treated as a company slug hosting that
+    // company's public guest menu (read-only, no auth):
+    //   fergana.bronit.uz/<locale>/menu?hotel=<slug>&room=<n>
+    // The page resolves the company from the Host header. Any other path on a
+    // company subdomain is bounced to the root domain.
     if (!isKnownSubdomain(sub)) {
+      if (cleanRest === '/menu' || cleanRest.startsWith('/menu/')) {
+        const url = new URL(`/${locale}/menu`, request.url)
+        url.search = request.nextUrl.search
+        return NextResponse.rewrite(url)
+      }
       return NextResponse.redirect(getRootUrl(rest))
     }
   }

@@ -6,7 +6,6 @@ import { Company } from '@/models/Company'
 import { ToastProvider } from '@/components/ToastProvider'
 import { DraftProvider } from '@/components/DraftProvider'
 import { BookingModalProvider } from '@/components/BookingModalProvider'
-import QueryProvider from '@/components/QueryProvider'
 import DashboardContainer from '@/components/layout/DashboardContainer'
 import { getSubdomain } from '@/lib/subdomain'
 
@@ -41,10 +40,9 @@ export default async function OwnerDashboardLayout({
   const basePath = (sub === 'app' || sub === 'demo' || sub === slug) ? '' : `/secure/company/${slug}`
 
   return (
-    <QueryProvider>
-      <ToastProvider>
-       <DraftProvider>
-         <BookingModalProvider>
+    <ToastProvider>
+      <DraftProvider>
+        <BookingModalProvider>
           <DashboardContainer
             userName={session.name}
             userEmail={session.email}
@@ -55,9 +53,8 @@ export default async function OwnerDashboardLayout({
           >
             {children}
           </DashboardContainer>
-         </BookingModalProvider>
-        </DraftProvider>
-      </ToastProvider>
-    </QueryProvider>
+        </BookingModalProvider>
+      </DraftProvider>
+    </ToastProvider>
   )
 }

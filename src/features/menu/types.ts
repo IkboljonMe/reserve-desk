@@ -1,0 +1,78 @@
+export interface LocalizedText {
+  en: string
+  ru: string
+  uz: string
+  ar: string
+  zh: string
+  fr: string
+  es: string
+  de: string
+  kk: string
+  tr: string
+}
+
+export interface MenuCategory {
+  _id: string
+  hotelId: string
+  name: string
+  sourceLang: string
+  nameI18n: LocalizedText
+  nameI18nLocked: string[]   // languages kept as sourceLang text, not auto-translated
+  sortOrder: number
+}
+
+export interface MenuProduct {
+  _id: string
+  hotelId: string
+  categoryId: string
+  name: string
+  description: string
+  sourceLang: string
+  nameI18n: LocalizedText
+  nameI18nLocked: string[]
+  descI18n: LocalizedText
+  descI18nLocked: string[]
+  price: number
+  imageUrl: string
+  available: boolean
+  sortOrder: number
+}
+
+export interface MenuRecommendation {
+  _id: string
+  hotelId: string
+  dayOfWeek: number   // 0 = Sunday … 6 = Saturday
+  productId: string
+  product?: MenuProduct   // populated on GET
+  sortOrder: number
+}
+
+export interface MenuHotel {
+  _id: string
+  name: string
+  shortName: string
+  slug?: string
+}
+
+export type OrderStatus = 'pending' | 'preparing' | 'ready' | 'delivered' | 'cancelled'
+
+export interface MenuOrderItem {
+  productId: string
+  name: string
+  price: number
+  quantity: number
+}
+
+export interface MenuOrder {
+  _id: string
+  hotelId: string
+  roomNumber: string
+  guestName: string
+  note: string
+  status: OrderStatus
+  items: MenuOrderItem[]
+  subtotal: number
+  serviceFee: number
+  total: number
+  createdAt: string
+}
