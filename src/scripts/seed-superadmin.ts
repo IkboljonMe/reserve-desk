@@ -26,7 +26,7 @@ function loadEnvLocal() {
   }
 }
 
-const SUPERADMIN_EMAIL = process.env.SUPERADMIN_EMAIL || 'superadmin@easy-service.uz'
+const SUPERADMIN_EMAIL = process.env.SUPERADMIN_EMAIL || 'superadmin@bronit.uz'
 const SUPERADMIN_PASSWORD = process.env.SUPERADMIN_PASSWORD || 'ChangeMeSuperAdmin!'
 const SUPERADMIN_NAME = 'Bronit Superadmin'
 

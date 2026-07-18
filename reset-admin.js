@@ -14,7 +14,7 @@ async function reset() {
 
   const Admin = mongoose.models.Admin || mongoose.model('Admin', AdminSchema);
 
-  const email = 'superadmin@easy-service.uz';
+  const email = 'superadmin@bronit.uz';
   const newPasswordRaw = 'admin123';
   const password = await bcrypt.hash(newPasswordRaw, 12);
   

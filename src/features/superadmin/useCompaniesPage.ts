@@ -38,6 +38,7 @@ export function useCompaniesPage() {
   const [slugTouched, setSlugTouched] = useState(false)
   const [saving, setSaving] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
+  const [accountsCompany, setAccountsCompany] = useState<CompanyRecord | null>(null)
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -133,6 +134,7 @@ export function useCompaniesPage() {
   return {
     companies, loading, modalOpen, editCompany, form, setForm, setName, setSlug, saving,
     deleteConfirm, setDeleteConfirm, openAdd, openEdit, closeModal, handleSave, handleDelete,
+    accountsCompany, openAccounts: setAccountsCompany, closeAccounts: () => setAccountsCompany(null),
   }
 }
 

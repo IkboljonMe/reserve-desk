@@ -1,6 +1,6 @@
 'use client'
 
-import { Pencil, Trash2, Building2 } from 'lucide-react'
+import { Pencil, Trash2, Building2, Users } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import { SkeletonTableRows } from '@/components/ui/Skeleton'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -9,16 +9,21 @@ import type { CompaniesPageState } from '../useCompaniesPage'
 import Button from '@/components/ui/Button'
 
 const PLAN_LABEL: Record<string, string> = { standard: 'Standard', pro: 'Pro', vip: 'VIP' }
+const EXPIRING_SOON_DAYS = 14
 
 // Kept as its own function (not inlined in the render body) so the impure
 // `Date.now()` read doesn't happen directly inside the component.
-function isExpired(expiresAt: string): boolean {
-  return new Date(expiresAt).getTime() < Date.now()
+type ExpiryStatus = 'expired' | 'soon' | 'active'
+function expiryStatus(expiresAt: string): ExpiryStatus {
+  const daysLeft = (new Date(expiresAt).getTime() - Date.now()) / (24 * 60 * 60 * 1000)
+  if (daysLeft < 0) return 'expired'
+  if (daysLeft <= EXPIRING_SOON_DAYS) return 'soon'
+  return 'active'
 }
 
 export function CompanyList({ s }: { s: CompaniesPageState }) {
   const { t } = useTranslation()
-  const { companies, loading, openAdd, openEdit, deleteConfirm, setDeleteConfirm, handleDelete } = s
+  const { companies, loading, openAdd, openEdit, deleteConfirm, setDeleteConfirm, handleDelete, openAccounts } = s
 
   return (
     <div className="card p-0 overflow-hidden">
@@ -35,7 +40,7 @@ export function CompanyList({ s }: { s: CompaniesPageState }) {
       ) : (
         <div className="flex flex-col">
           {companies.map((c, i) => {
-            const expired = isExpired(c.expiresAt)
+            const status = expiryStatus(c.expiresAt)
             return (
               <div
                 key={c._id}
@@ -50,12 +55,15 @@ export function CompanyList({ s }: { s: CompaniesPageState }) {
                 </Badge>
                 <span
                   className={`inline-flex items-center gap-1 px-[9px] py-[3px] rounded-full text-xs font-semibold tracking-[0.01em] border border-transparent shrink-0 ${
-                    expired ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
+                    status === 'expired' ? 'bg-red-100 text-red-800' : status === 'soon' ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'
                   }`}
                 >
-                  {expired ? t('planExpired') : t('planActiveUntil') + ' ' + new Date(c.expiresAt).toLocaleDateString()}
+                  {status === 'expired' ? t('planExpired') : (status === 'soon' ? t('planExpiringSoon') + ' ' : t('planActiveUntil') + ' ') + new Date(c.expiresAt).toLocaleDateString()}
                 </span>
                 <div className="flex gap-1.5">
+                  <Button variant="ghost" icon onClick={() => openAccounts(c)} title={t('loginDetails')} aria-label={t('viewLoginDetailsAria')}>
+                    <Users size={14} />
+                  </Button>
                   <Button variant="ghost" icon onClick={() => openEdit(c)} title={t('edit')} aria-label={t('editCompanyAria')}>
                     <Pencil size={14} />
                   </Button>

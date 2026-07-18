@@ -5,6 +5,7 @@ import { useTranslation } from '@/i18n'
 import { useCompaniesPage } from './useCompaniesPage'
 import { CompanyList } from './components/CompanyList'
 import { CompanyModal } from './components/CompanyModal'
+import { CompanyAccountsModal } from './components/CompanyAccountsModal'
 import Button from '@/components/ui/Button'
 
 export default function CompaniesPage() {
@@ -28,6 +29,7 @@ export default function CompaniesPage() {
 
       <CompanyList s={s} />
       <CompanyModal s={s} />
+      <CompanyAccountsModal company={s.accountsCompany} onClose={s.closeAccounts} />
     </div>
   )
 }

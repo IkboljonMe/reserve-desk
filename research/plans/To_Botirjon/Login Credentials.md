@@ -4,7 +4,7 @@ The ReserveDesk authentication system now enforces strictly isolated subdomains 
 
 ### 1. Super Admin
 **Portal URL:** http://super.bronit.uz
-**Email:** `superadmin@easy-service.uz`
+**Email:** `superadmin@bronit.uz`
 **Password:** `admin123`
 *(Responsible for global system visibility, tenant infrastructure, and aggregate tracking).*
 

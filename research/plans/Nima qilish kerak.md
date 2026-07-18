@@ -1,0 +1,2 @@
+
+- [ ] Superadmin UI da va logikasida ishlash kerak, bizda bitta superadmin boladi va u hotel ownerlarini yarata olishi kerak. Shuningdek u qachon kimning podpiskasi tugaydi, kimda nechta admin va hotel bor, hotel nomlari va barcha barcha narsalarni korib turishi kerak. Qandaydir muammo bolsa, superadminkadan kerakli ownerni login parolini olib,

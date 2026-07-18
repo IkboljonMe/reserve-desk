@@ -97,7 +97,7 @@ async function main() {
 
   await Admin.create({
     name: 'Demo Admin (Tashkent)',
-    email: 'demo-admin@easy-service.uz',
+    email: 'demo-admin@bronit.uz',
     password: DEMO_OWNER_PASSWORD,
     role: 'admin',
     companyId: cid,

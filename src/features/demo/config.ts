@@ -3,5 +3,5 @@
 // the genuine product (bookings, calendar, analytics, settings) — not a mock.
 // Reset/seed it with: npx tsx src/scripts/seed-demo.ts
 export const DEMO_SLUG = 'demo-hotels'
-export const DEMO_OWNER_EMAIL = 'demo@easy-service.uz'
+export const DEMO_OWNER_EMAIL = 'demo@bronit.uz'
 export const DEMO_OWNER_PASSWORD = 'demo1234'

@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "plans/To_Botirjon/Login Credentials.md",
-                "mode": "preview",
+                "file": "plans/Nima qilish kerak.md",
+                "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Login Credentials"
+              "title": "Nima qilish kerak"
             }
           }
         ]
@@ -185,6 +185,9 @@
   },
   "active": "4daf78ac7387fca7",
   "lastOpenFiles": [
+    "plans/To_Botirjon/Login Credentials.md.tmp.2025735.3fb10fb5367e",
+    "plans/To_Botirjon/Login Credentials.md",
+    "plans/Nima qilish kerak.md",
     "plans/VPS-Setup-and-Cloudflare.md",
     "plans/MongoDB-Strategy.md",
     "plans/MOC.md",

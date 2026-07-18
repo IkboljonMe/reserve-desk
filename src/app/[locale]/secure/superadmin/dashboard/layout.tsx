@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { getSession } from '@/lib/session'
 import { ToastProvider } from '@/components/ToastProvider'
 import LogoutButton from './LogoutButton'
+import MyAccountButton from './MyAccountButton'
 
 // proxy.ts already gates this tree to superadmin sessions — this check is
 // defense in depth in case the layout is ever reached directly.
@@ -32,6 +33,7 @@ export default async function SuperadminLayout({
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8125rem' }}>{session.name}</span>
+            <MyAccountButton initialEmail={session.email} />
             <LogoutButton />
           </div>
         </div>
