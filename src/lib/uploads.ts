@@ -4,12 +4,21 @@ import { mkdir, writeFile, unlink } from 'node:fs/promises'
 import path from 'node:path'
 import sharp from 'sharp'
 
-// Uploaded images are compressed + converted to WebP and written under
-// public/uploads/<scope>/, so they're served statically by Next at
-// /uploads/<scope>/<file>.webp on the same origin. Keep this the single place
-// that touches the filesystem for uploads.
-const PUBLIC_DIR = path.join(process.cwd(), 'public')
-const UPLOADS_ROOT = path.join(PUBLIC_DIR, 'uploads')
+// Uploaded images are compressed + converted to WebP and stored on disk, then
+// served at /uploads/<scope>/<file>.webp on the same origin.
+//
+// Where they're written:
+//   - Default: <project>/public/uploads — served automatically by Next. This
+//     only works if the app process's working directory is the project root
+//     (true for `next start` run from the project dir).
+//   - If UPLOADS_DIR is set: that absolute directory is used instead. On the
+//     VPS this should be a persistent path OUTSIDE the project (survives
+//     redeploys) with nginx serving it, e.g.:
+//         location /uploads/ { alias /var/www/bronit-uploads/; }
+//     and UPLOADS_DIR=/var/www/bronit-uploads
+const UPLOADS_ROOT = process.env.UPLOADS_DIR
+  ? path.resolve(process.env.UPLOADS_DIR)
+  : path.join(process.cwd(), 'public', 'uploads')
 const URL_PREFIX = '/uploads'
 
 // What the browser is allowed to send us. We always re-encode to WebP, so this
