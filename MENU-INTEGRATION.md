@@ -57,7 +57,13 @@ confusion with Bronit's existing `Service` (bookable services), `Room`, `Booking
   - [x] **4a** — `MenuOrder` (embedded items, snapshotted name/price, service fee); public guest ordering API (`/api/menu/guest/order`, resolves company from Host, computes totals server-side); staff orders API (`/api/menu/orders` GET + `[id]` PATCH); "Orders" nav + `/orders` dashboard with status flow (pending→preparing→ready→delivered, cancel) and 15s polling. i18n in en/ru/uz. `tsc` + eslint clean.
   - [x] **4b** — guest cart UI: `GuestMenuClient` (add-to-cart stepper, cart drawer, place order) wired into the guest route in place of the old read-only page; cart persists to `localStorage` scoped per hotel+room; a new public `GET /api/menu/guest/order/[id]` lets the guest poll their placed order and see a live pending→preparing→ready→delivered step tracker (or a cancelled notice), reusing the dashboard's `ORDER_STATUS_META`. Page now also gates on `HotelMenuSettings.menuEnabled` and applies the service fee. i18n in en/ru/uz. `tsc` + eslint clean.
 - [x] **Phase 5 — Telegram for orders.** `MenuTelegramTopic` (one "Menu orders" forum topic per hotel, separate from bookings' per-(hotel, service) topics since an order isn't tied to a Service). `ensureTopicForMenuOrders`/`notifyNewMenuOrder`/`notifyMenuOrderUpdated` in `src/lib/telegram.ts`. Guest order POST posts a new message and stores `tgChatId`/`tgMessageId`/`tgThreadId` on the `MenuOrder`; staff PATCH edits that message in place on every status change (pending→preparing→ready→delivered, cancel) — never a duplicate. Both fire post-response via `after()`, best-effort. `tsc` + eslint clean.
-- [ ] **Phase 6 — Extras.** Room QR + PDF, recommendations of the day, guest service requests, currency FX, AI auto-translate, SSE stream. (Each independent.)
+- [~] **Phase 6 — Extras.** (Each independent.)
+  - [x] **Room QR + PDF** — "Print QR codes" on the dashboard Menu page opens `RoomQrModal`: a live preview grid (`qrcode.react`) of every room's QR, each encoding `https://<company-slug>.<baseDomain>/<locale>/menu?hotel=<hotel-slug>&room=<number>` (company slug read from the dashboard's own `/secure/company/<slug>/...` path, base domain from `window.location.host` same as the existing app/admin/super link-building pattern), plus a "Download PDF" button (`qrcode` + `jspdf`, 4 codes/page on A4). Disabled with a hint if the hotel has no URL slug yet. `tsc` + eslint clean.
+  - [ ] Recommendations of the day
+  - [ ] Guest service requests (taxi/reception/alarm)
+  - [ ] Currency FX (approx. USD under each UZS price)
+  - [ ] AI auto-translate (admin enters one language, others filled via Claude API)
+  - [ ] SSE stream (replace polling on the guest tracker / staff orders dashboard)
 - [ ] **Phase 7 — Cleanup / migration.** Consolidate i18n, tests, docs; optional Prisma→Mongoose data migration.
 
 ## Dependencies (added per phase, not upfront)

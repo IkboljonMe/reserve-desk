@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus, Pencil, Trash2, UtensilsCrossed } from 'lucide-react'
+import { Plus, Pencil, Trash2, UtensilsCrossed, QrCode } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import Button from '@/components/ui/Button'
 import Dropdown from '@/components/ui/Dropdown'
@@ -9,6 +9,7 @@ import { money } from '@/lib/bookingHelpers'
 import { useMenuPage } from './useMenuPage'
 import { CategoryModal } from './components/CategoryModal'
 import { ProductModal } from './components/ProductModal'
+import { RoomQrModal } from './components/RoomQrModal'
 
 const CARD = 'bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-[var(--radius-lg)] shadow-sm'
 
@@ -16,6 +17,8 @@ export default function MenuPage() {
   const { t, lang } = useTranslation()
   const s = useMenuPage()
   const [confirmId, setConfirmId] = useState<string | null>(null)
+  const [qrOpen, setQrOpen] = useState(false)
+  const selectedHotel = s.hotels.find(h => h._id === s.hotelId)
 
   return (
     <div>
@@ -34,6 +37,9 @@ export default function MenuPage() {
                 ariaLabel={t('hotel')}
               />
             </div>
+          )}
+          {selectedHotel && (
+            <Button variant="secondary" leftIcon={<QrCode size={14} />} onClick={() => setQrOpen(true)}>{t('printQrCodes')}</Button>
           )}
           <Button leftIcon={<Plus size={14} strokeWidth={2.5} />} onClick={s.openAddCategory}>{t('addCategory')}</Button>
         </div>
@@ -120,6 +126,15 @@ export default function MenuPage() {
 
       <CategoryModal s={s} />
       <ProductModal s={s} />
+      {selectedHotel && (
+        <RoomQrModal
+          open={qrOpen}
+          onClose={() => setQrOpen(false)}
+          hotelId={selectedHotel._id}
+          hotelName={selectedHotel.name}
+          hotelSlug={selectedHotel.slug}
+        />
+      )}
     </div>
   )
 }
