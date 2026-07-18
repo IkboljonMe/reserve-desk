@@ -1,7 +1,8 @@
-import { NextRequest } from 'next/server'
+import { NextRequest, after } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { MenuOrder, ORDER_STATUSES } from '@/models/MenuOrder'
 import { requireDashboard, requireWritable, idScope } from '@/lib/session'
+import { notifyMenuOrderUpdated } from '@/lib/telegram'
 
 // PATCH /api/menu/orders/:id — advance an order's status (staff).
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -20,5 +21,27 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   await connectDB()
   const order = await MenuOrder.findOneAndUpdate(idScope(session, id), { status }, { new: true }).lean()
   if (!order) return Response.json({ error: 'Not found' }, { status: 404 })
+
+  // The status is shown in the Telegram message — edit it in place so the
+  // group stays in sync (never post a duplicate). Best-effort, post-response.
+  if (order.tgMessageId != null && order.tgChatId != null) {
+    after(() =>
+      notifyMenuOrderUpdated(
+        { chatId: order.tgChatId!, messageId: order.tgMessageId!, messageThreadId: order.tgThreadId ?? undefined },
+        {
+          orderId: String(order._id),
+          hotelId: order.hotelId,
+          roomNumber: order.roomNumber,
+          guestName: order.guestName,
+          note: order.note,
+          status: order.status,
+          items: order.items,
+          serviceFee: order.serviceFee,
+          total: order.total,
+        },
+      )
+    )
+  }
+
   return Response.json(order)
 }

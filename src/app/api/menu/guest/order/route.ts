@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server'
+import { NextRequest, after } from 'next/server'
 import { headers } from 'next/headers'
 import type { Types } from 'mongoose'
 import { connectDB } from '@/lib/mongodb'
@@ -9,6 +9,7 @@ import { MenuOrder } from '@/models/MenuOrder'
 import { HotelMenuSettings } from '@/models/HotelMenuSettings'
 import { getSubdomain } from '@/lib/subdomain'
 import { computeServiceFee } from '@/lib/menu'
+import { notifyNewMenuOrder } from '@/lib/telegram'
 
 // PUBLIC (no auth) — a guest places an order from the in-room menu. The company
 // is resolved from the request Host (its subdomain); the hotel from body.hotel.
@@ -75,6 +76,27 @@ export async function POST(req: NextRequest) {
       subtotal,
       serviceFee,
       total: subtotal + serviceFee,
+    })
+
+    after(async () => {
+      const ref = await notifyNewMenuOrder({
+        orderId: String(order._id),
+        hotelId: hotel._id,
+        roomNumber: order.roomNumber,
+        guestName: order.guestName,
+        note: order.note,
+        status: order.status,
+        items: orderItems,
+        serviceFee: order.serviceFee,
+        total: order.total,
+      })
+      // Remember where the message landed so a later status change can edit it.
+      if (ref) {
+        await MenuOrder.updateOne(
+          { _id: order._id },
+          { tgChatId: ref.chatId, tgMessageId: ref.messageId, tgThreadId: ref.messageThreadId ?? null },
+        )
+      }
     })
 
     return Response.json({ id: String(order._id), status: order.status, total: order.total }, { status: 201 })

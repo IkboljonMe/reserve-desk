@@ -25,6 +25,11 @@ export interface IMenuOrder extends Document {
   subtotal: number    // integer UZS
   serviceFee: number  // integer UZS, snapshot of the hotel's fee at order time
   total: number       // subtotal + serviceFee
+  // Coordinates of the Telegram message announcing this order, so status
+  // changes edit that message in place instead of posting a duplicate.
+  tgChatId?: number
+  tgMessageId?: number
+  tgThreadId?: number
   createdAt: Date
   updatedAt: Date
 }
@@ -51,6 +56,9 @@ const MenuOrderSchema = new Schema<IMenuOrder>(
     subtotal: { type: Number, default: 0, min: 0 },
     serviceFee: { type: Number, default: 0, min: 0 },
     total: { type: Number, default: 0, min: 0 },
+    tgChatId: { type: Number },
+    tgMessageId: { type: Number },
+    tgThreadId: { type: Number },
   },
   { timestamps: true },
 )
