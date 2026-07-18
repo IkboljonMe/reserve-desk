@@ -701,6 +701,7 @@
   "editCompany": "Kompaniyani tahrirlash",
   "companyName": "Kompaniya nomi",
   "companySlug": "Slug",
+  "companySlugHint": "Bu kompaniya uchun ichki identifikator. Egalar va adminlar app.bronit.uz / admin.bronit.uz orqali kiradi — URLda slug yo'q.",
   "plan": "Tarif",
   "expiresAt": "Muddati tugaydi",
   "contactName": "Aloqa uchun ism",

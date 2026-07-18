@@ -701,6 +701,7 @@
   "editCompany": "Редактировать компанию",
   "companyName": "Название компании",
   "companySlug": "Slug",
+  "companySlugHint": "Внутренний идентификатор компании. Владельцы и админы входят на app.bronit.uz / admin.bronit.uz — slug в URL не нужен.",
   "plan": "Тариф",
   "expiresAt": "Действует до",
   "contactName": "Контактное лицо",

@@ -701,6 +701,7 @@
   "editCompany": "Edit Company",
   "companyName": "Company Name",
   "companySlug": "Slug",
+  "companySlugHint": "Internal identifier for this company. Owners & admins log in at app.bronit.uz / admin.bronit.uz — no slug in the URL.",
   "plan": "Plan",
   "expiresAt": "Expires On",
   "contactName": "Contact Name",

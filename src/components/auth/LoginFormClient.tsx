@@ -32,18 +32,23 @@ export default function LoginFormClient({ initialEmail = "" }: { initialEmail?: 
       if (!res.ok) {
         setError(data.error || t("loginFailed"));
       } else {
-        // Full, subdomain-independent paths — `/dashboard`/`/calendar` alone
-        // only resolve via the proxy's subdomain rewrite (app./admin./super.),
-        // so on the plain root domain (e.g. local dev) they 404.
+        // Prefer short, subdomain-relative paths (app./admin./super. serve the
+        // tenant tree at clean URLs via the proxy). Fall back to the full
+        // /secure/... path only on the root domain (e.g. local dev) where the
+        // clean path wouldn't resolve.
+        const sub = getClientSubdomain();
         if (data.role === "superadmin") {
-          // On super.bronit.uz the proxy serves the tree at clean paths.
-          window.location.href = getClientSubdomain() === "super"
+          window.location.href = sub === "super"
             ? `/${lang}/dashboard`
             : `/${lang}/secure/superadmin/dashboard`;
         } else if (data.role === "owner") {
-          window.location.href = `/${lang}/secure/company/${data.slug}/dashboard`;
+          window.location.href = (sub === "app" || sub === "demo")
+            ? `/${lang}/dashboard`
+            : `/${lang}/secure/company/${data.slug}/dashboard`;
         } else {
-          window.location.href = `/${lang}/secure/company/${data.slug}/admin/${data.hotelSlug}/calendar`;
+          window.location.href = sub === "admin"
+            ? `/${lang}/calendar`
+            : `/${lang}/secure/company/${data.slug}/admin/${data.hotelSlug}/calendar`;
         }
       }
     } catch {

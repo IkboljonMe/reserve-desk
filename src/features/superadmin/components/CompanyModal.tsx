@@ -33,7 +33,7 @@ export function CompanyModal({ s }: { s: CompaniesPageState }) {
               <label className="form-label">{t('companySlug')} *</label>
               <input className="form-input" required value={form.slug} onChange={e => setSlug(e.target.value)} />
               <p className="mt-1 text-[0.75rem] text-gray-500">
-                /secure/company/{form.slug || '…'}/login
+                {t('companySlugHint')}
               </p>
             </div>
 

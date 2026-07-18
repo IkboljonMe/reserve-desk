@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname, useParams } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { useTranslation, DictionaryKeys } from '@/i18n'
 
 const TABS: { labelKey: DictionaryKeys; href: string }[] = [
@@ -15,11 +15,13 @@ const TABS: { labelKey: DictionaryKeys; href: string }[] = [
 
 export default function SettingsLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const { t, lang } = useTranslation()
-  const { slug } = useParams<{ slug: string }>()
-  // Prefix an app path with the active locale + tenant slug, e.g.
-  // '/settings/admins' -> '/uz/secure/company/safir/settings/admins'.
-  const localized = (href: string) => `/${lang}/secure/company/${slug}${href}`
+  const { t } = useTranslation()
+  // Mirror the current URL's style: everything before "/settings" is the base
+  // (clean "/ru" on the app.* subdomain, or "/ru/secure/company/<slug>" on the
+  // root domain). This keeps tab links — and their active state — matching
+  // whichever path form the browser is actually on.
+  const base = pathname.includes('/settings') ? pathname.slice(0, pathname.indexOf('/settings')) : pathname
+  const localized = (href: string) => `${base}${href}`
   return (
     <div>
       <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
