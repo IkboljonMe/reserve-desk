@@ -25,13 +25,13 @@ export interface MenuSettingsForm {
   tiles: ResolvedTile[]
 }
 
-async function fetchSettings(hotelId: string): Promise<Partial<MenuSettingsForm & { tiles: TileConfig[] }>> {
+async function fetchSettings(hotelId: string): Promise<Partial<Omit<MenuSettingsForm, 'tiles'> & { tiles: TileConfig[] }>> {
   const r = await fetch(`/api/menu/settings?hotelId=${encodeURIComponent(hotelId)}`)
   if (!r.ok) throw new Error('Failed to fetch settings')
   return r.json()
 }
 
-async function saveSettings(data: { hotelId: string } & Partial<MenuSettingsForm & { tiles: TileConfig[] }>) {
+async function saveSettings(data: { hotelId: string } & Partial<Omit<MenuSettingsForm, 'tiles'> & { tiles: TileConfig[] }>) {
   const r = await fetch('/api/menu/settings', {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
