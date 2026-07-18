@@ -1,37 +1,31 @@
 import { NextRequest, after } from 'next/server'
-import { headers } from 'next/headers'
 import type { Types } from 'mongoose'
 import { connectDB } from '@/lib/mongodb'
-import { Company } from '@/models/Company'
 import { Hotel } from '@/models/Hotel'
 import { MenuProduct } from '@/models/MenuProduct'
 import { MenuOrder } from '@/models/MenuOrder'
 import { HotelMenuSettings } from '@/models/HotelMenuSettings'
-import { getSubdomain } from '@/lib/subdomain'
 import { computeServiceFee } from '@/lib/menu'
 import { notifyNewMenuOrder } from '@/lib/telegram'
 
-// PUBLIC (no auth) — a guest places an order from the in-room menu. The company
-// is resolved from the request Host (its subdomain); the hotel from body.hotel.
-// Prices/names are snapshotted server-side so the client can't forge totals.
+// PUBLIC (no auth) — a guest places an order from the in-room menu.
+// The hotel is resolved from body.hotel (globally-unique slug); the company
+// is taken from hotel.companyId. Prices/names are snapshotted server-side.
 export async function POST(req: NextRequest) {
   try {
-    const host = (await headers()).get('host') || ''
-    const companySlug = getSubdomain(host)
-    if (!companySlug) return Response.json({ error: 'Unknown hotel' }, { status: 400 })
-
     const body = await req.json()
     const roomNumber = String(body.room || '').trim()
     const items = Array.isArray(body.items) ? body.items : []
     if (!roomNumber) return Response.json({ error: 'Room is required' }, { status: 400 })
     if (items.length === 0) return Response.json({ error: 'Cart is empty' }, { status: 400 })
 
-    await connectDB()
-    const company = await Company.findOne({ slug: companySlug }).select('_id').lean<{ _id: Types.ObjectId } | null>()
-    if (!company) return Response.json({ error: 'Unknown hotel' }, { status: 404 })
+    const hotelSlug = String(body.hotel || '').trim()
+    if (!hotelSlug) return Response.json({ error: 'Unknown hotel' }, { status: 400 })
 
-    const hotels = await Hotel.find({ companyId: company._id }).select('_id slug').lean<Array<{ _id: Types.ObjectId; slug?: string }>>()
-    const hotel = body.hotel ? hotels.find(h => h.slug === body.hotel) : (hotels.length === 1 ? hotels[0] : undefined)
+    await connectDB()
+    const hotel = await Hotel.findOne({ slug: hotelSlug })
+      .select('_id slug companyId')
+      .lean<{ _id: Types.ObjectId; slug?: string; companyId: Types.ObjectId } | null>()
     if (!hotel) return Response.json({ error: 'Unknown hotel' }, { status: 404 })
 
     // Sum requested quantities per product id.
@@ -46,7 +40,7 @@ export async function POST(req: NextRequest) {
     // Load the real, available products for this hotel to snapshot name + price.
     const products = await MenuProduct.find({
       _id: { $in: [...qtyById.keys()] },
-      companyId: company._id,
+      companyId: hotel.companyId,
       hotelId: hotel._id,
       available: true,
     }).select('_id name price').lean<Array<{ _id: Types.ObjectId; name: string; price: number }>>()
@@ -66,7 +60,7 @@ export async function POST(req: NextRequest) {
     const serviceFee = settings ? computeServiceFee(subtotal, settings.serviceFeeType, settings.serviceFeeValue) : 0
 
     const order = await MenuOrder.create({
-      companyId: company._id,
+      companyId: hotel.companyId,
       hotelId: hotel._id,
       roomNumber,
       guestName: typeof body.guestName === 'string' ? body.guestName.slice(0, 120) : '',

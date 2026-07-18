@@ -1,7 +1,6 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { usePathname } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
 import { QRCodeSVG } from 'qrcode.react'
 import QRCode from 'qrcode'
@@ -36,7 +35,6 @@ export function RoomQrModal({
   hotelSlug?: string
 }) {
   const { t, lang } = useTranslation()
-  const pathname = usePathname()
   const [generating, setGenerating] = useState(false)
 
   const roomsQuery = useQuery<RoomLite[]>({
@@ -50,21 +48,16 @@ export function RoomQrModal({
   )
   const loading = roomsQuery.isLoading
 
-  // The dashboard is reached at /secure/company/<slug>/... regardless of
-  // owner vs admin — the guest menu lives on that company's own subdomain.
-  const companySlug = useMemo(() => {
-    const m = pathname.match(/\/secure\/company\/([^/]+)/)
-    return m ? m[1] : ''
-  }, [pathname])
-
+  // Guest menu always lives on the app subdomain:
+  //   app.<baseDomain>/<locale>/menu?hotel=<hotelSlug>&room=<roomNumber>
   function roomUrl(roomNumber: string): string {
     if (typeof window === 'undefined') return ''
     const baseDomain = window.location.host.replace(/^(www|app|admin|super|demo)\./, '')
     const params = `hotel=${encodeURIComponent(hotelSlug || '')}&room=${encodeURIComponent(roomNumber)}`
-    return `${window.location.protocol}//${companySlug}.${baseDomain}/${lang}/menu?${params}`
+    return `${window.location.protocol}//app.${baseDomain}/${lang}/menu?${params}`
   }
 
-  const canGenerate = !!hotelSlug && !!companySlug && rooms.length > 0
+  const canGenerate = !!hotelSlug && rooms.length > 0
 
   async function downloadPdf() {
     setGenerating(true)

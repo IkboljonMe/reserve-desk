@@ -1,4 +1,3 @@
-import { headers } from 'next/headers'
 import { notFound } from 'next/navigation'
 import type { Types } from 'mongoose'
 import { connectDB } from '@/lib/mongodb'
@@ -8,14 +7,15 @@ import { MenuCategory } from '@/models/MenuCategory'
 import { MenuProduct } from '@/models/MenuProduct'
 import { MenuRecommendation } from '@/models/MenuRecommendation'
 import { HotelMenuSettings } from '@/models/HotelMenuSettings'
-import { getSubdomain } from '@/lib/subdomain'
 import { nowUZ } from '@/lib/timezone'
 import { getT } from '@/i18n/dictionary'
 import { GuestMenuClient, type GuestLabels } from '@/features/menu/guest/GuestMenuClient'
 import type { MenuCategory as TCategory, MenuProduct as TProduct } from '@/features/menu/types'
 
-// Public, interactive guest menu. Reached via a company subdomain that the
-// proxy rewrites here: fergana.bronit.uz/<locale>/menu?hotel=<slug>&room=<n>.
+// Public, interactive guest menu. Reached via app.bronit.uz:
+//   app.bronit.uz/<locale>/menu?hotel=<hotelSlug>&room=<n>
+// No auth required — the hotel slug is globally unique so we resolve
+// both hotel and company directly from the query parameter.
 export default async function GuestMenuPage({
   params,
   searchParams,
@@ -27,21 +27,17 @@ export default async function GuestMenuPage({
   const { hotel: hotelSlug, room } = await searchParams
   const t = getT(locale)
 
-  // The company is identified by the request's subdomain (its slug).
-  const host = (await headers()).get('host') || ''
-  const companySlug = getSubdomain(host)
-  if (!companySlug) notFound()
+  // Resolve hotel directly by its globally-unique slug (no subdomain needed).
+  if (!hotelSlug) notFound()
 
   await connectDB()
-  const company = await Company.findOne({ slug: companySlug }).select('_id').lean<{ _id: Types.ObjectId } | null>()
-  if (!company) notFound()
-
-  // Resolve the hotel: explicit ?hotel=<slug>, else the company's only hotel.
-  const hotels = await Hotel.find({ companyId: company._id })
-    .select('_id name slug shortName')
-    .lean<Array<{ _id: Types.ObjectId; name: string; slug?: string; shortName: string }>>()
-  const hotel = hotelSlug ? hotels.find(h => h.slug === hotelSlug) : (hotels.length === 1 ? hotels[0] : undefined)
+  const hotel = await Hotel.findOne({ slug: hotelSlug })
+    .select('_id name slug shortName companyId')
+    .lean<{ _id: Types.ObjectId; name: string; slug?: string; shortName: string; companyId: Types.ObjectId } | null>()
   if (!hotel) notFound()
+
+  const company = await Company.findById(hotel.companyId).select('_id').lean<{ _id: Types.ObjectId } | null>()
+  if (!company) notFound()
 
   const settings = await HotelMenuSettings.findOne({ hotelId: hotel._id })
     .select('menuEnabled serviceFeeType serviceFeeValue')

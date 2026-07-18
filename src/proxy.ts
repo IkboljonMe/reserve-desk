@@ -117,6 +117,10 @@ export async function proxy(request: NextRequest) {
         // If not logged in, just let them see the login page for app.
         return NextResponse.next()
       }
+      // Guest menu is public — no auth required.
+      if (cleanRest === '/menu' || cleanRest.startsWith('/menu/')) {
+        return NextResponse.next()
+      }
       if (!session || session.role !== 'owner') {
         return NextResponse.redirect(new URL(`/${locale}/login`, request.url))
       }
@@ -167,17 +171,8 @@ export async function proxy(request: NextRequest) {
       return rewriteTo(targetPath)
     }
 
-    // A non-reserved subdomain is treated as a company slug hosting that
-    // company's public guest menu (read-only, no auth):
-    //   fergana.bronit.uz/<locale>/menu?hotel=<slug>&room=<n>
-    // The page resolves the company from the Host header. Any other path on a
-    // company subdomain is bounced to the root domain.
+    // Any other unknown subdomain → redirect to the root domain.
     if (!isKnownSubdomain(sub)) {
-      if (cleanRest === '/menu' || cleanRest.startsWith('/menu/')) {
-        const url = new URL(`/${locale}/menu`, request.url)
-        url.search = request.nextUrl.search
-        return NextResponse.rewrite(url)
-      }
       return NextResponse.redirect(getRootUrl(rest))
     }
   }
