@@ -40,6 +40,13 @@ export default function Sidebar({
   const { openBookingModal } = useBookingModal();
   const [notifCount, setNotifCount] = useState(0);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [settingsExpanded, setSettingsExpanded] = useState(false);
+
+  useEffect(() => {
+    if (pathname.includes("/settings")) {
+      setSettingsExpanded(true);
+    }
+  }, [pathname]);
 
   // Prefix an app path with the active locale + area base path, e.g.
   // '/calendar' -> '/uz/secure/company/safir-group-mchj/calendar'.
@@ -346,6 +353,7 @@ export default function Sidebar({
         </div>
         {visibleItems.map((item) => {
           const isBookingItem = item.href === "/book";
+          const isSettingsItem = item.href === "/settings";
           const isActive =
             !isBookingItem && pathname.startsWith(localized(item.href));
           const badge = "badge" in item ? (item.badge ?? 0) : 0;
@@ -382,9 +390,9 @@ export default function Sidebar({
                     {badge > 99 ? "99+" : badge}
                   </span>
                 )}
-                {item.href === "/settings" && (
+                {isSettingsItem && (
                   <span
-                    className={`ml-2 text-white/50 inline-flex transition-transform duration-200 ease-out ${isActive ? "rotate-0" : "-rotate-90"}`}
+                    className={`ml-2 text-white/50 inline-flex transition-transform duration-200 ease-out ${settingsExpanded ? "rotate-0" : "-rotate-90"}`}
                   >
                     <svg
                       width="12"
@@ -413,6 +421,22 @@ export default function Sidebar({
                 >
                   {itemContent}
                 </button>
+              ) : isSettingsItem ? (
+                <button
+                  type="button"
+                  title={collapsed ? item.label : undefined}
+                  className={itemClassName}
+                  onClick={() => {
+                    if (collapsed && onToggle) {
+                      onToggle();
+                      setSettingsExpanded(true);
+                    } else {
+                      setSettingsExpanded(!settingsExpanded);
+                    }
+                  }}
+                >
+                  {itemContent}
+                </button>
               ) : (
                 <Link
                   href={localized(item.href)}
@@ -424,7 +448,7 @@ export default function Sidebar({
               )}
 
               {/* Sub-items for settings — only shown when expanded */}
-              {item.children && isActive && !collapsed && (
+              {item.children && settingsExpanded && !collapsed && (
                 <div className="ml-7 mt-0.5 flex flex-col gap-0.5">
                   {item.children.map((child) => {
                     const childHref = localized(child.href);
