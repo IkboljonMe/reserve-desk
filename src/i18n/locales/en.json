@@ -829,5 +829,17 @@
   "metaTitleDefault": "Bronit — Hotel service booking, simplified",
   "metaDescription": "Bronit brings spa slots, conference halls, pools and every bookable hotel service into one dashboard — with payments, deposits, staff roles, and instant Telegram alerts.",
   "metaOgDescription": "One dashboard for every bookable hotel service: bookings, payments, deposits, staff roles, and Telegram alerts.",
-  "metaTwitterDescription": "One dashboard for every bookable hotel service."
+  "metaTwitterDescription": "One dashboard for every bookable hotel service.",
+  "menuTab": "Menu",
+  "hubSettings": "Hub Settings",
+  "hubBranding": "Branding",
+  "bannerUrl": "Banner image URL",
+  "logoUrl": "Logo URL",
+  "receptionPhone": "Reception phone",
+  "wifiSettings": "Wi-Fi",
+  "wifiName": "Network name",
+  "wifiPassword": "Wi-Fi password",
+  "socialLinks": "Social & review links",
+  "tileSettings": "Service tiles",
+  "tileSettingsDesc": "Choose which service tiles guests see on the hub landing page."
 }

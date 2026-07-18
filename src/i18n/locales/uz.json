@@ -829,5 +829,17 @@
   "metaTitleDefault": "Bronit — mehmonxona xizmatlarini bron qilish, soddalashtirilgan",
   "metaDescription": "Bronit spa seanslari, konferens-zallar, basseynlar va mehmonxonaning barcha bron qilinadigan xizmatlarini yagona boshqaruv paneliga jamlaydi — to'lovlar, depozitlar, xodim rollari va bir zumda Telegram xabarnomalari bilan.",
   "metaOgDescription": "Mehmonxonaning har bir bron qilinadigan xizmati uchun yagona panel: bronlar, to'lovlar, depozitlar, xodim rollari va Telegram xabarnomalari.",
-  "metaTwitterDescription": "Mehmonxonaning har bir bron qilinadigan xizmati uchun yagona panel."
+  "metaTwitterDescription": "Mehmonxonaning har bir bron qilinadigan xizmati uchun yagona panel.",
+  "menuTab": "Menyu",
+  "hubSettings": "Hub Sozlamalari",
+  "hubBranding": "Brending",
+  "bannerUrl": "Banner rasm URL",
+  "logoUrl": "Logotip URL",
+  "receptionPhone": "Qabulxona telefoni",
+  "wifiSettings": "Wi-Fi",
+  "wifiName": "Tarmoq nomi",
+  "wifiPassword": "Wi-Fi paroli",
+  "socialLinks": "Ijtimoiy tarmoqlar va sharhlar",
+  "tileSettings": "Xizmat plitkalari",
+  "tileSettingsDesc": "Mehmonlar boshlang'ich sahifada ko'radigan xizmat plitkalarini tanlang."
 }
