@@ -27,12 +27,15 @@ export default function LoginFormClient() {
       if (!res.ok) {
         setError(data.error || t("loginFailed"));
       } else {
+        // Full, subdomain-independent paths — `/dashboard`/`/calendar` alone
+        // only resolve via the proxy's subdomain rewrite (app./admin./super.),
+        // so on the plain root domain (e.g. local dev) they 404.
         if (data.role === "superadmin") {
-          window.location.href = `/${lang}/dashboard`;
+          window.location.href = `/${lang}/secure/superadmin/dashboard`;
         } else if (data.role === "owner") {
-          window.location.href = `/${lang}/dashboard`;
+          window.location.href = `/${lang}/secure/company/${data.slug}/dashboard`;
         } else {
-          window.location.href = `/${lang}/calendar`;
+          window.location.href = `/${lang}/secure/company/${data.slug}/admin/${data.hotelSlug}/calendar`;
         }
       }
     } catch {
