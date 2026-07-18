@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
     })
 
     if (service.hotelId) {
-      after(() => ensureTopicForService(service.hotelId!, service._id))
+      after(() => ensureTopicForService(session.companyId, service.hotelId!, service._id))
     }
 
     return Response.json(service, { status: 201 })

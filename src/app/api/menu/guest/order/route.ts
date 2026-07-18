@@ -75,6 +75,7 @@ export async function POST(req: NextRequest) {
     after(async () => {
       const ref = await notifyNewMenuOrder({
         orderId: String(order._id),
+        companyId: hotel.companyId,
         hotelId: hotel._id,
         roomNumber: order.roomNumber,
         guestName: order.guestName,

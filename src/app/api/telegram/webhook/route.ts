@@ -2,6 +2,8 @@ import { NextRequest } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Admin } from '@/models/Admin'
 import { TelegramConfig } from '@/models/TelegramConfig'
+import { TelegramTopic } from '@/models/TelegramTopic'
+import { MenuTelegramTopic } from '@/models/MenuTelegramTopic'
 import { TelegramSession } from '@/models/TelegramSession'
 import { deleteMessage, sendMessage, syncAllTopics } from '@/lib/telegram'
 
@@ -72,15 +74,27 @@ export async function POST(req: NextRequest) {
 
       const admin = await Admin.findOne({ email: email.toLowerCase().trim(), role: 'owner' })
       const valid = admin && (await admin.comparePassword(text))
-      if (!valid) {
+      if (!valid || !admin.companyId) {
         await sendMessage(chatId, 'Неверные данные владельца. Отправьте /login, чтобы попробовать снова.', message.message_thread_id)
         return new Response('OK')
       }
 
-      await TelegramConfig.deleteMany({})
-      await TelegramConfig.create({ groupChatId: chatId, loggedInBy: admin._id })
+      // Moving to a different group invalidates this company's old topics —
+      // their messageThreadIds belong to the old chat. Same-group re-login
+      // (e.g. after /login was interrupted) leaves existing topics intact.
+      const existing = await TelegramConfig.findOne({ companyId: admin.companyId })
+      if (existing && existing.groupChatId !== chatId) {
+        await TelegramTopic.deleteMany({ companyId: admin.companyId })
+        await MenuTelegramTopic.deleteMany({ companyId: admin.companyId })
+      }
+
+      await TelegramConfig.findOneAndUpdate(
+        { companyId: admin.companyId },
+        { companyId: admin.companyId, groupChatId: chatId, loggedInBy: admin._id },
+        { upsert: true }
+      )
       await sendMessage(chatId, `Вход выполнен как ${admin.name}. Настраиваю темы услуг...`, message.message_thread_id)
-      await syncAllTopics()
+      await syncAllTopics(admin.companyId)
       await sendMessage(chatId, 'Готово — темы настроены, уведомления о бронированиях будут приходить сюда.', message.message_thread_id)
       return new Response('OK')
     }

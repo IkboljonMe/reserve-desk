@@ -181,6 +181,7 @@ export async function PUT(req: NextRequest, ctx: RouteContext<'/api/bookings/[id
         { chatId: booking.tgChatId!, messageId: booking.tgMessageId!, messageThreadId: booking.tgThreadId ?? undefined },
         {
           bookingId: String(booking._id),
+          companyId: booking.companyId,
           hotelId: booking.hotelId,
           serviceId: booking.serviceId as unknown as { _id: string; name: string },
           customerName: booking.customerName,
@@ -236,6 +237,7 @@ export async function DELETE(_req: NextRequest, ctx: RouteContext<'/api/bookings
         { chatId: deleted.tgChatId!, messageId: deleted.tgMessageId!, messageThreadId: deleted.tgThreadId ?? undefined },
         {
           bookingId: String(deleted._id),
+          companyId: deleted.companyId,
           hotelId: deleted.hotelId,
           serviceId: deleted.serviceId as unknown as { _id: string; name: string },
           customerName: deleted.customerName,

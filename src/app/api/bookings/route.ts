@@ -233,6 +233,7 @@ export async function POST(req: NextRequest) {
     after(async () => {
       const ref = await notifyNewBooking({
         bookingId: String(booking._id),
+        companyId: session.companyId,
         hotelId: bookingHotelId,
         serviceId: serviceForNotify,
         customerName,

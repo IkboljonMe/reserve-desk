@@ -295,6 +295,7 @@ export default function Sidebar({
         { label: t("services"), href: "/settings/services" },
         { label: t("hotelsAndRooms"), href: "/settings/hotels" },
         { label: t("clientGroups"), href: "/settings/client-groups" },
+        { label: t("telegram"), href: "/settings/telegram" },
       ],
     },
   ];

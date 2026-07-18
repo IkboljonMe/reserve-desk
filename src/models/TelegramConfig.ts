@@ -1,9 +1,10 @@
 import mongoose, { Schema, Document, Types } from 'mongoose'
 
-// Singleton (one document total): the group chat the bot posts booking
-// notifications to, set once via the /login flow in that group.
+// One document per company: the group chat that company's bot posts booking
+// notifications to, set via the /login flow run inside that group.
 export interface ITelegramConfig extends Document {
   _id: Types.ObjectId
+  companyId: Types.ObjectId
   groupChatId: number
   loggedInBy: Types.ObjectId // Admin (owner) who completed /login
   createdAt: Date
@@ -12,6 +13,7 @@ export interface ITelegramConfig extends Document {
 
 const TelegramConfigSchema = new Schema<ITelegramConfig>(
   {
+    companyId: { type: Schema.Types.ObjectId, ref: 'Company', required: true, unique: true },
     groupChatId: { type: Number, required: true },
     loggedInBy: { type: Schema.Types.ObjectId, ref: 'Admin', required: true },
   },

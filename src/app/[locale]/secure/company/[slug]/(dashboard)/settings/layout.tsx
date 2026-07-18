@@ -9,6 +9,7 @@ const TABS: { labelKey: DictionaryKeys; href: string }[] = [
   { labelKey: 'services', href: '/settings/services' },
   { labelKey: 'hotelsAndRooms', href: '/settings/hotels' },
   { labelKey: 'clientGroups', href: '/settings/client-groups' },
+  { labelKey: 'telegram', href: '/settings/telegram' },
 ]
 
 export default function SettingsLayout({ children }: { children: React.ReactNode }) {

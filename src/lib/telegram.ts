@@ -2,6 +2,7 @@ import { format } from 'date-fns'
 import { connectDB } from '@/lib/mongodb'
 import { Hotel } from '@/models/Hotel'
 import { Service } from '@/models/Service'
+import { Admin } from '@/models/Admin'
 import { TelegramConfig } from '@/models/TelegramConfig'
 import { TelegramTopic } from '@/models/TelegramTopic'
 import { MenuTelegramTopic } from '@/models/MenuTelegramTopic'
@@ -11,6 +12,20 @@ import type { Types } from 'mongoose'
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN
 const API_BASE = BOT_TOKEN ? `https://api.telegram.org/bot${BOT_TOKEN}` : null
+
+// Cached for the life of the server process — the bot's own username never
+// changes at runtime, so there's no reason to hit Telegram on every render.
+let cachedBotUsername: string | null | undefined
+export async function getBotUsername(): Promise<string | null> {
+  if (cachedBotUsername !== undefined) return cachedBotUsername
+  try {
+    const me = await callTelegram<{ username?: string }>('getMe', {})
+    cachedBotUsername = me.username ?? null
+  } catch {
+    cachedBotUsername = null
+  }
+  return cachedBotUsername
+}
 
 async function callTelegram<T = unknown>(method: string, payload: Record<string, unknown>): Promise<T> {
   if (!API_BASE) throw new Error('TELEGRAM_BOT_TOKEN is not configured')
@@ -74,17 +89,21 @@ async function createForumTopic(chatId: number, name: string): Promise<number> {
 }
 
 // Ensures a forum topic exists for a given (hotel, service) pair, creating it
-// in the configured group if missing. Returns null if Telegram isn't set up.
+// in the configured group if missing. Returns null if Telegram isn't set up
+// for this company, or the topic's notifications are muted.
 export async function ensureTopicForService(
+  companyId: Types.ObjectId | string,
   hotelId: Types.ObjectId | string,
   serviceId: Types.ObjectId | string
-): Promise<{ chatId: number; messageThreadId: number } | null> {
+): Promise<{ chatId: number; messageThreadId: number; notificationsEnabled: boolean } | null> {
   await connectDB()
-  const config = await TelegramConfig.findOne().sort({ createdAt: -1 }).lean()
+  const config = await TelegramConfig.findOne({ companyId }).lean()
   if (!config) return null
 
-  const existing = await TelegramTopic.findOne({ hotelId, serviceId }).lean()
-  if (existing) return { chatId: config.groupChatId, messageThreadId: existing.messageThreadId }
+  const existing = await TelegramTopic.findOne({ companyId, hotelId, serviceId }).lean()
+  if (existing) {
+    return { chatId: config.groupChatId, messageThreadId: existing.messageThreadId, notificationsEnabled: existing.notificationsEnabled }
+  }
 
   const [hotel, service] = await Promise.all([
     Hotel.findById(hotelId).lean(),
@@ -94,17 +113,17 @@ export async function ensureTopicForService(
 
   const name = `${hotel.shortName}-${service.name}`
   const messageThreadId = await createForumTopic(config.groupChatId, name)
-  await TelegramTopic.create({ hotelId, serviceId, name, messageThreadId })
+  await TelegramTopic.create({ companyId, hotelId, serviceId, name, messageThreadId })
 
-  return { chatId: config.groupChatId, messageThreadId }
+  return { chatId: config.groupChatId, messageThreadId, notificationsEnabled: true }
 }
 
 // Removes the forum topic tied to a deleted service, if one exists.
-export async function deleteTopicForService(serviceId: Types.ObjectId | string): Promise<void> {
+export async function deleteTopicForService(companyId: Types.ObjectId | string, serviceId: Types.ObjectId | string): Promise<void> {
   await connectDB()
   const [config, topic] = await Promise.all([
-    TelegramConfig.findOne().sort({ createdAt: -1 }).lean(),
-    TelegramTopic.findOne({ serviceId }),
+    TelegramConfig.findOne({ companyId }).lean(),
+    TelegramTopic.findOne({ companyId, serviceId }),
   ])
   if (!topic) return
   if (config) {
@@ -120,14 +139,15 @@ export async function deleteTopicForService(serviceId: Types.ObjectId | string):
   await TelegramTopic.deleteOne({ _id: topic._id })
 }
 
-// Creates any missing topics for every (hotel, service) pair. Used right
-// after /login so the group is fully set up without waiting for bookings.
-export async function syncAllTopics(): Promise<void> {
+// Creates any missing topics for every (hotel, service) pair in one company.
+// Used right after /login so the group is fully set up without waiting for
+// bookings.
+export async function syncAllTopics(companyId: Types.ObjectId | string): Promise<void> {
   await connectDB()
-  const services = await Service.find().lean()
+  const services = await Service.find({ companyId }).lean()
   for (const service of services) {
     try {
-      await ensureTopicForService(service.hotelId, service._id)
+      await ensureTopicForService(companyId, service.hotelId, service._id)
     } catch (err) {
       console.error(`Failed to create Telegram topic for service ${service._id}`, err)
     }
@@ -144,6 +164,7 @@ export interface BookingMenuItem {
 
 export interface BookingNotifyData {
   bookingId?: string
+  companyId: Types.ObjectId | string
   hotelId: Types.ObjectId | string
   serviceId: Types.ObjectId | string | { _id: Types.ObjectId | string; name: string }
   customerName: string
@@ -249,8 +270,8 @@ export async function notifyNewBooking(booking: BookingNotifyData): Promise<Book
   try {
     const serviceId = hasName(booking.serviceId) ? booking.serviceId._id : booking.serviceId
     const serviceName = hasName(booking.serviceId) ? booking.serviceId.name : undefined
-    const topic = await ensureTopicForService(booking.hotelId, serviceId)
-    if (!topic) return null
+    const topic = await ensureTopicForService(booking.companyId, booking.hotelId, serviceId)
+    if (!topic || !topic.notificationsEnabled) return null
 
     const text = await buildMessage(booking, serviceName)
     const sent = await sendMessage(topic.chatId, text, topic.messageThreadId)
@@ -279,23 +300,26 @@ export async function notifyBookingUpdated(
 // configured group if missing. Separate from ensureTopicForService — a menu
 // order isn't tied to any Service. Returns null if Telegram isn't set up.
 export async function ensureTopicForMenuOrders(
+  companyId: Types.ObjectId | string,
   hotelId: Types.ObjectId | string
-): Promise<{ chatId: number; messageThreadId: number } | null> {
+): Promise<{ chatId: number; messageThreadId: number; notificationsEnabled: boolean } | null> {
   await connectDB()
-  const config = await TelegramConfig.findOne().sort({ createdAt: -1 }).lean()
+  const config = await TelegramConfig.findOne({ companyId }).lean()
   if (!config) return null
 
-  const existing = await MenuTelegramTopic.findOne({ hotelId }).lean()
-  if (existing) return { chatId: config.groupChatId, messageThreadId: existing.messageThreadId }
+  const existing = await MenuTelegramTopic.findOne({ companyId, hotelId }).lean()
+  if (existing) {
+    return { chatId: config.groupChatId, messageThreadId: existing.messageThreadId, notificationsEnabled: existing.notificationsEnabled }
+  }
 
   const hotel = await Hotel.findById(hotelId).lean()
   if (!hotel) return null
 
   const name = `${hotel.shortName}-Menu`
   const messageThreadId = await createForumTopic(config.groupChatId, name)
-  await MenuTelegramTopic.create({ hotelId, name, messageThreadId })
+  await MenuTelegramTopic.create({ companyId, hotelId, name, messageThreadId })
 
-  return { chatId: config.groupChatId, messageThreadId }
+  return { chatId: config.groupChatId, messageThreadId, notificationsEnabled: true }
 }
 
 // Where a menu order's Telegram message lives, so a status change can edit it.
@@ -313,6 +337,7 @@ export interface MenuOrderNotifyItem {
 
 export interface MenuOrderNotifyData {
   orderId: string
+  companyId: Types.ObjectId | string
   hotelId: Types.ObjectId | string
   roomNumber: string
   guestName?: string
@@ -354,8 +379,8 @@ function buildMenuOrderMessage(order: MenuOrderNotifyData, hotelName: string): s
 // throws, since a Telegram hiccup shouldn't block order placement.
 export async function notifyNewMenuOrder(order: MenuOrderNotifyData): Promise<MenuOrderMessageRef | null> {
   try {
-    const topic = await ensureTopicForMenuOrders(order.hotelId)
-    if (!topic) return null
+    const topic = await ensureTopicForMenuOrders(order.companyId, order.hotelId)
+    if (!topic || !topic.notificationsEnabled) return null
 
     await connectDB()
     const hotel = await Hotel.findById(order.hotelId).select('name shortName').lean()
@@ -375,4 +400,94 @@ export async function notifyMenuOrderUpdated(ref: MenuOrderMessageRef, order: Me
   const hotel = await Hotel.findById(order.hotelId).select('name shortName').lean()
   const text = buildMenuOrderMessage(order, hotel?.name || hotel?.shortName || '')
   await editMessageText(ref.chatId, ref.messageId, text, ref.messageThreadId)
+}
+
+/* ------------------------------- Settings UI ------------------------------- */
+
+export interface TelegramTopicSummary {
+  id: string
+  kind: 'booking' | 'menu'
+  hotelName: string
+  serviceName?: string // absent for the 'menu' kind
+  notificationsEnabled: boolean
+}
+
+export interface TelegramStatus {
+  connected: boolean
+  groupChatId?: number
+  loggedInByName?: string
+  loggedInByEmail?: string
+  connectedAt?: Date
+  botUsername: string | null
+  topics: TelegramTopicSummary[]
+}
+
+// Everything the owner-facing Settings > Telegram page needs in one call.
+export async function getTelegramStatus(companyId: Types.ObjectId | string): Promise<TelegramStatus> {
+  await connectDB()
+  const botUsername = await getBotUsername()
+  const config = await TelegramConfig.findOne({ companyId }).lean()
+  if (!config) return { connected: false, botUsername, topics: [] }
+
+  const [loggedInBy, bookingTopics, menuTopics] = await Promise.all([
+    Admin.findById(config.loggedInBy).select('name email').lean(),
+    TelegramTopic.find({ companyId }).populate('hotelId', 'name').populate('serviceId', 'name').lean(),
+    MenuTelegramTopic.find({ companyId }).populate('hotelId', 'name').lean(),
+  ])
+
+  const hasHotelName = (v: unknown): v is { name: string } =>
+    typeof v === 'object' && v !== null && 'name' in v
+
+  const topics: TelegramTopicSummary[] = [
+    ...bookingTopics.map(t => ({
+      id: t._id.toString(),
+      kind: 'booking' as const,
+      hotelName: hasHotelName(t.hotelId) ? t.hotelId.name : '',
+      serviceName: hasHotelName(t.serviceId) ? t.serviceId.name : undefined,
+      notificationsEnabled: t.notificationsEnabled,
+    })),
+    ...menuTopics.map(t => ({
+      id: t._id.toString(),
+      kind: 'menu' as const,
+      hotelName: hasHotelName(t.hotelId) ? t.hotelId.name : '',
+      notificationsEnabled: t.notificationsEnabled,
+    })),
+  ]
+
+  return {
+    connected: true,
+    groupChatId: config.groupChatId,
+    loggedInByName: loggedInBy?.name,
+    loggedInByEmail: loggedInBy?.email,
+    connectedAt: config.createdAt,
+    botUsername,
+    topics,
+  }
+}
+
+// Toggles whether a specific topic receives new notifications. Scoped to
+// companyId so one company can never touch another's topic by guessing an id.
+export async function setTopicNotifications(
+  companyId: Types.ObjectId | string,
+  kind: 'booking' | 'menu',
+  topicId: string,
+  enabled: boolean
+): Promise<boolean> {
+  await connectDB()
+  const res = kind === 'booking'
+    ? await TelegramTopic.updateOne({ _id: topicId, companyId }, { notificationsEnabled: enabled })
+    : await MenuTelegramTopic.updateOne({ _id: topicId, companyId }, { notificationsEnabled: enabled })
+  return res.matchedCount > 0
+}
+
+// Disconnects a company's group: clears its config and topics so a later
+// /login (to the same or a different group) starts clean — old
+// messageThreadIds would be meaningless in a new group anyway.
+export async function disconnectTelegram(companyId: Types.ObjectId | string): Promise<void> {
+  await connectDB()
+  await Promise.all([
+    TelegramConfig.deleteOne({ companyId }),
+    TelegramTopic.deleteMany({ companyId }),
+    MenuTelegramTopic.deleteMany({ companyId }),
+  ])
 }

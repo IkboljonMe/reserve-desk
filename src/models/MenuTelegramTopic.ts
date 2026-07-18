@@ -5,18 +5,22 @@ import mongoose, { Schema, Document, Types } from 'mongoose'
 // bookings — a menu order isn't tied to any Service).
 export interface IMenuTelegramTopic extends Document {
   _id: Types.ObjectId
+  companyId: Types.ObjectId
   hotelId: Types.ObjectId
   name: string          // "SAF-Menu"
   messageThreadId: number
+  notificationsEnabled: boolean
   createdAt: Date
   updatedAt: Date
 }
 
 const MenuTelegramTopicSchema = new Schema<IMenuTelegramTopic>(
   {
+    companyId: { type: Schema.Types.ObjectId, ref: 'Company', required: true },
     hotelId: { type: Schema.Types.ObjectId, ref: 'Hotel', required: true, unique: true },
     name: { type: String, required: true },
     messageThreadId: { type: Number, required: true },
+    notificationsEnabled: { type: Boolean, default: true },
   },
   { timestamps: true }
 )

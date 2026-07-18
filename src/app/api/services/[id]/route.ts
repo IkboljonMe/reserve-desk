@@ -79,6 +79,6 @@ export async function DELETE(_req: NextRequest, ctx: RouteContext<'/api/services
   await connectDB()
   const deleted = await Service.findOneAndDelete({ _id: id, companyId: session.companyId })
   if (!deleted) return Response.json({ error: 'Not found' }, { status: 404 })
-  after(() => deleteTopicForService(id))
+  after(() => deleteTopicForService(session.companyId, id))
   return Response.json({ success: true })
 }

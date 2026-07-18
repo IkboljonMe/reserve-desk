@@ -30,6 +30,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         { chatId: order.tgChatId!, messageId: order.tgMessageId!, messageThreadId: order.tgThreadId ?? undefined },
         {
           orderId: String(order._id),
+          companyId: order.companyId,
           hotelId: order.hotelId,
           roomNumber: order.roomNumber,
           guestName: order.guestName,
