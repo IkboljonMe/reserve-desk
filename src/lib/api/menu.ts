@@ -1,4 +1,4 @@
-import type { MenuCategory, MenuProduct, MenuOrder, OrderStatus } from '@/features/menu/types'
+import type { MenuCategory, MenuProduct, MenuOrder, MenuRecommendation, OrderStatus } from '@/features/menu/types'
 
 async function json<T>(res: Response): Promise<T> {
   if (!res.ok) {
@@ -56,6 +56,23 @@ export function updateProduct(id: string, data: Partial<MenuProduct>): Promise<M
 
 export function deleteProduct(id: string): Promise<{ ok: true }> {
   return fetch(`/api/menu/products/${id}`, { method: 'DELETE' }).then(r => json<{ ok: true }>(r))
+}
+
+// ── Recommendations ──
+export function getRecommendations(hotelId: string): Promise<MenuRecommendation[]> {
+  return fetch(`/api/menu/recommendations?hotelId=${encodeURIComponent(hotelId)}`).then(r => json<MenuRecommendation[]>(r))
+}
+
+export function createRecommendation(data: { hotelId: string; dayOfWeek: number; productId: string }): Promise<MenuRecommendation> {
+  return fetch('/api/menu/recommendations', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  }).then(r => json<MenuRecommendation>(r))
+}
+
+export function deleteRecommendation(id: string): Promise<{ ok: true }> {
+  return fetch(`/api/menu/recommendations/${id}`, { method: 'DELETE' }).then(r => json<{ ok: true }>(r))
 }
 
 // ── Orders (staff) ──

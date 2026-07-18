@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
-import { Plus, Minus, ShoppingBag, Check } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { Plus, Minus, ShoppingBag, Check, Sparkles, UtensilsCrossed } from 'lucide-react'
 import Modal from '@/components/ui/Modal'
 import Button from '@/components/ui/Button'
 import Spinner from '@/components/ui/Spinner'
@@ -20,6 +20,7 @@ export interface GuestLabels {
   cancelledTitle: string; cancelledSub: string; orderNo: string
   couldNotLoad: string; backToMenu: string; orderSummary: string; notes: string
   orderPending: string; orderPreparing: string; orderReady: string; orderDelivered: string
+  recommendedToday: string
 }
 
 interface TrackedOrder {
@@ -36,7 +37,7 @@ const FIELD = 'w-full px-3 py-2 min-h-[42px] rounded-lg text-sm outline-none bg-
 const STATUS_FLOW: OrderStatus[] = ['pending', 'preparing', 'ready', 'delivered']
 
 export function GuestMenuClient({
-  labels, locale, hotelName, hotelSlug, room, categories, products, serviceFeeType, serviceFeeValue,
+  labels, locale, hotelName, hotelSlug, room, categories, products, recommendations = [], serviceFeeType, serviceFeeValue,
 }: {
   labels: GuestLabels
   locale: string
@@ -45,6 +46,7 @@ export function GuestMenuClient({
   room: string
   categories: MenuCategory[]
   products: MenuProduct[]
+  recommendations?: MenuProduct[]
   serviceFeeType: 'none' | 'percent' | 'fixed'
   serviceFeeValue: number
 }) {
@@ -179,6 +181,12 @@ export function GuestMenuClient({
       </header>
 
       <main className="max-w-[680px] mx-auto px-4 py-5 flex flex-col gap-6">
+        <RecommendationBanner
+          items={recommendations}
+          locale={locale}
+          labels={labels}
+          onAdd={p => setQty(p._id, (cart[p._id] || 0) + 1)}
+        />
         {categories.every(c => byCategory(c._id).length === 0) ? (
           <p className="text-center text-[var(--gray-400)] text-sm py-16">{labels.menuEmpty}</p>
         ) : (
@@ -276,6 +284,97 @@ export function GuestMenuClient({
         )}
       </Modal>
     </div>
+  )
+}
+
+/* --------------------------- Recommendation banner --------------------------- */
+
+// Auto-rotating, swipeable banner of "today's picks" (scroll-snap, no extra
+// animation dependency). Hidden entirely when nothing is featured today.
+function RecommendationBanner({
+  items, locale, labels, onAdd,
+}: {
+  items: MenuProduct[]
+  locale: string
+  labels: GuestLabels
+  onAdd: (product: MenuProduct) => void
+}) {
+  const trackRef = useRef<HTMLDivElement>(null)
+  const [active, setActive] = useState(0)
+
+  useEffect(() => {
+    if (items.length <= 1) return
+    const timer = setInterval(() => {
+      const track = trackRef.current
+      if (!track) return
+      const next = (active + 1) % items.length
+      track.scrollTo({ left: next * track.clientWidth, behavior: 'smooth' })
+    }, 5000)
+    return () => clearInterval(timer)
+  }, [active, items.length])
+
+  if (items.length === 0) return null
+
+  function onScroll() {
+    const track = trackRef.current
+    if (!track || track.clientWidth === 0) return
+    const idx = Math.round(track.scrollLeft / track.clientWidth)
+    if (idx !== active) setActive(idx)
+  }
+
+  return (
+    <section>
+      <div className="flex items-center gap-1.5 text-[var(--brand-600)] mb-2">
+        <Sparkles size={14} />
+        <h2 className="text-[0.75rem] font-bold uppercase tracking-wide m-0">{labels.recommendedToday}</h2>
+      </div>
+
+      <div
+        ref={trackRef}
+        onScroll={onScroll}
+        className="flex snap-x snap-mandatory overflow-x-auto scroll-smooth rounded-xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {items.map(p => {
+          const name = localized(p.nameI18n, p.name, locale)
+          const desc = localized(p.descI18n, p.description, locale)
+          return (
+            <div key={p._id} className="relative h-36 w-full shrink-0 snap-center overflow-hidden">
+              {p.imageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element -- arbitrary hotel-supplied URLs
+                <img src={p.imageUrl} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-[var(--gray-100)] text-[var(--gray-400)]">
+                  <UtensilsCrossed size={30} />
+                </div>
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-3">
+                <div className="min-w-0">
+                  <h3 className="truncate font-extrabold text-white text-[1.05rem] m-0">{name}</h3>
+                  {desc && <p className="truncate text-white/70 text-[0.72rem] mt-0.5 m-0">{desc}</p>}
+                  <div className="font-bold text-white text-[0.85rem] mt-1 tabular-nums">{money(p.price)} {labels.sum}</div>
+                </div>
+                <button
+                  onClick={() => onAdd(p)}
+                  className="w-9 h-9 rounded-full bg-[var(--brand-500)] text-white flex items-center justify-center shrink-0"
+                  aria-label={labels.add}
+                >
+                  <Plus size={17} />
+                </button>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {items.length > 1 && (
+        <div className="mt-2 flex justify-center gap-1.5">
+          {items.map((p, i) => (
+            <span key={p._id} className={`h-1.5 rounded-full transition-all ${i === active ? 'w-5 bg-[var(--brand-500)]' : 'w-1.5 bg-[var(--gray-200)]'}`} />
+          ))}
+        </div>
+      )}
+    </section>
   )
 }
 

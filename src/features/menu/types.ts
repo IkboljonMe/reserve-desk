@@ -28,6 +28,15 @@ export interface MenuProduct {
   sortOrder: number
 }
 
+export interface MenuRecommendation {
+  _id: string
+  hotelId: string
+  dayOfWeek: number   // 0 = Sunday … 6 = Saturday
+  productId: string
+  product?: MenuProduct   // populated on GET
+  sortOrder: number
+}
+
 export interface MenuHotel {
   _id: string
   name: string

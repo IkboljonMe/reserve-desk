@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus, Pencil, Trash2, UtensilsCrossed, QrCode } from 'lucide-react'
+import { Plus, Pencil, Trash2, UtensilsCrossed, QrCode, Sparkles } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import Button from '@/components/ui/Button'
 import Dropdown from '@/components/ui/Dropdown'
@@ -10,6 +10,7 @@ import { useMenuPage } from './useMenuPage'
 import { CategoryModal } from './components/CategoryModal'
 import { ProductModal } from './components/ProductModal'
 import { RoomQrModal } from './components/RoomQrModal'
+import { RecommendationsModal } from './components/RecommendationsModal'
 
 const CARD = 'bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-[var(--radius-lg)] shadow-sm'
 
@@ -18,6 +19,7 @@ export default function MenuPage() {
   const s = useMenuPage()
   const [confirmId, setConfirmId] = useState<string | null>(null)
   const [qrOpen, setQrOpen] = useState(false)
+  const [recsOpen, setRecsOpen] = useState(false)
   const selectedHotel = s.hotels.find(h => h._id === s.hotelId)
 
   return (
@@ -39,7 +41,10 @@ export default function MenuPage() {
             </div>
           )}
           {selectedHotel && (
-            <Button variant="secondary" leftIcon={<QrCode size={14} />} onClick={() => setQrOpen(true)}>{t('printQrCodes')}</Button>
+            <>
+              <Button variant="secondary" leftIcon={<Sparkles size={14} />} onClick={() => setRecsOpen(true)}>{t('manageRecommendations')}</Button>
+              <Button variant="secondary" leftIcon={<QrCode size={14} />} onClick={() => setQrOpen(true)}>{t('printQrCodes')}</Button>
+            </>
           )}
           <Button leftIcon={<Plus size={14} strokeWidth={2.5} />} onClick={s.openAddCategory}>{t('addCategory')}</Button>
         </div>
@@ -127,13 +132,22 @@ export default function MenuPage() {
       <CategoryModal s={s} />
       <ProductModal s={s} />
       {selectedHotel && (
-        <RoomQrModal
-          open={qrOpen}
-          onClose={() => setQrOpen(false)}
-          hotelId={selectedHotel._id}
-          hotelName={selectedHotel.name}
-          hotelSlug={selectedHotel.slug}
-        />
+        <>
+          <RoomQrModal
+            open={qrOpen}
+            onClose={() => setQrOpen(false)}
+            hotelId={selectedHotel._id}
+            hotelName={selectedHotel.name}
+            hotelSlug={selectedHotel.slug}
+          />
+          <RecommendationsModal
+            open={recsOpen}
+            onClose={() => setRecsOpen(false)}
+            hotelId={selectedHotel._id}
+            products={s.products}
+            lang={lang}
+          />
+        </>
       )}
     </div>
   )

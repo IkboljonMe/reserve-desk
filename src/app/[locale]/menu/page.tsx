@@ -6,8 +6,10 @@ import { Company } from '@/models/Company'
 import { Hotel } from '@/models/Hotel'
 import { MenuCategory } from '@/models/MenuCategory'
 import { MenuProduct } from '@/models/MenuProduct'
+import { MenuRecommendation } from '@/models/MenuRecommendation'
 import { HotelMenuSettings } from '@/models/HotelMenuSettings'
 import { getSubdomain } from '@/lib/subdomain'
+import { nowUZ } from '@/lib/timezone'
 import { getT } from '@/i18n/dictionary'
 import { GuestMenuClient, type GuestLabels } from '@/features/menu/guest/GuestMenuClient'
 import type { MenuCategory as TCategory, MenuProduct as TProduct } from '@/features/menu/types'
@@ -53,10 +55,20 @@ export default async function GuestMenuPage({
     )
   }
 
-  const [categories, products] = await Promise.all([
+  const [categories, products, recommendationDocs] = await Promise.all([
     MenuCategory.find({ hotelId: hotel._id }).sort({ sortOrder: 1, createdAt: 1 }).lean(),
     MenuProduct.find({ hotelId: hotel._id, available: true }).sort({ sortOrder: 1, createdAt: 1 }).lean(),
+    MenuRecommendation.find({ hotelId: hotel._id, dayOfWeek: nowUZ().getDay() })
+      .sort({ sortOrder: 1 })
+      .populate('productId')
+      .lean(),
   ])
+
+  // Only today's picks that are still available (product may have been
+  // deleted or hidden since it was featured).
+  const recommendations = recommendationDocs
+    .map(r => r.productId as unknown as TProduct & { available?: boolean })
+    .filter(p => p && p.available !== false)
 
   const serialize = <T,>(v: T): T => JSON.parse(JSON.stringify(v))
 
@@ -73,6 +85,7 @@ export default async function GuestMenuPage({
     orderNo: t('orderNo'), couldNotLoad: t('couldNotLoad'), backToMenu: t('backToMenu'), orderSummary: t('orderSummary'),
     notes: t('notes'),
     orderPending: t('orderPending'), orderPreparing: t('orderPreparing'), orderReady: t('orderReady'), orderDelivered: t('orderDelivered'),
+    recommendedToday: t('recommendedToday'),
   }
 
   return (
@@ -84,6 +97,7 @@ export default async function GuestMenuPage({
       room={typeof room === 'string' ? room : ''}
       categories={serialize(categories) as unknown as TCategory[]}
       products={serialize(products) as unknown as TProduct[]}
+      recommendations={serialize(recommendations)}
       serviceFeeType={settings.serviceFeeType}
       serviceFeeValue={settings.serviceFeeValue}
     />
