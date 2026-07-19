@@ -88,7 +88,7 @@ export function ContactWidget(p: Props) {
       ) : (
         <form onSubmit={submit}>
           <div className="flex items-center gap-2 text-[0.98rem] text-[var(--gray-900)]">
-            <span className="inline-flex w-7 h-7 rounded-lg items-center justify-center bg-[var(--brand-50)]/50 text-[var(--brand-500)]"><PhoneCall size={16} /></span>
+            <span className="inline-flex w-7 h-7 rounded-lg items-center justify-center bg-[var(--brand-50)]/50 text-[var(--brand-500)] dark:text-white"><PhoneCall size={16} /></span>
             <strong>{p.title}</strong>
           </div>
           <p className="my-2 text-[0.82rem] text-[var(--gray-500)] leading-[1.5]">{p.desc}</p>
