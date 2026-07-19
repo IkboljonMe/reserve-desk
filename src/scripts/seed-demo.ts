@@ -15,6 +15,9 @@ import { ClientGroup } from '../models/ClientGroup'
 import { Contract } from '../models/Contract'
 import { Booking } from '../models/Booking'
 import { Company } from '../models/Company'
+import { MenuCategory } from '../models/MenuCategory'
+import { MenuProduct } from '../models/MenuProduct'
+import { HotelMenuSettings } from '../models/HotelMenuSettings'
 import { DEMO_SLUG, DEMO_OWNER_EMAIL, DEMO_OWNER_PASSWORD } from '../features/demo/config'
 
 function loadEnvLocal() {
@@ -64,6 +67,9 @@ async function main() {
       ClientGroup.deleteMany({ companyId: cid }),
       Service.deleteMany({ companyId: cid }),
       Room.deleteMany({ companyId: cid }),
+      MenuProduct.deleteMany({ companyId: cid }),
+      MenuCategory.deleteMany({ companyId: cid }),
+      HotelMenuSettings.deleteMany({ companyId: cid }),
       Hotel.deleteMany({ companyId: cid }),
       Admin.deleteMany({ companyId: cid }),
     ])
@@ -111,6 +117,34 @@ async function main() {
     { companyId: cid, hotelId: fergana._id, number: '01', floor: 1, type: 'Standard', order: 0 },
     { companyId: cid, hotelId: fergana._id, number: '11', floor: 2, type: 'Middle', order: 0 },
   ])
+
+  // Room-service menu — the /demo hub's "Menu" card points here (guest URL:
+  // demo.bronit.uz/<locale>/menu?hotel=tashkent-grand-hotel&room=101).
+  await HotelMenuSettings.create({
+    companyId: cid, hotelId: tashkent._id,
+    menuEnabled: true, serviceFeeType: 'percent', serviceFeeValue: 10, preorderEnabled: false,
+  })
+
+  const [breakfast, drinks, snacks] = await MenuCategory.create([
+    { companyId: cid, hotelId: tashkent._id, name: 'Breakfast', sourceLang: 'en', nameI18n: { en: 'Breakfast', ru: 'Завтрак', uz: 'Nonushta' }, sortOrder: 0 },
+    { companyId: cid, hotelId: tashkent._id, name: 'Drinks', sourceLang: 'en', nameI18n: { en: 'Drinks', ru: 'Напитки', uz: 'Ichimliklar' }, sortOrder: 1 },
+    { companyId: cid, hotelId: tashkent._id, name: 'Snacks', sourceLang: 'en', nameI18n: { en: 'Snacks', ru: 'Закуски', uz: 'Gazaklar' }, sortOrder: 2 },
+  ] as never[])
+
+  const menuItem = (categoryId: mongoose.Types.ObjectId, name: string, nameI18n: { ru: string; uz: string }, price: number, sortOrder: number) => ({
+    companyId: cid, hotelId: tashkent._id, categoryId,
+    name, sourceLang: 'en', nameI18n: { en: name, ru: nameI18n.ru, uz: nameI18n.uz },
+    description: '', price, available: true, sortOrder,
+  })
+
+  await MenuProduct.create([
+    menuItem(breakfast._id, 'Continental Breakfast', { ru: 'Континентальный завтрак', uz: "Kontinental nonushta" }, 45000, 0),
+    menuItem(breakfast._id, 'Omelette & Toast', { ru: 'Омлет с тостами', uz: 'Omlet va tost' }, 35000, 1),
+    menuItem(drinks._id, 'Fresh Orange Juice', { ru: 'Свежевыжатый апельсиновый сок', uz: "Yangi siqilgan apelsin sharbati" }, 20000, 0),
+    menuItem(drinks._id, 'Uzbek Green Tea', { ru: 'Узбекский зелёный чай', uz: "O'zbek ko'k choyi" }, 10000, 1),
+    menuItem(snacks._id, 'Club Sandwich', { ru: 'Клаб-сэндвич', uz: 'Klub sendvich' }, 40000, 0),
+    menuItem(snacks._id, 'Samsa (2 pcs)', { ru: 'Самса (2 шт)', uz: 'Somsa (2 dona)' }, 18000, 1),
+  ] as never[])
 
   const groups = await ClientGroup.create([
     { companyId: cid, name: 'VIP Guests', color: '#7c3aed', order: 0 },
@@ -171,6 +205,7 @@ async function main() {
   console.log('✅ Demo tenant seeded.')
   console.log(`   Dashboard: /secure/company/${DEMO_SLUG}/dashboard`)
   console.log(`   Owner: ${DEMO_OWNER_EMAIL} / ${DEMO_OWNER_PASSWORD}`)
+  console.log(`   Menu: /menu?hotel=${tashkent.slug}&room=101 (on the demo. subdomain)`)
 
   await mongoose.disconnect()
 }
