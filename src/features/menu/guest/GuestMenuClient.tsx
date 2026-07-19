@@ -5,6 +5,7 @@ import { Plus, Minus, ShoppingBag, Check, Sparkles, UtensilsCrossed, ArrowLeft, 
 import Modal from '@/components/ui/Modal'
 import Button from '@/components/ui/Button'
 import Spinner from '@/components/ui/Spinner'
+import Dropdown from '@/components/ui/Dropdown'
 import { localized, computeServiceFee, guestHubPath, MENU_LANGS, MENU_LANG_LABELS } from '@/lib/menu'
 import { money } from '@/lib/bookingHelpers'
 import { ORDER_STATUS_META } from '../constants'
@@ -35,6 +36,7 @@ interface TrackedOrder {
 
 const FIELD = 'w-full px-3 py-2 min-h-[42px] rounded-lg text-sm outline-none bg-[var(--surface-card)] border border-[var(--surface-border)] text-[var(--gray-800)] focus:border-[var(--brand-500)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]'
 const STATUS_FLOW: OrderStatus[] = ['pending', 'preparing', 'ready', 'delivered']
+const LANG_OPTIONS = MENU_LANGS.map(l => ({ value: l, label: MENU_LANG_LABELS[l] }))
 
 export function GuestMenuClient({
   labels, locale, hotelName, hotelSlug, room, categories, products, recommendations = [], serviceFeeType, serviceFeeValue,
@@ -172,8 +174,7 @@ export function GuestMenuClient({
 
   return (
     <div className="min-h-dvh bg-[var(--surface-bg)] text-[var(--gray-900)] pb-24" style={themeVars}>
-      <header className="sticky top-0 z-10 bg-[var(--surface-card)] border-b border-[var(--surface-border)]">
-        <div className="max-w-[448px] mx-auto px-4 py-3 flex items-center justify-between gap-3">
+      <header className="sticky top-0 z-10 max-w-[448px] mx-auto bg-[var(--surface-card)] border-b border-[var(--surface-border)] px-4 py-3 flex items-center justify-between gap-3">
           <div className="min-w-0 flex items-center gap-2.5">
             <a
               href={guestHubPath(locale, hotelSlug, room)}
@@ -188,16 +189,14 @@ export function GuestMenuClient({
             </div>
           </div>
           <nav className="flex items-center gap-1.5 shrink-0">
-            <select
-              value={contentLang}
-              onChange={e => setContentLang(e.target.value as typeof contentLang)}
-              aria-label="Menu language"
-              className="px-2 py-1 rounded-md text-[0.75rem] font-bold bg-[var(--gray-100)] text-[var(--gray-700)] border-none outline-none cursor-pointer"
-            >
-              {MENU_LANGS.map(l => (
-                <option key={l} value={l}>{MENU_LANG_LABELS[l]}</option>
-              ))}
-            </select>
+            <div className="w-[118px]">
+              <Dropdown
+                value={contentLang}
+                onChange={v => setContentLang(v as typeof contentLang)}
+                options={LANG_OPTIONS}
+                ariaLabel="Menu language"
+              />
+            </div>
             <button
               type="button"
               onClick={toggleTheme}
@@ -207,7 +206,6 @@ export function GuestMenuClient({
               {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
             </button>
           </nav>
-        </div>
       </header>
 
       <main className="max-w-[448px] mx-auto px-4 py-5 flex flex-col gap-6">

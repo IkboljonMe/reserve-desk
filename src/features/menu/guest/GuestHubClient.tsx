@@ -3,9 +3,12 @@
 import { useState, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Sun, Moon } from 'lucide-react'
+import Dropdown from '@/components/ui/Dropdown'
 import { guestFoodPath, rootDomain, MENU_LANGS, MENU_LANG_LABELS } from '@/lib/menu'
 import { useGuestPrefs } from './useGuestPrefs'
 import type { TileId, HubLang, ResolvedTile } from '@/lib/tiles'
+
+const LANG_OPTIONS = MENU_LANGS.map(l => ({ value: l, label: MENU_LANG_LABELS[l] }))
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -233,16 +236,14 @@ export function GuestHubClient({
 
           {/* Language + theme */}
           <div className="flex items-center gap-1.5">
-            <select
-              value={lang}
-              onChange={e => setLang(e.target.value as typeof lang)}
-              aria-label="Language"
-              className="bg-black/45 backdrop-blur-md border border-white/10 rounded-[10px] py-1.5 px-2 text-[0.72rem] font-bold text-white cursor-pointer outline-none"
-            >
-              {MENU_LANGS.map(l => (
-                <option key={l} value={l} className="text-black">{MENU_LANG_LABELS[l]}</option>
-              ))}
-            </select>
+            <div className="w-[118px]">
+              <Dropdown
+                value={lang}
+                onChange={v => setLang(v as typeof lang)}
+                options={LANG_OPTIONS}
+                ariaLabel="Language"
+              />
+            </div>
             <button
               type="button"
               onClick={toggleTheme}
