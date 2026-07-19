@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { guestFoodPath } from '@/lib/menu'
+import { guestFoodPath, rootDomain } from '@/lib/menu'
 import type { TileId, HubLang, ResolvedTile } from '@/lib/tiles'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -43,7 +43,7 @@ const L: Record<HubLang, Record<string, string>> = {
     call: 'Qo\'ng\'iroq qilish',
     followUs: 'Bizni ijtimoiy tarmoqlarda kuzatib boring',
     isYourProperty: 'Sizning muassasangiz bormi?',
-    joinFree: 'Tezmenu-ga bepul ulaning',
+    joinFree: "Bronit'ga bepul ulaning",
   },
   ru: {
     room: 'Номер',
@@ -62,7 +62,7 @@ const L: Record<HubLang, Record<string, string>> = {
     call: 'Позвонить',
     followUs: 'Следите за нами в социальных сетях',
     isYourProperty: 'Ваш объект?',
-    joinFree: 'Подключитесь к Tezmenu бесплатно',
+    joinFree: 'Подключитесь к Bronit бесплатно',
   },
   en: {
     room: 'Room',
@@ -81,7 +81,7 @@ const L: Record<HubLang, Record<string, string>> = {
     call: 'Call',
     followUs: 'Follow us on social media',
     isYourProperty: 'Is this your property?',
-    joinFree: 'Join Tezmenu for free',
+    joinFree: 'Join Bronit for free',
   },
 }
 
@@ -177,11 +177,19 @@ export function GuestHubClient({
   const [modal, setModal] = useState<TileId | null>(null)
   const [problem, setProblem] = useState('')
   const [problemStatus, setProblemStatus] = useState<'idle' | 'sending' | 'sent'>('idle')
+  // Marketing homepage link — relative during SSR, upgraded to the absolute
+  // root-domain URL after mount (this page is served from menu./demo.
+  // subdomains, so a plain `/<locale>` link would stay on the wrong host).
+  const [joinHref, setJoinHref] = useState(`/${locale}`)
 
   // Load persisted lang after mount
   useEffect(() => {
     setLang(getSavedLang(initLang))
   }, [initLang])
+
+  useEffect(() => {
+    setJoinHref(`${window.location.protocol}//${rootDomain(window.location.host)}/${lang}`)
+  }, [lang])
 
   const switchLang = (l: HubLang) => { setLang(l); saveLang(l) }
   const t = (key: string) => L[lang][key] || L.uz[key] || key
@@ -365,7 +373,12 @@ export function GuestHubClient({
       {/* ── Footer branding ────────────────────────────────────── */}
       <div style={{ textAlign: 'center', padding: '20px 20px 40px' }}>
         <p style={{ margin: '0 0 4px', fontSize: '0.75rem', color: 'rgba(255,255,255,0.28)' }}>{t('isYourProperty')}</p>
-        <p style={{ margin: 0, fontSize: '0.8rem', fontWeight: 700, color: 'rgba(245,166,35,0.9)', letterSpacing: '0.01em' }}>{t('joinFree')}</p>
+        <a
+          href={joinHref}
+          style={{ margin: 0, fontSize: '0.8rem', fontWeight: 700, color: 'rgba(245,166,35,0.9)', letterSpacing: '0.01em', textDecoration: 'none' }}
+        >
+          {t('joinFree')}
+        </a>
       </div>
 
       {/* ── Modals ─────────────────────────────────────────────── */}
