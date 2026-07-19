@@ -65,7 +65,7 @@ export default function Modal({
         role="dialog"
         aria-modal="true"
         onClick={e => e.stopPropagation()}
-        className={`bg-[var(--surface-card)] text-[var(--gray-800)] flex flex-col w-full h-full sm:h-auto sm:max-h-[90dvh] sm:rounded-2xl sm:border sm:border-[var(--surface-border)] sm:shadow-[var(--shadow-xl)] [animation:slideUp_0.24s_cubic-bezier(0.16,1,0.3,1)] ${SIZE[size]}`}
+        className={`bg-[var(--surface-card)] text-[var(--gray-800)] flex flex-col w-full h-full sm:h-auto sm:max-h-[90dvh] sm:border sm:border-[var(--surface-border)] sm:shadow-[var(--shadow-xl)] [animation:slideUp_0.24s_cubic-bezier(0.16,1,0.3,1)] ${SIZE[size]}`}
       >
         {!hideHeader && (
           <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-[var(--surface-border)] shrink-0">

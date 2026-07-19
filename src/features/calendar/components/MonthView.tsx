@@ -56,19 +56,28 @@ export default function MonthView({
             .sort((a, b) => toMin(a.startTime) - toMin(b.startTime))
           const isToday = isSameDay(day, today)
           const inMonth = isSameMonth(day, currentDate)
-          return (
-            <div
-              key={dateStr}
-              onClick={() => onDayClick(day)}
-              className={`min-h-[104px] p-1.5 rounded-[10px] cursor-pointer transition-all duration-120 flex flex-col gap-0.75 border hover:shadow-sm hover:border-[var(--brand-400)] ${
-                isToday ? 'bg-[var(--brand-50)] border-[var(--brand-400)]' : inMonth ? 'bg-[var(--surface-card)] border-[var(--gray-200)]' : 'bg-[var(--gray-50)] border-[var(--gray-200)]'
-              }`}
-            >
+            const todayMidnight = new Date(today)
+            todayMidnight.setHours(0, 0, 0, 0)
+            const isPastDay = day < todayMidnight
+
+            return (
               <div
-                className={`text-[0.75rem] w-[22px] h-[22px] flex items-center justify-center rounded-full self-start ${
-                  isToday ? 'bg-[var(--brand-500)] text-white font-bold' : inMonth ? 'text-[var(--gray-700)] font-semibold' : 'text-[var(--gray-300)] font-semibold'
+                key={dateStr}
+                onClick={() => {
+                  if (!isPastDay) onDayClick(day)
+                }}
+                className={`min-h-[104px] p-1.5 transition-all duration-120 flex flex-col gap-0.75 border ${
+                  isPastDay ? 'bg-[var(--gray-50)] border-[var(--gray-200)] opacity-60 cursor-not-allowed' :
+                  `cursor-pointer hover:shadow-sm hover:border-[var(--brand-400)] ${
+                    isToday ? 'bg-[var(--brand-50)] border-[var(--brand-400)]' : inMonth ? 'bg-[var(--surface-card)] border-[var(--gray-200)]' : 'bg-[var(--gray-50)] border-[var(--gray-200)]'
+                  }`
                 }`}
               >
+                <div
+                  className={`text-[0.75rem] w-[22px] h-[22px] flex items-center justify-center rounded-full self-start ${
+                    isToday ? 'bg-[var(--brand-500)] text-white font-bold' : inMonth ? 'text-[var(--gray-700)] font-semibold' : 'text-[var(--gray-400)] font-semibold'
+                  }`}
+                >
                 {format(day, 'd')}
               </div>
               {list.slice(0, 3).map(b => {
@@ -78,7 +87,7 @@ export default function MonthView({
                     <div
                       key={b._id}
                       title={`${b.startTime}–${b.endTime} · ${t('occupied')}`}
-                      className="flex items-center gap-1.25 border-l-[3px] border-l-[var(--gray-400)] rounded-[5px] p-[2px_5px_2px_6px] text-[0.68rem] text-[var(--gray-500)] overflow-hidden whitespace-nowrap text-ellipsis cursor-default"
+                      className="flex items-center gap-1.25 border-l-[3px] border-l-[var(--gray-400)] p-[2px_5px_2px_6px] text-[0.68rem] text-[var(--gray-500)] overflow-hidden whitespace-nowrap text-ellipsis cursor-default"
                       style={{
                         background: 'repeating-linear-gradient(45deg, var(--gray-100), var(--gray-100) 5px, var(--gray-200) 5px, var(--gray-200) 10px)',
                       }}
@@ -97,7 +106,7 @@ export default function MonthView({
                       e.stopPropagation()
                       onBookingClick(b)
                     }}
-                    className="flex items-center gap-1.25 rounded-[5px] p-[2px_5px_2px_6px] text-[0.68rem] text-[var(--gray-700)] overflow-hidden whitespace-nowrap text-ellipsis border-l-[3px]"
+                    className="flex items-center gap-1.25 p-[2px_5px_2px_6px] text-[0.68rem] text-[var(--gray-700)] overflow-hidden whitespace-nowrap text-ellipsis border-l-[3px] cursor-pointer"
                     style={{
                       background: b.finished ? `${color}12` : `${color}1f`,
                       borderLeftColor: b.finished ? '#10b981' : color,

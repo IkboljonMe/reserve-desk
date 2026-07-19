@@ -37,14 +37,6 @@ export function CalendarSidebar({ s }: { s: CalendarPageState }) {
         )}
       </div>
 
-      {/* Hotel & service filters — desktop only. On mobile they live in the
-          filter modal, so the sidebar shows just the summary numbers on top. */}
-      {!isMobile && (
-        <>
-          <HotelFilterList s={s} />
-          <ServiceFilterList s={s} />
-        </>
-      )}
     </div>
   )
 }
