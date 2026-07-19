@@ -1,8 +1,10 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import { useRouter, usePathname } from 'next/navigation'
-import { guestFoodPath, rootDomain } from '@/lib/menu'
+import { useState, useCallback, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { Sun, Moon } from 'lucide-react'
+import { guestFoodPath, rootDomain, MENU_LANGS, MENU_LANG_LABELS } from '@/lib/menu'
+import { useGuestPrefs } from './useGuestPrefs'
 import type { TileId, HubLang, ResolvedTile } from '@/lib/tiles'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -24,6 +26,9 @@ export interface GuestHubProps {
 }
 
 // ─── Inline translations ───────────────────────────────────────────────────────
+// Only uz/ru/en have real hub-chrome copy; the 10-language picker exists mainly
+// to carry the guest's choice into the food menu (which has real 10-language
+// content). Any other pick falls back to English here — see asHubLang().
 
 const L: Record<HubLang, Record<string, string>> = {
   uz: {
@@ -85,16 +90,10 @@ const L: Record<HubLang, Record<string, string>> = {
   },
 }
 
-// ─── Lang storage ──────────────────────────────────────────────────────────────
-
-const LS_KEY = 'bronit_hub_lang'
-function getSavedLang(fallback: HubLang): HubLang {
-  if (typeof window === 'undefined') return fallback
-  const v = localStorage.getItem(LS_KEY)
-  return (v === 'uz' || v === 'ru' || v === 'en') ? v : fallback
-}
-function saveLang(lang: HubLang) {
-  try { localStorage.setItem(LS_KEY, lang) } catch { /* ignore */ }
+// The 10-language picker's selection collapsed down to a supported hub-chrome
+// language (uz/ru/en) — anything else falls back to English.
+function asHubLang(lang: string): HubLang {
+  return lang === 'uz' || lang === 'ru' ? lang : 'en'
 }
 
 // ─── CopyButton ───────────────────────────────────────────────────────────────
@@ -111,13 +110,9 @@ function CopyButton({ text, label, copied: copiedLabel }: { text: string; label:
     <button
       type="button"
       onClick={handleCopy}
-      className="text-[0.75rem] px-2.5 py-1 rounded-md transition-colors"
-      style={{
-        background: copied ? 'rgba(34,197,94,0.2)' : 'rgba(255,255,255,0.1)',
-        color: copied ? '#4ade80' : 'rgba(255,255,255,0.7)',
-        border: 'none',
-        cursor: 'pointer',
-      }}
+      className={`text-[0.75rem] px-2.5 py-1 rounded-md border-none cursor-pointer transition-colors ${
+        copied ? 'bg-emerald-500/20 text-emerald-400' : 'bg-[var(--gray-100)] text-[var(--gray-600)]'
+      }`}
     >
       {copied ? copiedLabel : label}
     </button>
@@ -138,21 +133,11 @@ function HubModal({ open, onClose, children }: { open: boolean; onClose: () => v
 
   return (
     <div
-      style={{
-        position: 'fixed', inset: 0, zIndex: 200,
-        background: 'rgba(0,0,0,0.72)',
-        display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
-      }}
+      className="fixed inset-0 z-[200] bg-black/72 flex items-end justify-center"
       onClick={onClose}
     >
       <div
-        style={{
-          width: '100%', maxWidth: 448,
-          background: '#1c1c1e',
-          borderRadius: '20px 20px 0 0',
-          padding: '28px 24px 36px',
-          animation: 'hubSlideUp 0.25s ease-out',
-        }}
+        className="w-full max-w-[448px] bg-[var(--surface-card)] rounded-t-[20px] px-6 pt-7 pb-9 [animation:hubSlideUp_0.25s_ease-out]"
         onClick={e => e.stopPropagation()}
       >
         {children}
@@ -162,6 +147,8 @@ function HubModal({ open, onClose, children }: { open: boolean; onClose: () => v
   )
 }
 
+const MODAL_CLOSE_BTN = 'w-full p-3 rounded-xl border-none bg-[var(--gray-100)] text-[var(--gray-600)] text-[0.9rem] font-semibold cursor-pointer'
+
 // ─── Main component ────────────────────────────────────────────────────────────
 
 export function GuestHubClient({
@@ -170,10 +157,9 @@ export function GuestHubClient({
   instagramUrl, telegramUrl, receptionPhone, reviewUrl,
 }: GuestHubProps) {
   const router = useRouter()
-  const pathname = usePathname()
 
-  const initLang: HubLang = (locale === 'uz' || locale === 'ru' || locale === 'en') ? locale : 'uz'
-  const [lang, setLang] = useState<HubLang>(initLang)
+  const { lang, setLang, theme, toggleTheme, themeVars } = useGuestPrefs(locale)
+  const hubLang = asHubLang(lang)
   const [modal, setModal] = useState<TileId | null>(null)
   const [problem, setProblem] = useState('')
   const [problemStatus, setProblemStatus] = useState<'idle' | 'sending' | 'sent'>('idle')
@@ -182,23 +168,19 @@ export function GuestHubClient({
   // subdomains, so a plain `/<locale>` link would stay on the wrong host).
   const [joinHref, setJoinHref] = useState(`/${locale}`)
 
-  // Load persisted lang after mount
   useEffect(() => {
-    setLang(getSavedLang(initLang))
-  }, [initLang])
+    setJoinHref(`${window.location.protocol}//${rootDomain(window.location.host)}/${locale}`)
+  }, [locale])
 
-  useEffect(() => {
-    setJoinHref(`${window.location.protocol}//${rootDomain(window.location.host)}/${lang}`)
-  }, [lang])
-
-  const switchLang = (l: HubLang) => { setLang(l); saveLang(l) }
-  const t = (key: string) => L[lang][key] || L.uz[key] || key
+  const t = (key: string) => L[hubLang][key] || L.en[key] || key
   const closeModal = useCallback(() => { setModal(null); setProblem(''); setProblemStatus('idle') }, [])
 
   const enabledTiles = tiles.filter(t => t.enabled)
 
-  // Path-based food page on the menu subdomain (same-origin nav).
-  const menuFoodHref = guestFoodPath(lang, hotelSlug, room)
+  // Path-based food page on the menu subdomain (same-origin nav). The URL's own
+  // locale segment stays fixed (chrome text is server-rendered per-request) —
+  // the guest's 10-language content pick travels via useGuestPrefs, not the URL.
+  const menuFoodHref = guestFoodPath(locale, hotelSlug, room)
 
   const handleTileClick = (id: TileId) => {
     if (id === 'menu') {
@@ -227,105 +209,75 @@ export function GuestHubClient({
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
-  const BG = '#0c0c0e'
-  const CARD = '#1a1a1c'
-  const BORDER = 'rgba(255,255,255,0.07)'
-
   return (
-    <div style={{ minHeight: '100dvh', background: BG, fontFamily: "'Inter',system-ui,sans-serif", color: '#f0f0f0' }}>
-    <div style={{ maxWidth: 448, margin: '0 auto' }}>
+    <div className="min-h-dvh bg-[var(--surface-bg)] text-[var(--gray-800)]" style={{ fontFamily: "'Inter',system-ui,sans-serif", ...themeVars }}>
+    <div className="max-w-[448px] mx-auto">
       {/* ── Banner ─────────────────────────────────────────────── */}
-      <div style={{ position: 'relative', height: 220, overflow: 'hidden', flexShrink: 0 }}>
+      <div className="relative h-[220px] overflow-hidden shrink-0">
         {bannerUrl
-          ? <img src={bannerUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          : <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg,#1a1a2e,#16213e,#0f3460)' }} />
+          ? <img src={bannerUrl} alt="" className="w-full h-full object-cover" />
+          : <div className="w-full h-full bg-[linear-gradient(135deg,#1a1a2e,#16213e,#0f3460)]" />
         }
         {/* Dark gradient overlay */}
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(12,12,14,0.85) 100%)' }} />
+        <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(0,0,0,0.3)_0%,rgba(12,12,14,0.85)_100%)]" />
 
         {/* Top controls */}
-        <div style={{ position: 'absolute', top: 14, left: 14, right: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-          {/* Language switcher */}
-          <div style={{ display: 'flex', gap: 4, background: 'rgba(0,0,0,0.45)', borderRadius: 10, padding: '3px 4px', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.1)' }}>
-            {(['uz', 'ru', 'en'] as HubLang[]).map(l => (
-              <button
-                key={l}
-                type="button"
-                onClick={() => switchLang(l)}
-                style={{
-                  padding: '4px 10px', borderRadius: 7, border: 'none', cursor: 'pointer',
-                  fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.04em',
-                  transition: 'all 0.15s',
-                  background: lang === l ? 'rgba(255,255,255,0.95)' : 'transparent',
-                  color: lang === l ? '#0c0c0e' : 'rgba(255,255,255,0.65)',
-                }}
-              >
-                {l.toUpperCase()}
-              </button>
-            ))}
-          </div>
-
+        <div className="absolute top-3.5 left-3.5 right-3.5 flex items-start justify-between gap-2">
           {/* Room badge */}
-          {room && (
-            <div style={{
-              background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)',
-              border: '1px solid rgba(255,255,255,0.18)',
-              borderRadius: 20, padding: '5px 14px',
-              fontSize: '0.85rem', fontWeight: 700, color: '#fff',
-              display: 'flex', alignItems: 'center', gap: 6,
-            }}>
-              <span style={{ color: 'rgba(255,255,255,0.5)', fontWeight: 400 }}>{t('room')}:</span>
-              <span style={{ color: '#fff' }}>{room}</span>
+          {room ? (
+            <div className="bg-black/60 backdrop-blur-md border border-white/18 rounded-full py-1.5 px-3.5 text-[0.85rem] font-bold text-white flex items-center gap-1.5">
+              <span className="text-white/50 font-normal">{t('room')}:</span>
+              <span className="text-white">{room}</span>
             </div>
-          )}
+          ) : <span />}
+
+          {/* Language + theme */}
+          <div className="flex items-center gap-1.5">
+            <select
+              value={lang}
+              onChange={e => setLang(e.target.value as typeof lang)}
+              aria-label="Language"
+              className="bg-black/45 backdrop-blur-md border border-white/10 rounded-[10px] py-1.5 px-2 text-[0.72rem] font-bold text-white cursor-pointer outline-none"
+            >
+              {MENU_LANGS.map(l => (
+                <option key={l} value={l} className="text-black">{MENU_LANG_LABELS[l]}</option>
+              ))}
+            </select>
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label="Toggle theme"
+              className="w-8 h-8 rounded-[10px] bg-black/45 backdrop-blur-md border border-white/10 flex items-center justify-center text-white cursor-pointer shrink-0"
+            >
+              {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
+            </button>
+          </div>
         </div>
       </div>
 
       {/* ── Hotel Identity ─────────────────────────────────────── */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '20px 20px 8px' }}>
-        <div style={{
-          width: 60, height: 60, borderRadius: '50%', flexShrink: 0,
-          border: '2.5px solid rgba(255,255,255,0.25)',
-          overflow: 'hidden',
-          background: logoUrl ? '#fff' : 'linear-gradient(135deg,#4f6ef7,#7c3aed)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
+      <div className="flex items-center gap-3.5 px-5 pt-5 pb-2">
+        <div className={`w-[60px] h-[60px] rounded-full shrink-0 border-[2.5px] border-[var(--gray-300)] overflow-hidden flex items-center justify-center ${logoUrl ? 'bg-white' : 'bg-[linear-gradient(135deg,#4f6ef7,#7c3aed)]'}`}>
           {logoUrl
-            ? <img src={logoUrl} alt={hotelName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            : <span style={{ color: '#fff', fontSize: '1.4rem', fontWeight: 800 }}>{hotelName.charAt(0).toUpperCase()}</span>
+            ? <img src={logoUrl} alt={hotelName} className="w-full h-full object-cover" />
+            : <span className="text-white text-[1.4rem] font-extrabold">{hotelName.charAt(0).toUpperCase()}</span>
           }
         </div>
-        <div>
-          <h1 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: '#fff', lineHeight: 1.2 }}>{hotelName}</h1>
-        </div>
+        <h1 className="m-0 text-[1.25rem] font-extrabold text-[var(--gray-900)] leading-tight">{hotelName}</h1>
       </div>
 
       {/* ── Tile Grid ──────────────────────────────────────────── */}
-      <div style={{ padding: '12px 14px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+      <div className="p-3.5 grid grid-cols-2 gap-2.5">
         {enabledTiles.map(tile => (
           <button
             key={tile.id}
             type="button"
             onClick={() => handleTileClick(tile.id)}
-            style={{
-              background: CARD,
-              border: `1px solid ${BORDER}`,
-              borderRadius: 18,
-              padding: '22px 14px 18px',
-              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10,
-              cursor: 'pointer',
-              transition: 'transform 0.12s, background 0.12s',
-              WebkitTapHighlightColor: 'transparent',
-              textAlign: 'center',
-            }}
-            onMouseDown={e => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(0.96)' }}
-            onMouseUp={e => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)' }}
-            onTouchStart={e => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(0.96)' }}
-            onTouchEnd={e => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)' }}
+            className="bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-[18px] pt-[22px] px-3.5 pb-[18px] flex flex-col items-center gap-2.5 cursor-pointer text-center transition-transform active:scale-[0.96] [-webkit-tap-highlight-color:transparent]"
           >
-            <span style={{ fontSize: '2.75rem', lineHeight: 1, display: 'block' }}>{tile.emoji}</span>
-            <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.88)', lineHeight: 1.35 }}>
-              {tile.label[lang] || tile.label.uz}
+            <span className="text-[2.75rem] leading-none block">{tile.emoji}</span>
+            <span className="text-[0.8rem] font-semibold text-[var(--gray-700)] leading-snug">
+              {tile.label[hubLang] || tile.label.uz}
             </span>
           </button>
         ))}
@@ -333,12 +285,12 @@ export function GuestHubClient({
 
       {/* ── Social links ───────────────────────────────────────── */}
       {(instagramUrl || telegramUrl) && (
-        <div style={{ textAlign: 'center', padding: '16px 20px 8px' }}>
-          <p style={{ margin: '0 0 12px', fontSize: '0.78rem', color: 'rgba(255,255,255,0.38)', letterSpacing: '0.02em' }}>{t('followUs')}</p>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 16 }}>
+        <div className="text-center px-5 pt-4 pb-2">
+          <p className="mb-3 text-[0.78rem] text-[var(--gray-400)] tracking-wide">{t('followUs')}</p>
+          <div className="flex justify-center gap-4">
             {instagramUrl && (
               <a href={instagramUrl} target="_blank" rel="noopener noreferrer"
-                style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', transition: 'background 0.15s' }}
+                className="w-11 h-11 rounded-full bg-[var(--gray-100)] border border-[var(--surface-border)] flex items-center justify-center no-underline transition-colors"
               >
                 {/* Instagram SVG */}
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -358,7 +310,7 @@ export function GuestHubClient({
             )}
             {telegramUrl && (
               <a href={telegramUrl} target="_blank" rel="noopener noreferrer"
-                style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}
+                className="w-11 h-11 rounded-full bg-[var(--gray-100)] border border-[var(--surface-border)] flex items-center justify-center no-underline"
               >
                 {/* Telegram SVG */}
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -372,11 +324,11 @@ export function GuestHubClient({
       )}
 
       {/* ── Footer branding ────────────────────────────────────── */}
-      <div style={{ textAlign: 'center', padding: '20px 20px 40px' }}>
-        <p style={{ margin: '0 0 4px', fontSize: '0.75rem', color: 'rgba(255,255,255,0.28)' }}>{t('isYourProperty')}</p>
+      <div className="text-center px-5 pt-5 pb-10">
+        <p className="mb-1 text-[0.75rem] text-[var(--gray-300)]">{t('isYourProperty')}</p>
         <a
           href={joinHref}
-          style={{ margin: 0, fontSize: '0.8rem', fontWeight: 700, color: 'rgba(245,166,35,0.9)', letterSpacing: '0.01em', textDecoration: 'none' }}
+          className="text-[0.8rem] font-bold tracking-wide no-underline text-[rgba(245,166,35,0.9)]"
         >
           {t('joinFree')}
         </a>
@@ -387,39 +339,39 @@ export function GuestHubClient({
 
       {/* Wi-Fi modal */}
       <HubModal open={modal === 'wifi'} onClose={closeModal}>
-        <div style={{ textAlign: 'center', marginBottom: 20 }}>
-          <span style={{ fontSize: '2.5rem' }}>📶</span>
-          <h2 style={{ margin: '8px 0 0', fontSize: '1.1rem', fontWeight: 700, color: '#fff' }}>Wi-Fi</h2>
+        <div className="text-center mb-5">
+          <span className="text-[2.5rem]">📶</span>
+          <h2 className="mt-2 mb-0 text-[1.1rem] font-bold text-[var(--gray-900)]">Wi-Fi</h2>
         </div>
         {wifiName && (
-          <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: 12, padding: '12px 16px', marginBottom: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+          <div className="bg-[var(--gray-50)] rounded-xl py-3 px-4 mb-2.5 flex items-center justify-between gap-2">
             <div>
-              <p style={{ margin: 0, fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)' }}>{t('wifiNetwork')}</p>
-              <p style={{ margin: 0, fontSize: '0.95rem', fontWeight: 600, color: '#fff' }}>{wifiName}</p>
+              <p className="m-0 text-[0.7rem] text-[var(--gray-400)]">{t('wifiNetwork')}</p>
+              <p className="m-0 text-[0.95rem] font-semibold text-[var(--gray-900)]">{wifiName}</p>
             </div>
             <CopyButton text={wifiName} label={t('copy')} copied={t('copied')} />
           </div>
         )}
         {wifiPassword && (
-          <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: 12, padding: '12px 16px', marginBottom: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+          <div className="bg-[var(--gray-50)] rounded-xl py-3 px-4 mb-5 flex items-center justify-between gap-2">
             <div>
-              <p style={{ margin: 0, fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)' }}>{t('wifiPassword')}</p>
-              <p style={{ margin: 0, fontSize: '0.95rem', fontWeight: 600, color: '#fff' }}>{wifiPassword}</p>
+              <p className="m-0 text-[0.7rem] text-[var(--gray-400)]">{t('wifiPassword')}</p>
+              <p className="m-0 text-[0.95rem] font-semibold text-[var(--gray-900)]">{wifiPassword}</p>
             </div>
             <CopyButton text={wifiPassword} label={t('copy')} copied={t('copied')} />
           </div>
         )}
-        <button type="button" onClick={closeModal} style={{ width: '100%', padding: '12px', borderRadius: 12, border: 'none', background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer' }}>{t('close')}</button>
+        <button type="button" onClick={closeModal} className={MODAL_CLOSE_BTN}>{t('close')}</button>
       </HubModal>
 
       {/* Problem report modal */}
       <HubModal open={modal === 'problem'} onClose={closeModal}>
-        <div style={{ textAlign: 'center', marginBottom: 20 }}>
-          <span style={{ fontSize: '2.5rem' }}>⚠️</span>
-          <h2 style={{ margin: '8px 0 0', fontSize: '1.1rem', fontWeight: 700, color: '#fff' }}>{t('reportProblem')}</h2>
+        <div className="text-center mb-5">
+          <span className="text-[2.5rem]">⚠️</span>
+          <h2 className="mt-2 mb-0 text-[1.1rem] font-bold text-[var(--gray-900)]">{t('reportProblem')}</h2>
         </div>
         {problemStatus === 'sent'
-          ? <p style={{ textAlign: 'center', color: '#4ade80', fontWeight: 600, fontSize: '1rem', margin: '0 0 20px' }}>{t('sent')}</p>
+          ? <p className="text-center text-emerald-400 font-semibold text-base mb-5">{t('sent')}</p>
           : (
             <>
               <textarea
@@ -427,44 +379,44 @@ export function GuestHubClient({
                 onChange={e => setProblem(e.target.value)}
                 placeholder={t('problemPlaceholder')}
                 rows={4}
-                style={{ width: '100%', borderRadius: 12, padding: '12px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', fontSize: '0.9rem', resize: 'none', outline: 'none', boxSizing: 'border-box', marginBottom: 12 }}
+                className="w-full box-border rounded-xl p-3 mb-3 bg-[var(--gray-50)] border border-[var(--surface-border)] text-[var(--gray-900)] text-[0.9rem] resize-none outline-none"
               />
               <button
                 type="button"
                 disabled={problemStatus === 'sending' || !problem.trim()}
                 onClick={handleProblemSubmit}
-                style={{ width: '100%', padding: '12px', borderRadius: 12, border: 'none', background: problem.trim() ? '#4f6ef7' : 'rgba(79,110,247,0.35)', color: '#fff', fontSize: '0.9rem', fontWeight: 700, cursor: problem.trim() ? 'pointer' : 'default', marginBottom: 10 }}
+                className={`w-full p-3 rounded-xl border-none text-white text-[0.9rem] font-bold mb-2.5 ${problem.trim() ? 'bg-[var(--brand-500)] cursor-pointer' : 'bg-[var(--brand-500)]/35 cursor-default'}`}
               >
                 {problemStatus === 'sending' ? t('sending') : t('send')}
               </button>
             </>
           )
         }
-        <button type="button" onClick={closeModal} style={{ width: '100%', padding: '12px', borderRadius: 12, border: 'none', background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.65)', fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer' }}>{t('close')}</button>
+        <button type="button" onClick={closeModal} className={MODAL_CLOSE_BTN}>{t('close')}</button>
       </HubModal>
 
       {/* Reception / contact modal (alarm, taxi, services, reception) */}
       <HubModal open={modal === 'alarm' || modal === 'taxi' || modal === 'services' || modal === 'reception' || modal === 'reviews'} onClose={closeModal}>
-        <div style={{ textAlign: 'center', marginBottom: 20 }}>
+        <div className="text-center mb-5">
           {modal && (
-            <span style={{ fontSize: '2.5rem' }}>
+            <span className="text-[2.5rem]">
               {tiles.find(t => t.id === modal)?.emoji || '🛎️'}
             </span>
           )}
-          <h2 style={{ margin: '8px 0 0', fontSize: '1.1rem', fontWeight: 700, color: '#fff' }}>
-            {modal ? (tiles.find(t => t.id === modal)?.label[lang] || '') : ''}
+          <h2 className="mt-2 mb-0 text-[1.1rem] font-bold text-[var(--gray-900)]">
+            {modal ? (tiles.find(t => t.id === modal)?.label[hubLang] || '') : ''}
           </h2>
         </div>
-        <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.55)', fontSize: '0.9rem', margin: '0 0 20px', lineHeight: 1.5 }}>{t('contactReceptionDesc')}</p>
+        <p className="text-center text-[var(--gray-500)] text-[0.9rem] mb-5 leading-relaxed">{t('contactReceptionDesc')}</p>
         {receptionPhone && (
           <a
             href={`tel:${receptionPhone}`}
-            style={{ display: 'block', textAlign: 'center', padding: '13px', borderRadius: 12, background: 'rgba(79,110,247,0.2)', border: '1px solid rgba(79,110,247,0.4)', color: '#8ea2ff', textDecoration: 'none', fontWeight: 700, fontSize: '1rem', marginBottom: 10 }}
+            className="block text-center py-3.5 rounded-xl bg-[rgba(79,110,247,0.2)] border border-[rgba(79,110,247,0.4)] text-[#8ea2ff] no-underline font-bold text-base mb-2.5"
           >
             📞 {receptionPhone}
           </a>
         )}
-        <button type="button" onClick={closeModal} style={{ width: '100%', padding: '12px', borderRadius: 12, border: 'none', background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.65)', fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer' }}>{t('close')}</button>
+        <button type="button" onClick={closeModal} className={MODAL_CLOSE_BTN}>{t('close')}</button>
       </HubModal>
     </div>
   )

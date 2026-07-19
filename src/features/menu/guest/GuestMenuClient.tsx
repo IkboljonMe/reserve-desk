@@ -1,13 +1,14 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Plus, Minus, ShoppingBag, Check, Sparkles, UtensilsCrossed } from 'lucide-react'
+import { Plus, Minus, ShoppingBag, Check, Sparkles, UtensilsCrossed, ArrowLeft, Sun, Moon } from 'lucide-react'
 import Modal from '@/components/ui/Modal'
 import Button from '@/components/ui/Button'
 import Spinner from '@/components/ui/Spinner'
-import { localized, computeServiceFee, guestFoodPath, MENU_LANGS, MENU_LANG_LABELS } from '@/lib/menu'
+import { localized, computeServiceFee, guestHubPath, MENU_LANGS, MENU_LANG_LABELS } from '@/lib/menu'
 import { money } from '@/lib/bookingHelpers'
 import { ORDER_STATUS_META } from '../constants'
+import { useGuestPrefs } from './useGuestPrefs'
 import type { MenuCategory, MenuProduct, OrderStatus } from '../types'
 
 export interface GuestLabels {
@@ -32,7 +33,6 @@ interface TrackedOrder {
   note: string
 }
 
-const LOCALES = ['uz', 'ru', 'en'] as const
 const FIELD = 'w-full px-3 py-2 min-h-[42px] rounded-lg text-sm outline-none bg-[var(--surface-card)] border border-[var(--surface-border)] text-[var(--gray-800)] focus:border-[var(--brand-500)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]'
 const STATUS_FLOW: OrderStatus[] = ['pending', 'preparing', 'ready', 'delivered']
 
@@ -52,8 +52,10 @@ export function GuestMenuClient({
 }) {
   const cartKey = `bronit-menu-cart:${hotelSlug}:${room || 'guest'}`
   // The menu's food/category text can be shown in any of the 10 content
-  // languages, independent of the page chrome's locale (uz/ru/en, ?locale).
-  const [contentLang, setContentLang] = useState(locale)
+  // languages, independent of the page chrome's locale (uz/ru/en, ?locale) —
+  // shared with the hub page via useGuestPrefs (same localStorage keys), so a
+  // guest's language/theme choice carries across both.
+  const { lang: contentLang, setLang: setContentLang, theme, toggleTheme, themeVars } = useGuestPrefs(locale)
   const [cart, setCart] = useState<Record<string, number>>({})
   const [hydrated, setHydrated] = useState(false)
   const [cartOpen, setCartOpen] = useState(false)
@@ -169,17 +171,26 @@ export function GuestMenuClient({
   }
 
   return (
-    <div className="min-h-dvh bg-[var(--surface-bg)] text-[var(--gray-900)] pb-24">
+    <div className="min-h-dvh bg-[var(--surface-bg)] text-[var(--gray-900)] pb-24" style={themeVars}>
       <header className="sticky top-0 z-10 bg-[var(--surface-card)] border-b border-[var(--surface-border)]">
         <div className="max-w-[448px] mx-auto px-4 py-3 flex items-center justify-between gap-3">
-          <div className="min-w-0">
-            <h1 className="text-[1.05rem] font-extrabold truncate m-0">{hotelName}</h1>
-            {room && <p className="text-[0.8rem] text-[var(--gray-500)] m-0 mt-0.5">{labels.room} {room}</p>}
+          <div className="min-w-0 flex items-center gap-2.5">
+            <a
+              href={guestHubPath(locale, hotelSlug, room)}
+              aria-label={labels.backToMenu}
+              className="w-8 h-8 rounded-lg bg-[var(--gray-100)] text-[var(--gray-700)] flex items-center justify-center shrink-0"
+            >
+              <ArrowLeft size={16} />
+            </a>
+            <div className="min-w-0">
+              <h1 className="text-[1.05rem] font-extrabold truncate m-0">{hotelName}</h1>
+              {room && <p className="text-[0.8rem] text-[var(--gray-500)] m-0 mt-0.5">{labels.room} {room}</p>}
+            </div>
           </div>
           <nav className="flex items-center gap-1.5 shrink-0">
             <select
               value={contentLang}
-              onChange={e => setContentLang(e.target.value)}
+              onChange={e => setContentLang(e.target.value as typeof contentLang)}
               aria-label="Menu language"
               className="px-2 py-1 rounded-md text-[0.75rem] font-bold bg-[var(--gray-100)] text-[var(--gray-700)] border-none outline-none cursor-pointer"
             >
@@ -187,11 +198,14 @@ export function GuestMenuClient({
                 <option key={l} value={l}>{MENU_LANG_LABELS[l]}</option>
               ))}
             </select>
-            <div className="flex items-center gap-1">
-              {LOCALES.map(l => (
-                <a key={l} href={guestFoodPath(l, hotelSlug, room)} className={`px-2 py-1 rounded-md text-[0.75rem] font-bold uppercase ${l === locale ? 'bg-[var(--brand-500)] text-white' : 'text-[var(--gray-500)] hover:bg-[var(--gray-100)]'}`}>{l}</a>
-              ))}
-            </div>
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label="Toggle theme"
+              className="w-8 h-8 rounded-lg bg-[var(--gray-100)] text-[var(--gray-700)] flex items-center justify-center shrink-0"
+            >
+              {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
+            </button>
           </nav>
         </div>
       </header>
