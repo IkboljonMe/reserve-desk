@@ -97,7 +97,7 @@ async function main() {
   })
 
   const [tashkent, fergana] = await Hotel.create([
-    { companyId: cid, name: 'Tashkent Grand Hotel', shortName: 'TG', location: 'Tashkent, Uzbekistan', roomTypes: ['Standard', 'Lux'] },
+    { companyId: cid, name: 'Bronit Hotel', shortName: 'BR', location: 'Tashkent, Uzbekistan', roomTypes: ['Standard', 'Lux'] },
     { companyId: cid, name: 'Fergana Hotel', shortName: 'FH', location: 'Fergana, Uzbekistan', roomTypes: ['Standard', 'Middle'] },
   ])
 
@@ -119,10 +119,13 @@ async function main() {
   ])
 
   // Room-service menu — the /demo hub's "Menu" card points here (guest URL:
-  // demo.bronit.uz/<locale>/menu?hotel=tashkent-grand-hotel&room=101).
+  // demo.bronit.uz/<locale>/menu/bronit-hotel?room=101). Branded with the real
+  // Bronit logo/banner assets so the demo looks like our own product, not a
+  // placeholder hotel.
   await HotelMenuSettings.create({
     companyId: cid, hotelId: tashkent._id,
     menuEnabled: true, serviceFeeType: 'percent', serviceFeeValue: 10, preorderEnabled: false,
+    logoUrl: '/assets/bronit-logo.png', bannerUrl: '/assets/hero-banner.png',
   })
 
   const [breakfast, drinks, snacks] = await MenuCategory.create([
@@ -205,7 +208,7 @@ async function main() {
   console.log('✅ Demo tenant seeded.')
   console.log(`   Dashboard: /secure/company/${DEMO_SLUG}/dashboard`)
   console.log(`   Owner: ${DEMO_OWNER_EMAIL} / ${DEMO_OWNER_PASSWORD}`)
-  console.log(`   Menu: /menu?hotel=${tashkent.slug}&room=101 (on the demo. subdomain)`)
+  console.log(`   Menu: /menu/${tashkent.slug}?room=101 (on the demo. subdomain)`)
 
   await mongoose.disconnect()
 }
