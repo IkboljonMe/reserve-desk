@@ -174,21 +174,25 @@ export function GuestMenuClient({
 
   return (
     <div className="min-h-dvh bg-[var(--surface-bg)] text-[var(--gray-900)] pb-24" style={themeVars}>
-      <header className="sticky top-0 z-10 max-w-[448px] mx-auto bg-[var(--surface-card)] border-b border-[var(--surface-border)] px-4 py-3 flex items-center justify-between gap-3">
-          <div className="min-w-0 flex items-center gap-2.5">
+      {/* items-stretch throughout so every control matches whatever height the
+          Dropdown (a shared, fixed-internal-padding component) actually
+          renders at, instead of guessing a px value that has to stay in sync
+          with it. */}
+      <header className="sticky top-0 z-10 max-w-[448px] mx-auto bg-[var(--surface-card)] border-b border-[var(--surface-border)] px-4 py-3 flex items-stretch justify-between gap-3">
+          <div className="min-w-0 flex items-stretch gap-2.5">
             <a
               href={guestHubPath(locale, hotelSlug, room)}
               aria-label={labels.backToMenu}
-              className="w-10 h-10 rounded-lg bg-[var(--gray-100)] text-[var(--gray-700)] flex items-center justify-center shrink-0"
+              className="w-10 rounded-lg bg-[var(--gray-100)] text-[var(--gray-700)] flex items-center justify-center shrink-0"
             >
               <ArrowLeft size={16} />
             </a>
-            <div className="min-w-0">
+            <div className="min-w-0 flex flex-col justify-center">
               <h1 className="text-[1.05rem] font-extrabold truncate m-0">{hotelName}</h1>
               {room && <p className="text-[0.8rem] text-[var(--gray-500)] m-0 mt-0.5">{labels.room} {room}</p>}
             </div>
           </div>
-          <nav className="flex items-center gap-1.5 shrink-0">
+          <nav className="flex items-stretch gap-1.5 shrink-0">
             <div className="w-[118px]">
               <Dropdown
                 value={contentLang}
@@ -201,7 +205,7 @@ export function GuestMenuClient({
               type="button"
               onClick={toggleTheme}
               aria-label="Toggle theme"
-              className="w-10 h-10 rounded-lg bg-[var(--gray-100)] text-[var(--gray-700)] flex items-center justify-center shrink-0"
+              className="w-10 rounded-lg bg-[var(--gray-100)] text-[var(--gray-700)] flex items-center justify-center shrink-0"
             >
               {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
             </button>
