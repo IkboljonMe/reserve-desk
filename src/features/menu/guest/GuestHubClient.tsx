@@ -216,13 +216,19 @@ export function GuestHubClient({
     <div className="min-h-dvh bg-[var(--surface-bg)] text-[var(--gray-800)]" style={{ fontFamily: "'Inter',system-ui,sans-serif", ...themeVars }}>
     <div className="max-w-[448px] mx-auto">
       {/* ── Banner ─────────────────────────────────────────────── */}
-      <div className="relative h-[220px] overflow-hidden shrink-0">
-        {bannerUrl
-          ? <img src={bannerUrl} alt="" className="w-full h-full object-cover" />
-          : <div className="w-full h-full bg-[linear-gradient(135deg,#1a1a2e,#16213e,#0f3460)]" />
-        }
-        {/* Dark gradient overlay */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(0,0,0,0.3)_0%,rgba(12,12,14,0.85)_100%)]" />
+      <div className="relative h-[220px] shrink-0">
+        {/* Image + gradient live in their own clipped layer — the top
+            controls below are a sibling, NOT a descendant of overflow-hidden,
+            so the language dropdown's popup list can escape the banner's
+            bounds instead of being clipped at its bottom edge. */}
+        <div className="absolute inset-0 overflow-hidden">
+          {bannerUrl
+            ? <img src={bannerUrl} alt="" className="w-full h-full object-cover" />
+            : <div className="w-full h-full bg-[linear-gradient(135deg,#1a1a2e,#16213e,#0f3460)]" />
+          }
+          {/* Dark gradient overlay */}
+          <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(0,0,0,0.3)_0%,rgba(12,12,14,0.85)_100%)]" />
+        </div>
 
         {/* Top controls — items-stretch so every control matches whatever
             height the Dropdown (a shared, fixed-internal-padding component)
