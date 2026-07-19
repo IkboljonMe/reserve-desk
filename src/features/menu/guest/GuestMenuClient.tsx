@@ -170,31 +170,33 @@ export function GuestMenuClient({
 
   return (
     <div className="min-h-dvh bg-[var(--surface-bg)] text-[var(--gray-900)] pb-24">
-      <header className="sticky top-0 z-10 bg-[var(--surface-card)] border-b border-[var(--surface-border)] px-4 py-3 flex items-center justify-between gap-3">
-        <div className="min-w-0">
-          <h1 className="text-[1.05rem] font-extrabold truncate m-0">{hotelName}</h1>
-          {room && <p className="text-[0.8rem] text-[var(--gray-500)] m-0 mt-0.5">{labels.room} {room}</p>}
-        </div>
-        <nav className="flex items-center gap-1.5 shrink-0">
-          <select
-            value={contentLang}
-            onChange={e => setContentLang(e.target.value)}
-            aria-label="Menu language"
-            className="px-2 py-1 rounded-md text-[0.75rem] font-bold bg-[var(--gray-100)] text-[var(--gray-700)] border-none outline-none cursor-pointer"
-          >
-            {MENU_LANGS.map(l => (
-              <option key={l} value={l}>{MENU_LANG_LABELS[l]}</option>
-            ))}
-          </select>
-          <div className="flex items-center gap-1">
-            {LOCALES.map(l => (
-              <a key={l} href={guestFoodPath(l, hotelSlug, room)} className={`px-2 py-1 rounded-md text-[0.75rem] font-bold uppercase ${l === locale ? 'bg-[var(--brand-500)] text-white' : 'text-[var(--gray-500)] hover:bg-[var(--gray-100)]'}`}>{l}</a>
-            ))}
+      <header className="sticky top-0 z-10 bg-[var(--surface-card)] border-b border-[var(--surface-border)]">
+        <div className="max-w-[448px] mx-auto px-4 py-3 flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <h1 className="text-[1.05rem] font-extrabold truncate m-0">{hotelName}</h1>
+            {room && <p className="text-[0.8rem] text-[var(--gray-500)] m-0 mt-0.5">{labels.room} {room}</p>}
           </div>
-        </nav>
+          <nav className="flex items-center gap-1.5 shrink-0">
+            <select
+              value={contentLang}
+              onChange={e => setContentLang(e.target.value)}
+              aria-label="Menu language"
+              className="px-2 py-1 rounded-md text-[0.75rem] font-bold bg-[var(--gray-100)] text-[var(--gray-700)] border-none outline-none cursor-pointer"
+            >
+              {MENU_LANGS.map(l => (
+                <option key={l} value={l}>{MENU_LANG_LABELS[l]}</option>
+              ))}
+            </select>
+            <div className="flex items-center gap-1">
+              {LOCALES.map(l => (
+                <a key={l} href={guestFoodPath(l, hotelSlug, room)} className={`px-2 py-1 rounded-md text-[0.75rem] font-bold uppercase ${l === locale ? 'bg-[var(--brand-500)] text-white' : 'text-[var(--gray-500)] hover:bg-[var(--gray-100)]'}`}>{l}</a>
+              ))}
+            </div>
+          </nav>
+        </div>
       </header>
 
-      <main className="max-w-[680px] mx-auto px-4 py-5 flex flex-col gap-6">
+      <main className="max-w-[448px] mx-auto px-4 py-5 flex flex-col gap-6">
         <RecommendationBanner
           items={recommendations}
           contentLang={contentLang}
@@ -241,7 +243,7 @@ export function GuestMenuClient({
         <div className="fixed bottom-0 left-0 right-0 z-20 p-3 bg-gradient-to-t from-[var(--surface-bg)] to-transparent">
           <button
             onClick={() => { setError(''); setCartOpen(true) }}
-            className="max-w-[680px] mx-auto w-full flex items-center justify-between gap-3 px-5 py-3.5 rounded-2xl bg-[var(--brand-500)] text-white font-bold shadow-lg"
+            className="max-w-[448px] mx-auto w-full flex items-center justify-between gap-3 px-5 py-3.5 rounded-2xl bg-[var(--brand-500)] text-white font-bold shadow-lg"
           >
             <span className="inline-flex items-center gap-2"><ShoppingBag size={18} /> {labels.itemsN.replace('{n}', String(count))}</span>
             <span className="tabular-nums">{labels.viewOrder} · {money(total)} {labels.sum}</span>

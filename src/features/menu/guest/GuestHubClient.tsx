@@ -147,7 +147,7 @@ function HubModal({ open, onClose, children }: { open: boolean; onClose: () => v
     >
       <div
         style={{
-          width: '100%', maxWidth: 480,
+          width: '100%', maxWidth: 448,
           background: '#1c1c1e',
           borderRadius: '20px 20px 0 0',
           padding: '28px 24px 36px',
@@ -233,6 +233,7 @@ export function GuestHubClient({
 
   return (
     <div style={{ minHeight: '100dvh', background: BG, fontFamily: "'Inter',system-ui,sans-serif", color: '#f0f0f0' }}>
+    <div style={{ maxWidth: 448, margin: '0 auto' }}>
       {/* ── Banner ─────────────────────────────────────────────── */}
       <div style={{ position: 'relative', height: 220, overflow: 'hidden', flexShrink: 0 }}>
         {bannerUrl
@@ -380,8 +381,9 @@ export function GuestHubClient({
           {t('joinFree')}
         </a>
       </div>
+    </div>
 
-      {/* ── Modals ─────────────────────────────────────────────── */}
+      {/* ── Modals (viewport-fixed — deliberately outside the 448px column) ── */}
 
       {/* Wi-Fi modal */}
       <HubModal open={modal === 'wifi'} onClose={closeModal}>
