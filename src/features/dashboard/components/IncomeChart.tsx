@@ -94,7 +94,7 @@ export default function IncomeChart({ data }: IncomeChartProps) {
         {/* Tooltip */}
         {hover && data[hover.i] && (
           <div
-            className="absolute -top-2 pointer-events-none whitespace-nowrap z-10 bg-gray-900 text-white px-2.5 py-[7px] rounded-lg text-[0.7rem]"
+            className="absolute -top-2 pointer-events-none whitespace-nowrap z-10 bg-gray-900 text-[var(--surface-bg)] px-2.5 py-[7px] rounded-lg text-[0.7rem]"
             style={{
               left: Math.min(Math.max(hover.x, 70), 100000),
               transform: 'translate(-50%,-100%)',

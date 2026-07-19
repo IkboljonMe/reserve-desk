@@ -7,21 +7,21 @@ export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost'
 export type ButtonSize = 'sm' | 'md' | 'lg'
 
 const BASE =
-  'inline-flex items-center justify-center gap-1.5 rounded-sm border border-transparent text-sm font-semibold cursor-pointer whitespace-nowrap tracking-[-0.01em] transition-[transform,box-shadow,background-color,border-color,opacity] duration-150 ' +
+  'inline-flex items-center justify-center gap-1.5 rounded-sm border text-sm font-semibold cursor-pointer whitespace-nowrap tracking-[-0.01em] transition-[transform,box-shadow,background-color,border-color,opacity] duration-150 ' +
   'active:enabled:translate-y-px active:enabled:scale-[0.99] disabled:opacity-55 disabled:cursor-not-allowed ' +
   'focus-visible:outline-none focus-visible:shadow-[0_0_0_3px_rgba(79,110,247,0.3)]'
 
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   primary:
-    'bg-[image:var(--brand-gradient)] text-white shadow-brand ' +
+    'bg-[image:var(--brand-gradient)] text-white shadow-brand border-transparent ' +
     'hover:enabled:brightness-[1.06] hover:enabled:shadow-[0_8px_20px_rgba(79,110,247,0.36)] hover:enabled:-translate-y-px',
   secondary:
-    'bg-surface-card text-gray-700 border-gray-200 shadow-xs ' +
-    'hover:enabled:bg-gray-50 hover:enabled:border-gray-300 hover:enabled:-translate-y-px hover:enabled:shadow-sm',
+    'bg-[var(--surface-card)] text-[var(--gray-700)] border-[var(--gray-400)] shadow-sm ' +
+    'hover:enabled:bg-[var(--gray-50)] hover:enabled:border-[var(--gray-500)] hover:enabled:-translate-y-px hover:enabled:shadow-md',
   danger:
     'bg-red-100 text-danger border-red-200 hover:enabled:bg-red-200',
   ghost:
-    'bg-transparent text-gray-600 hover:enabled:bg-gray-100 hover:enabled:text-gray-800',
+    'bg-transparent text-gray-600 border-transparent hover:enabled:bg-gray-100 hover:enabled:text-gray-800',
 }
 
 const SIZE_CLASSES: Record<ButtonSize, string> = {

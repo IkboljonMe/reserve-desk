@@ -119,6 +119,12 @@ export default function TimeGrid({
     const y = e.clientY - rect.top
     let minute = startMin + Math.round((y / ppm) / 15) * 15
     minute = Math.max(startMin, Math.min(endHour * 60 - 15, minute))
+
+    // Validation: prevent booking in the past
+    const clickDate = new Date(day)
+    clickDate.setHours(Math.floor(minute / 60), minute % 60, 0, 0)
+    if (clickDate < new Date()) return
+
     onCreate(format(day, 'yyyy-MM-dd'), fromMin(minute))
   }
 
@@ -168,7 +174,9 @@ export default function TimeGrid({
             <div key={h}>
               <div className="absolute left-[58px] right-0 border-t border-[var(--gray-100)]" style={{ top }} />
               <div
-                className="absolute left-0 w-[48px] text-right -translate-y-1/2 text-[0.68rem] text-[var(--gray-400)] tabular-nums bg-[var(--surface-card)] pr-0.5"
+                className={`absolute left-0 w-[48px] text-right text-[0.68rem] text-[var(--gray-400)] tabular-nums bg-[var(--surface-card)] pr-0.5 ${
+                  h === startHour ? 'translate-y-0 mt-0.5' : '-translate-y-1/2'
+                }`}
                 style={{
                   top,
                 }}
@@ -196,14 +204,33 @@ export default function TimeGrid({
             const placed = packDay(bookingsForDay(dateStr))
             const isToday = isSameDay(day, today)
             const isWeekend = [0, 6].includes(day.getDay())
+            
+            const todayMidnight = new Date(today)
+            todayMidnight.setHours(0, 0, 0, 0)
+            const isPastDay = day < todayMidnight
+
             return (
               <div
                 key={day.toISOString()}
                 onClick={e => handleColumnClick(e, day)}
-                className={`flex-1 relative border-l border-[var(--gray-100)] cursor-pointer ${
+                className={`flex-1 relative border-l border-[var(--gray-100)] ${
+                  isPastDay ? 'cursor-not-allowed' : 'cursor-pointer'
+                } ${
                   isToday ? 'bg-[rgba(99,102,241,0.055)]' : isWeekend ? 'bg-[rgba(148,163,184,0.04)]' : 'bg-transparent'
                 }`}
               >
+                {/* Disabled overlay for past days */}
+                {isPastDay && (
+                  <div className="absolute top-0 left-0 right-0 bottom-0 bg-[var(--gray-300)] opacity-[0.25] cursor-not-allowed z-[1]" />
+                )}
+                {/* Disabled overlay for past hours of today */}
+                {isToday && (
+                  <div 
+                    className="absolute top-0 left-0 right-0 bg-[var(--gray-300)] opacity-[0.25] cursor-not-allowed z-[1]" 
+                    style={{ height: Math.max(0, Math.min((nowMin - startMin) * ppm, bodyHeight)) }} 
+                  />
+                )}
+
                 {placed.map(p => (
                   <EventBlock
                     key={p.b._id}
@@ -268,7 +295,7 @@ function EventBlock({
   if (b.masked) {
     return (
       <div
-        className={`absolute rounded-[7px] overflow-hidden transition-all duration-120 box-border border border-[var(--gray-300)] border-l-[3px] border-l-[var(--gray-400)] cursor-default text-[var(--gray-500)] ${
+        className={`absolute overflow-hidden transition-all duration-120 box-border border border-[var(--gray-300)] border-l-[3px] border-l-[var(--gray-400)] cursor-default text-[var(--gray-500)] z-[2] ${
           height > 34 ? 'p-[3px_6px]' : 'p-[1px_6px]'
         }`}
         title={`${b.startTime}–${b.endTime} · ${t('occupied')}`}
@@ -299,7 +326,7 @@ function EventBlock({
 
   return (
     <div
-      className={`absolute rounded-[7px] overflow-hidden cursor-pointer transition-all duration-120 box-border hover:shadow-[0_6px_16px_rgba(0,0,0,0.14)] hover:-translate-y-[1px] hover:z-[5] hover:saturate-[1.15] border-l-[3px] ${
+      className={`absolute overflow-hidden cursor-pointer transition-all duration-120 box-border hover:shadow-[0_6px_16px_rgba(0,0,0,0.14)] hover:-translate-y-[1px] hover:z-[5] hover:saturate-[1.15] border-l-[3px] z-[2] ${
         height > 34 ? 'p-[3px_6px]' : 'p-[1px_6px]'
       }`}
       title={`${b.startTime}–${b.endTime} · ${b.customerName}${b.roomNumber ? ` · Room ${b.roomNumber}` : ''} · ${

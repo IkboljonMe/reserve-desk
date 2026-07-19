@@ -165,6 +165,10 @@ export async function proxy(request: NextRequest) {
       if (rest === '/' || rest === '/demo') {
         return rewriteTo('/demo')
       }
+      // The hub's "Platform" card auto-logs in (no session yet — that's the point).
+      if (rest === '/demo/enter') return NextResponse.next()
+      // The hub's "Menu" card — fully public guest menu, same as menu.bronit.uz.
+      if (rest === '/menu' || rest.startsWith('/menu/')) return NextResponse.next()
       // Demo logic requires auth
       if (!session) return NextResponse.redirect(getRootUrl('/login'))
       let targetPath = rest

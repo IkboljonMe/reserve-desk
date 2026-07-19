@@ -9,6 +9,7 @@ import Calendar from '@/components/ui/Calendar'
 import Modal from '@/components/ui/Modal'
 import { useTranslation } from '@/i18n'
 import { dateLocale } from '@/lib/dateLocale'
+import { money } from '@/lib/bookingHelpers'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import { CalendarFilterModal } from './CalendarFilterModal'
 import type { ViewMode, Density } from '../constants'
@@ -69,6 +70,38 @@ export function CalendarToolbar({ s }: { s: CalendarPageState }) {
     </Button>
   )
 
+  const filterBtn = (
+    <Button
+      variant="secondary"
+      size="md"
+      leftIcon={<SlidersHorizontal size={15} />}
+      onClick={() => setFilterOpen(true)}
+    >
+      {t('filters')}
+    </Button>
+  )
+
+  const modals = (
+    <>
+      <CalendarFilterModal s={s} open={filterOpen} onClose={() => setFilterOpen(false)} />
+      <Modal
+        open={dateOpen}
+        onClose={() => setDateOpen(false)}
+        title={t('selectDate')}
+        size="sm"
+        closeLabel={t('close')}
+        bodyClassName="p-4 flex items-start justify-center"
+      >
+        <Calendar
+          mode="single"
+          locale={locale}
+          value={currentDate}
+          onChange={d => { setCurrentDate(d); setDateOpen(false) }}
+        />
+      </Modal>
+    </>
+  )
+
   if (isMobile) {
     return (
       <div className="flex flex-col gap-2.5 mb-3.5">
@@ -84,46 +117,29 @@ export function CalendarToolbar({ s }: { s: CalendarPageState }) {
             <button className="cal-icon-btn" onClick={() => navigate(1)} aria-label={t('next')}><ChevronRight size={16} /></button>
             <button className="cal-icon-btn" onClick={() => setDateOpen(true)} aria-label={t('selectDate')}><CalendarIcon size={16} /></button>
           </div>
-          <Button
-            variant="secondary"
-            size="md"
-            leftIcon={<SlidersHorizontal size={15} />}
-            onClick={() => setFilterOpen(true)}
-          >
-            {t('filters')}
-          </Button>
+          {filterBtn}
         </div>
-
-        <CalendarFilterModal s={s} open={filterOpen} onClose={() => setFilterOpen(false)} />
-        <Modal
-          open={dateOpen}
-          onClose={() => setDateOpen(false)}
-          title={t('selectDate')}
-          size="sm"
-          closeLabel={t('close')}
-          bodyClassName="p-4 flex items-start justify-center"
-        >
-          <Calendar
-            mode="single"
-            locale={locale}
-            value={currentDate}
-            onChange={d => { setCurrentDate(d); setDateOpen(false) }}
-          />
-        </Modal>
+        {modals}
       </div>
     )
   }
 
   return (
-    <div className="flex items-end gap-3 mb-3 flex-wrap">
-      {navGroup}
-      <span className="font-bold text-[var(--gray-800)] text-[1.0625rem] tracking-tight pb-0.5">{headerLabel}</span>
+    <div className="flex items-center justify-between w-full mb-3 gap-4">
+      {/* Left: Navigation and Date */}
+      <div className="flex items-center gap-3">
+        {navGroup}
+        <span className="font-bold text-[var(--gray-800)] text-[1.0625rem] tracking-tight">{headerLabel}</span>
+        <button className="cal-icon-btn" onClick={() => setDateOpen(true)} aria-label={t('selectDate')}><CalendarIcon size={16} /></button>
+      </div>
 
-      <div className="ml-auto min-w-[110px]">{viewDropdown}</div>
+      {/* Right: Actions */}
+      <div className="flex items-center gap-3">
+        {filterBtn}
+        {newBookingBtn}
+      </div>
 
-      {densityDropdown && <div className="min-w-[80px]">{densityDropdown}</div>}
-
-      {newBookingBtn}
+      {modals}
     </div>
   )
 }

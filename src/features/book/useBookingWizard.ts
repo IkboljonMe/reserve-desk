@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { useToast } from '@/components/ToastProvider'
 import { useTranslation } from '@/i18n'
 import { nowUZ } from '@/lib/timezone'
@@ -36,11 +37,6 @@ export function useBookingWizard({
   const { showToast } = useToast()
   const { t } = useTranslation()
   const createMutation = useCreateBookingMutation()
-
-  const [services, setServices] = useState<Service[]>([])
-  const [rooms, setRooms] = useState<Room[]>([])
-  const [hotels, setHotels] = useState<Hotel[]>([])
-  const [clientGroups, setClientGroups] = useState<ClientGroup[]>([])
 
   const [slideIndex, setSlideIndex] = useState(0)
 
@@ -90,23 +86,23 @@ export function useBookingWizard({
   const [addClientForm, setAddClientForm] = useState({ name: '', phone: '', notes: '' })
   const [savingNewClient, setSavingNewClient] = useState(false)
 
+  const { data: rawServices = [], isLoading: loadingServices } = useQuery({ queryKey: ['services'], queryFn: getServices })
+  const { data: rms = [], isLoading: loadingRooms } = useQuery({ queryKey: ['rooms'], queryFn: () => fetch('/api/rooms').then(r => r.json()) })
+  const { data: htls = [], isLoading: loadingHotels } = useQuery({ queryKey: ['hotels'], queryFn: getHotels })
+  const { data: grps = [], isLoading: loadingGroups } = useQuery({ queryKey: ['client-groups'], queryFn: () => fetch('/api/client-groups').then(r => r.json()) })
+
+  const services = useMemo(() => Array.isArray(rawServices) ? rawServices.filter((s: Service) => s.isActive) : [], [rawServices])
+  const rooms = Array.isArray(rms) ? rms : []
+  const hotels = Array.isArray(htls) ? htls : []
+  const clientGroups = Array.isArray(grps) ? grps : []
+
+  const initialLoading = loadingServices || loadingRooms || loadingHotels || loadingGroups
+
   useEffect(() => {
-    Promise.all([
-      getServices(),
-      fetch('/api/rooms').then(r => r.json()),
-      getHotels(),
-      fetch('/api/client-groups').then(r => r.json()),
-    ]).then(([svcs, rms, htls, grps]) => {
-      const active = Array.isArray(svcs) ? svcs.filter((s: Service) => s.isActive) : []
-      setServices(active)
-      setRooms(Array.isArray(rms) ? rms : [])
-      setHotels(Array.isArray(htls) ? htls : [])
-      setClientGroups(Array.isArray(grps) ? grps : [])
-      const htlList = Array.isArray(htls) ? htls : []
-      // Admins are scoped to a single hotel — auto-select, no picker shown.
-      if (htlList.length === 1) setSelectedHotelId(htlList[0]._id)
-    })
-  }, [])
+    if (hotels.length === 1 && !selectedHotelId) {
+      setSelectedHotelId(hotels[0]._id)
+    }
+  }, [hotels, selectedHotelId])
 
   // Load existing bookings for the day (for slot availability)
   useEffect(() => {
@@ -246,10 +242,10 @@ export function useBookingWizard({
 
   // ── Slide navigation ──────────────────────────────────────────────────────
 
-  // The hotel slide only exists when there's actually a choice to make.
+  // The hotel slide only exists when there's actually a choice to make, or while loading to show skeleton.
   const slides = useMemo<SlideKey[]>(
-    () => SLIDE_KEYS.filter(k => k !== 'hotel' || hotels.length > 1),
-    [hotels.length],
+    () => SLIDE_KEYS.filter(k => k !== 'hotel' || initialLoading || hotels.length > 1),
+    [hotels.length, initialLoading],
   )
   const currentSlide: SlideKey = slides[slideIndex] ?? 'service'
 
@@ -517,6 +513,7 @@ export function useBookingWizard({
     // derived
     hotelServices, clientCats, roomCats, planRows, activePlan,
     categoryMeta, categoryRooms, timeSlots, customValid, planReady, guestReady,
+    initialLoading,
     // helpers
     resolveGroupMeta, roomLabel,
     // actions
