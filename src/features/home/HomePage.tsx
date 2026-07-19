@@ -1,8 +1,14 @@
 import { headers } from 'next/headers'
 import { getT } from '@/i18n/dictionary'
 import { JsonLd } from '@/components/JsonLd'
+import type { Types } from 'mongoose'
 import { connectDB } from '@/lib/mongodb'
 import { Plan } from '@/models/Plan'
+import { Company } from '@/models/Company'
+import { Hotel } from '@/models/Hotel'
+import { HotelMenuSettings } from '@/models/HotelMenuSettings'
+import { DEMO_SLUG } from '@/features/demo/config'
+import { guestHubPath } from '@/lib/menu'
 import { planDescriptionFor, type FeatureKey } from '@/lib/planFeatures'
 import { Navbar } from './components/Navbar'
 import { Hero } from './components/Hero'
@@ -28,7 +34,18 @@ export async function HomePage({ locale }: { locale: string }) {
   const host = reqHeaders.get('host') || ''
   const protocol = reqHeaders.get('x-forwarded-proto') || (host.includes('localhost') || host.includes('.test') ? 'http' : 'https')
   const baseDomain = host.replace(/^(www|app|admin|super|demo)\./, '')
-  const demoUrl = `${protocol}://demo.${baseDomain}/${locale}/demo`
+  const demoHubUrl = `${protocol}://demo.${baseDomain}/${locale}/demo`
+  const demoDashboardUrl = `${demoHubUrl}/enter`
+
+  await connectDB()
+  const company = await Company.findOne({ slug: DEMO_SLUG }).select('_id').lean<{ _id: Types.ObjectId } | null>()
+  const menuSettings = company
+    ? await HotelMenuSettings.findOne({ companyId: company._id, menuEnabled: true }).select('hotelId').lean<{ hotelId: Types.ObjectId } | null>()
+    : null
+  const menuHotel = menuSettings
+    ? await Hotel.findById(menuSettings.hotelId).select('slug').lean<{ slug?: string } | null>()
+    : null
+  const demoMenuUrl = menuHotel?.slug ? `${protocol}://demo.${baseDomain}${guestHubPath(locale, menuHotel.slug, '101')}` : demoHubUrl
 
   // In-page section links, shared by the desktop nav and the mobile drawer.
   const navLinks = [
@@ -39,7 +56,6 @@ export async function HomePage({ locale }: { locale: string }) {
   ]
 
   // Pricing is data-driven from the superadmin-managed Plans in the DB.
-  await connectDB()
   const planDocs = await Plan.find()
     .select('key name price description features highlight sortOrder')
     .sort({ sortOrder: 1, price: 1, createdAt: 1 })
@@ -84,16 +100,16 @@ export async function HomePage({ locale }: { locale: string }) {
     <main className="bg-[var(--surface-bg)] text-[var(--gray-900)] min-h-dvh overflow-x-clip transition-colors duration-200">
       <JsonLd data={organizationLd} />
       <JsonLd data={softwareLd} />
-      <Navbar locale={locale} t={t} demoUrl={demoUrl} loginHref={loginHref} navLinks={navLinks} />
-      <Hero t={t} demoUrl={demoUrl} />
+      <Navbar locale={locale} t={t} demoUrl={demoHubUrl} loginHref={loginHref} navLinks={navLinks} />
+      <Hero t={t} demoDashboardUrl={demoDashboardUrl} demoMenuUrl={demoMenuUrl} demoHubUrl={demoHubUrl} />
       <div className="relative bg-[var(--surface-bg)] transition-colors duration-200">
         <Features t={t} />
         <Reviews t={t} />
         <Modules t={t} />
-        <Pricing t={t} demoUrl={demoUrl} plans={plans} />
+        <Pricing t={t} demoUrl={demoHubUrl} plans={plans} />
         <Faq t={t} />
-        <FinalCta t={t} demoUrl={demoUrl} />
-        <Footer t={t} demoUrl={demoUrl} loginHref={loginHref} />
+        <FinalCta t={t} demoUrl={demoHubUrl} />
+        <Footer t={t} demoUrl={demoHubUrl} loginHref={loginHref} />
       </div>
 
       <ContactWidget

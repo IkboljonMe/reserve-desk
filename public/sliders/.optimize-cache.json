@@ -7,5 +7,14 @@
   },
   "bronit-main/bronit__xs.jpg": {
     "jpgHash": "94457f9268020d26cfeb1f7c56d9b7cbae41b9aa"
+  },
+  "bronit-menu/sm.jpg": {
+    "jpgHash": "926b0f1172412de4fe35b27173fc9560323c3504"
+  },
+  "bronit-menu/xl.jpg": {
+    "jpgHash": "cbe0929a765fb7057ecb23c104f1c0c9d74d9984"
+  },
+  "bronit-menu/xs.jpg": {
+    "jpgHash": "af818b1c7095ebfc5f71318a7324f9fa8042c9d9"
   }
 }

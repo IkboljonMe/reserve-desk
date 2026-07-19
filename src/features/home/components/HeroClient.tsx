@@ -3,6 +3,7 @@
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination, Navigation } from "swiper/modules";
 import { MainSlide } from "./head-slides/MainSlide";
+import { MenuSlide } from "./head-slides/MenuSlide";
 import { FeaturesSlide } from "./head-slides/FeaturesSlide";
 
 import "swiper/css";
@@ -17,10 +18,15 @@ interface Props {
   ctaLabel: string;
   pricingLabel: string;
   demoUrl: string;
+  demoMenuUrl: string | null;
   scrollLabel: string;
   featuresBadge: string;
   featuresTitle: string;
   features: string[];
+  menuBadge: string;
+  menuTitle1: string;
+  menuTitle2: string;
+  menuSubtitle: string;
 }
 
 export function HeroClient({
@@ -31,9 +37,14 @@ export function HeroClient({
   ctaLabel,
   pricingLabel,
   demoUrl,
+  demoMenuUrl,
   featuresBadge,
   featuresTitle,
   features,
+  menuBadge,
+  menuTitle1,
+  menuTitle2,
+  menuSubtitle,
 }: Props) {
   return (
     <section className="relative w-full pt-0 bg-slate-50 text-slate-900">
@@ -64,6 +75,18 @@ export function HeroClient({
                 demoUrl={demoUrl}
               />
             </SwiperSlide>
+            {demoMenuUrl && (
+              <SwiperSlide className="relative w-full h-full">
+                <MenuSlide
+                  badge={menuBadge}
+                  title1={menuTitle1}
+                  title2={menuTitle2}
+                  subtitle={menuSubtitle}
+                  ctaLabel={ctaLabel}
+                  demoUrl={demoMenuUrl}
+                />
+              </SwiperSlide>
+            )}
             <SwiperSlide className="relative w-full h-full">
               <FeaturesSlide
                 badge={featuresBadge}
