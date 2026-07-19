@@ -225,10 +225,10 @@ export function GuestHubClient({
         <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(0,0,0,0.3)_0%,rgba(12,12,14,0.85)_100%)]" />
 
         {/* Top controls */}
-        <div className="absolute top-3.5 left-3.5 right-3.5 flex items-start justify-between gap-2">
+        <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between gap-2">
           {/* Room badge */}
           {room ? (
-            <div className="bg-black/60 backdrop-blur-md border border-white/18 rounded-full py-1.5 px-3.5 text-[0.85rem] font-bold text-white flex items-center gap-1.5">
+            <div className="h-10 bg-black/60 backdrop-blur-md border border-white/18 rounded-full px-3.5 text-[0.85rem] font-bold text-white flex items-center gap-1.5 shrink-0">
               <span className="text-white/50 font-normal">{t('room')}:</span>
               <span className="text-white">{room}</span>
             </div>
@@ -248,7 +248,7 @@ export function GuestHubClient({
               type="button"
               onClick={toggleTheme}
               aria-label="Toggle theme"
-              className="w-8 h-8 rounded-[10px] bg-black/45 backdrop-blur-md border border-white/10 flex items-center justify-center text-white cursor-pointer shrink-0"
+              className="w-10 h-10 rounded-[10px] bg-black/45 backdrop-blur-md border border-white/10 flex items-center justify-center text-white cursor-pointer shrink-0"
             >
               {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
             </button>

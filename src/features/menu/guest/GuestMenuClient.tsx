@@ -179,7 +179,7 @@ export function GuestMenuClient({
             <a
               href={guestHubPath(locale, hotelSlug, room)}
               aria-label={labels.backToMenu}
-              className="w-8 h-8 rounded-lg bg-[var(--gray-100)] text-[var(--gray-700)] flex items-center justify-center shrink-0"
+              className="w-10 h-10 rounded-lg bg-[var(--gray-100)] text-[var(--gray-700)] flex items-center justify-center shrink-0"
             >
               <ArrowLeft size={16} />
             </a>
@@ -201,7 +201,7 @@ export function GuestMenuClient({
               type="button"
               onClick={toggleTheme}
               aria-label="Toggle theme"
-              className="w-8 h-8 rounded-lg bg-[var(--gray-100)] text-[var(--gray-700)] flex items-center justify-center shrink-0"
+              className="w-10 h-10 rounded-lg bg-[var(--gray-100)] text-[var(--gray-700)] flex items-center justify-center shrink-0"
             >
               {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
             </button>
