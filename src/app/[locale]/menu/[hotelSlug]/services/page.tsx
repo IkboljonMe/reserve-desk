@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import { headers } from 'next/headers'
 import type { Types } from 'mongoose'
 import { connectDB } from '@/lib/mongodb'
 import { Hotel } from '@/models/Hotel'
@@ -17,6 +18,9 @@ export default async function GuestServicesPage({
   const { locale, hotelSlug } = await params
   const { room } = await searchParams
   const t = getT(locale)
+
+  const hdrs = await headers()
+  const isMenuSub = hdrs.get('x-subdomain') === 'menu'
 
   await connectDB()
   const hotel = await Hotel.findOne({ slug: hotelSlug })
@@ -66,6 +70,7 @@ export default async function GuestServicesPage({
       hotelSlug={hotel.slug || hotelSlug}
       room={typeof room === 'string' ? room : ''}
       services={services}
+      isMenuSub={isMenuSub}
     />
   )
 }

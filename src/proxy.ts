@@ -110,6 +110,9 @@ export async function proxy(request: NextRequest) {
         // Bare menu subdomain has no hotel to show — send to the marketing site.
         return NextResponse.redirect(getRootUrl('/'))
       }
+      if (rest.startsWith('/menu/')) {
+        return NextResponse.redirect(getSubdomainUrl(rest.slice(5), 'menu'))
+      }
       return rewriteTo(`/menu${rest}${request.nextUrl.search}`)
     }
 

@@ -26,6 +26,7 @@ export interface GuestHubProps {
   telegramUrl: string
   receptionPhone: string
   reviewUrl: string
+  isMenuSub?: boolean
 }
 
 // ─── Inline translations ───────────────────────────────────────────────────────
@@ -157,7 +158,7 @@ const MODAL_CLOSE_BTN = 'w-full p-3 rounded-xl border-none bg-[var(--gray-100)] 
 export function GuestHubClient({
   hotelName, hotelSlug, logoUrl, bannerUrl, room,
   locale, tiles, wifiName, wifiPassword,
-  instagramUrl, telegramUrl, receptionPhone, reviewUrl,
+  instagramUrl, telegramUrl, receptionPhone, reviewUrl, isMenuSub = false,
 }: GuestHubProps) {
   const router = useRouter()
 
@@ -183,7 +184,7 @@ export function GuestHubClient({
   // Path-based food page on the menu subdomain (same-origin nav). The URL's own
   // locale segment stays fixed (chrome text is server-rendered per-request) —
   // the guest's 10-language content pick travels via useGuestPrefs, not the URL.
-  const menuFoodHref = guestFoodPath(locale, hotelSlug, room)
+  const menuFoodHref = guestFoodPath(locale, hotelSlug, room, isMenuSub)
 
   const handleTileClick = (id: TileId) => {
     if (id === 'menu') {
@@ -191,7 +192,7 @@ export function GuestHubClient({
       return
     }
     if (id === 'services') {
-      router.push(guestServicesPath(locale, hotelSlug, room))
+      router.push(guestServicesPath(locale, hotelSlug, room, isMenuSub))
       return
     }
     if (id === 'reviews' && reviewUrl) {

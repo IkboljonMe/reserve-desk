@@ -41,7 +41,7 @@ const FIELD = 'w-full px-3 py-2 min-h-[42px] rounded-lg text-sm outline-none bg-
 const LANG_OPTIONS = MENU_LANGS.map(l => ({ value: l, label: MENU_LANG_LABELS[l] }))
 
 export function GuestServicesClient({
-  labels, locale, hotelName, hotelSlug, room, services,
+  labels, locale, hotelName, hotelSlug, room, services, isMenuSub = false
 }: {
   labels: GuestServiceLabels
   locale: string
@@ -49,6 +49,7 @@ export function GuestServicesClient({
   hotelSlug: string
   room: string
   services: GuestServiceDto[]
+  isMenuSub?: boolean
 }) {
   const { lang: contentLang, setLang: setContentLang, theme, toggleTheme, themeVars } = useGuestPrefs(locale)
   
@@ -101,7 +102,7 @@ export function GuestServicesClient({
       <header className="sticky top-0 z-10 max-w-[448px] mx-auto bg-[var(--surface-card)] border-b border-[var(--surface-border)] px-4 py-3 flex items-stretch justify-between gap-3 shadow-sm">
           <div className="min-w-0 flex items-stretch gap-2.5">
             <a
-              href={guestHubPath(locale, hotelSlug, room)}
+              href={guestHubPath(locale, hotelSlug, room, isMenuSub)}
               aria-label={labels.backToHub}
               className="w-10 rounded-lg bg-[var(--gray-100)] text-[var(--gray-700)] flex items-center justify-center shrink-0"
             >

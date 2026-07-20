@@ -1,10 +1,12 @@
 import { notFound } from 'next/navigation'
+import { headers } from 'next/headers'
 import type { Types } from 'mongoose'
 import { connectDB } from '@/lib/mongodb'
 import { Hotel } from '@/models/Hotel'
 import { HotelMenuSettings } from '@/models/HotelMenuSettings'
 import { resolveTiles } from '@/lib/tiles'
 import { GuestHubClient } from '@/features/menu/guest/GuestHubClient'
+import { getT } from '@/i18n/dictionary'
 
 // Public guest hub — a hotel's landing page with service tiles.
 // URL: menu.bronit.uz/<locale>/<hotelSlug>[?room=<n>]
@@ -18,6 +20,10 @@ export default async function GuestHubPage({
 }) {
   const { locale, hotelSlug } = await params
   const { room } = await searchParams
+  const t = getT(locale)
+
+  const hdrs = await headers()
+  const isMenuSub = hdrs.get('x-subdomain') === 'menu'
 
   await connectDB()
 
@@ -47,6 +53,7 @@ export default async function GuestHubPage({
 
   return (
     <GuestHubClient
+      isMenuSub={isMenuSub}
       hotelName={hotel.name}
       hotelSlug={hotel.slug || hotelSlug}
       logoUrl={settings?.logoUrl || ''}

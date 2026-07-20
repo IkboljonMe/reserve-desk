@@ -82,14 +82,17 @@ function roomQuery(room?: string): string {
 
 // Internal (same-origin) guest paths — used for in-page navigation on the guest
 // site, so they stay on whatever host the guest is already browsing.
-export function guestHubPath(locale: string, hotelSlug: string, room?: string): string {
-  return `/${locale}/menu/${hotelSlug}${roomQuery(room)}`
+export function guestHubPath(locale: string, hotelSlug: string, room?: string, isMenuSub = false): string {
+  const base = isMenuSub ? `/${locale}/${hotelSlug}` : `/${locale}/menu/${hotelSlug}`
+  return `${base}${roomQuery(room)}`
 }
-export function guestFoodPath(locale: string, hotelSlug: string, room?: string): string {
-  return `/${locale}/menu/${hotelSlug}/food${roomQuery(room)}`
+export function guestFoodPath(locale: string, hotelSlug: string, room?: string, isMenuSub = false): string {
+  const base = isMenuSub ? `/${locale}/${hotelSlug}` : `/${locale}/menu/${hotelSlug}`
+  return `${base}/food${roomQuery(room)}`
 }
-export function guestServicesPath(locale: string, hotelSlug: string, room?: string): string {
-  return `/${locale}/menu/${hotelSlug}/services${roomQuery(room)}`
+export function guestServicesPath(locale: string, hotelSlug: string, room?: string, isMenuSub = false): string {
+  const base = isMenuSub ? `/${locale}/${hotelSlug}` : `/${locale}/menu/${hotelSlug}`
+  return `${base}/services${roomQuery(room)}`
 }
 
 // Absolute public hub URL for sharing / QR codes, on the menu subdomain.
