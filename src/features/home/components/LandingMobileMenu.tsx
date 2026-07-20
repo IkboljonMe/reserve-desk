@@ -69,7 +69,7 @@ export function LandingMobileMenu({ links, signInHref, signInLabel, demoHref, de
       />
 
       {/* Right-side drawer */}
-      <aside
+      <div
         role="dialog"
         aria-modal="true"
         aria-label="Menu"
@@ -119,7 +119,7 @@ export function LandingMobileMenu({ links, signInHref, signInLabel, demoHref, de
             {demoLabel} <ChevronRight size={17} />
           </a>
         </div>
-      </aside>
+      </div>
         </>,
         document.body,
       )}

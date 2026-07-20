@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Zen_Dots } from "next/font/google";
+import { Zen_Dots, Inter } from "next/font/google";
 import "../globals.css";
 import { LOCALES, isLocale, FALLBACK_LOCALE } from "@/i18n/config";
 import { LanguageProvider } from "@/i18n";
@@ -10,6 +10,9 @@ import QueryProvider from "@/components/QueryProvider";
 // Geometric display face for the brand wordmark / big numbers. Self-hosted by
 // next/font and exposed as the CSS variable --font-zen-dots.
 const zenDots = Zen_Dots({ weight: "400", subsets: ["latin"], variable: "--font-zen-dots", display: "swap" });
+
+// Primary body font
+const inter = Inter({ subsets: ["latin", "cyrillic"], variable: "--font-inter", display: "swap" });
 
 // Open Graph locale codes for each supported language.
 const OG_LOCALE: Record<string, string> = { uz: "uz_UZ", ru: "ru_RU", en: "en_US" };
@@ -97,7 +100,7 @@ export default async function RootLayout({
   const lang = isLocale(locale) ? locale : FALLBACK_LOCALE;
 
   return (
-    <html lang={lang} className={zenDots.variable}>
+    <html lang={lang} className={`${zenDots.variable} ${inter.variable}`}>
       <body>
         <QueryProvider>
           <ThemeProvider>
