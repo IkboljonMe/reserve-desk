@@ -15,6 +15,28 @@ const nextConfig: NextConfig = {
     "super.bronit.test",
     "192.168.0.41",
   ],
+  async headers() {
+    return [
+      {
+        source: '/sliders/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: '/assets/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

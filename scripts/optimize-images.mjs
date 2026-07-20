@@ -112,11 +112,17 @@ async function main() {
     const input = readFileSync(src)
     const originalSize = input.length
 
-    const jpgBuf = await sharp(input)
+    let pipeline = sharp(input)
+
+    if (stem.endsWith('__xs')) pipeline = pipeline.resize(768, null, { withoutEnlargement: true })
+    else if (stem.endsWith('__sm')) pipeline = pipeline.resize(1024, null, { withoutEnlargement: true })
+    else if (stem.endsWith('__xl')) pipeline = pipeline.resize(1920, null, { withoutEnlargement: true })
+
+    const jpgBuf = await pipeline.clone()
       .jpeg({ quality: JPEG_QUALITY, mozjpeg: true, progressive: true })
       .toBuffer()
 
-    const webpBuf = await sharp(input)
+    const webpBuf = await pipeline.clone()
       .webp({ quality: WEBP_QUALITY, effort: 6 })
       .toBuffer()
 
