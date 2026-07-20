@@ -88,6 +88,9 @@ export function guestHubPath(locale: string, hotelSlug: string, room?: string): 
 export function guestFoodPath(locale: string, hotelSlug: string, room?: string): string {
   return `/${locale}/menu/${hotelSlug}/food${roomQuery(room)}`
 }
+export function guestServicesPath(locale: string, hotelSlug: string, room?: string): string {
+  return `/${locale}/menu/${hotelSlug}/services${roomQuery(room)}`
+}
 
 // Absolute public hub URL for sharing / QR codes, on the menu subdomain.
 // `host` is the current window.location.host (any subdomain) — we normalize it.

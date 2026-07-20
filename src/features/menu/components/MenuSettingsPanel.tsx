@@ -118,7 +118,7 @@ export function MenuSettingsPanel({ s, hotelSlug }: { s: S; hotelSlug: string })
                 key={tile.id}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-colors ${tile.enabled ? 'border-[var(--brand-200)] bg-[var(--brand-50)]' : 'border-[var(--surface-border)] bg-transparent'}`}
               >
-                <span className="text-[1.5rem] w-8 text-center shrink-0">{meta.emoji}</span>
+                <img src={meta.icon} alt="" className="w-6 h-6 object-contain shrink-0" />
                 <div className="flex-1 min-w-0">
                   <div className="text-[0.85rem] font-semibold text-[var(--gray-800)]">{meta.label.uz}</div>
                   <div className="text-[0.72rem] text-[var(--gray-400)]">{meta.label.ru} · {meta.label.en}</div>
