@@ -38,7 +38,7 @@ export default async function GuestServicesPage({
     descI18n: s.descI18n,
     imageUrl: s.imageUrl,
     price: s.price,
-  })) as GuestServiceDto[]
+  })) as unknown as GuestServiceDto[]
 
   const labels: GuestServiceLabels = {
     room: t('room'),
