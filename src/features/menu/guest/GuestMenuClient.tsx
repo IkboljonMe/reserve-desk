@@ -75,7 +75,7 @@ interface TrackedOrder {
 }
 
 const FIELD =
-  "w-full px-3 py-2 min-h-[42px] rounded-lg text-sm outline-none bg-[var(--surface-card)] border border-[var(--surface-border)] text-[var(--gray-800)] focus:border-[var(--brand-500)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]";
+  "w-full px-3 py-2 min-h-[42px] rounded-lg text-sm outline-none bg-[var(--surface-card)] border border-[var(--surface-border)] text-[--gray-800] focus:border-[var(--brand-500)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]";
 const STATUS_FLOW: OrderStatus[] = [
   "pending",
   "preparing",
@@ -264,7 +264,7 @@ export function GuestMenuClient({
       );
     }
     return (
-      <div className="flex items-center gap-1.5 bg-[var(--surface-bg)] rounded-full p-1 border border-[var(--surface-border)]">
+      <div className="flex items-center gap-1.5 bg-[--surface-bg] rounded-full p-1 border border-[var(--surface-border)]">
         <button
           onClick={() => setQty(id, qty - 1)}
           className="w-6 h-6 rounded-full flex items-center justify-center text-[var(--gray-700)] bg-white shadow-sm active:scale-95"
@@ -295,13 +295,13 @@ export function GuestMenuClient({
           Dropdown (a shared, fixed-internal-padding component) actually
           renders at, instead of guessing a px value that has to stay in sync
           with it. */}
-      <header className="sticky top-0 z-10 max-w-[448px] mx-auto bg-[var(--surface-card)] border-b border-[var(--surface-border)] flex flex-col shadow-sm">
+      <header className="sticky top-0 z-10 max-w-md mx-auto bg-[var(--surface-card)] border-b border-[var(--surface-border)] flex flex-col shadow-sm">
         <div className="px-4 py-3 flex items-stretch justify-between gap-3">
           <div className="min-w-0 flex items-stretch gap-2.5">
             <a
               href={guestHubPath(locale, hotelSlug, room, isMenuSub)}
               aria-label={labels.backToMenu}
-              className="w-10 rounded-lg bg-[var(--gray-100)] text-[var(--gray-700)] flex items-center justify-center shrink-0"
+              className="w-10 rounded-lg bg-(--gray-100) text-[var(--gray-700)] flex items-center justify-center shrink-0"
             >
               <ArrowLeft size={16} />
             </a>
@@ -329,7 +329,7 @@ export function GuestMenuClient({
               type="button"
               onClick={toggleTheme}
               aria-label="Toggle theme"
-              className="w-10 rounded-lg bg-[var(--gray-100)] text-[var(--gray-700)] flex items-center justify-center shrink-0"
+              className="w-10 rounded-lg bg-(--gray-100) text-[var(--gray-700)] flex items-center justify-center shrink-0"
             >
               {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
             </button>
@@ -352,7 +352,7 @@ export function GuestMenuClient({
                     window.scrollTo({ top: y, behavior: "smooth" });
                   }
                 }}
-                className="whitespace-nowrap px-4 py-1.5 rounded-full bg-[var(--gray-100)] text-[var(--gray-700)] text-[0.85rem] font-bold active:scale-95 transition-transform shrink-0"
+                className="whitespace-nowrap px-4 py-1.5 rounded-full bg-(--gray-100) text-[var(--gray-700)] text-[0.85rem] font-bold active:scale-95 transition-transform shrink-0"
               >
                 {localized(cat.nameI18n, cat.name, contentLang)}
               </button>
@@ -361,7 +361,7 @@ export function GuestMenuClient({
         </div>
       </header>
 
-      <main className="max-w-[448px] mx-auto px-4 py-5 flex flex-col gap-6">
+      <main className="max-w-md mx-auto px-4 py-5 flex flex-col gap-6">
         <RecommendationBanner
           items={recommendations}
           contentLang={contentLang}
@@ -383,7 +383,7 @@ export function GuestMenuClient({
                   id={`cat-${cat._id}`}
                   className="scroll-mt-[130px]"
                 >
-                  <h2 className="text-[1.1rem] font-extrabold mb-3 text-[var(--gray-800)] px-1">
+                  <h2 className="text-[1.1rem] font-extrabold mb-3 text-[--gray-800] px-1">
                     {localized(cat.nameI18n, cat.name, contentLang)}
                   </h2>
                   <div className="grid grid-cols-2 gap-3">
@@ -407,12 +407,12 @@ export function GuestMenuClient({
                               className="w-full h-32 object-cover"
                             />
                           ) : (
-                            <div className="w-full h-32 bg-[var(--gray-100)] flex items-center justify-center text-[var(--gray-300)]">
+                            <div className="w-full h-32 bg-(--gray-100) flex items-center justify-center text-[var(--gray-300)]">
                               <UtensilsCrossed size={32} />
                             </div>
                           )}
                           <div className="p-2.5 flex flex-col flex-1">
-                            <div className="font-bold text-[0.88rem] text-[var(--gray-800)] leading-tight">
+                            <div className="font-bold text-[0.88rem] text-[--gray-800] leading-tight">
                               {name}
                             </div>
                             {desc && (
@@ -448,7 +448,7 @@ export function GuestMenuClient({
               setError("");
               setCartOpen(true);
             }}
-            className="max-w-[448px] mx-auto w-full flex items-center justify-between gap-3 px-5 py-3.5 rounded-2xl bg-[var(--brand-500)] text-white font-bold shadow-lg"
+            className="max-w-md mx-auto w-full flex items-center justify-between gap-3 px-5 py-3.5 rounded-2xl bg-[var(--brand-500)] text-white font-bold shadow-lg"
           >
             <span className="inline-flex items-center gap-2">
               <ShoppingBag size={18} />{" "}
@@ -507,7 +507,7 @@ export function GuestMenuClient({
               {lines.map((l) => (
                 <li key={l.p._id} className="flex items-center gap-3">
                   <div className="min-w-0 flex-1">
-                    <div className="font-semibold text-[0.9rem] text-[var(--gray-800)] truncate">
+                    <div className="font-semibold text-[0.9rem] text-[--gray-800] truncate">
                       {localized(l.p.nameI18n, l.p.name, contentLang)}
                     </div>
                     <div className="text-[0.78rem] text-[var(--gray-500)] tabular-nums">
@@ -523,21 +523,21 @@ export function GuestMenuClient({
             </ul>
 
             <div className="border-t border-[var(--surface-border)] pt-3 flex flex-col gap-1.5 text-[0.85rem]">
-              <div className="flex justify-between text-[var(--gray-600)]">
+              <div className="flex justify-between text-[--gray-600]">
                 <span>{labels.subtotal}</span>
                 <span className="tabular-nums">
                   {money(subtotal)} {labels.sum}
                 </span>
               </div>
               {fee > 0 && (
-                <div className="flex justify-between text-[var(--gray-600)]">
+                <div className="flex justify-between text-[--gray-600]">
                   <span>{labels.serviceFee}</span>
                   <span className="tabular-nums">
                     {money(fee)} {labels.sum}
                   </span>
                 </div>
               )}
-              <div className="flex justify-between font-extrabold text-[var(--gray-900)] text-[0.95rem]">
+              <div className="flex justify-between font-extrabold text-[--gray-900] text-[0.95rem]">
                 <span>{labels.total}</span>
                 <span className="tabular-nums">
                   {money(total)} {labels.sum}
@@ -646,7 +646,7 @@ function RecommendationBanner({
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center bg-[var(--gray-100)] text-[var(--gray-400)]">
+                <div className="w-full h-full flex items-center justify-center bg-(--gray-100) text-[var(--gray-400)]">
                   <UtensilsCrossed size={30} />
                 </div>
               )}
@@ -749,7 +749,7 @@ function OrderTracker({
           <p className="font-bold m-0 text-[var(--color-danger)]">
             {labels.cancelledTitle}
           </p>
-          <p className="text-sm mt-1 m-0 text-[var(--gray-600)]">
+          <p className="text-sm mt-1 m-0 text-[--gray-600]">
             {labels.cancelledSub}
           </p>
         </div>
@@ -763,7 +763,7 @@ function OrderTracker({
               <li key={status} className="flex items-start gap-3">
                 <div className="flex flex-col items-center">
                   <span
-                    className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${done ? "bg-emerald-500 text-white" : !active ? "bg-[var(--gray-100)] text-[var(--gray-400)]" : "text-white"}`}
+                    className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${done ? "bg-emerald-500 text-white" : !active ? "bg-(--gray-100) text-[var(--gray-400)]" : "text-white"}`}
                     style={active ? { background: meta.color } : undefined}
                   >
                     {done ? (
@@ -774,12 +774,12 @@ function OrderTracker({
                   </span>
                   {idx < STATUS_FLOW.length - 1 && (
                     <span
-                      className={`w-0.5 h-6 ${idx < currentIndex ? "bg-emerald-500" : "bg-[var(--gray-100)]"}`}
+                      className={`w-0.5 h-6 ${idx < currentIndex ? "bg-emerald-500" : "bg-(--gray-100)"}`}
                     />
                   )}
                 </div>
                 <p
-                  className={`pt-1.5 pb-3 text-sm font-semibold m-0 ${active ? "text-[var(--gray-800)]" : "text-[var(--gray-400)]"}`}
+                  className={`pt-1.5 pb-3 text-sm font-semibold m-0 ${active ? "text-[--gray-800]" : "text-[var(--gray-400)]"}`}
                 >
                   {statusLabel(status)}
                 </p>
@@ -791,14 +791,14 @@ function OrderTracker({
 
       {tracked && (
         <div className="rounded-xl border border-[var(--surface-border)] bg-[var(--surface-card)] p-3.5">
-          <h4 className="text-[0.8rem] font-bold text-[var(--gray-600)] m-0 mb-2">
+          <h4 className="text-[0.8rem] font-bold text-[--gray-600] m-0 mb-2">
             {labels.orderSummary}
           </h4>
           <ul className="list-none m-0 p-0 flex flex-col gap-1">
             {tracked.items.map((it, i) => (
               <li
                 key={i}
-                className="flex justify-between gap-3 text-[0.82rem] text-[var(--gray-600)]"
+                className="flex justify-between gap-3 text-[0.82rem] text-[--gray-600]"
               >
                 <span>
                   {it.quantity}× {it.name}
@@ -826,7 +826,7 @@ function OrderTracker({
                 </div>
               </>
             )}
-            <div className="flex justify-between font-extrabold text-[var(--gray-900)]">
+            <div className="flex justify-between font-extrabold text-[--gray-900]">
               <span>{labels.total}</span>
               <span className="tabular-nums">
                 {money(tracked.total)} {labels.sum}
