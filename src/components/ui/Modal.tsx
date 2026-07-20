@@ -1,31 +1,31 @@
-'use client'
+"use client";
 
-import { useEffect, type ReactNode } from 'react'
-import { createPortal } from 'react-dom'
-import { X } from 'lucide-react'
+import { useEffect, type ReactNode } from "react";
+import { createPortal } from "react-dom";
+import { X } from "lucide-react";
 
 interface ModalProps {
-  open: boolean
-  onClose: () => void
-  title?: ReactNode
-  children: ReactNode
+  open: boolean;
+  onClose: () => void;
+  title?: ReactNode;
+  children: ReactNode;
   /** Pinned footer (e.g. action buttons). Sits below the scrollable body. */
-  footer?: ReactNode
+  footer?: ReactNode;
   /** Desktop max-width. On mobile the modal is always full-screen. */
-  size?: 'sm' | 'md' | 'lg'
+  size?: "sm" | "md" | "lg";
   /** Hide the default header (title + close button). */
-  hideHeader?: boolean
+  hideHeader?: boolean;
   /** Override the scrollable body's classes (default padding). */
-  bodyClassName?: string
+  bodyClassName?: string;
   /** aria-label for the close button. */
-  closeLabel?: string
+  closeLabel?: string;
 }
 
-const SIZE: Record<NonNullable<ModalProps['size']>, string> = {
-  sm: 'sm:max-w-[400px]',
-  md: 'sm:max-w-[520px]',
-  lg: 'sm:max-w-[680px]',
-}
+const SIZE: Record<NonNullable<ModalProps["size"]>, string> = {
+  sm: "sm:max-w-[400px]",
+  md: "sm:max-w-[520px]",
+  lg: "sm:max-w-[680px]",
+};
 
 // Reusable modal. Full-bleed (w-full h-full) on mobile — a proper full-screen
 // sheet — and a centered, rounded card from the `sm` breakpoint up. Themed via
@@ -37,24 +37,26 @@ export default function Modal({
   title,
   children,
   footer,
-  size = 'md',
+  size = "md",
   hideHeader,
   bodyClassName,
-  closeLabel = 'Close',
+  closeLabel = "Close",
 }: ModalProps) {
   useEffect(() => {
-    if (!open) return
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
-    document.addEventListener('keydown', onKey)
-    const prevOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     return () => {
-      document.removeEventListener('keydown', onKey)
-      document.body.style.overflow = prevOverflow
-    }
-  }, [open, onClose])
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [open, onClose]);
 
-  if (!open || typeof document === 'undefined') return null
+  if (!open || typeof document === "undefined") return null;
 
   return createPortal(
     <div
@@ -64,30 +66,36 @@ export default function Modal({
       <div
         role="dialog"
         aria-modal="true"
-        onClick={e => e.stopPropagation()}
-        className={`bg-[var(--surface-card)] text-[var(--gray-800)] flex flex-col w-full h-full sm:h-auto sm:max-h-[90dvh] sm:border sm:border-[var(--surface-border)] sm:shadow-[var(--shadow-xl)] [animation:slideUp_0.24s_cubic-bezier(0.16,1,0.3,1)] ${SIZE[size]}`}
+        onClick={(e) => e.stopPropagation()}
+        className={`bg-[var(--surface-card)] text-[--gray-800] flex flex-col w-full h-full sm:h-auto sm:max-h-[90dvh] sm:border sm:border-[var(--surface-border)] sm:shadow-[var(--shadow-xl)] [animation:slideUp_0.24s_cubic-bezier(0.16,1,0.3,1)] ${SIZE[size]}`}
       >
         {!hideHeader && (
           <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-[var(--surface-border)] shrink-0">
-            <h2 className="m-0 text-[1.05rem] font-bold text-[var(--gray-800)]">{title}</h2>
+            <h2 className="m-0 text-[1.05rem] font-bold text-[--gray-800]">
+              {title}
+            </h2>
             <button
               type="button"
               onClick={onClose}
               aria-label={closeLabel}
-              className="w-8 h-8 inline-flex items-center justify-center rounded-lg text-[var(--gray-500)] hover:bg-[var(--gray-100)] cursor-pointer shrink-0"
+              className="w-8 h-8 inline-flex items-center justify-center rounded-lg text-[var(--gray-500)] hover:bg-(--gray-100) cursor-pointer shrink-0"
             >
               <X size={18} />
             </button>
           </div>
         )}
 
-        <div className={`flex-1 overflow-auto ${bodyClassName ?? 'p-5'}`}>{children}</div>
+        <div className={`flex-1 overflow-auto ${bodyClassName ?? "p-5"}`}>
+          {children}
+        </div>
 
         {footer && (
-          <div className="px-5 py-4 border-t border-[var(--surface-border)] shrink-0">{footer}</div>
+          <div className="px-5 py-4 border-t border-[var(--surface-border)] shrink-0">
+            {footer}
+          </div>
         )}
       </div>
     </div>,
     document.body,
-  )
+  );
 }
