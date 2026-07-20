@@ -1,20 +1,11 @@
 {
   "bronit-main/bronit__sm.jpg": {
-    "jpgHash": "c004d8e6c418e46178f06f20c8f87c6746b3ea34"
+    "jpgHash": "b58ba9373c79c5ca60878f5c9b710ec30528fd33"
   },
   "bronit-main/bronit__xl.jpg": {
-    "jpgHash": "a3d1f1c055aa0aecc8a0deab9eb7e3925a7d3b92"
+    "jpgHash": "11da5406e7655eefeed6caa84358260b0827348d"
   },
   "bronit-main/bronit__xs.jpg": {
-    "jpgHash": "94457f9268020d26cfeb1f7c56d9b7cbae41b9aa"
-  },
-  "bronit-menu/sm.jpg": {
-    "jpgHash": "926b0f1172412de4fe35b27173fc9560323c3504"
-  },
-  "bronit-menu/xl.jpg": {
-    "jpgHash": "cbe0929a765fb7057ecb23c104f1c0c9d74d9984"
-  },
-  "bronit-menu/xs.jpg": {
-    "jpgHash": "af818b1c7095ebfc5f71318a7324f9fa8042c9d9"
+    "jpgHash": "89114c44f7955e35d9712eb45178aaad5816407a"
   }
 }
