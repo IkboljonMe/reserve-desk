@@ -12,16 +12,15 @@ export interface ResolvedTile {
   label: Record<HubLang, string>
 }
 
-// Default icon + labels for each tile type.
 export const TILE_META: Record<TileId, { icon: string; label: Record<HubLang, string>; sortOrder: number }> = {
-  alarm:     { icon: '/assets/menu-icons/clock.png', sortOrder: 0, label: { uz: 'Budilnik',                    ru: 'Будильник',            en: 'Wake-up call'     } },
-  services:  { icon: '/assets/menu-icons/services.png', sortOrder: 1, label: { uz: 'Xizmatlar',                   ru: 'Услуги',               en: 'Services'         } },
-  taxi:      { icon: '/assets/menu-icons/taxi.png', sortOrder: 2, label: { uz: 'Taksi chaqirish',             ru: 'Вызов такси',          en: 'Call taxi'        } },
-  reception: { icon: '/assets/menu-icons/reception.png', sortOrder: 3, label: { uz: 'Qabulxona',                  ru: 'Рецепция',             en: 'Reception'        } },
-  problem:   { icon: '/assets/menu-icons/report.png', sortOrder: 4, label: { uz: 'Muammo haqida xabar berish', ru: 'Сообщить о проблеме',  en: 'Report a problem' } },
-  menu:      { icon: '/assets/menu-icons/menu.png', sortOrder: 5, label: { uz: 'Menyu',                      ru: 'Меню',                 en: 'Menu'             } },
-  reviews:   { icon: '/assets/menu-icons/review.png', sortOrder: 6, label: { uz: 'Sharh qoldirish',             ru: 'Оставить отзыв',       en: 'Leave a review'   } },
-  wifi:      { icon: '/assets/menu-icons/wifi.png', sortOrder: 7, label: { uz: 'Wi-Fi',                       ru: 'Wi-Fi',                en: 'Wi-Fi'            } },
+  alarm:     { icon: '/assets/menu-icons/clock.webp', sortOrder: 0, label: { uz: 'Budilnik',                    ru: 'Будильник',            en: 'Wake-up call'     } },
+  services:  { icon: '/assets/menu-icons/services.webp', sortOrder: 1, label: { uz: 'Xizmatlar',                   ru: 'Услуги',               en: 'Services'         } },
+  taxi:      { icon: '/assets/menu-icons/taxi.webp', sortOrder: 2, label: { uz: 'Taksi chaqirish',             ru: 'Вызов такси',          en: 'Call taxi'        } },
+  reception: { icon: '/assets/menu-icons/reception.webp', sortOrder: 3, label: { uz: 'Qabulxona',                  ru: 'Рецепция',             en: 'Reception'        } },
+  problem:   { icon: '/assets/menu-icons/report.webp', sortOrder: 4, label: { uz: 'Muammo haqida xabar berish', ru: 'Сообщить о проблеме',  en: 'Report a problem' } },
+  menu:      { icon: '/assets/menu-icons/menu.webp', sortOrder: 5, label: { uz: 'Menyu',                      ru: 'Меню',                 en: 'Menu'             } },
+  reviews:   { icon: '/assets/menu-icons/review.webp', sortOrder: 6, label: { uz: 'Sharh qoldirish',             ru: 'Оставить отзыв',       en: 'Leave a review'   } },
+  wifi:      { icon: '/assets/menu-icons/wifi.webp', sortOrder: 7, label: { uz: 'Wi-Fi',                       ru: 'Wi-Fi',                en: 'Wi-Fi'            } },
 }
 
 export const ALL_TILE_IDS: TileId[] = ['alarm', 'services', 'taxi', 'reception', 'problem', 'menu', 'reviews', 'wifi']
