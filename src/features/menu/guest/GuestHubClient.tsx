@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Sun, Moon } from 'lucide-react'
 import Dropdown from '@/components/ui/Dropdown'
-import { guestFoodPath, rootDomain, MENU_LANGS, MENU_LANG_LABELS } from '@/lib/menu'
+import { guestFoodPath, guestServicesPath, rootDomain, MENU_LANGS, MENU_LANG_LABELS } from '@/lib/menu'
 import { useGuestPrefs } from './useGuestPrefs'
 import type { TileId, HubLang, ResolvedTile } from '@/lib/tiles'
 
@@ -190,6 +190,10 @@ export function GuestHubClient({
       router.push(menuFoodHref)
       return
     }
+    if (id === 'services') {
+      router.push(guestServicesPath(locale, hotelSlug, room))
+      return
+    }
     if (id === 'reviews' && reviewUrl) {
       window.open(reviewUrl, '_blank', 'noopener,noreferrer')
       return
@@ -277,16 +281,20 @@ export function GuestHubClient({
       </div>
 
       {/* ── Tile Grid ──────────────────────────────────────────── */}
-      <div className="p-3.5 grid grid-cols-2 gap-2.5">
+      <div className="px-4 pb-6 pt-8 grid grid-cols-2 gap-x-3 gap-y-10">
         {enabledTiles.map(tile => (
           <button
             key={tile.id}
             type="button"
             onClick={() => handleTileClick(tile.id)}
-            className="bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-[18px] pt-[22px] px-3.5 pb-[18px] flex flex-col items-center gap-2.5 cursor-pointer text-center transition-transform active:scale-[0.96] [-webkit-tap-highlight-color:transparent]"
+            className="bg-[var(--surface-card)] border border-[var(--surface-border)] shadow-[0_8px_24px_rgba(0,0,0,0.15)] rounded-[20px] px-3 pb-4 flex flex-col items-center gap-2 cursor-pointer text-center transition-all duration-200 active:scale-[0.96] hover:shadow-[0_12px_32px_rgba(0,0,0,0.2)] hover:-translate-y-1 [-webkit-tap-highlight-color:transparent]"
           >
-            <span className="text-[2.75rem] leading-none block">{tile.emoji}</span>
-            <span className="text-[0.8rem] font-semibold text-[var(--gray-700)] leading-snug">
+            <img 
+              src={tile.icon} 
+              alt="" 
+              className="w-[96px] h-[96px] -mt-8 block mx-auto object-contain drop-shadow-[0_12px_16px_rgba(0,0,0,0.3)]" 
+            />
+            <span className="text-[0.88rem] font-bold text-[var(--gray-800)] leading-snug">
               {tile.label[hubLang] || tile.label.uz}
             </span>
           </button>
@@ -350,7 +358,7 @@ export function GuestHubClient({
       {/* Wi-Fi modal */}
       <HubModal open={modal === 'wifi'} onClose={closeModal}>
         <div className="text-center mb-5">
-          <span className="text-[2.5rem]">📶</span>
+          <img src="/assets/menu-icons/wifi.png" alt="" className="w-[44px] h-[44px] block mx-auto object-contain mb-2" />
           <h2 className="mt-2 mb-0 text-[1.1rem] font-bold text-[var(--gray-900)]">Wi-Fi</h2>
         </div>
         {wifiName && (
@@ -377,7 +385,7 @@ export function GuestHubClient({
       {/* Problem report modal */}
       <HubModal open={modal === 'problem'} onClose={closeModal}>
         <div className="text-center mb-5">
-          <span className="text-[2.5rem]">⚠️</span>
+          <img src="/assets/menu-icons/report.png" alt="" className="w-[44px] h-[44px] block mx-auto object-contain mb-2" />
           <h2 className="mt-2 mb-0 text-[1.1rem] font-bold text-[var(--gray-900)]">{t('reportProblem')}</h2>
         </div>
         {problemStatus === 'sent'
@@ -409,9 +417,11 @@ export function GuestHubClient({
       <HubModal open={modal === 'alarm' || modal === 'taxi' || modal === 'services' || modal === 'reception' || modal === 'reviews'} onClose={closeModal}>
         <div className="text-center mb-5">
           {modal && (
-            <span className="text-[2.5rem]">
-              {tiles.find(t => t.id === modal)?.emoji || '🛎️'}
-            </span>
+            <img 
+              src={tiles.find(t => t.id === modal)?.icon || '/assets/menu-icons/reception.png'} 
+              alt="" 
+              className="w-[44px] h-[44px] block mx-auto object-contain mb-2" 
+            />
           )}
           <h2 className="mt-2 mb-0 text-[1.1rem] font-bold text-[var(--gray-900)]">
             {modal ? (tiles.find(t => t.id === modal)?.label[hubLang] || '') : ''}

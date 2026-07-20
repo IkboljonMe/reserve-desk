@@ -160,14 +160,16 @@ export function GuestMenuClient({
     const qty = cart[id] || 0
     if (qty === 0) {
       return (
-        <Button size="sm" leftIcon={<Plus size={13} strokeWidth={2.6} />} onClick={() => setQty(id, 1)}>{labels.add}</Button>
+        <button onClick={() => setQty(id, 1)} className="w-8 h-8 rounded-full bg-[var(--brand-500)] text-white flex items-center justify-center shadow-sm active:scale-95 transition-transform" aria-label={labels.add}>
+          <Plus size={16} strokeWidth={2.5} />
+        </button>
       )
     }
     return (
-      <div className="flex items-center gap-2">
-        <button onClick={() => setQty(id, qty - 1)} className="w-7 h-7 rounded-full border border-[var(--surface-border)] flex items-center justify-center text-[var(--gray-700)]" aria-label="−"><Minus size={14} /></button>
-        <span className="w-5 text-center font-bold tabular-nums">{qty}</span>
-        <button onClick={() => setQty(id, qty + 1)} className="w-7 h-7 rounded-full bg-[var(--brand-500)] text-white flex items-center justify-center" aria-label="+"><Plus size={14} /></button>
+      <div className="flex items-center gap-1.5 bg-[var(--surface-bg)] rounded-full p-1 border border-[var(--surface-border)]">
+        <button onClick={() => setQty(id, qty - 1)} className="w-6 h-6 rounded-full flex items-center justify-center text-[var(--gray-700)] bg-white shadow-sm active:scale-95" aria-label="−"><Minus size={14} /></button>
+        <span className="w-4 text-center font-bold tabular-nums text-[0.8rem]">{qty}</span>
+        <button onClick={() => setQty(id, qty + 1)} className="w-6 h-6 rounded-full bg-[var(--brand-500)] text-white flex items-center justify-center shadow-sm active:scale-95" aria-label="+"><Plus size={14} /></button>
       </div>
     )
   }
@@ -178,7 +180,8 @@ export function GuestMenuClient({
           Dropdown (a shared, fixed-internal-padding component) actually
           renders at, instead of guessing a px value that has to stay in sync
           with it. */}
-      <header className="sticky top-0 z-10 max-w-[448px] mx-auto bg-[var(--surface-card)] border-b border-[var(--surface-border)] px-4 py-3 flex items-stretch justify-between gap-3">
+      <header className="sticky top-0 z-10 max-w-[448px] mx-auto bg-[var(--surface-card)] border-b border-[var(--surface-border)] flex flex-col shadow-sm">
+        <div className="px-4 py-3 flex items-stretch justify-between gap-3">
           <div className="min-w-0 flex items-stretch gap-2.5">
             <a
               href={guestHubPath(locale, hotelSlug, room)}
@@ -210,6 +213,30 @@ export function GuestMenuClient({
               {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
             </button>
           </nav>
+        </div>
+
+        {/* Category Nav */}
+        <div className="px-4 pb-3 flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {categories.map(cat => {
+            if (byCategory(cat._id).length === 0) return null
+            return (
+              <button
+                key={cat._id}
+                type="button"
+                onClick={() => {
+                  const el = document.getElementById(`cat-${cat._id}`)
+                  if (el) {
+                    const y = el.getBoundingClientRect().top + window.scrollY - 130
+                    window.scrollTo({ top: y, behavior: 'smooth' })
+                  }
+                }}
+                className="whitespace-nowrap px-4 py-1.5 rounded-full bg-[var(--gray-100)] text-[var(--gray-700)] text-[0.85rem] font-bold active:scale-95 transition-transform shrink-0"
+              >
+                {localized(cat.nameI18n, cat.name, contentLang)}
+              </button>
+            )
+          })}
+        </div>
       </header>
 
       <main className="max-w-[448px] mx-auto px-4 py-5 flex flex-col gap-6">
@@ -222,35 +249,43 @@ export function GuestMenuClient({
         {categories.every(c => byCategory(c._id).length === 0) ? (
           <p className="text-center text-[var(--gray-400)] text-sm py-16">{labels.menuEmpty}</p>
         ) : (
-          categories.map(cat => {
-            const prods = byCategory(cat._id)
-            if (prods.length === 0) return null
-            return (
-              <section key={cat._id}>
-                <h2 className="text-[1.1rem] font-bold mb-3 text-[var(--gray-800)]">{localized(cat.nameI18n, cat.name, contentLang)}</h2>
-                <ul className="list-none m-0 p-0 flex flex-col gap-2.5">
-                  {prods.map(p => {
-                    const name = localized(p.nameI18n, p.name, contentLang)
-                    const desc = localized(p.descI18n, p.description, contentLang)
-                    return (
-                      <li key={p._id} className="flex gap-3 items-center bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-xl p-3 shadow-sm">
-                        {p.imageUrl && (
-                          // eslint-disable-next-line @next/next/no-img-element -- arbitrary hotel-supplied URLs
-                          <img src={p.imageUrl} alt="" className="w-16 h-16 rounded-lg object-cover shrink-0" />
-                        )}
-                        <div className="min-w-0 flex-1">
-                          <div className="font-bold text-[0.95rem] text-[var(--gray-800)]">{name}</div>
-                          {desc && <p className="text-[0.8rem] text-[var(--gray-500)] mt-0.5 leading-snug line-clamp-2">{desc}</p>}
-                          <div className="font-extrabold text-[0.9rem] text-[var(--brand-600)] mt-1 tabular-nums">{money(p.price)} {labels.sum}</div>
+          <div className="flex flex-col gap-8">
+            {categories.map(cat => {
+              const prods = byCategory(cat._id)
+              if (prods.length === 0) return null
+              return (
+                <section key={cat._id} id={`cat-${cat._id}`} className="scroll-mt-[130px]">
+                  <h2 className="text-[1.1rem] font-extrabold mb-3 text-[var(--gray-800)] px-1">{localized(cat.nameI18n, cat.name, contentLang)}</h2>
+                  <div className="grid grid-cols-2 gap-3">
+                    {prods.map(p => {
+                      const name = localized(p.nameI18n, p.name, contentLang)
+                      const desc = localized(p.descI18n, p.description, contentLang)
+                      return (
+                        <div key={p._id} className="bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-2xl overflow-hidden shadow-sm flex flex-col">
+                          {p.imageUrl ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={p.imageUrl} alt="" className="w-full h-32 object-cover" />
+                          ) : (
+                            <div className="w-full h-32 bg-[var(--gray-100)] flex items-center justify-center text-[var(--gray-300)]">
+                              <UtensilsCrossed size={32} />
+                            </div>
+                          )}
+                          <div className="p-2.5 flex flex-col flex-1">
+                            <div className="font-bold text-[0.88rem] text-[var(--gray-800)] leading-tight">{name}</div>
+                            {desc && <p className="text-[0.72rem] text-[var(--gray-500)] mt-1 leading-snug line-clamp-2">{desc}</p>}
+                            <div className="mt-auto pt-3 flex items-end justify-between gap-1">
+                              <div className="font-extrabold text-[0.85rem] text-[var(--brand-600)] tabular-nums leading-none pb-1">{money(p.price)}</div>
+                              <div className="shrink-0"><Stepper id={p._id} /></div>
+                            </div>
+                          </div>
                         </div>
-                        <div className="shrink-0"><Stepper id={p._id} /></div>
-                      </li>
-                    )
-                  })}
-                </ul>
-              </section>
-            )
-          })
+                      )
+                    })}
+                  </div>
+                </section>
+              )
+            })}
+          </div>
         )}
       </main>
 
