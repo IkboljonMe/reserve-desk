@@ -98,6 +98,7 @@ export function GuestMenuClient({
   recommendations = [],
   serviceFeeType,
   serviceFeeValue,
+  isMenuSub = false,
 }: {
   labels: GuestLabels;
   locale: string;
@@ -109,6 +110,7 @@ export function GuestMenuClient({
   recommendations?: MenuProduct[];
   serviceFeeType: "none" | "percent" | "fixed";
   serviceFeeValue: number;
+  isMenuSub?: boolean;
 }) {
   const cartKey = `bronit-menu-cart:${hotelSlug}:${room || "guest"}`;
   // The menu's food/category text can be shown in any of the 10 content
