@@ -38,11 +38,11 @@ export function GroupModal({ s }: { s: ClientGroupsPageState }) {
         <form onSubmit={handleSave}>
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+              <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                 {t("groupName")} *
               </label>
               <input
-                className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+                className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
                 required
                 autoFocus
                 value={form.name}
@@ -54,7 +54,7 @@ export function GroupModal({ s }: { s: ClientGroupsPageState }) {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+              <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                 {t("color")}
               </label>
               <div className="flex flex-wrap gap-2">

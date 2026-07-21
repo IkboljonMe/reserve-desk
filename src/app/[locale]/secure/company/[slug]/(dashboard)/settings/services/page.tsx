@@ -1,1 +1,1 @@
-export { default } from '@/features/settings/services/ServicesPage'
+export { default } from "@/features/settings/services/ServicesPage";

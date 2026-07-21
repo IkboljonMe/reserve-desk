@@ -1,1 +1,1 @@
-export { default } from '@/features/settings/hotels/HotelsRoomsPage'
+export { default } from "@/features/settings/hotels/HotelsRoomsPage";

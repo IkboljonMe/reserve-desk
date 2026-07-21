@@ -141,11 +141,11 @@ export default function ContractModal({
         <div className="flex flex-col gap-3.5">
           {multiHotel && (
             <div className="flex flex-col gap-1.5">
-              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+              <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                 {t("hotel")} *
               </label>
               <select
-                className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+                className="w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
                 required
                 value={form.hotelId}
                 disabled={!!editContract}
@@ -166,11 +166,11 @@ export default function ContractModal({
           )}
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+            <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
               {t("organizationName")} *
             </label>
             <input
-              className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+              className="w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
               required
               value={form.organizationName}
               onChange={(e) =>
@@ -182,11 +182,11 @@ export default function ContractModal({
 
           <div className="grid grid-cols-2 max-[480px]:grid-cols-1 gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+              <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                 {t("inn")}
               </label>
               <input
-                className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+                className="w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
                 value={form.inn}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, inn: e.target.value }))
@@ -195,11 +195,11 @@ export default function ContractModal({
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+              <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                 {t("contractNo")}
               </label>
               <input
-                className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+                className="w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
                 value={form.contractNumber}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, contractNumber: e.target.value }))
@@ -211,11 +211,11 @@ export default function ContractModal({
 
           <div className="grid grid-cols-2 max-[480px]:grid-cols-1 gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+              <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                 {t("representativeAccountant")}
               </label>
               <input
-                className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+                className="w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
                 value={form.representativeName}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, representativeName: e.target.value }))
@@ -224,11 +224,11 @@ export default function ContractModal({
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+              <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                 {t("phone")}
               </label>
               <input
-                className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+                className="w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
                 type="tel"
                 value={form.phone}
                 onChange={(e) =>
@@ -241,11 +241,11 @@ export default function ContractModal({
 
           <div className="grid grid-cols-2 max-[480px]:grid-cols-1 gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+              <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                 {t("signDate")}
               </label>
               <input
-                className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+                className="w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
                 type="date"
                 value={form.signDate}
                 onChange={(e) =>
@@ -254,18 +254,18 @@ export default function ContractModal({
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+              <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                 {t("finishDate")}
               </label>
               <input
-                className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+                className="w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
                 type="date"
                 value={form.finishDate}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, finishDate: e.target.value }))
                 }
               />
-              <p className="mt-1.5 text-xs text-[var(--gray-500)]">
+              <p className="mt-1.5 text-xs text-(--gray-500)">
                 {t("finishDateHint")}
               </p>
             </div>
@@ -285,11 +285,11 @@ export default function ContractModal({
           />
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+            <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
               {t("contractLink")}
             </label>
             <input
-              className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+              className="w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
               type="url"
               value={form.contractLink}
               onChange={(e) =>
@@ -297,14 +297,14 @@ export default function ContractModal({
               }
               placeholder="https://drive.google.com/…"
             />
-            <p className="mt-1.5 text-xs text-[var(--gray-500)]">
+            <p className="mt-1.5 text-xs text-(--gray-500)">
               {t("contractLinkHint")}
             </p>
           </div>
 
           {/* Reminder config */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+            <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
               {t("renewalReminders")}
             </label>
             <div className="flex gap-2 flex-wrap">
@@ -317,12 +317,12 @@ export default function ContractModal({
                     onClick={() => toggleReminder(day)}
                     className={`inline-flex items-center gap-1.75 px-3 py-1.75 rounded-lg cursor-pointer text-[0.8125rem] font-semibold border transition-all duration-150 ${
                       on
-                        ? "border-[var(--brand-500)] bg-[var(--brand-50)] text-[var(--brand-700)]"
-                        : "border-[var(--gray-200)] bg-white text-[var(--gray-500)]"
+                        ? "border-(--brand-500) bg-(--brand-50) text-(--brand-700)"
+                        : "border-(--gray-200) bg-white text-(--gray-500)"
                     }`}
                   >
                     <span
-                      className={`inline-flex w-3.75 h-3.75 rounded shrink-0 items-center justify-center text-white ${on ? "bg-[var(--brand-500)]" : "bg-(--gray-100)"}`}
+                      className={`inline-flex w-3.75 h-3.75 rounded shrink-0 items-center justify-center text-white ${on ? "bg-(--brand-500)" : "bg-(--gray-100)"}`}
                     >
                       {on && (
                         <svg
@@ -342,17 +342,17 @@ export default function ContractModal({
                 );
               })}
             </div>
-            <p className="mt-1.5 text-xs text-[var(--gray-500)]">
+            <p className="mt-1.5 text-xs text-(--gray-500)">
               {t("reminderHint")}
             </p>
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+            <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
               {t("notes")}
             </label>
             <textarea
-              className="w-full px-3 py-2 min-h-[64px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] resize-y"
+              className="w-full px-3 py-2 min-h-16 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] resize-y"
               value={form.notes}
               onChange={(e) =>
                 setForm((f) => ({ ...f, notes: e.target.value }))

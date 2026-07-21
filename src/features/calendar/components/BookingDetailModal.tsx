@@ -2,7 +2,6 @@
 
 import { format, parseISO } from "date-fns";
 import {
-  X,
   Check,
   Clock,
   MapPin,
@@ -84,7 +83,7 @@ export function BookingDetailModal({ s }: { s: CalendarPageState }) {
           <div className="flex justify-between items-center">
             {deleteConfirm === selectedBooking._id ? (
               <div className="flex gap-2 items-center">
-                <span className="text-[0.8125rem] text-[var(--danger)]">
+                <span className="text-[0.8125rem] text-(--danger)">
                   {t("deleteThisBooking")}
                 </span>
                 <Button
@@ -141,7 +140,7 @@ export function BookingDetailModal({ s }: { s: CalendarPageState }) {
           }}
         >
           <span
-            className="w-[34px] h-[34px] rounded-lg shrink-0 flex items-center justify-center"
+            className="w-8.5 h-8.5 rounded-lg shrink-0 flex items-center justify-center"
             style={{
               background: `${selectedBooking.serviceId?.color || "#6366f1"}22`,
               color: selectedBooking.serviceId?.color || "#6366f1",

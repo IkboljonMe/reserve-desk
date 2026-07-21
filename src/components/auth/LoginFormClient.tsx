@@ -11,7 +11,11 @@ import Button from "@/components/ui/Button";
 // superadmin "open login" shortcut passes ?email=). The password is never
 // prefilled. Passed from the server page so we avoid useSearchParams (which
 // would force a Suspense boundary / dynamic rendering on the login pages).
-export default function LoginFormClient({ initialEmail = "" }: { initialEmail?: string }) {
+export default function LoginFormClient({
+  initialEmail = "",
+}: {
+  initialEmail?: string;
+}) {
   const { t, lang } = useTranslation();
   const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState("");
@@ -38,17 +42,20 @@ export default function LoginFormClient({ initialEmail = "" }: { initialEmail?: 
         // clean path wouldn't resolve.
         const sub = getClientSubdomain();
         if (data.role === "superadmin") {
-          window.location.href = sub === "super"
-            ? `/${lang}/dashboard`
-            : `/${lang}/secure/superadmin/dashboard`;
+          window.location.href =
+            sub === "super"
+              ? `/${lang}/dashboard`
+              : `/${lang}/secure/superadmin/dashboard`;
         } else if (data.role === "owner") {
-          window.location.href = (sub === "app" || sub === "demo")
-            ? `/${lang}/dashboard`
-            : `/${lang}/secure/company/${data.slug}/dashboard`;
+          window.location.href =
+            sub === "app" || sub === "demo"
+              ? `/${lang}/dashboard`
+              : `/${lang}/secure/company/${data.slug}/dashboard`;
         } else {
-          window.location.href = sub === "admin"
-            ? `/${lang}/calendar`
-            : `/${lang}/secure/company/${data.slug}/admin/${data.hotelSlug}/calendar`;
+          window.location.href =
+            sub === "admin"
+              ? `/${lang}/calendar`
+              : `/${lang}/secure/company/${data.slug}/admin/${data.hotelSlug}/calendar`;
         }
       }
     } catch {

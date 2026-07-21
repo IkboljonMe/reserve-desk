@@ -9,16 +9,16 @@ import {
   Calendar as CalendarIcon,
   SlidersHorizontal,
 } from "lucide-react";
-import Dropdown from "@/components/ui/Dropdown";
+// import Dropdown from "@/components/ui/Dropdown";
 import Button from "@/components/ui/Button";
 import Calendar from "@/components/ui/Calendar";
 import Modal from "@/components/ui/Modal";
 import { useTranslation } from "@/i18n";
 import { dateLocale } from "@/lib/dateLocale";
-import { money } from "@/lib/bookingHelpers";
+// import { money } from "@/lib/bookingHelpers";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { CalendarFilterModal } from "./CalendarFilterModal";
-import type { ViewMode, Density } from "../constants";
+// import type { ViewMode, Density } from "../constants";
 import type { CalendarPageState } from "../useCalendarPage";
 
 export function CalendarToolbar({ s }: { s: CalendarPageState }) {
@@ -31,10 +31,10 @@ export function CalendarToolbar({ s }: { s: CalendarPageState }) {
     navigate,
     setCurrentDate,
     headerLabel,
-    view,
-    setView,
-    density,
-    setDensity,
+    // view,
+    // setView,
+    // density,
+    // setDensity,
     goToCreate,
     currentDate,
   } = s;
@@ -51,7 +51,7 @@ export function CalendarToolbar({ s }: { s: CalendarPageState }) {
         <ChevronLeft size={16} />
       </button>
       <button
-        className="cal-pill min-w-[52px] justify-center"
+        className="cal-pill min-w-13 justify-center"
         onClick={() => setCurrentDate(new Date())}
       >
         {t("today")}
@@ -66,31 +66,31 @@ export function CalendarToolbar({ s }: { s: CalendarPageState }) {
     </div>
   );
 
-  const viewDropdown = (
-    <Dropdown
-      label={t("view")}
-      value={view}
-      onChange={(val) => setView(val as ViewMode)}
-      options={[
-        { value: "day", label: t("day") },
-        { value: "week", label: t("periodWeek") },
-        { value: "month", label: t("periodMonth") },
-      ]}
-    />
-  );
+  // const viewDropdown = (
+  //   <Dropdown
+  //     label={t("view")}
+  //     value={view}
+  //     onChange={(val) => setView(val as ViewMode)}
+  //     options={[
+  //       { value: "day", label: t("day") },
+  //       { value: "week", label: t("periodWeek") },
+  //       { value: "month", label: t("periodMonth") },
+  //     ]}
+  //   />
+  // );
 
-  const densityDropdown = view !== "month" && (
-    <Dropdown
-      label={t("density")}
-      value={density}
-      onChange={(val) => setDensity(val as Density)}
-      options={[
-        { value: "Compact", label: "S" },
-        { value: "Cozy", label: "M" },
-        { value: "Roomy", label: "L" },
-      ]}
-    />
-  );
+  // const densityDropdown = view !== "month" && (
+  //   <Dropdown
+  //     label={t("density")}
+  //     value={density}
+  //     onChange={(val) => setDensity(val as Density)}
+  //     options={[
+  //       { value: "Compact", label: "S" },
+  //       { value: "Cozy", label: "M" },
+  //       { value: "Roomy", label: "L" },
+  //     ]}
+  //   />
+  // );
 
   const newBookingBtn = (
     <Button
@@ -161,7 +161,7 @@ export function CalendarToolbar({ s }: { s: CalendarPageState }) {
               <ChevronLeft size={16} />
             </button>
             <button
-              className="cal-pill min-w-[52px] justify-center"
+              className="cal-pill min-w-13 justify-center"
               onClick={() => setCurrentDate(new Date())}
             >
               {t("today")}

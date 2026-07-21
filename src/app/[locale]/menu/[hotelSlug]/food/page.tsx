@@ -62,7 +62,7 @@ export default async function GuestFoodPage({
 
   if (settings && !settings.menuEnabled) {
     return (
-      <div className="min-h-dvh flex items-center justify-center bg-[--surface-bg] text-[var(--gray-400)] text-sm px-4 text-center">
+      <div className="min-h-dvh flex items-center justify-center bg-[--surface-bg] text-(--gray-400) text-sm px-4 text-center">
         {t("menuEmpty")}
       </div>
     );

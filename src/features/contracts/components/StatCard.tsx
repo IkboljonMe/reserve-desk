@@ -41,7 +41,7 @@ export function StatCard({
     ),
   };
   return (
-    <div className="bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-[var(--radius-lg)] shadow-sm flex items-center gap-3.5 p-[1rem_1.1rem]">
+    <div className="bg-(--surface-card) border border-(--surface-border) rounded-(--radius-lg) shadow-sm flex items-center gap-3.5 p-[1rem_1.1rem]">
       <div
         className="w-10.5 h-10.5 rounded-[11px] flex items-center justify-center shrink-0"
         style={{ background: tintBg, color: tint }}
@@ -63,7 +63,7 @@ export function StatCard({
         <div className="text-2xl font-extrabold text-[--gray-900] leading-none">
           {value}
         </div>
-        <div className="text-[0.75rem] text-[var(--gray-500)] mt-1 font-medium">
+        <div className="text-[0.75rem] text-(--gray-500) mt-1 font-medium">
           {label}
         </div>
       </div>

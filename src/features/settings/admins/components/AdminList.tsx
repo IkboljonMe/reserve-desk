@@ -22,7 +22,7 @@ export function AdminList({ s }: { s: AdminsPageState }) {
   } = s;
 
   return (
-    <div className="bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-[var(--radius-lg)] shadow-sm p-0 overflow-hidden">
+    <div className="bg-(--surface-card) border border-(--surface-border) rounded-(--radius-lg) shadow-sm p-0 overflow-hidden">
       {loading ? (
         <table className="w-full border-collapse">
           <tbody>
@@ -44,11 +44,11 @@ export function AdminList({ s }: { s: AdminsPageState }) {
           {admins.map((a, i) => (
             <div
               key={a._id}
-              className={`flex items-center gap-3 px-4 py-3 ${i === 0 ? "" : "border-t border-[var(--gray-100,#f3f4f6)]"}`}
+              className={`flex items-center gap-3 px-4 py-3 ${i === 0 ? "" : "border-t border-(--gray-100,#f3f4f6)"}`}
             >
               <div className="flex-1 min-w-0">
                 <div className="font-semibold text-[--gray-800]">{a.name}</div>
-                <div className="text-[0.8125rem] text-[var(--gray-500)]">
+                <div className="text-[0.8125rem] text-[--gray-500]">
                   {a.email}
                 </div>
               </div>

@@ -954,5 +954,22 @@
   "wifiPassword": "Пароль Wi-Fi",
   "socialLinks": "Соцсети и отзывы",
   "tileSettings": "Плитки услуг",
-  "tileSettingsDesc": "Выберите, какие плитки услуг видят гости на стартовой странице."
+  "tileSettingsDesc": "Выберите, какие плитки услуг видят гости на стартовой странице.",
+  "hubRoom": "Номер",
+  "hubWifiNetwork": "Название сети",
+  "hubWifiPassword": "Пароль",
+  "hubCopy": "Копировать",
+  "hubCopied": "✓ Скопировано",
+  "hubContactReception": "Обратитесь на ресепшн",
+  "hubContactReceptionDesc": "Пожалуйста, обратитесь к сотрудникам нашей рецепции или позвоните по номеру ниже.",
+  "hubReportProblem": "Сообщить о проблеме",
+  "hubProblemPlaceholder": "Кратко опишите проблему...",
+  "hubSend": "Отправить",
+  "hubSending": "Отправка...",
+  "hubSent": "✓ Отправлено!",
+  "hubClose": "Закрыть",
+  "hubCall": "Позвонить",
+  "hubFollowUs": "Следите за нами в социальных сетях",
+  "hubIsYourProperty": "Ваш объект?",
+  "hubJoinFree": "Подключитесь к Bronit бесплатно"
 }

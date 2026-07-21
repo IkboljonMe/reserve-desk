@@ -25,7 +25,7 @@ export function ContractsTable({ s }: { s: ContractsPageState }) {
   } = s;
 
   return (
-    <div className="bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-[var(--radius-lg)] shadow-sm p-0 overflow-hidden max-[768px]:-mx-[1.1rem] max-[768px]:rounded-none max-[768px]:border-x-0">
+    <div className="bg-(--surface-card) border border-(--surface-border) rounded-(--radius-lg) shadow-sm p-0 overflow-hidden max-[768px]:mx-[-1.1rem] max-[768px]:rounded-none max-[768px]:border-x-0">
       {loading ? (
         <table className="w-full border-collapse text-sm">
           <tbody>
@@ -69,9 +69,9 @@ export function ContractsTable({ s }: { s: ContractsPageState }) {
         </EmptyState>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse text-sm min-w-[920px]">
+          <table className="w-full border-collapse text-sm min-w-230">
             <thead>
-              <tr className="border-b border-[var(--gray-200,#e5e7eb)] bg-[var(--gray-50,#f9fafb)]">
+              <tr className="border-b border-(--gray-200,#e5e7eb) bg-(--gray-50,#f9fafb)">
                 {(
                   [
                     ["organization", t("organization")],
@@ -87,7 +87,7 @@ export function ContractsTable({ s }: { s: ContractsPageState }) {
                 ).map(([key, label]) => (
                   <th
                     key={key}
-                    className="px-4 py-2.5 text-left font-semibold text-[var(--gray-500,#6b7280)] text-xs whitespace-nowrap"
+                    className="px-4 py-2.5 text-left font-semibold text-(--gray-500,#6b7280) text-xs whitespace-nowrap"
                   >
                     {label}
                   </th>
@@ -101,19 +101,19 @@ export function ContractsTable({ s }: { s: ContractsPageState }) {
                 return (
                   <tr
                     key={c._id}
-                    className={`border-b border-[var(--gray-100,#f3f4f6)] ${i % 2 === 0 ? "bg-white" : "bg-[var(--gray-50,#f9fafb)]"}`}
+                    className={`border-b border-(--gray-100,#f3f4f6) ${i % 2 === 0 ? "bg-white" : "bg-(--gray-50,#f9fafb)"}`}
                   >
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-full bg-[var(--brand-50,#eef2ff)] text-[var(--brand-600,#4f46e5)] flex items-center justify-center font-bold text-[0.8125rem] shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-(--brand-50,#eef2ff) text-(--brand-600,#4f46e5) flex items-center justify-center font-bold text-[0.8125rem] shrink-0">
                           {c.organizationName.charAt(0).toUpperCase()}
                         </div>
                         <div className="min-w-0">
-                          <div className="font-semibold text-[--gray-800] whitespace-nowrap overflow-hidden text-ellipsis max-w-[240px]">
+                          <div className="font-semibold text-(--gray-800) whitespace-nowrap overflow-hidden text-ellipsis max-w-60">
                             {c.organizationName}
                           </div>
                           {c.inn && (
-                            <div className="text-[0.72rem] text-[var(--gray-400)]">
+                            <div className="text-[0.72rem] text-(--gray-400)">
                               {t("inn")} {c.inn}
                             </div>
                           )}
@@ -122,31 +122,31 @@ export function ContractsTable({ s }: { s: ContractsPageState }) {
                     </td>
                     {multiHotel && (
                       <td className="px-4 py-3">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-[var(--gray-100,#f3f4f6)] text-[var(--gray-700,#374151)] font-semibold text-[0.78rem] whitespace-nowrap">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-(--gray-100,#f3f4f6) text-(--gray-700,#374151) font-semibold text-[0.78rem] whitespace-nowrap">
                           {hotelLabel(c.hotelId)}
                         </span>
                       </td>
                     )}
-                    <td className="px-4 py-3 text-[var(--gray-700)] font-semibold whitespace-nowrap">
+                    <td className="px-4 py-3 text-(--gray-700) font-semibold whitespace-nowrap">
                       {c.contractNumber || (
-                        <span className="text-[var(--gray-300)]">—</span>
+                        <span className="text-(--gray-300)">—</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-[--gray-600]">
+                    <td className="px-4 py-3 text-(--gray-600)">
                       {c.representativeName ? (
                         <div className="min-w-0">
                           <div className="whitespace-nowrap">
                             {c.representativeName}
                           </div>
                           {c.phone && (
-                            <div className="text-[0.72rem] text-[var(--gray-400)]">
+                            <div className="text-[0.72rem] text-(--gray-400)">
                               {c.phone}
                             </div>
                           )}
                         </div>
                       ) : (
                         c.phone || (
-                          <span className="text-[var(--gray-300)]">—</span>
+                          <span className="text-(--gray-300)">—</span>
                         )
                       )}
                     </td>
@@ -162,7 +162,7 @@ export function ContractsTable({ s }: { s: ContractsPageState }) {
                         {t(sm.labelKey)}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-[var(--gray-700)] whitespace-nowrap">
+                    <td className="px-4 py-3 text-(--gray-700) whitespace-nowrap">
                       {fmtDate(c.finishDate)}
                     </td>
                     <td className="px-4 py-3">
@@ -174,7 +174,7 @@ export function ContractsTable({ s }: { s: ContractsPageState }) {
                           href={c.contractLink}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center justify-center gap-1.5 rounded-sm py-1.5 px-3 text-[0.8125rem] font-semibold text-[var(--brand-600,#4f46e5)] whitespace-nowrap tracking-tight transition-colors duration-150 hover:bg-[var(--gray-50,#f9fafb)] hover:text-[--gray-800]"
+                          className="inline-flex items-center justify-center gap-1.5 rounded-sm py-1.5 px-3 text-[0.8125rem] font-semibold text-(--brand-600,#4f46e5) whitespace-nowrap tracking-tight transition-colors duration-150 hover:bg-(--gray-50,#f9fafb) hover:text-(--gray-800)"
                           title={c.contractLink}
                         >
                           <svg
@@ -194,7 +194,7 @@ export function ContractsTable({ s }: { s: ContractsPageState }) {
                           {t("openLink")}
                         </a>
                       ) : (
-                        <span className="text-[var(--gray-300)]">—</span>
+                        <span className="text-(--gray-300)">—</span>
                       )}
                     </td>
                     <td className="px-4 py-3">

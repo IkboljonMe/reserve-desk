@@ -954,5 +954,22 @@
   "wifiPassword": "Wi-Fi password",
   "socialLinks": "Social & review links",
   "tileSettings": "Service tiles",
-  "tileSettingsDesc": "Choose which service tiles guests see on the hub landing page."
+  "tileSettingsDesc": "Choose which service tiles guests see on the hub landing page.",
+  "hubRoom": "Room",
+  "hubWifiNetwork": "Network",
+  "hubWifiPassword": "Password",
+  "hubCopy": "Copy",
+  "hubCopied": "✓ Copied",
+  "hubContactReception": "Contact Reception",
+  "hubContactReceptionDesc": "Please contact our front desk staff for assistance or call the number below.",
+  "hubReportProblem": "Report a Problem",
+  "hubProblemPlaceholder": "Briefly describe your issue...",
+  "hubSend": "Send",
+  "hubSending": "Sending...",
+  "hubSent": "✓ Sent!",
+  "hubClose": "Close",
+  "hubCall": "Call",
+  "hubFollowUs": "Follow us on social media",
+  "hubIsYourProperty": "Is this your property?",
+  "hubJoinFree": "Join Bronit for free"
 }

@@ -124,17 +124,15 @@ export function RoomQrModal({
         </Button>
       }
     >
-      <p className="text-sm text-[var(--gray-500)] mb-4">{t("qrCodesDesc")}</p>
+      <p className="text-sm text-[--gray-500] mb-4">{t("qrCodesDesc")}</p>
       {loading ? (
-        <p className="text-center text-[var(--gray-400)] py-8">
-          {t("loading")}
-        </p>
+        <p className="text-center text-(--gray-400) py-8">{t("loading")}</p>
       ) : !hotelSlug ? (
         <p className="text-center text-[var(--color-danger)] text-sm py-8">
           {t("hotelNeedsSlugForQr")}
         </p>
       ) : rooms.length === 0 ? (
-        <p className="text-center text-[var(--gray-400)] text-sm py-8">
+        <p className="text-center text-(--gray-400) text-sm py-8">
           {t("noRoomsForQr")}
         </p>
       ) : (
@@ -142,7 +140,7 @@ export function RoomQrModal({
           {rooms.map((room) => (
             <div
               key={room._id}
-              className="flex flex-col items-center gap-2 border border-[var(--surface-border)] rounded-xl p-3"
+              className="flex flex-col items-center gap-2 border border-(--surface-border) rounded-xl p-3"
             >
               <QRCodeSVG value={roomUrl(room.number)} size={100} />
               <span className="text-sm font-bold text-[--gray-800]">

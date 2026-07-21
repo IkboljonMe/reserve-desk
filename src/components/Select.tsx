@@ -114,7 +114,7 @@ export default function Select({
     <div ref={rootRef} className="relative">
       <button
         type="button"
-        className="w-full flex items-center gap-2.5 py-2.5 px-3 border-[1.5px] border-[var(--gray-200,#e5e7eb)] rounded-[10px] bg-[var(--surface-card)] font-sans text-[0.8125rem] font-medium text-[var(--gray-700,#374151)] cursor-pointer outline-none text-left transition-all duration-150 ease-in-out hover:border-[var(--gray-300,#d1d5db)] focus-visible:border-[var(--brand-500,#6366f1)] focus-visible:shadow-[0_0_0_3px_rgba(79,110,247,0.14)] aria-expanded:border-[var(--brand-500,#6366f1)] aria-expanded:shadow-[0_0_0_3px_rgba(79,110,247,0.14)]"
+        className="w-full flex items-center gap-2.5 py-2.5 px-3 border-[1.5px] border-(--gray-200,#e5e7eb) rounded-[10px] bg-(--surface-card) font-sans text-[0.8125rem] font-medium text-(--gray-700,#374151) cursor-pointer outline-none text-left transition-all duration-150 ease-in-out hover:border-(--gray-300,#d1d5db) focus-visible:border-(--brand-500,#6366f1) focus-visible:shadow-[0_0_0_3px_rgba(79,110,247,0.14)] aria-expanded:border-(--brand-500,#6366f1) aria-expanded:shadow-[0_0_0_3px_rgba(79,110,247,0.14)]"
         onClick={() => (open ? setOpen(false) : openList())}
         onKeyDown={onKeyDown}
         aria-haspopup="listbox"
@@ -126,7 +126,7 @@ export default function Select({
         }
       >
         {icon && (
-          <span className="inline-flex shrink-0 text-[var(--brand-600)]">
+          <span className="inline-flex shrink-0 text-(--brand-600)">
             {icon}
           </span>
         )}
@@ -134,7 +134,7 @@ export default function Select({
           className={`flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap ${
             selected && selected.value
               ? "text-[--gray-800]"
-              : "text-[var(--gray-400)]"
+              : "text-(--gray-400)"
           }`}
         >
           {selected && selected.value ? selected.label : placeholder}
@@ -142,7 +142,7 @@ export default function Select({
         <ChevronDown
           size={16}
           aria-hidden="true"
-          className={`shrink-0 text-[var(--gray-400)] transition-transform duration-150 ease-out ${
+          className={`shrink-0 text-(--gray-400) transition-transform duration-150 ease-out ${
             open ? "rotate-180" : "rotate-0"
           }`}
         />
@@ -154,7 +154,7 @@ export default function Select({
           id={listId}
           role="listbox"
           tabIndex={-1}
-          className="absolute top-[calc(100%+6px)] left-0 right-0 z-20 list-none m-0 p-1 bg-white border border-[var(--gray-200,#e5e7eb)] rounded-xl shadow-[0_12px_32px_rgba(0,0,0,0.14)] max-h-[240px] overflow-y-auto"
+          className="absolute top-[calc(100%+6px)] left-0 right-0 z-20 list-none m-0 p-1 bg-white border border-(--gray-200,#e5e7eb) rounded-xl shadow-[0_12px_32px_rgba(0,0,0,0.14)] max-h-60 overflow-y-auto"
         >
           {options.map((opt, idx) => {
             const isSelected = opt.value === value;
@@ -172,13 +172,13 @@ export default function Select({
                 }}
                 className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer text-[0.8125rem] transition-colors duration-100 ease-in-out ${
                   isSelected
-                    ? "font-semibold text-[var(--brand-700)] bg-[var(--brand-50)]"
-                    : "text-[var(--gray-700)]"
-                } ${isActive ? (isSelected ? "bg-[var(--brand-100)]" : "bg-(--gray-100)") : ""}`}
+                    ? "font-semibold text-(--brand-700) bg-(--brand-50)"
+                    : "text-(--gray-700)"
+                } ${isActive ? (isSelected ? "bg-(--brand-100)" : "bg-(--gray-100)") : ""}`}
               >
                 <span
                   className={`flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap ${
-                    opt.value === "" ? "text-[var(--gray-400)]" : ""
+                    opt.value === "" ? "text-(--gray-400)" : ""
                   }`}
                 >
                   {opt.label}

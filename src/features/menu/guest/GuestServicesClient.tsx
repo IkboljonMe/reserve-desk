@@ -43,7 +43,7 @@ export interface GuestServiceDto {
 }
 
 const FIELD =
-  "w-full px-3 py-2 min-h-[42px] rounded-lg text-sm outline-none bg-[var(--surface-card)] border border-[var(--surface-border)] text-[--gray-800] focus:border-[var(--brand-500)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]";
+  "w-full px-3 py-2 min-h-[42px] rounded-lg text-sm outline-none bg-(--surface-card) border border-(--surface-border) text-[--gray-800] focus:border-[var(--brand-500)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]";
 const LANG_OPTIONS = MENU_LANGS.map((l) => ({
   value: l,
   label: MENU_LANG_LABELS[l],
@@ -127,12 +127,12 @@ export function GuestServicesClient({
       className="min-h-dvh bg-[--surface-bg] text-[--gray-900] pb-12"
       style={themeVars}
     >
-      <header className="sticky top-0 z-10 max-w-md mx-auto bg-[var(--surface-card)] border-b border-[var(--surface-border)] px-4 py-3 flex items-stretch justify-between gap-3 shadow-sm">
+      <header className="sticky top-0 z-10 max-w-md mx-auto bg-(--surface-card) border-b border-(--surface-border) px-4 py-3 flex items-stretch justify-between gap-3 shadow-sm">
         <div className="min-w-0 flex items-stretch gap-2.5">
           <a
             href={guestHubPath(locale, hotelSlug, room, isMenuSub)}
             aria-label={labels.backToHub}
-            className="w-10 rounded-lg bg-(--gray-100) text-[var(--gray-700)] flex items-center justify-center shrink-0"
+            className="w-10 rounded-lg bg-(--gray-100) text-(--gray-700) flex items-center justify-center shrink-0"
           >
             <ArrowLeft size={16} />
           </a>
@@ -141,14 +141,14 @@ export function GuestServicesClient({
               {hotelName}
             </h1>
             {room && (
-              <p className="text-[0.8rem] text-[var(--gray-500)] m-0 mt-0.5">
+              <p className="text-[0.8rem] text-(--gray-500) m-0 mt-0.5">
                 {labels.room} {room}
               </p>
             )}
           </div>
         </div>
         <nav className="flex items-stretch gap-1.5 shrink-0">
-          <div className="w-[118px]">
+          <div className="w-29.5">
             <Dropdown
               value={contentLang}
               onChange={(v) => setContentLang(v as typeof contentLang)}
@@ -160,7 +160,7 @@ export function GuestServicesClient({
             type="button"
             onClick={toggleTheme}
             aria-label="Toggle theme"
-            className="w-10 rounded-lg bg-(--gray-100) text-[var(--gray-700)] flex items-center justify-center shrink-0"
+            className="w-10 rounded-lg bg-(--gray-100) text-(--gray-700) flex items-center justify-center shrink-0"
           >
             {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
           </button>
@@ -169,7 +169,7 @@ export function GuestServicesClient({
 
       <main className="max-w-md mx-auto px-4 py-5 flex flex-col gap-5">
         {services.length === 0 ? (
-          <p className="text-center text-[var(--gray-400)] text-sm py-16">
+          <p className="text-center text-(--gray-400) text-sm py-16">
             {labels.noServices}
           </p>
         ) : (
@@ -180,7 +180,7 @@ export function GuestServicesClient({
               return (
                 <div
                   key={s._id}
-                  className="bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-2xl overflow-hidden shadow-sm flex flex-col"
+                  className="bg-(--surface-card) border border-(--surface-border) rounded-2xl overflow-hidden shadow-sm flex flex-col"
                 >
                   {s.imageUrl && (
                     <img
@@ -194,12 +194,12 @@ export function GuestServicesClient({
                       {name}
                     </h3>
                     {desc && (
-                      <p className="text-[0.85rem] text-[var(--gray-500)] m-0 leading-snug">
+                      <p className="text-[0.85rem] text-(--gray-500) m-0 leading-snug">
                         {desc}
                       </p>
                     )}
                     <div className="mt-2 flex items-center justify-between">
-                      <div className="font-extrabold text-[1.05rem] text-[var(--brand-600)] tabular-nums">
+                      <div className="font-extrabold text-[1.05rem] text-(--brand-600) tabular-nums">
                         {s.price > 0 ? `${money(s.price)} ${labels.sum}` : ""}
                       </div>
                       <Button
@@ -249,16 +249,16 @@ export function GuestServicesClient({
             <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-4">
               <Sparkles size={32} />
             </div>
-            <p className="text-[1.1rem] font-bold text-[--gray-800] mb-2 m-0">
+            <p className="text-lg font-bold text-(--gray-800) mb-2 m-0">
               {labels.requestSent}
             </p>
-            <p className="text-sm text-[var(--gray-500)] m-0">
+            <p className="text-sm text-(--gray-500) m-0">
               {labels.requestSentDesc}
             </p>
           </div>
         ) : selectedService ? (
           <div className="flex flex-col gap-4">
-            <div className="rounded-xl border border-[var(--surface-border)] bg-[--surface-bg] p-3">
+            <div className="rounded-xl border border-(--surface-border) bg-[--surface-bg] p-3">
               <div className="font-bold text-[0.95rem] text-[--gray-800]">
                 {localized(
                   selectedService.nameI18n,
@@ -267,7 +267,7 @@ export function GuestServicesClient({
                 )}
               </div>
               {selectedService.price > 0 && (
-                <div className="text-[0.85rem] text-[var(--gray-500)] mt-0.5 tabular-nums">
+                <div className="text-[0.85rem] text-(--gray-500) mt-0.5 tabular-nums">
                   {money(selectedService.price)} {labels.sum}
                 </div>
               )}
@@ -287,13 +287,13 @@ export function GuestServicesClient({
                 placeholder={labels.guestNamePlaceholder}
               />
               <textarea
-                className={`${FIELD} resize-y min-h-[70px]`}
+                className={`${FIELD} resize-y min-h-17.5`}
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 placeholder={labels.orderNotePlaceholder}
               />
               {error && (
-                <p className="text-[0.8rem] text-[var(--color-danger)] font-medium m-0">
+                <p className="text-[0.8rem] text-(--color-danger) font-medium m-0">
                   {error}
                 </p>
               )}

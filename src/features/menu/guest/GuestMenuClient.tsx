@@ -75,7 +75,7 @@ interface TrackedOrder {
 }
 
 const FIELD =
-  "w-full px-3 py-2 min-h-[42px] rounded-lg text-sm outline-none bg-[var(--surface-card)] border border-[var(--surface-border)] text-[--gray-800] focus:border-[var(--brand-500)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]";
+  "w-full px-3 py-2 min-h-[42px] rounded-lg text-sm outline-none bg-(--surface-card) border border-(--surface-border) text-[--gray-800] focus:border-[var(--brand-500)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]";
 const STATUS_FLOW: OrderStatus[] = [
   "pending",
   "preparing",
@@ -143,6 +143,7 @@ export function GuestMenuClient({
   useEffect(() => {
     try {
       const raw = localStorage.getItem(cartKey);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (raw) setCart(JSON.parse(raw));
     } catch {
       /* ignore corrupt storage */
@@ -182,7 +183,7 @@ export function GuestMenuClient({
       alive = false;
       clearInterval(timer);
     };
-  }, [placed]);
+  }, [placed, hotelSlug]);
 
   const productById = useMemo(
     () => new Map(products.map((p) => [p._id, p])),
@@ -256,7 +257,7 @@ export function GuestMenuClient({
       return (
         <button
           onClick={() => setQty(id, 1)}
-          className="w-8 h-8 rounded-full bg-[var(--brand-500)] text-white flex items-center justify-center shadow-sm active:scale-95 transition-transform"
+          className="w-8 h-8 rounded-full bg-(--brand-500) text-white flex items-center justify-center shadow-sm active:scale-95 transition-transform"
           aria-label={labels.add}
         >
           <Plus size={16} strokeWidth={2.5} />
@@ -264,10 +265,10 @@ export function GuestMenuClient({
       );
     }
     return (
-      <div className="flex items-center gap-1.5 bg-[--surface-bg] rounded-full p-1 border border-[var(--surface-border)]">
+      <div className="flex items-center gap-1.5 bg-[--surface-bg] rounded-full p-1 border border-(--surface-border)">
         <button
           onClick={() => setQty(id, qty - 1)}
-          className="w-6 h-6 rounded-full flex items-center justify-center text-[var(--gray-700)] bg-white shadow-sm active:scale-95"
+          className="w-6 h-6 rounded-full flex items-center justify-center text-(--gray-700) bg-white shadow-sm active:scale-95"
           aria-label="−"
         >
           <Minus size={14} />
@@ -277,7 +278,7 @@ export function GuestMenuClient({
         </span>
         <button
           onClick={() => setQty(id, qty + 1)}
-          className="w-6 h-6 rounded-full bg-[var(--brand-500)] text-white flex items-center justify-center shadow-sm active:scale-95"
+          className="w-6 h-6 rounded-full bg-(--brand-500) text-white flex items-center justify-center shadow-sm active:scale-95"
           aria-label="+"
         >
           <Plus size={14} />
@@ -295,13 +296,13 @@ export function GuestMenuClient({
           Dropdown (a shared, fixed-internal-padding component) actually
           renders at, instead of guessing a px value that has to stay in sync
           with it. */}
-      <header className="sticky top-0 z-10 max-w-md mx-auto bg-[var(--surface-card)] border-b border-[var(--surface-border)] flex flex-col shadow-sm">
+      <header className="sticky top-0 z-10 max-w-md mx-auto bg-(--surface-card) border-b border-(--surface-border) flex flex-col shadow-sm">
         <div className="px-4 py-3 flex items-stretch justify-between gap-3">
           <div className="min-w-0 flex items-stretch gap-2.5">
             <a
               href={guestHubPath(locale, hotelSlug, room, isMenuSub)}
               aria-label={labels.backToMenu}
-              className="w-10 rounded-lg bg-(--gray-100) text-[var(--gray-700)] flex items-center justify-center shrink-0"
+              className="w-10 rounded-lg bg-(--gray-100) text-(--gray-700) flex items-center justify-center shrink-0"
             >
               <ArrowLeft size={16} />
             </a>
@@ -310,14 +311,14 @@ export function GuestMenuClient({
                 {hotelName}
               </h1>
               {room && (
-                <p className="text-[0.8rem] text-[var(--gray-500)] m-0 mt-0.5">
+                <p className="text-[0.8rem] text-(--gray-500) m-0 mt-0.5">
                   {labels.room} {room}
                 </p>
               )}
             </div>
           </div>
           <nav className="flex items-stretch gap-1.5 shrink-0">
-            <div className="w-[118px]">
+            <div className="w-29.5">
               <Dropdown
                 value={contentLang}
                 onChange={(v) => setContentLang(v as typeof contentLang)}
@@ -329,7 +330,7 @@ export function GuestMenuClient({
               type="button"
               onClick={toggleTheme}
               aria-label="Toggle theme"
-              className="w-10 rounded-lg bg-(--gray-100) text-[var(--gray-700)] flex items-center justify-center shrink-0"
+              className="w-10 rounded-lg bg-(--gray-100) text-(--gray-700) flex items-center justify-center shrink-0"
             >
               {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
             </button>
@@ -337,7 +338,7 @@ export function GuestMenuClient({
         </div>
 
         {/* Category Nav */}
-        <div className="px-4 pb-3 flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="px-4 pb-3 flex gap-2 overflow-x-auto scrollbar-none [&::-webkit-scrollbar]:hidden">
           {categories.map((cat) => {
             if (byCategory(cat._id).length === 0) return null;
             return (
@@ -352,7 +353,7 @@ export function GuestMenuClient({
                     window.scrollTo({ top: y, behavior: "smooth" });
                   }
                 }}
-                className="whitespace-nowrap px-4 py-1.5 rounded-full bg-(--gray-100) text-[var(--gray-700)] text-[0.85rem] font-bold active:scale-95 transition-transform shrink-0"
+                className="whitespace-nowrap px-4 py-1.5 rounded-full bg-(--gray-100) text-(--gray-700) text-[0.85rem] font-bold active:scale-95 transition-transform shrink-0"
               >
                 {localized(cat.nameI18n, cat.name, contentLang)}
               </button>
@@ -369,7 +370,7 @@ export function GuestMenuClient({
           onAdd={(p) => setQty(p._id, (cart[p._id] || 0) + 1)}
         />
         {categories.every((c) => byCategory(c._id).length === 0) ? (
-          <p className="text-center text-[var(--gray-400)] text-sm py-16">
+          <p className="text-center text-(--gray-400) text-sm py-16">
             {labels.menuEmpty}
           </p>
         ) : (
@@ -381,7 +382,7 @@ export function GuestMenuClient({
                 <section
                   key={cat._id}
                   id={`cat-${cat._id}`}
-                  className="scroll-mt-[130px]"
+                  className="scroll-mt-32.5"
                 >
                   <h2 className="text-[1.1rem] font-extrabold mb-3 text-[--gray-800] px-1">
                     {localized(cat.nameI18n, cat.name, contentLang)}
@@ -397,7 +398,7 @@ export function GuestMenuClient({
                       return (
                         <div
                           key={p._id}
-                          className="bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-2xl overflow-hidden shadow-sm flex flex-col"
+                          className="bg-(--surface-card) border border-(--surface-border) rounded-2xl overflow-hidden shadow-sm flex flex-col"
                         >
                           {p.imageUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
@@ -407,7 +408,7 @@ export function GuestMenuClient({
                               className="w-full h-32 object-cover"
                             />
                           ) : (
-                            <div className="w-full h-32 bg-(--gray-100) flex items-center justify-center text-[var(--gray-300)]">
+                            <div className="w-full h-32 bg-(--gray-100) flex items-center justify-center text-(--gray-300)">
                               <UtensilsCrossed size={32} />
                             </div>
                           )}
@@ -416,12 +417,12 @@ export function GuestMenuClient({
                               {name}
                             </div>
                             {desc && (
-                              <p className="text-[0.72rem] text-[var(--gray-500)] mt-1 leading-snug line-clamp-2">
+                              <p className="text-[0.72rem] text-(--gray-500) mt-1 leading-snug line-clamp-2">
                                 {desc}
                               </p>
                             )}
                             <div className="mt-auto pt-3 flex items-end justify-between gap-1">
-                              <div className="font-extrabold text-[0.85rem] text-[var(--brand-600)] tabular-nums leading-none pb-1">
+                              <div className="font-extrabold text-[0.85rem] text-(--brand-600) tabular-nums leading-none pb-1">
                                 {money(p.price)}
                               </div>
                               <div className="shrink-0">
@@ -442,13 +443,13 @@ export function GuestMenuClient({
 
       {/* Sticky cart bar */}
       {count > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 z-20 p-3 bg-gradient-to-t from-[var(--surface-bg)] to-transparent">
+        <div className="fixed bottom-0 left-0 right-0 z-20 p-3 bg-linear-to-t from-(--surface-bg) to-transparent">
           <button
             onClick={() => {
               setError("");
               setCartOpen(true);
             }}
-            className="max-w-md mx-auto w-full flex items-center justify-between gap-3 px-5 py-3.5 rounded-2xl bg-[var(--brand-500)] text-white font-bold shadow-lg"
+            className="max-w-md mx-auto w-full flex items-center justify-between gap-3 px-5 py-3.5 rounded-2xl bg-(--brand-500) text-white font-bold shadow-lg"
           >
             <span className="inline-flex items-center gap-2">
               <ShoppingBag size={18} />{" "}
@@ -498,7 +499,7 @@ export function GuestMenuClient({
             labels={labels}
           />
         ) : count === 0 ? (
-          <p className="text-center text-[var(--gray-400)] py-10">
+          <p className="text-center text-(--gray-400) py-10">
             {labels.emptyCart}
           </p>
         ) : (
@@ -510,7 +511,7 @@ export function GuestMenuClient({
                     <div className="font-semibold text-[0.9rem] text-[--gray-800] truncate">
                       {localized(l.p.nameI18n, l.p.name, contentLang)}
                     </div>
-                    <div className="text-[0.78rem] text-[var(--gray-500)] tabular-nums">
+                    <div className="text-[0.78rem] text-(--gray-500) tabular-nums">
                       {money(l.p.price)} {labels.sum}
                     </div>
                   </div>
@@ -522,7 +523,7 @@ export function GuestMenuClient({
               ))}
             </ul>
 
-            <div className="border-t border-[var(--surface-border)] pt-3 flex flex-col gap-1.5 text-[0.85rem]">
+            <div className="border-t border-(--surface-border) pt-3 flex flex-col gap-1.5 text-[0.85rem]">
               <div className="flex justify-between text-[--gray-600]">
                 <span>{labels.subtotal}</span>
                 <span className="tabular-nums">
@@ -560,13 +561,13 @@ export function GuestMenuClient({
                 placeholder={labels.guestNamePlaceholder}
               />
               <textarea
-                className={`${FIELD} resize-y min-h-[56px]`}
+                className={`${FIELD} resize-y min-h-14`}
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 placeholder={labels.orderNotePlaceholder}
               />
               {error && (
-                <p className="text-[0.8rem] text-[var(--color-danger)] font-medium m-0">
+                <p className="text-[0.8rem] text-(--color-danger) font-medium m-0">
                   {error}
                 </p>
               )}
@@ -618,7 +619,7 @@ function RecommendationBanner({
 
   return (
     <section>
-      <div className="flex items-center gap-1.5 text-[var(--brand-600)] mb-2">
+      <div className="flex items-center gap-1.5 text-(--brand-600) mb-2">
         <Sparkles size={14} />
         <h2 className="text-[0.75rem] font-bold uppercase tracking-wide m-0">
           {labels.recommendedToday}
@@ -628,7 +629,7 @@ function RecommendationBanner({
       <div
         ref={trackRef}
         onScroll={onScroll}
-        className="flex snap-x snap-mandatory overflow-x-auto scroll-smooth rounded-xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex snap-x snap-mandatory overflow-x-auto scroll-smooth rounded-xl scrollbar-none [&::-webkit-scrollbar]:hidden"
       >
         {items.map((p) => {
           const name = localized(p.nameI18n, p.name, contentLang);
@@ -646,11 +647,11 @@ function RecommendationBanner({
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center bg-(--gray-100) text-[var(--gray-400)]">
+                <div className="w-full h-full flex items-center justify-center bg-(--gray-100) text-(--gray-400)">
                   <UtensilsCrossed size={30} />
                 </div>
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+              <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/30 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-3">
                 <div className="min-w-0">
                   <h3 className="truncate font-extrabold text-white text-[1.05rem] m-0">
@@ -667,7 +668,7 @@ function RecommendationBanner({
                 </div>
                 <button
                   onClick={() => onAdd(p)}
-                  className="w-9 h-9 rounded-full bg-[var(--brand-500)] text-white flex items-center justify-center shrink-0"
+                  className="w-9 h-9 rounded-full bg-(--brand-500) text-white flex items-center justify-center shrink-0"
                   aria-label={labels.add}
                 >
                   <Plus size={17} />
@@ -683,7 +684,7 @@ function RecommendationBanner({
           {items.map((p, i) => (
             <span
               key={p._id}
-              className={`h-1.5 rounded-full transition-all ${i === active ? "w-5 bg-[var(--brand-500)]" : "w-1.5 bg-[var(--gray-200)]"}`}
+              className={`h-1.5 rounded-full transition-all ${i === active ? "w-5 bg-(--brand-500)" : "w-1.5 bg-(--gray-200)"}`}
             />
           ))}
         </div>
@@ -726,10 +727,10 @@ function OrderTracker({
         <h3 className="font-extrabold text-[1.1rem] m-0">
           {labels.orderPlaced}
         </h3>
-        <p className="text-[var(--gray-500)] text-sm m-0">
+        <p className="text-(--gray-500) text-sm m-0">
           {labels.orderPlacedDesc}
         </p>
-        <p className="text-[0.78rem] text-[var(--gray-400)] m-0">
+        <p className="text-[0.78rem] text-(--gray-400) m-0">
           {labels.orderNo} #{placed.id.slice(-6).toUpperCase()}
         </p>
       </div>
@@ -740,13 +741,13 @@ function OrderTracker({
             <Spinner />
           </div>
         ) : (
-          <p className="text-center text-[var(--gray-400)] text-sm py-6">
+          <p className="text-center text-(--gray-400) text-sm py-6">
             {labels.couldNotLoad}
           </p>
         )
       ) : cancelled ? (
         <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-center">
-          <p className="font-bold m-0 text-[var(--color-danger)]">
+          <p className="font-bold m-0 text-(--color-danger)">
             {labels.cancelledTitle}
           </p>
           <p className="text-sm mt-1 m-0 text-[--gray-600]">
@@ -763,7 +764,7 @@ function OrderTracker({
               <li key={status} className="flex items-start gap-3">
                 <div className="flex flex-col items-center">
                   <span
-                    className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${done ? "bg-emerald-500 text-white" : !active ? "bg-(--gray-100) text-[var(--gray-400)]" : "text-white"}`}
+                    className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${done ? "bg-emerald-500 text-white" : !active ? "bg-(--gray-100) text-(--gray-400)" : "text-white"}`}
                     style={active ? { background: meta.color } : undefined}
                   >
                     {done ? (
@@ -779,7 +780,7 @@ function OrderTracker({
                   )}
                 </div>
                 <p
-                  className={`pt-1.5 pb-3 text-sm font-semibold m-0 ${active ? "text-[--gray-800]" : "text-[var(--gray-400)]"}`}
+                  className={`pt-1.5 pb-3 text-sm font-semibold m-0 ${active ? "text-[--gray-800]" : "text-(--gray-400)"}`}
                 >
                   {statusLabel(status)}
                 </p>
@@ -790,7 +791,7 @@ function OrderTracker({
       )}
 
       {tracked && (
-        <div className="rounded-xl border border-[var(--surface-border)] bg-[var(--surface-card)] p-3.5">
+        <div className="rounded-xl border border-(--surface-border) bg-(--surface-card) p-3.5">
           <h4 className="text-[0.8rem] font-bold text-[--gray-600] m-0 mb-2">
             {labels.orderSummary}
           </h4>
@@ -809,16 +810,16 @@ function OrderTracker({
               </li>
             ))}
           </ul>
-          <div className="border-t border-[var(--surface-border)] mt-2.5 pt-2.5 flex flex-col gap-1 text-[0.82rem]">
+          <div className="border-t border-(--surface-border) mt-2.5 pt-2.5 flex flex-col gap-1 text-[0.82rem]">
             {tracked.serviceFee > 0 && (
               <>
-                <div className="flex justify-between text-[var(--gray-500)]">
+                <div className="flex justify-between text-(--gray-500)">
                   <span>{labels.subtotal}</span>
                   <span className="tabular-nums">
                     {money(tracked.subtotal)} {labels.sum}
                   </span>
                 </div>
-                <div className="flex justify-between text-[var(--gray-500)]">
+                <div className="flex justify-between text-(--gray-500)">
                   <span>{labels.serviceFee}</span>
                   <span className="tabular-nums">
                     {money(tracked.serviceFee)} {labels.sum}
@@ -834,7 +835,7 @@ function OrderTracker({
             </div>
           </div>
           {tracked.note && (
-            <p className="mt-2.5 rounded-lg bg-[var(--gray-50)] px-2.5 py-2 text-[0.75rem] text-[var(--gray-500)]">
+            <p className="mt-2.5 rounded-lg bg-(--gray-50) px-2.5 py-2 text-[0.75rem] text-(--gray-500)">
               {labels.notes}: {tracked.note}
             </p>
           )}

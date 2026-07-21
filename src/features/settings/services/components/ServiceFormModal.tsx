@@ -72,12 +72,12 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
           <div className="flex flex-col gap-4">
             <div className="grid grid-cols-[1fr_auto] gap-4 items-start">
               <div className="flex flex-col gap-1.5">
-                <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+                <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                   {t("name")} *<InfoHint text={t("nameHint")} />
                 </label>
                 <input
                   type="text"
-                  className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+                  className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
                   value={form.name}
                   onChange={(e) =>
                     setForm((f) => ({ ...f, name: e.target.value }))
@@ -87,7 +87,7 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+                <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                   {t("icon")} *<InfoHint text={t("iconHint")} />
                 </label>
                 <IconPicker
@@ -98,7 +98,7 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+              <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                 {t("hotel")} *<InfoHint text={t("hotelHint")} />
               </label>
               <Select
@@ -120,7 +120,7 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
 
             {form.hotelId && hotels.length > 1 && (
               <div className="flex flex-col gap-1.5">
-                <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+                <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                   {t("sharedWithHotels")}
                   <InfoHint text={t("sharedWithHotelsHint")} />
                 </label>
@@ -136,7 +136,7 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
                           className={`px-3.5 py-1.5 rounded-full text-[0.8rem] font-semibold cursor-pointer border transition-all duration-150 whitespace-nowrap inline-flex items-center gap-1.25 ${
                             on
                               ? "bg-gradient-to-r from-[var(--brand-500)] to-[var(--brand-600)] text-white border-transparent shadow-[var(--shadow-brand)]"
-                              : "border-[var(--gray-200,#e5e7eb)] bg-[var(--surface-card)] text-[var(--gray-600,#4b5563)] hover:border-[var(--brand-500,#6366f1)] hover:text-[var(--brand-700,#4338ca)] hover:bg-[var(--brand-50,#eef2ff)]"
+                              : "border-[var(--gray-200,#e5e7eb)] bg-(--surface-card) text-[var(--gray-600,#4b5563)] hover:border-[var(--brand-500,#6366f1)] hover:text-[var(--brand-700,#4338ca)] hover:bg-[var(--brand-50,#eef2ff)]"
                           }`}
                           aria-pressed={on}
                           onClick={() =>
@@ -154,19 +154,19 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
                       );
                     })}
                 </div>
-                <small className="mt-1.5 text-[0.7rem] text-[var(--gray-400)] block">
+                <small className="mt-1.5 text-[0.7rem] text-(--gray-400) block">
                   {t("sharedWithHotelsHint")}
                 </small>
               </div>
             )}
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+              <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                 {t("description")}
                 <InfoHint text={t("descriptionHint")} />
               </label>
               <textarea
-                className="w-full px-3 py-2 min-h-[60px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] resize-y"
+                className="w-full px-3 py-2 min-h-[60px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] resize-y"
                 value={form.description}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, description: e.target.value }))
@@ -175,13 +175,13 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+              <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                 {t("details")}
                 <InfoHint text={t("detailsHint")} />
               </label>
               <input
                 type="text"
-                className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+                className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
                 placeholder={t("detailsPlaceholder")}
                 value={form.details}
                 onChange={(e) =>
@@ -194,12 +194,12 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5">
-                <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+                <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                   {t("opensAt")} *<InfoHint text={t("opensAtHint")} />
                 </label>
                 <input
                   type="time"
-                  className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+                  className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
                   value={form.openTime}
                   onChange={(e) =>
                     setForm((f) => ({ ...f, openTime: e.target.value }))
@@ -208,12 +208,12 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+                <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                   {t("closesAt")} *<InfoHint text={t("closesAtHint")} />
                 </label>
                 <input
                   type="time"
-                  className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+                  className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
                   value={form.closeTime}
                   onChange={(e) =>
                     setForm((f) => ({ ...f, closeTime: e.target.value }))
@@ -225,13 +225,13 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5">
-                <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+                <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                   {t("bufferBefore")}
                   <InfoHint text={t("bufferBeforeHint")} />
                 </label>
                 <input
                   type="number"
-                  className={`w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] hide-arrows ${
+                  className={`w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border text-[--gray-800] hover:border-[var(--gray-300)] focus:border-(--brand-500,#6366f1) hide-arrows ${
                     bufferError(form.bufferTimeBefore)
                       ? "border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.14)]"
                       : "border-[var(--gray-200,#e5e7eb)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
@@ -255,19 +255,19 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
                     {t("mustBe15")}
                   </small>
                 ) : (
-                  <small className="mt-1 text-[0.7rem] text-[var(--gray-400)] block">
+                  <small className="mt-1 text-[0.7rem] text-(--gray-400) block">
                     {t("min15IntervalsShort")}
                   </small>
                 )}
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+                <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                   {t("bufferAfter")}
                   <InfoHint text={t("bufferAfterHint")} />
                 </label>
                 <input
                   type="number"
-                  className={`w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] hide-arrows ${
+                  className={`w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border text-[--gray-800] hover:border-[var(--gray-300)] focus:border-(--brand-500,#6366f1) hide-arrows ${
                     bufferError(form.bufferTimeAfter)
                       ? "border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.14)]"
                       : "border-[var(--gray-200,#e5e7eb)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
@@ -291,7 +291,7 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
                     {t("mustBe15")}
                   </small>
                 ) : (
-                  <small className="mt-1 text-[0.7rem] text-[var(--gray-400)] block">
+                  <small className="mt-1 text-[0.7rem] text-(--gray-400) block">
                     {t("min15IntervalsShort")}
                   </small>
                 )}
@@ -317,7 +317,7 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
             />
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+              <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                 {t("calendarColor")}
                 <InfoHint text={t("calendarColorHint")} />
               </label>
@@ -364,7 +364,7 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
                   >
                     <Layers size={14} /> {t("addVariant")}
                   </Button>
-                  <small className="mt-1.5 text-[0.7rem] text-[var(--gray-400)] block">
+                  <small className="mt-1.5 text-[0.7rem] text-(--gray-400) block">
                     {t("variantsHint")}
                   </small>
                 </div>
@@ -372,10 +372,10 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
             ) : (
               <div className="flex flex-col gap-3.5">
                 <div>
-                  <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight flex items-center gap-1.5">
+                  <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight flex items-center gap-1.5">
                     <Layers size={14} /> {t("serviceVariants")}
                   </label>
-                  <small className="mt-1.5 text-[0.7rem] text-[var(--gray-400)] block">
+                  <small className="mt-1.5 text-[0.7rem] text-(--gray-400) block">
                     {t("variantsHint")}
                   </small>
                 </div>
@@ -387,12 +387,12 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
                   >
                     <div className="flex gap-2 items-end">
                       <div className="flex flex-col gap-1.5 flex-1 m-0">
-                        <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+                        <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                           {t("variantName")} *
                         </label>
                         <input
                           type="text"
-                          className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+                          className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
                           value={v.name}
                           placeholder={t("variantNamePlaceholder")}
                           onChange={(e) =>
@@ -448,7 +448,7 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
                 variant="ghost"
                 size="sm"
                 onClick={discardDraft}
-                className="text-[var(--gray-400)]"
+                className="text-(--gray-400)"
               >
                 {t("discardDraft")}
               </Button>

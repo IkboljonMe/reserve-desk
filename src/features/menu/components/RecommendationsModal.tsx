@@ -6,7 +6,7 @@ import { X } from "lucide-react";
 import Modal from "@/components/ui/Modal";
 import Dropdown from "@/components/ui/Dropdown";
 import { useTranslation, type DictionaryKeys } from "@/i18n";
-import { useToast } from "@/components/ToastProvider";
+import { useToast } from "@/providers/ToastProvider";
 import {
   getRecommendations,
   createRecommendation,
@@ -82,15 +82,13 @@ export function RecommendationsModal({
       size="lg"
       closeLabel={t("close")}
     >
-      <p className="text-sm text-[var(--gray-500)] mb-4">
+      <p className="text-sm text-[--gray-500] mb-4">
         {t("recommendationsDesc")}
       </p>
       {loading ? (
-        <p className="text-center text-[var(--gray-400)] py-8">
-          {t("loading")}
-        </p>
+        <p className="text-center text-(--gray-400) py-8">{t("loading")}</p>
       ) : products.length === 0 ? (
-        <p className="text-center text-[var(--gray-400)] text-sm py-8">
+        <p className="text-center text-(--gray-400) text-sm py-8">
           {t("noProductsForRecommend")}
         </p>
       ) : (
@@ -102,7 +100,7 @@ export function RecommendationsModal({
             return (
               <div
                 key={day}
-                className="rounded-xl border border-[var(--surface-border)] p-3"
+                className="rounded-xl border border-(--surface-border) p-3"
               >
                 <div className="flex items-center justify-between gap-3">
                   <h3 className="font-bold text-[--gray-800] m-0">

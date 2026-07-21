@@ -1,5 +1,5 @@
-import PlansPage from '@/features/superadmin/PlansPage'
+import PlansPage from "@/features/superadmin/PlansPage";
 
 export default function SuperadminPlansPage() {
-  return <PlansPage />
+  return <PlansPage />;
 }

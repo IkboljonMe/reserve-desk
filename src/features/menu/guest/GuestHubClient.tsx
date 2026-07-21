@@ -12,105 +12,15 @@ import {
   MENU_LANG_LABELS,
 } from "@/lib/menu";
 import { useGuestPrefs } from "./useGuestPrefs";
-import type { TileId, HubLang, ResolvedTile } from "@/lib/tiles";
+import { useTranslation } from "@/i18n";
+import type { TileId, ResolvedTile } from "@/lib/tiles";
 
 const LANG_OPTIONS = MENU_LANGS.map((l) => ({
   value: l,
   label: MENU_LANG_LABELS[l],
 }));
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 
-export interface GuestHubProps {
-  hotelName: string;
-  hotelSlug: string;
-  logoUrl: string;
-  bannerUrl: string;
-  room: string;
-  locale: string;
-  tiles: ResolvedTile[];
-  wifiName: string;
-  wifiPassword: string;
-  instagramUrl: string;
-  telegramUrl: string;
-  receptionPhone: string;
-  reviewUrl: string;
-  isMenuSub?: boolean;
-}
-
-// ─── Inline translations ───────────────────────────────────────────────────────
-// Only uz/ru/en have real hub-chrome copy; the 10-language picker exists mainly
-// to carry the guest's choice into the food menu (which has real 10-language
-// content). Any other pick falls back to English here — see asHubLang().
-
-const L: Record<HubLang, Record<string, string>> = {
-  uz: {
-    room: "Xona",
-    wifiNetwork: "Tarmoq nomi",
-    wifiPassword: "Parol",
-    copy: "Nusxa olish",
-    copied: "✓ Nusxa olindi",
-    contactReception: "Qabulxonaga murojaat qiling",
-    contactReceptionDesc:
-      "Yordam uchun qabulxona xodimlarimizga murojaat qiling yoki quyidagi raqamga qo'ng'iroq qiling.",
-    reportProblem: "Muammo haqida xabar berish",
-    problemPlaceholder: "Muammoni qisqacha tasvirlab bering...",
-    send: "Yuborish",
-    sending: "Yuborilmoqda...",
-    sent: "✓ Yuborildi!",
-    close: "Yopish",
-    call: "Qo'ng'iroq qilish",
-    followUs: "Bizni ijtimoiy tarmoqlarda kuzatib boring",
-    isYourProperty: "Sizning muassasangiz bormi?",
-    joinFree: "Bronit'ga bepul ulaning",
-  },
-  ru: {
-    room: "Номер",
-    wifiNetwork: "Название сети",
-    wifiPassword: "Пароль",
-    copy: "Копировать",
-    copied: "✓ Скопировано",
-    contactReception: "Обратитесь на ресепшн",
-    contactReceptionDesc:
-      "Пожалуйста, обратитесь к сотрудникам нашей рецепции или позвоните по номеру ниже.",
-    reportProblem: "Сообщить о проблеме",
-    problemPlaceholder: "Кратко опишите проблему...",
-    send: "Отправить",
-    sending: "Отправка...",
-    sent: "✓ Отправлено!",
-    close: "Закрыть",
-    call: "Позвонить",
-    followUs: "Следите за нами в социальных сетях",
-    isYourProperty: "Ваш объект?",
-    joinFree: "Подключитесь к Bronit бесплатно",
-  },
-  en: {
-    room: "Room",
-    wifiNetwork: "Network",
-    wifiPassword: "Password",
-    copy: "Copy",
-    copied: "✓ Copied",
-    contactReception: "Contact Reception",
-    contactReceptionDesc:
-      "Please contact our front desk staff for assistance or call the number below.",
-    reportProblem: "Report a Problem",
-    problemPlaceholder: "Briefly describe your issue...",
-    send: "Send",
-    sending: "Sending...",
-    sent: "✓ Sent!",
-    close: "Close",
-    call: "Call",
-    followUs: "Follow us on social media",
-    isYourProperty: "Is this your property?",
-    joinFree: "Join Bronit for free",
-  },
-};
-
-// The 10-language picker's selection collapsed down to a supported hub-chrome
-// language (uz/ru/en) — anything else falls back to English.
-function asHubLang(lang: string): HubLang {
-  return lang === "uz" || lang === "ru" ? lang : "en";
-}
 
 // ─── CopyButton ───────────────────────────────────────────────────────────────
 
@@ -174,11 +84,11 @@ function HubModal({
 
   return (
     <div
-      className="fixed inset-0 z-[200] bg-black/72 flex items-end justify-center"
+      className="fixed inset-0 z-200 bg-black/72 flex items-end justify-center"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md bg-[var(--surface-card)] rounded-t-[20px] px-6 pt-7 pb-9 [animation:hubSlideUp_0.25s_ease-out]"
+        className="w-full max-w-md bg-(--surface-card) rounded-t-xl px-6 pt-7 pb-9 animate-[hubSlideUp_0.25s_ease-out]"
         onClick={(e) => e.stopPropagation()}
       >
         {children}
@@ -190,6 +100,25 @@ function HubModal({
 
 const MODAL_CLOSE_BTN =
   "w-full p-3 rounded-xl border-none bg-(--gray-100) text-[--gray-600] text-[0.9rem] font-semibold cursor-pointer";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+export interface GuestHubProps {
+  hotelName: string;
+  hotelSlug: string;
+  logoUrl: string;
+  bannerUrl: string;
+  room: string;
+  locale: string;
+  tiles: ResolvedTile[];
+  wifiName: string;
+  wifiPassword: string;
+  instagramUrl: string;
+  telegramUrl: string;
+  receptionPhone: string;
+  reviewUrl: string;
+  isMenuSub?: boolean;
+}
 
 // ─── Main component ────────────────────────────────────────────────────────────
 
@@ -213,7 +142,8 @@ export function GuestHubClient({
 
   const { lang, setLang, theme, toggleTheme, themeVars } =
     useGuestPrefs(locale);
-  const hubLang = asHubLang(lang);
+  const { t } = useTranslation();
+  const hubLang = (lang === "uz" || lang === "ru" ? lang : "en") as "uz" | "ru" | "en";
   const [modal, setModal] = useState<TileId | null>(null);
   const [problem, setProblem] = useState("");
   const [problemStatus, setProblemStatus] = useState<
@@ -230,7 +160,7 @@ export function GuestHubClient({
     );
   }, [locale]);
 
-  const t = (key: string) => L[hubLang][key] || L.en[key] || key;
+
   const closeModal = useCallback(() => {
     setModal(null);
     setProblem("");
@@ -284,7 +214,7 @@ export function GuestHubClient({
     >
       <div className="max-w-md mx-auto">
         {/* ── Banner ─────────────────────────────────────────────── */}
-        <div className="relative h-[220px] shrink-0">
+        <div className="relative h-55 shrink-0">
           {/* Image + gradient live in their own clipped layer — the top
             controls below are a sibling, NOT a descendant of overflow-hidden,
             so the language dropdown's popup list can escape the banner's
@@ -311,7 +241,7 @@ export function GuestHubClient({
             {/* Room badge */}
             {room ? (
               <div className="bg-black/60 backdrop-blur-md border border-white/18 rounded-full px-3.5 text-[0.85rem] font-bold text-white flex items-center gap-1.5 shrink-0">
-                <span className="text-white/50 font-normal">{t("room")}:</span>
+                <span className="text-white/50 font-normal">{t("hubRoom")}:</span>
                 <span className="text-white">{room}</span>
               </div>
             ) : (
@@ -320,7 +250,7 @@ export function GuestHubClient({
 
             {/* Language + theme */}
             <div className="flex items-stretch gap-1.5">
-              <div className="w-[118px]">
+              <div className="w-29.5">
                 <Dropdown
                   value={lang}
                   onChange={(v) => setLang(v as typeof lang)}
@@ -343,7 +273,7 @@ export function GuestHubClient({
         {/* ── Hotel Identity ─────────────────────────────────────── */}
         <div className="flex items-center gap-3.5 px-5 pt-5 pb-2">
           <div
-            className={`w-[60px] h-[60px] rounded-full shrink-0 border-[2.5px] border-[var(--gray-300)] overflow-hidden flex items-center justify-center ${logoUrl ? "bg-white" : "bg-[linear-gradient(135deg,#4f6ef7,#7c3aed)]"}`}
+            className={`w-15 h-15 rounded-full shrink-0 border-[2.5px] border-(--gray-300) overflow-hidden flex items-center justify-center ${logoUrl ? "bg-white" : "bg-[linear-gradient(135deg,#4f6ef7,#7c3aed)]"}`}
           >
             {logoUrl ? (
               <img
@@ -357,7 +287,7 @@ export function GuestHubClient({
               </span>
             )}
           </div>
-          <h1 className="m-0 text-[1.25rem] font-extrabold text-[--gray-900] leading-tight">
+          <h1 className="m-0 text-[1.25rem] font-extrabold text-(--gray-900) leading-tight">
             {hotelName}
           </h1>
         </div>
@@ -369,12 +299,12 @@ export function GuestHubClient({
               key={tile.id}
               type="button"
               onClick={() => handleTileClick(tile.id)}
-              className="bg-[var(--surface-card)] border border-[var(--surface-border)] shadow-[0_8px_24px_rgba(0,0,0,0.15)] rounded-[20px] px-3 pb-4 flex flex-col items-center gap-2 cursor-pointer text-center transition-all duration-200 active:scale-[0.96] hover:shadow-[0_12px_32px_rgba(0,0,0,0.2)] hover:-translate-y-1 [-webkit-tap-highlight-color:transparent]"
+              className="bg-(--surface-card) border border-(--surface-border) shadow-[0_8px_24px_rgba(0,0,0,0.15)] rounded-xl px-3 pb-4 flex flex-col items-center gap-2 cursor-pointer text-center transition-all duration-200 active:scale-[0.96] hover:shadow-[0_12px_32px_rgba(0,0,0,0.2)] hover:-translate-y-1 [-webkit-tap-highlight-color:transparent]"
             >
               <img
                 src={tile.icon}
                 alt=""
-                className="w-[96px] h-[96px] -mt-8 block mx-auto object-contain drop-shadow-[0_12px_16px_rgba(0,0,0,0.3)]"
+                className="w-24 h-24 -mt-8 block mx-auto object-contain drop-shadow-[0_12px_16px_rgba(0,0,0,0.3)]"
               />
               <span className="text-[0.88rem] font-bold text-[--gray-800] leading-snug">
                 {tile.label[hubLang] || tile.label.uz}
@@ -386,8 +316,8 @@ export function GuestHubClient({
         {/* ── Social links ───────────────────────────────────────── */}
         {(instagramUrl || telegramUrl) && (
           <div className="text-center px-5 pt-4 pb-2">
-            <p className="mb-3 text-[0.78rem] text-[var(--gray-400)] tracking-wide">
-              {t("followUs")}
+            <p className="mb-3 text-[0.78rem] text-(--gray-400) tracking-wide">
+              {t("hubFollowUs")}
             </p>
             <div className="flex justify-center gap-4">
               {instagramUrl && (
@@ -395,7 +325,7 @@ export function GuestHubClient({
                   href={instagramUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-11 h-11 rounded-full bg-(--gray-100) border border-[var(--surface-border)] flex items-center justify-center no-underline transition-colors"
+                  className="w-11 h-11 rounded-full bg-(--gray-100) border border-(--surface-border) flex items-center justify-center no-underline transition-colors"
                 >
                   {/* Instagram SVG */}
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -450,7 +380,7 @@ export function GuestHubClient({
                   href={telegramUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-11 h-11 rounded-full bg-(--gray-100) border border-[var(--surface-border)] flex items-center justify-center no-underline"
+                  className="w-11 h-11 rounded-full bg-(--gray-100) border border-(--surface-border) flex items-center justify-center no-underline"
                 >
                   {/* Telegram SVG */}
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -477,14 +407,14 @@ export function GuestHubClient({
 
         {/* ── Footer branding ────────────────────────────────────── */}
         <div className="text-center px-5 pt-5 pb-10">
-          <p className="mb-1 text-[0.75rem] text-[var(--gray-300)]">
-            {t("isYourProperty")}
+          <p className="mb-1 text-[0.75rem] text-(--gray-300)">
+            {t("hubIsYourProperty")}
           </p>
           <a
             href={joinHref}
             className="text-[0.8rem] font-bold tracking-wide no-underline text-[rgba(245,166,35,0.9)]"
           >
-            {t("joinFree")}
+            {t("hubJoinFree")}
           </a>
         </div>
       </div>
@@ -497,48 +427,48 @@ export function GuestHubClient({
           <img
             src="/assets/menu-icons/wifi.png"
             alt=""
-            className="w-[44px] h-[44px] block mx-auto object-contain mb-2"
+            className="w-11 h-11 block mx-auto object-contain mb-2"
           />
-          <h2 className="mt-2 mb-0 text-[1.1rem] font-bold text-[--gray-900]">
+          <h2 className="mt-2 mb-0 text-[1.1rem] font-bold text-(--gray-900)">
             Wi-Fi
           </h2>
         </div>
         {wifiName && (
-          <div className="bg-[var(--gray-50)] rounded-xl py-3 px-4 mb-2.5 flex items-center justify-between gap-2">
+          <div className="bg-(--gray-50) rounded-xl py-3 px-4 mb-2.5 flex items-center justify-between gap-2">
             <div>
-              <p className="m-0 text-[0.7rem] text-[var(--gray-400)]">
-                {t("wifiNetwork")}
+              <p className="text-[0.8rem] text-(--gray-500) m-0 mt-0.5">
+                {t("hubRoom")} {room}
               </p>
-              <p className="m-0 text-[0.95rem] font-semibold text-[--gray-900]">
+              <p className="m-0 text-[0.95rem] font-semibold text-(--gray-900)">
                 {wifiName}
               </p>
             </div>
             <CopyButton
               text={wifiName}
-              label={t("copy")}
-              copied={t("copied")}
+              label={t("hubCopy")}
+              copied={t("hubCopied")}
             />
           </div>
         )}
         {wifiPassword && (
-          <div className="bg-[var(--gray-50)] rounded-xl py-3 px-4 mb-5 flex items-center justify-between gap-2">
+          <div className="bg-(--gray-50) rounded-xl py-3 px-4 mb-5 flex items-center justify-between gap-2">
             <div>
-              <p className="m-0 text-[0.7rem] text-[var(--gray-400)]">
-                {t("wifiPassword")}
+              <p className="m-0 text-[0.7rem] text-(--gray-400)">
+                {t("hubWifiPassword")}
               </p>
-              <p className="m-0 text-[0.95rem] font-semibold text-[--gray-900]">
+              <p className="m-0 text-[0.95rem] font-semibold text-(--gray-900)">
                 {wifiPassword}
               </p>
             </div>
             <CopyButton
               text={wifiPassword}
-              label={t("copy")}
-              copied={t("copied")}
+              label={t("hubCopy")}
+              copied={t("hubCopied")}
             />
           </div>
         )}
         <button type="button" onClick={closeModal} className={MODAL_CLOSE_BTN}>
-          {t("close")}
+          {t("hubClose")}
         </button>
       </HubModal>
 
@@ -548,37 +478,37 @@ export function GuestHubClient({
           <img
             src="/assets/menu-icons/report.png"
             alt=""
-            className="w-[44px] h-[44px] block mx-auto object-contain mb-2"
+            className="w-11 h-11 block mx-auto object-contain mb-2"
           />
-          <h2 className="mt-2 mb-0 text-[1.1rem] font-bold text-[--gray-900]">
-            {t("reportProblem")}
+          <h2 className="mt-2 mb-0 text-[1.1rem] font-bold text-(--gray-900)">
+            {t("hubReportProblem")}
           </h2>
         </div>
         {problemStatus === "sent" ? (
           <p className="text-center text-emerald-400 font-semibold text-base mb-5">
-            {t("sent")}
+            {t("hubSent")}
           </p>
         ) : (
           <>
             <textarea
               value={problem}
               onChange={(e) => setProblem(e.target.value)}
-              placeholder={t("problemPlaceholder")}
+              placeholder={t("hubProblemPlaceholder")}
               rows={4}
-              className="w-full box-border rounded-xl p-3 mb-3 bg-[var(--gray-50)] border border-[var(--surface-border)] text-[--gray-900] text-[0.9rem] resize-none outline-none"
+              className="w-full box-border rounded-xl p-3 mb-3 bg-(--gray-50) border border-(--surface-border) text-(--gray-900) text-[0.9rem] resize-none outline-none"
             />
             <button
               type="button"
               disabled={problemStatus === "sending" || !problem.trim()}
               onClick={handleProblemSubmit}
-              className={`w-full p-3 rounded-xl border-none text-white text-[0.9rem] font-bold mb-2.5 ${problem.trim() ? "bg-[var(--brand-500)] cursor-pointer" : "bg-[var(--brand-500)]/35 cursor-default"}`}
+              className={`w-full p-3 rounded-xl border-none text-white text-[0.9rem] font-bold mb-2.5 ${problem.trim() ? "bg-(--brand-500) cursor-pointer" : "bg-(--brand-500)/35 cursor-default"}`}
             >
-              {problemStatus === "sending" ? t("sending") : t("send")}
+              {problemStatus === "sending" ? t("hubSending") : t("hubSend")}
             </button>
           </>
         )}
         <button type="button" onClick={closeModal} className={MODAL_CLOSE_BTN}>
-          {t("close")}
+          {t("hubClose")}
         </button>
       </HubModal>
 
@@ -601,17 +531,17 @@ export function GuestHubClient({
                 "/assets/menu-icons/reception.png"
               }
               alt=""
-              className="w-[44px] h-[44px] block mx-auto object-contain mb-2"
+              className="w-11 h-11 block mx-auto object-contain mb-2"
             />
           )}
-          <h2 className="mt-2 mb-0 text-[1.1rem] font-bold text-[--gray-900]">
+          <h2 className="mt-2 mb-0 text-[1.1rem] font-bold text-(--gray-900)">
             {modal
               ? tiles.find((t) => t.id === modal)?.label[hubLang] || ""
               : ""}
           </h2>
         </div>
-        <p className="text-center text-[var(--gray-500)] text-[0.9rem] mb-5 leading-relaxed">
-          {t("contactReceptionDesc")}
+        <p className="text-center text-(--gray-500) text-[0.9rem] mb-5 leading-relaxed">
+          {t("hubContactReceptionDesc")}
         </p>
         {receptionPhone && (
           <a
@@ -622,7 +552,7 @@ export function GuestHubClient({
           </a>
         )}
         <button type="button" onClick={closeModal} className={MODAL_CLOSE_BTN}>
-          {t("close")}
+          {t("hubClose")}
         </button>
       </HubModal>
     </div>

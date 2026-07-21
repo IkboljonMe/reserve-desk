@@ -60,17 +60,17 @@ export default function Modal({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[2000] bg-slate-900/50 backdrop-blur-[6px] flex sm:items-center sm:justify-center sm:p-4 [animation:fadeIn_0.18s_ease]"
+      className="fixed inset-0 z-2000 bg-slate-900/50 backdrop-blur-[6px] flex sm:items-center sm:justify-center sm:p-4 animate-[fadeIn_0.18s_ease]"
       onClick={onClose}
     >
       <div
         role="dialog"
         aria-modal="true"
         onClick={(e) => e.stopPropagation()}
-        className={`bg-[var(--surface-card)] text-[--gray-800] flex flex-col w-full h-full sm:h-auto sm:max-h-[90dvh] sm:border sm:border-[var(--surface-border)] sm:shadow-[var(--shadow-xl)] [animation:slideUp_0.24s_cubic-bezier(0.16,1,0.3,1)] ${SIZE[size]}`}
+        className={`bg-(--surface-card) text-[--gray-800] flex flex-col w-full h-full sm:h-auto sm:max-h-[90dvh] sm:border sm:border-(--surface-border) sm:shadow-(--shadow-xl) animate-[slideUp_0.24s_cubic-bezier(0.16,1,0.3,1)] ${SIZE[size]}`}
       >
         {!hideHeader && (
-          <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-[var(--surface-border)] shrink-0">
+          <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-(--surface-border) shrink-0">
             <h2 className="m-0 text-[1.05rem] font-bold text-[--gray-800]">
               {title}
             </h2>
@@ -78,7 +78,7 @@ export default function Modal({
               type="button"
               onClick={onClose}
               aria-label={closeLabel}
-              className="w-8 h-8 inline-flex items-center justify-center rounded-lg text-[var(--gray-500)] hover:bg-(--gray-100) cursor-pointer shrink-0"
+              className="w-8 h-8 inline-flex items-center justify-center rounded-lg text-(--gray-500) hover:bg-(--gray-100) cursor-pointer shrink-0"
             >
               <X size={18} />
             </button>
@@ -90,7 +90,7 @@ export default function Modal({
         </div>
 
         {footer && (
-          <div className="px-5 py-4 border-t border-[var(--surface-border)] shrink-0">
+          <div className="px-5 py-4 border-t border-(--surface-border) shrink-0">
             {footer}
           </div>
         )}

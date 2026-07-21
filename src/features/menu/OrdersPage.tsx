@@ -11,7 +11,7 @@ import { ORDER_STATUS_META, nextStatus, ADVANCE_LABEL_KEY } from "./constants";
 import type { OrderStatus } from "./types";
 
 const CARD =
-  "bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-[var(--radius-lg)] shadow-sm";
+  "bg-(--surface-card) border border-(--surface-border) rounded-[var(--radius-lg)] shadow-sm";
 
 export default function OrdersPage() {
   const { t } = useTranslation();
@@ -35,7 +35,7 @@ export default function OrdersPage() {
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           {s.hotels.length > 1 && (
-            <div className="w-[180px]">
+            <div className="w-45">
               <Dropdown
                 value={s.hotelId}
                 onChange={s.setHotelId}
@@ -47,7 +47,7 @@ export default function OrdersPage() {
               />
             </div>
           )}
-          <div className="w-[150px]">
+          <div className="w-37.5">
             <Dropdown
               value={s.status}
               onChange={s.setStatus}
@@ -68,16 +68,14 @@ export default function OrdersPage() {
       </div>
 
       {s.loading ? (
-        <p className="text-[var(--gray-400)] text-sm">{t("loading")}</p>
+        <p className="text-(--gray-400) text-sm">{t("loading")}</p>
       ) : s.orders.length === 0 ? (
         <div
           className={`${CARD} p-10 flex flex-col items-center text-center gap-2`}
         >
-          <UtensilsCrossed size={26} className="text-[var(--gray-400)]" />
-          <h3 className="text-[var(--gray-700)] font-bold">
-            {t("noOrdersYet")}
-          </h3>
-          <p className="text-[var(--gray-500)] text-sm">{t("noOrdersDesc")}</p>
+          <UtensilsCrossed size={26} className="text-(--gray-400)" />
+          <h3 className="text-(--gray-700) font-bold">{t("noOrdersYet")}</h3>
+          <p className="text-[--gray-500] text-sm">{t("noOrdersDesc")}</p>
         </div>
       ) : (
         <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4">
@@ -94,7 +92,7 @@ export default function OrdersPage() {
                     <div className="text-[1.05rem] font-extrabold text-[--gray-800] leading-none">
                       {t("room")} {o.roomNumber}
                     </div>
-                    <div className="text-[0.72rem] text-[var(--gray-400)] mt-1">
+                    <div className="text-[0.72rem] text-(--gray-400) mt-1">
                       {format(new Date(o.createdAt), "HH:mm")}
                       {o.guestName ? ` · ${o.guestName}` : ""}
                     </div>
@@ -113,11 +111,11 @@ export default function OrdersPage() {
                       key={i}
                       className="flex justify-between gap-2 text-[0.85rem]"
                     >
-                      <span className="text-[var(--gray-700)] truncate">
+                      <span className="text-(--gray-700) truncate">
                         <span className="font-bold">{it.quantity}×</span>{" "}
                         {it.name}
                       </span>
-                      <span className="text-[var(--gray-500)] tabular-nums whitespace-nowrap">
+                      <span className="text-[--gray-500] tabular-nums whitespace-nowrap">
                         {money(it.price * it.quantity)}
                       </span>
                     </li>
@@ -125,13 +123,13 @@ export default function OrdersPage() {
                 </ul>
 
                 {o.note && (
-                  <p className="text-[0.78rem] text-[var(--gray-500)] italic border-l-2 border-[var(--surface-border)] pl-2">
+                  <p className="text-[0.78rem] text-[--gray-500] italic border-l-2 border-(--surface-border) pl-2">
                     {o.note}
                   </p>
                 )}
 
-                <div className="flex items-center justify-between border-t border-[var(--surface-border)] pt-2.5">
-                  <span className="text-[0.72rem] text-[var(--gray-400)] uppercase tracking-wide">
+                <div className="flex items-center justify-between border-t border-(--surface-border) pt-2.5">
+                  <span className="text-[0.72rem] text-(--gray-400) uppercase tracking-wide">
                     {t("total")}
                   </span>
                   <span className="text-[0.95rem] font-extrabold text-[--gray-800] tabular-nums">
