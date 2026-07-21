@@ -20,7 +20,7 @@ export function GroupList({ s }: { s: ClientGroupsPageState }) {
   } = s;
 
   return (
-    <div className="bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-[var(--radius-lg)] shadow-sm p-0 overflow-hidden">
+    <div className="bg-(--surface-card) border border-(--surface-border) rounded-[var(--radius-lg)] shadow-sm p-0 overflow-hidden">
       {loading ? (
         <table className="w-full border-collapse">
           <tbody>

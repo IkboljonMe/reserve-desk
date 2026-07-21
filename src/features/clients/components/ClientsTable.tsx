@@ -22,7 +22,7 @@ export function ClientsTable({ s }: { s: ClientsPageState }) {
   } = s;
 
   return (
-    <div className="bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-[var(--radius-lg)] shadow-sm p-0 overflow-hidden">
+    <div className="bg-(--surface-card) border border-(--surface-border) rounded-(--radius-lg) shadow-sm p-0 overflow-hidden">
       {loading ? (
         <table className="w-full border-collapse text-sm">
           <tbody>
@@ -57,9 +57,9 @@ export function ClientsTable({ s }: { s: ClientsPageState }) {
         </EmptyState>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse text-sm min-w-[720px]">
+          <table className="w-full border-collapse text-sm min-w-180">
             <thead>
-              <tr className="border-b border-[var(--gray-200,#e5e7eb)] bg-[var(--gray-50,#f9fafb)]">
+              <tr className="border-b border-(--gray-200,#e5e7eb) bg-(--gray-50,#f9fafb)">
                 {[
                   ["guest", t("guest")],
                   ["group", t("group")],
@@ -71,7 +71,7 @@ export function ClientsTable({ s }: { s: ClientsPageState }) {
                 ].map(([key, col]) => (
                   <th
                     key={key}
-                    className="px-4 py-2.5 text-left font-semibold text-[var(--gray-500,#6b7280)] text-xs"
+                    className="px-4 py-2.5 text-left font-semibold text-(--gray-500,#6b7280) text-xs"
                   >
                     {col}
                   </th>
@@ -82,11 +82,11 @@ export function ClientsTable({ s }: { s: ClientsPageState }) {
               {clients.map((c, i) => (
                 <tr
                   key={c._id}
-                  className={`border-b border-[var(--gray-100,#f3f4f6)] ${i % 2 === 0 ? "bg-white" : "bg-[var(--gray-50,#f9fafb)]"}`}
+                  className={`border-b border-(--gray-100,#f3f4f6) ${i % 2 === 0 ? "bg-white" : "bg-(--gray-50,#f9fafb)"}`}
                 >
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-full bg-[var(--brand-50,#eef2ff)] text-[var(--brand-600,#4f46e5)] flex items-center justify-center font-bold text-[0.8125rem] shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-(--brand-50,#eef2ff) text-(--brand-600,#4f46e5) flex items-center justify-center font-bold text-[0.8125rem] shrink-0">
                         {c.name.charAt(0).toUpperCase()}
                       </div>
                       <span className="font-semibold text-[--gray-800]">
@@ -115,7 +115,7 @@ export function ClientsTable({ s }: { s: ClientsPageState }) {
                   </td>
                   <td className="px-4 py-3">
                     {c.roomNumber ? (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[var(--brand-50,#eef2ff)] text-[var(--brand-700,#4338ca)] font-semibold text-[0.8125rem]">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-(--brand-50,#eef2ff) text-(--brand-700,#4338ca) font-semibold text-[0.8125rem]">
                         <BedDouble size={12} /> {c.roomNumber}
                       </span>
                     ) : (
@@ -128,7 +128,7 @@ export function ClientsTable({ s }: { s: ClientsPageState }) {
                   <td className="px-4 py-3 text-gray-600">
                     {c.phone || <span className="text-gray-300">—</span>}
                   </td>
-                  <td className="px-4 py-3 text-[var(--gray-500)] text-[0.8125rem] max-w-[200px] truncate">
+                  <td className="px-4 py-3 text-(--gray-500) text-[0.8125rem] max-w-50 truncate">
                     {c.notes || "—"}
                   </td>
                   <td className="px-4 py-3">

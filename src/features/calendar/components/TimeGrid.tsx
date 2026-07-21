@@ -154,7 +154,7 @@ export default function TimeGrid({
   return (
     <div style={{ minWidth: days.length > 1 ? 640 : undefined }}>
       {/* Sticky header */}
-      <div className="flex pl-[58px] sticky top-0 z-[6] bg-[var(--surface-card)] border-b border-[var(--gray-200)]">
+      <div className="flex pl-14.5 sticky top-0 z-6 bg-(--surface-card) border-b border-(--gray-200)">
         {days.map((day) => {
           const isToday = isSameDay(day, today);
           const isWeekend = [0, 6].includes(day.getDay());
@@ -163,32 +163,32 @@ export default function TimeGrid({
             <div
               key={day.toISOString()}
               onClick={clickable ? () => onDayHeaderClick!(day) : undefined}
-              className={`flex-1 text-center p-[9px_4px_8px] border-l border-[var(--gray-100)] ${
+              className={`flex-1 text-center p-[9px_4px_8px] border-l border-(--gray-100) ${
                 clickable ? "cursor-pointer" : "cursor-default"
               } ${
                 isToday
-                  ? "bg-[var(--brand-50)] border-b-2 border-b-[var(--brand-500)]"
-                  : "bg-transparent border-b-2 border-b-transparent -mb-[1px]"
+                  ? "bg-(--brand-50) border-b-2 border-b-(--brand-500)"
+                  : "bg-transparent border-b-2 border-b-transparent -mb-px"
               }`}
             >
               <div
                 className={`text-[0.68rem] uppercase tracking-wider font-bold ${
                   isToday
-                    ? "text-[var(--brand-600)]"
+                    ? "text-(--brand-600)"
                     : isWeekend
-                      ? "text-[var(--gray-300)]"
-                      : "text-[var(--gray-400)]"
+                      ? "text-(--gray-300)"
+                      : "text-(--gray-400)"
                 }`}
               >
                 {format(day, "EEE", { locale })}
               </div>
               <div
-                className={`w-[30px] h-[30px] rounded-full mx-auto mt-0.75 flex items-center justify-center text-[0.9375rem] ${
+                className={`w-7.5 h-7.5 rounded-full mx-auto mt-0.75 flex items-center justify-center text-[0.9375rem] ${
                   isToday
-                    ? "bg-[var(--brand-500)] text-white shadow-[0_2px_8px_rgba(99,102,241,0.4)] font-bold"
+                    ? "bg-(--brand-500) text-white shadow-[0_2px_8px_rgba(99,102,241,0.4)] font-bold"
                     : isWeekend
-                      ? "text-[var(--gray-400)] font-semibold"
-                      : "text-[var(--gray-700)] font-semibold"
+                      ? "text-(--gray-400) font-semibold"
+                      : "text-(--gray-700) font-semibold"
                 }`}
               >
                 {format(day, "d")}
@@ -206,11 +206,11 @@ export default function TimeGrid({
           return (
             <div key={h}>
               <div
-                className="absolute left-[58px] right-0 border-t border-[var(--gray-100)]"
+                className="absolute left-14.5 right-0 border-t border-(--gray-100)"
                 style={{ top }}
               />
               <div
-                className={`absolute left-0 w-[48px] text-right text-[0.68rem] text-[var(--gray-400)] tabular-nums bg-[var(--surface-card)] pr-0.5 ${
+                className={`absolute left-0 w-12 text-right text-[0.68rem] text-(--gray-400) tabular-nums bg-(--surface-card) pr-0.5 ${
                   h === startHour ? "translate-y-0 mt-0.5" : "-translate-y-1/2"
                 }`}
                 style={{
@@ -226,7 +226,7 @@ export default function TimeGrid({
         {hours.slice(0, -1).map((h) => (
           <div
             key={`half-${h}`}
-            className="absolute left-[58px] right-0 border-t border-dashed border-[var(--gray-100)] opacity-50"
+            className="absolute left-14.5 right-0 border-t border-dashed border-(--gray-100) opacity-50"
             style={{
               top: (h * 60 + 30 - startMin) * ppm,
             }}
@@ -234,7 +234,7 @@ export default function TimeGrid({
         ))}
 
         {/* Day columns */}
-        <div className="absolute left-[58px] right-0 top-0 bottom-0 flex">
+        <div className="absolute left-14.5 right-0 top-0 bottom-0 flex">
           {days.map((day) => {
             const dateStr = format(day, "yyyy-MM-dd");
             const placed = packDay(bookingsForDay(dateStr));
@@ -249,7 +249,7 @@ export default function TimeGrid({
               <div
                 key={day.toISOString()}
                 onClick={(e) => handleColumnClick(e, day)}
-                className={`flex-1 relative border-l border-[var(--gray-100)] ${
+                className={`flex-1 relative border-l border-(--gray-100) ${
                   isPastDay ? "cursor-not-allowed" : "cursor-pointer"
                 } ${
                   isToday
@@ -261,12 +261,12 @@ export default function TimeGrid({
               >
                 {/* Disabled overlay for past days */}
                 {isPastDay && (
-                  <div className="absolute top-0 left-0 right-0 bottom-0 bg-[var(--gray-300)] opacity-[0.25] cursor-not-allowed z-[1]" />
+                  <div className="absolute top-0 left-0 right-0 bottom-0 bg-(--gray-300) opacity-[0.25] cursor-not-allowed z-1" />
                 )}
                 {/* Disabled overlay for past hours of today */}
                 {isToday && (
                   <div
-                    className="absolute top-0 left-0 right-0 bg-[var(--gray-300)] opacity-[0.25] cursor-not-allowed z-[1]"
+                    className="absolute top-0 left-0 right-0 bg-(--gray-300) opacity-[0.25] cursor-not-allowed z-1"
                     style={{
                       height: Math.max(
                         0,
@@ -288,11 +288,11 @@ export default function TimeGrid({
                 ))}
                 {isToday && nowVisible && (
                   <div
-                    className="absolute left-0 right-0 z-[9] pointer-events-none"
+                    className="absolute left-0 right-0 z-9 pointer-events-none"
                     style={{ top: (nowMin - startMin) * ppm }}
                   >
-                    <div className="absolute -left-[5px] -top-[5px] w-[11px] h-[11px] rounded-full bg-[var(--brand-500)] border-2 border-white shadow-[0_0_0_1px_var(--brand-500)]" />
-                    <div className="border-t-2 border-t-[var(--brand-500)] shadow-[0_0_6px_rgba(99,102,241,0.35)]" />
+                    <div className="absolute -left-1.25 -top-1.25 w-2.75 h-2.75 rounded-full bg-(--brand-500) border-2 border-white shadow-[0_0_0_1px_var(--brand-500)]" />
+                    <div className="border-t-2 border-t-(--brand-500) shadow-[0_0_6px_rgba(99,102,241,0.35)]" />
                   </div>
                 )}
               </div>
@@ -303,12 +303,12 @@ export default function TimeGrid({
         {/* Current-time label in the gutter */}
         {todayInRange && nowVisible && (
           <div
-            className="absolute left-0 w-[52px] -translate-y-1/2 z-10 pointer-events-none flex justify-end"
+            className="absolute left-0 w-13 -translate-y-1/2 z-10 pointer-events-none flex justify-end"
             style={{
               top: (nowMin - startMin) * ppm,
             }}
           >
-            <span className="bg-[var(--brand-500)] text-white text-[0.66rem] font-bold p-[1px_6px] rounded-md tabular-nums shadow-[0_2px_6px_rgba(99,102,241,0.4)] tracking-wide">
+            <span className="bg-(--brand-500) text-white text-[0.66rem] font-bold p-[1px_6px] rounded-md tabular-nums shadow-[0_2px_6px_rgba(99,102,241,0.4)] tracking-wide">
               {fromMin(nowMin)}
             </span>
           </div>
@@ -343,7 +343,7 @@ function EventBlock({
   if (b.masked) {
     return (
       <div
-        className={`absolute overflow-hidden transition-all duration-120 box-border border border-[var(--gray-300)] border-l-[3px] border-l-[var(--gray-400)] cursor-default text-[var(--gray-500)] z-[2] ${
+        className={`absolute overflow-hidden transition-all duration-120 box-border border border-(--gray-300) border-l-[3px] border-l-(--gray-400) cursor-default text-(--gray-500) z-2 ${
           height > 34 ? "p-[3px_6px]" : "p-[1px_6px]"
         }`}
         title={`${b.startTime}–${b.endTime} · ${t("occupied")}`}
@@ -375,7 +375,7 @@ function EventBlock({
 
   return (
     <div
-      className={`absolute overflow-hidden cursor-pointer transition-all duration-120 box-border hover:shadow-[0_6px_16px_rgba(0,0,0,0.14)] hover:-translate-y-[1px] hover:z-[5] hover:saturate-[1.15] border-l-[3px] z-[2] ${
+      className={`absolute overflow-hidden cursor-pointer transition-all duration-120 box-border hover:shadow-[0_6px_16px_rgba(0,0,0,0.14)] hover:-translate-y-px hover:z-5 hover:saturate-[1.15] border-l-[3px] z-2 ${
         height > 34 ? "p-[3px_6px]" : "p-[1px_6px]"
       }`}
       title={`${b.startTime}–${b.endTime} · ${b.customerName}${b.roomNumber ? ` · Room ${b.roomNumber}` : ""} · ${
@@ -395,7 +395,7 @@ function EventBlock({
         borderLeftColor: finished ? "#10b981" : color,
       }}
     >
-      <span className="absolute top-[3px] right-[3px] z-[2]">
+      <span className="absolute top-0.75 right-0.75 z-2">
         {finished ? (
           <span
             title={t("completed")}
@@ -432,13 +432,13 @@ function EventBlock({
         </div>
       )}
       {height > 52 && b.roomNumber && (
-        <div className="text-[0.64rem] text-[var(--gray-500)] overflow-hidden whitespace-nowrap text-ellipsis">
+        <div className="text-[0.64rem] text-(--gray-500) overflow-hidden whitespace-nowrap text-ellipsis">
           {b.customerName}
         </div>
       )}
       {height > 68 && (
         <div
-          className="text-[0.62rem] font-semibold overflow-hidden whitespace-nowrap text-ellipsis mt-[1px]"
+          className="text-[0.62rem] font-semibold overflow-hidden whitespace-nowrap text-ellipsis mt-px"
           style={{ color }}
         >
           {b.serviceId?.name}

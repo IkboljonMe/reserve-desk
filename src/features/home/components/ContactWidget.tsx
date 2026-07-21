@@ -67,7 +67,7 @@ export function ContactWidget(p: Props) {
     return (
       <button
         type="button"
-        className="fixed right-5 bottom-5 z-[1200] w-14 h-14 rounded-full border-none cursor-pointer bg-[linear-gradient(135deg,#4f6ef7,#3b5bdb)] text-white shadow-[0_12px_30px_rgba(79,110,247,0.42)] inline-flex items-center justify-center transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 hover:shadow-[0_16px_36px_rgba(79,110,247,0.5)]"
+        className="fixed right-5 bottom-5 z-1200 w-14 h-14 rounded-full border-none cursor-pointer bg-[linear-gradient(135deg,#4f6ef7,#3b5bdb)] text-white shadow-[0_12px_30px_rgba(79,110,247,0.42)] inline-flex items-center justify-center transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 hover:shadow-[0_16px_36px_rgba(79,110,247,0.5)]"
         onClick={() => setOpen(true)}
         aria-label={p.title}
       >
@@ -78,13 +78,13 @@ export function ContactWidget(p: Props) {
 
   return (
     <div
-      className="fixed right-5 bottom-5 z-[1200] w-[min(340px,calc(100vw-32px))] bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] p-[18px_18px_16px] animate-contact-in transition-colors duration-200"
+      className="fixed right-5 bottom-5 z-1200 w-[min(340px,calc(100vw-32px))] bg-(--surface-card) border border-(--surface-border) rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] p-[18px_18px_16px] animate-contact-in transition-colors duration-200"
       role="dialog"
       aria-label={p.title}
     >
       <button
         type="button"
-        className="absolute top-2.5 right-2.5 w-7 h-7 border-none bg-(--gray-100) hover:bg-[var(--gray-200)] rounded-lg text-[var(--gray-500)] cursor-pointer inline-flex items-center justify-center transition-colors"
+        className="absolute top-2.5 right-2.5 w-7 h-7 border-none bg-(--gray-100) hover:bg-(--gray-200) rounded-lg text-[--gray-500] cursor-pointer inline-flex items-center justify-center transition-colors"
         onClick={() => setOpen(false)}
         aria-label={p.closeLabel}
       >
@@ -98,16 +98,16 @@ export function ContactWidget(p: Props) {
       ) : (
         <form onSubmit={submit}>
           <div className="flex items-center gap-2 text-[0.98rem] text-[--gray-900]">
-            <span className="inline-flex w-7 h-7 rounded-lg items-center justify-center bg-[var(--brand-50)]/50 text-[var(--brand-500)] dark:text-white">
+            <span className="inline-flex w-7 h-7 rounded-lg items-center justify-center bg-(--brand-50)/50 text-(--brand-500) dark:text-white">
               <PhoneCall size={16} />
             </span>
             <strong>{p.title}</strong>
           </div>
-          <p className="my-2 text-[0.82rem] text-[var(--gray-500)] leading-[1.5]">
+          <p className="my-2 text-[0.82rem] text-[--gray-500] leading-normal">
             {p.desc}
           </p>
           <input
-            className="w-full box-border px-3 py-2.5 mb-2 border border-[var(--surface-border)] bg-[--surface-bg] text-[--gray-900] placeholder:text-[var(--gray-400)] rounded-xl text-sm outline-none focus:border-[#4f6ef7] focus:shadow-[0_0_0_3px_rgba(79,110,247,0.14)] transition-colors"
+            className="w-full box-border px-3 py-2.5 mb-2 border border-(--surface-border) bg-[--surface-bg] text-[--gray-900] placeholder:text-(--gray-400) rounded-xl text-sm outline-none focus:border-brand-500 focus:shadow-[0_0_0_3px_rgba(79,110,247,0.14)] transition-colors"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder={p.namePlaceholder}
@@ -115,7 +115,7 @@ export function ContactWidget(p: Props) {
             maxLength={120}
           />
           <input
-            className="w-full box-border px-3 py-2.5 mb-2 border border-[var(--surface-border)] bg-[--surface-bg] text-[--gray-900] placeholder:text-[var(--gray-400)] rounded-xl text-sm outline-none focus:border-[#4f6ef7] focus:shadow-[0_0_0_3px_rgba(79,110,247,0.14)] transition-colors"
+            className="w-full box-border px-3 py-2.5 mb-2 border border-(--surface-border) bg-[--surface-bg] text-[--gray-900] placeholder:text-(--gray-400) rounded-xl text-sm outline-none focus:border-brand-500 focus:shadow-[0_0_0_3px_rgba(79,110,247,0.14)] transition-colors"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             placeholder={p.phonePlaceholder}
@@ -124,12 +124,12 @@ export function ContactWidget(p: Props) {
             maxLength={40}
           />
           {status === "error" && (
-            <div className="text-[0.75rem] text-[var(--danger)] mb-2">
+            <div className="text-[0.75rem] text-(--danger) mb-2">
               {p.errorMsg}
             </div>
           )}
           <button
-            className="w-full py-[11px] border-none rounded-xl bg-[linear-gradient(135deg,#4f6ef7,#3b5bdb)] text-white font-bold text-[0.9rem] cursor-pointer disabled:opacity-60 disabled:cursor-default"
+            className="w-full py-2.75 border-none rounded-xl bg-[linear-gradient(135deg,#4f6ef7,#3b5bdb)] text-white font-bold text-[0.9rem] cursor-pointer disabled:opacity-60 disabled:cursor-default"
             type="submit"
             disabled={status === "sending"}
           >

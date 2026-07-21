@@ -123,7 +123,7 @@ export default function Dropdown({
       className={`flex flex-col gap-1.5 w-full relative box-border ${containerClassName}`.trim()}
     >
       {label && (
-        <span className="text-[0.8125rem] font-semibold text-[var(--gray-700,#374151)] tracking-tight">
+        <span className="text-[0.8125rem] font-semibold text-(--gray-700,#374151) tracking-tight">
           {label}
         </span>
       )}
@@ -141,14 +141,14 @@ export default function Dropdown({
           aria-activedescendant={
             open && activeIndex >= 0 ? `${listId}-${activeIndex}` : undefined
           }
-          className={`w-full flex items-center gap-2.5 px-3 py-2.5 min-h-[40px] border border-[var(--surface-border)] rounded-lg bg-[var(--surface-card)] text-[0.8125rem] font-medium text-[--gray-800] cursor-pointer outline-none text-left transition-all duration-150 box-border hover:not-disabled:border-[var(--gray-400)] focus-visible:border-[var(--brand-500,#6366f1)] focus-visible:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] disabled:opacity-60 disabled:cursor-not-allowed disabled:bg-[var(--gray-50)] ${
+          className={`w-full flex items-center gap-2.5 px-3 py-2.5 min-h-10 border border-(--surface-border) rounded-lg bg-(--surface-card) text-[0.8125rem] font-medium text-[--gray-800] cursor-pointer outline-none text-left transition-all duration-150 box-border hover:not-disabled:border-(--gray-400) focus-visible:border-(--brand-500,#6366f1) focus-visible:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] disabled:opacity-60 disabled:cursor-not-allowed disabled:bg-(--gray-50) ${
             open
-              ? "border-[var(--brand-500,#6366f1)] ring-2 ring-[var(--brand-500)]/15 shadow-sm"
+              ? "border-(--brand-500,#6366f1) ring-2 ring-(--brand-500)/15 shadow-sm"
               : ""
-          } ${error ? "border-[var(--color-danger,#ef4444)] focus-visible:shadow-[0_0_0_3px_rgba(239,68,68,0.14)]" : ""}`}
+          } ${error ? "border-(--color-danger,#ef4444) focus-visible:shadow-[0_0_0_3px_rgba(239,68,68,0.14)]" : ""}`}
         >
           {icon && (
-            <span className="inline-flex shrink-0 text-[var(--brand-600)]">
+            <span className="inline-flex shrink-0 text-(--brand-600)">
               {icon}
             </span>
           )}
@@ -156,7 +156,7 @@ export default function Dropdown({
             className={`flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap ${
               selected && selected.value
                 ? "text-[--gray-900] font-semibold"
-                : "text-[var(--gray-400)]"
+                : "text-(--gray-400)"
             }`}
           >
             {selected && selected.value ? selected.label : placeholder}
@@ -164,8 +164,8 @@ export default function Dropdown({
           <ChevronDown
             size={16}
             aria-hidden="true"
-            className={`shrink-0 text-[var(--gray-400)] transition-transform duration-150 ease-out ${
-              open ? "rotate-180 text-[var(--brand-500)]" : "rotate-0"
+            className={`shrink-0 text-(--gray-400) transition-transform duration-150 ease-out ${
+              open ? "rotate-180 text-(--brand-500)" : "rotate-0"
             }`}
           />
         </button>
@@ -176,7 +176,7 @@ export default function Dropdown({
             id={listId}
             role="listbox"
             tabIndex={-1}
-            className="absolute top-[calc(100%+6px)] left-0 right-0 z-[9999] list-none m-0 p-1.5 bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-lg shadow-[0_12px_32px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.04)] max-h-[240px] overflow-y-auto box-border"
+            className="absolute top-[calc(100%+6px)] left-0 right-0 z-9999 list-none m-0 p-1.5 bg-(--surface-card) border border-(--surface-border) rounded-lg shadow-[0_12px_32px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.04)] max-h-60 overflow-y-auto box-border"
           >
             {options.map((opt, idx) => {
               const isSelected = opt.value === value;
@@ -195,8 +195,8 @@ export default function Dropdown({
                   }}
                   className={`flex items-center justify-between gap-2 p-2 rounded-md cursor-pointer text-[0.8125rem] transition-all duration-100 ease-in-out box-border ${
                     isSelected
-                      ? "font-bold text-[var(--brand-600,#4f6ef7)] bg-[var(--brand-50)]/30 dark:bg-[var(--brand-500)]/15 hover:bg-[var(--brand-50)]/50"
-                      : "text-[var(--gray-700)] hover:bg-[var(--gray-50)] hover:text-[--gray-900]"
+                      ? "font-bold text-(--brand-600,#4f6ef7) bg-(--brand-50)/30 dark:bg-(--brand-500)/15 hover:bg-(--brand-50)/50"
+                      : "text-(--gray-700) hover:bg-(--gray-50) hover:text-[--gray-900]"
                   } ${isActive && !isSelected ? "bg-(--gray-100) text-[--gray-900]" : ""}`}
                 >
                   <span className="flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">
@@ -206,7 +206,7 @@ export default function Dropdown({
                     <Check
                       size={15}
                       aria-hidden="true"
-                      className="shrink-0 text-[var(--brand-500)]"
+                      className="shrink-0 text-(--brand-500)"
                     />
                   )}
                 </li>
@@ -217,7 +217,7 @@ export default function Dropdown({
       </div>
 
       {error && (
-        <span className="text-[0.75rem] text-[var(--color-danger,#ef4444)] font-medium">
+        <span className="text-[0.75rem] text-(--color-danger,#ef4444) font-medium">
           {error}
         </span>
       )}

@@ -23,7 +23,7 @@ import { RecommendationsModal } from "./components/RecommendationsModal";
 import { MenuSettingsPanel } from "./components/MenuSettingsPanel";
 
 const CARD =
-  "bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-[var(--radius-lg)] shadow-sm";
+  "bg-(--surface-card) border border-(--surface-border) rounded-[var(--radius-lg)] shadow-sm";
 
 type Tab = "menu" | "settings";
 
@@ -46,7 +46,7 @@ export default function MenuPage() {
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           {s.hotels.length > 1 && (
-            <div className="w-[200px]">
+            <div className="w-50">
               <Dropdown
                 value={s.hotelId}
                 onChange={s.setHotelId}
@@ -85,14 +85,14 @@ export default function MenuPage() {
       </div>
 
       {/* Tab switcher */}
-      <div className="flex gap-1 p-1 bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-xl mb-5 w-fit">
+      <div className="flex gap-1 p-1 bg-(--surface-card) border border-(--surface-border) rounded-xl mb-5 w-fit">
         <button
           type="button"
           onClick={() => setTab("menu")}
           className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[0.82rem] font-semibold transition-all cursor-pointer border-none ${
             tab === "menu"
-              ? "bg-[var(--brand-500)] text-white shadow-sm"
-              : "text-[var(--gray-500)] bg-transparent hover:text-[var(--gray-700)]"
+              ? "bg-[--brand-500] text-white shadow-sm"
+              : "text-[--gray-500] bg-transparent hover:text-(--gray-700)"
           }`}
         >
           <UtensilsCrossed size={13} />
@@ -103,8 +103,8 @@ export default function MenuPage() {
           onClick={() => setTab("settings")}
           className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[0.82rem] font-semibold transition-all cursor-pointer border-none ${
             tab === "settings"
-              ? "bg-[var(--brand-500)] text-white shadow-sm"
-              : "text-[var(--gray-500)] bg-transparent hover:text-[var(--gray-700)]"
+              ? "bg-[--brand-500] text-white shadow-sm"
+              : "text-[--gray-500] bg-transparent hover:text-(--gray-700)"
           }`}
         >
           <Settings size={13} />
@@ -115,18 +115,16 @@ export default function MenuPage() {
       {tab === "settings" ? (
         <MenuSettingsPanel s={ss} hotelSlug={selectedHotel?.slug || ""} />
       ) : s.loading ? (
-        <p className="text-[var(--gray-400)] text-sm">{t("loading")}</p>
+        <p className="text-(--gray-400) text-sm">{t("loading")}</p>
       ) : s.categories.length === 0 ? (
         <div
           className={`${CARD} p-10 flex flex-col items-center text-center gap-2`}
         >
-          <UtensilsCrossed size={26} className="text-[var(--gray-400)]" />
-          <h3 className="text-[var(--gray-700)] font-bold">
+          <UtensilsCrossed size={26} className="text-(--gray-400)" />
+          <h3 className="text-(--gray-700) font-bold">
             {t("noCategoriesYet")}
           </h3>
-          <p className="text-[var(--gray-500)] text-sm">
-            {t("noCategoriesDesc")}
-          </p>
+          <p className="text-[--gray-500] text-sm">{t("noCategoriesDesc")}</p>
           <Button
             className="mt-2"
             leftIcon={<Plus size={14} strokeWidth={2.5} />}
@@ -142,7 +140,7 @@ export default function MenuPage() {
             const cname = cat.nameI18n?.[lang] || cat.name;
             return (
               <div key={cat._id} className={CARD}>
-                <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-[var(--surface-border)]">
+                <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-(--surface-border)">
                   <h2 className="text-[1rem] font-bold text-[--gray-800] m-0">
                     {cname}
                   </h2>
@@ -190,18 +188,18 @@ export default function MenuPage() {
                         onClick={() => setConfirmId(cat._id)}
                         aria-label={t("delete")}
                       >
-                        <Trash2 size={14} className="text-[var(--danger)]" />
+                        <Trash2 size={14} className="text-(--danger)" />
                       </Button>
                     )}
                   </div>
                 </div>
 
                 {prods.length === 0 ? (
-                  <p className="px-4 py-4 text-sm text-[var(--gray-400)]">
+                  <p className="px-4 py-4 text-sm text-(--gray-400)">
                     {t("noProductsYet")}
                   </p>
                 ) : (
-                  <ul className="list-none m-0 p-0 divide-y divide-[var(--surface-border)]">
+                  <ul className="list-none m-0 p-0 divide-y divide-(--surface-border)">
                     {prods.map((p) => {
                       const pname = p.nameI18n?.[lang] || p.name;
                       return (
@@ -222,18 +220,18 @@ export default function MenuPage() {
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2">
                               <span
-                                className={`font-semibold text-[0.9rem] truncate ${p.available ? "text-[--gray-800]" : "text-[var(--gray-400)] line-through"}`}
+                                className={`font-semibold text-[0.9rem] truncate ${p.available ? "text-[--gray-800]" : "text-(--gray-400) line-through"}`}
                               >
                                 {pname}
                               </span>
                               {!p.available && (
-                                <span className="text-[0.68rem] font-bold text-[var(--gray-400)] uppercase">
+                                <span className="text-[0.68rem] font-bold text-(--gray-400) uppercase">
                                   {t("unavailable")}
                                 </span>
                               )}
                             </div>
                           </div>
-                          <span className="text-[0.85rem] font-bold text-[var(--gray-700)] tabular-nums whitespace-nowrap">
+                          <span className="text-[0.85rem] font-bold text-(--gray-700) tabular-nums whitespace-nowrap">
                             {money(p.price)} {t("sum")}
                           </span>
                           <div className="flex items-center gap-1.5 shrink-0">
@@ -272,10 +270,7 @@ export default function MenuPage() {
                                 onClick={() => setConfirmId(p._id)}
                                 aria-label={t("delete")}
                               >
-                                <Trash2
-                                  size={14}
-                                  className="text-[var(--danger)]"
-                                />
+                                <Trash2 size={14} className="text-(--danger)" />
                               </Button>
                             )}
                           </div>

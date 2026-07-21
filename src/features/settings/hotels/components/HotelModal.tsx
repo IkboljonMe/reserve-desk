@@ -53,11 +53,11 @@ export function HotelModal({ s }: { s: HotelsRoomsPageState }) {
         <form onSubmit={handleSubmitHotel}>
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+              <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                 {t("fullHotelName")} *
               </label>
               <input
-                className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+                className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
                 required
                 value={hotelForm.name}
                 onChange={(e) => onHotelNameChange(e.target.value)}
@@ -67,11 +67,11 @@ export function HotelModal({ s }: { s: HotelsRoomsPageState }) {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+              <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                 {t("shortCode")} *
               </label>
               <input
-                className={`w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border text-[--gray-800] uppercase font-semibold tracking-wider hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] ${
+                className={`w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border text-[--gray-800] uppercase font-semibold tracking-wider hover:border-[var(--gray-300)] focus:border-(--brand-500,#6366f1) ${
                   shortNameError
                     ? "border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.14)]"
                     : "border-[var(--gray-200,#e5e7eb)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
@@ -88,18 +88,18 @@ export function HotelModal({ s }: { s: HotelsRoomsPageState }) {
                   {shortNameError}
                 </small>
               ) : (
-                <small className="mt-1 text-xs text-[var(--gray-400)] block">
+                <small className="mt-1 text-xs text-(--gray-400) block">
                   {t("shortCodeHint", { code: hotelForm.shortName || "FG" })}
                 </small>
               )}
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+              <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                 {t("hotelSlug")}
               </label>
               <input
-                className={`w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] ${
+                className={`w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border text-[--gray-800] hover:border-[var(--gray-300)] focus:border-(--brand-500,#6366f1) ${
                   slugError
                     ? "border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.14)]"
                     : "border-[var(--gray-200,#e5e7eb)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
@@ -114,18 +114,18 @@ export function HotelModal({ s }: { s: HotelsRoomsPageState }) {
                   {slugError}
                 </small>
               ) : (
-                <small className="mt-1 text-xs text-[var(--gray-400)] block">
+                <small className="mt-1 text-xs text-(--gray-400) block">
                   {t("hotelSlugHint", { slug: hotelForm.slug || "…" })}
                 </small>
               )}
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+              <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                 {t("location")}
               </label>
               <input
-                className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+                className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
                 value={hotelForm.location}
                 onChange={(e) =>
                   setHotelForm((f) => ({ ...f, location: e.target.value }))
@@ -135,7 +135,7 @@ export function HotelModal({ s }: { s: HotelsRoomsPageState }) {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+              <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                 {t("roomCategories")}
               </label>
               {hotelForm.roomTypes.length > 0 && (
@@ -165,7 +165,7 @@ export function HotelModal({ s }: { s: HotelsRoomsPageState }) {
                 </div>
               )}
               <input
-                className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+                className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
                 value={roomCategoryInput}
                 onChange={(e) => setRoomCategoryInput(e.target.value)}
                 placeholder={t("categoryInputPlaceholder")}
@@ -183,7 +183,7 @@ export function HotelModal({ s }: { s: HotelsRoomsPageState }) {
                   }
                 }}
               />
-              <small className="mt-1 text-xs text-[var(--gray-400)] block">
+              <small className="mt-1 text-xs text-(--gray-400) block">
                 {t("roomCategoriesHint")}
               </small>
             </div>

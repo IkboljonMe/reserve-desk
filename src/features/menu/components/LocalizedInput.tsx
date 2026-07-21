@@ -7,7 +7,7 @@ import { MENU_LANGS, MENU_LANG_LABELS, type MenuLang } from "@/lib/menu";
 import type { LocalizedText } from "../types";
 
 export const FIELD_INPUT =
-  "flex-1 min-w-0 px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] disabled:bg-[var(--gray-50)] disabled:text-[var(--gray-500)]";
+  "flex-1 min-w-0 px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] disabled:bg-[var(--gray-50)] disabled:text-[--gray-500]";
 
 // A translatable text field: language tabs (10 — MENU_LANGS) editing a
 // LocalizedText value in place, plus a "Translate" button (Google Translate,
@@ -85,14 +85,14 @@ export function LocalizedInput({
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex items-center justify-between gap-2">
-        <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+        <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
           {label}
         </label>
         <button
           type="button"
           onClick={translateAll}
           disabled={translating || !value[sourceLang]?.trim()}
-          className="inline-flex items-center gap-1 text-[0.7rem] font-semibold text-[var(--brand-600)] hover:text-[var(--brand-700)] disabled:opacity-40 disabled:cursor-not-allowed"
+          className="inline-flex items-center gap-1 text-[0.7rem] font-semibold text-(--brand-600) hover:text-(--brand-700) disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <Languages size={12} />
           {translating ? t("translating") : t("translateAll")}
@@ -107,10 +107,10 @@ export function LocalizedInput({
             onClick={() => setActiveLang(lang)}
             className={`px-2 py-1 rounded-md text-[0.7rem] font-bold whitespace-nowrap transition-colors ${
               activeLang === lang
-                ? "bg-[var(--brand-500)] text-white"
+                ? "bg-[--brand-500] text-white"
                 : isLocked(lang)
-                  ? "bg-(--gray-100) text-[var(--gray-400)]"
-                  : "bg-(--gray-100) text-[--gray-600] hover:bg-[var(--gray-200)]"
+                  ? "bg-(--gray-100) text-(--gray-400)"
+                  : "bg-(--gray-100) text-[--gray-600] hover:bg-(--gray-200)"
             }`}
           >
             {lang === sourceLang && "★ "}
@@ -125,7 +125,7 @@ export function LocalizedInput({
       <div className="flex items-start gap-2">
         {textarea ? (
           <textarea
-            className={`${FIELD_INPUT} resize-y min-h-[52px]`}
+            className={`${FIELD_INPUT} resize-y min-h-13`}
             value={value[activeLang]}
             placeholder={placeholder}
             disabled={activeLang !== sourceLang && isLocked(activeLang)}
@@ -146,11 +146,11 @@ export function LocalizedInput({
         <label className="inline-flex items-center gap-1.5 cursor-pointer select-none">
           <input
             type="checkbox"
-            className="w-3.5 h-3.5 accent-[var(--brand-500)]"
+            className="w-3.5 h-3.5 accent-(--brand-500)"
             checked={isLocked(activeLang)}
             onChange={() => toggleLock(activeLang)}
           />
-          <span className="text-[0.72rem] text-[var(--gray-500)] font-medium">
+          <span className="text-[0.72rem] text-[--gray-500] font-medium">
             {t("keepOriginalLang")}
           </span>
         </label>

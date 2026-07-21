@@ -38,7 +38,7 @@ export function HotelsSection({ s }: { s: HotelsRoomsPageState }) {
             <Building2 size={18} className="text-[var(--brand-600)]" />{" "}
             {t("hotels")}
           </h2>
-          <p className="text-[0.8125rem] text-[var(--gray-500)] mt-0.5">
+          <p className="text-[0.8125rem] text-[--gray-500] mt-0.5">
             {t("hotelCodeDesc")}
           </p>
         </div>
@@ -56,7 +56,7 @@ export function HotelsSection({ s }: { s: HotelsRoomsPageState }) {
           ))}
         </div>
       ) : hotels.length === 0 ? (
-        <div className="bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-[var(--radius-lg)] shadow-sm p-0 overflow-hidden">
+        <div className="bg-(--surface-card) border border-(--surface-border) rounded-[var(--radius-lg)] shadow-sm p-0 overflow-hidden">
           <EmptyState icon={<Building2 size={26} />}>
             <h3 className="text-gray-700">{t("noHotelsAdded")}</h3>
             <p>{t("noHotelsDesc")}</p>
@@ -72,7 +72,7 @@ export function HotelsSection({ s }: { s: HotelsRoomsPageState }) {
             return (
               <div
                 key={hotel._id}
-                className="bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-[var(--radius-lg)] shadow-sm p-4.5 flex flex-col gap-3"
+                className="bg-(--surface-card) border border-(--surface-border) rounded-[var(--radius-lg)] shadow-sm p-4.5 flex flex-col gap-3"
               >
                 <div className="flex items-start gap-3">
                   <span className="inline-flex items-center justify-center min-w-[46px] h-10 px-2.5 rounded-lg bg-[var(--brand-500,#6366f1)] text-white font-bold text-[0.9375rem] tracking-wider shrink-0">
@@ -82,7 +82,7 @@ export function HotelsSection({ s }: { s: HotelsRoomsPageState }) {
                     <div className="font-semibold text-[--gray-800] text-[0.9375rem] overflow-hidden text-ellipsis whitespace-nowrap">
                       {hotel.name}
                     </div>
-                    <div className="text-[0.75rem] text-[var(--gray-400)] mt-0.5 flex items-center gap-1">
+                    <div className="text-[0.75rem] text-(--gray-400) mt-0.5 flex items-center gap-1">
                       <MapPin size={12} />{" "}
                       {hotel.location || t("noLocationSet")}
                     </div>
@@ -130,7 +130,7 @@ export function HotelsSection({ s }: { s: HotelsRoomsPageState }) {
                     </div>
                   )}
                 </div>
-                <div className="flex items-center gap-1.5 text-[0.75rem] text-[var(--gray-500)] pt-2.5 border-t border-[var(--surface-border)]">
+                <div className="flex items-center gap-1.5 text-[0.75rem] text-[--gray-500] pt-2.5 border-t border-(--surface-border)">
                   <BedDouble size={13} />
                   <span className="tabular-nums">{roomCount}</span>{" "}
                   {roomCount === 1 ? t("roomLower") : t("roomsLower")}

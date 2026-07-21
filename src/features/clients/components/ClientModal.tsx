@@ -47,11 +47,11 @@ export function ClientModal({ s }: { s: ClientsPageState }) {
         <form onSubmit={handleSave}>
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+              <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                 {t("fullName")} *
               </label>
               <input
-                className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+                className="w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
                 required
                 value={form.name}
                 onChange={(e) =>
@@ -62,11 +62,11 @@ export function ClientModal({ s }: { s: ClientsPageState }) {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+              <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                 {t("group")}
               </label>
               <select
-                className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+                className="w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
                 value={form.groupId}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, groupId: e.target.value }))
@@ -87,11 +87,11 @@ export function ClientModal({ s }: { s: ClientsPageState }) {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+              <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                 {t("phone")}
               </label>
               <input
-                className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+                className="w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
                 type="tel"
                 value={form.phone}
                 onChange={(e) =>
@@ -102,11 +102,11 @@ export function ClientModal({ s }: { s: ClientsPageState }) {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+              <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                 {t("notes")}
               </label>
               <textarea
-                className="w-full px-3 py-2 min-h-[72px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] resize-y"
+                className="w-full px-3 py-2 min-h-18 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] resize-y"
                 value={form.notes}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, notes: e.target.value }))

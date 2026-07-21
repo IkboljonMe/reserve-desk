@@ -1,9 +1,9 @@
-import Spinner from '@/components/ui/Spinner'
+import Spinner from "@/components/ui/Spinner";
 
 export default function Loading() {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '40vh' }}>
+    <div className="flex items-center justify-center min-h-[40vh]">
       <Spinner size={28} />
     </div>
-  )
+  );
 }

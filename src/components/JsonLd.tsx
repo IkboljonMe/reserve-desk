@@ -8,5 +8,5 @@ export function JsonLd({ data }: { data: Record<string, unknown> }) {
       // dictionaries/constants, not user input.
       dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
     />
-  )
+  );
 }

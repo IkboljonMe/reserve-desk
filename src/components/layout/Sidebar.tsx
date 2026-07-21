@@ -6,7 +6,7 @@ import { useTranslation, LANGUAGES, LanguageCode } from "@/i18n";
 import { useState, useEffect, useCallback } from "react";
 import { useBookingModal } from "@/components/BookingModalProvider";
 import { BrandMark } from "@/components/BrandMark";
-import { useTheme } from "@/components/ThemeProvider";
+import { useTheme } from "@/providers/ThemeProvider";
 import type { SessionRole } from "@/lib/session";
 import type { FeatureKey } from "@/lib/planFeatures";
 

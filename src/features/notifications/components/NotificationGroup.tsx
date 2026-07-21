@@ -48,7 +48,7 @@ export function NotificationGroup({
         >
           {t(meta.labelKey)}
         </span>
-        <span className="text-[0.72rem] font-bold text-[var(--gray-400)] bg-[var(--gray-100,#f3f4f6)] rounded-full px-2 py-0.5">
+        <span className="text-[0.72rem] font-bold text-(--gray-400) bg-(--gray-100,#f3f4f6) rounded-full px-2 py-0.5">
           {list.length}
         </span>
       </div>
@@ -59,11 +59,11 @@ export function NotificationGroup({
           return (
             <div
               key={key}
-              className="bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-[var(--radius-lg)] shadow-sm p-[1rem_1.1rem] flex items-start gap-3.5 border-l-3"
+              className="bg-(--surface-card) border border-(--surface-border) rounded-(--radius-lg) shadow-sm p-[1rem_1.1rem] flex items-start gap-3.5 border-l-3"
               style={{ borderLeftColor: meta.color, background: meta.bg }}
             >
               <div
-                className="w-9.5 h-9.5 rounded-lg bg-white flex items-center justify-center shrink-0 shadow-[var(--shadow-xs)]"
+                className="w-9.5 h-9.5 rounded-lg bg-white flex items-center justify-center shrink-0 shadow-(--shadow-xs)"
                 style={{ color: meta.color }}
               >
                 <svg
@@ -87,7 +87,7 @@ export function NotificationGroup({
                 <div className="text-[--gray-600] text-[0.83rem] mt-0.5">
                   {n.message}
                 </div>
-                <div className="flex flex-wrap items-center gap-3 mt-2 text-[0.75rem] text-[var(--gray-500)]">
+                <div className="flex flex-wrap items-center gap-3 mt-2 text-[0.75rem] text-[--gray-500]">
                   {n.contractNumber && (
                     <span className="font-semibold text-[--gray-600]">
                       № {n.contractNumber}
@@ -102,7 +102,7 @@ export function NotificationGroup({
               <div className="flex gap-1.5 shrink-0">
                 <Link
                   href={`/${lang}/contracts`}
-                  className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--gray-200,#e5e7eb)] bg-white py-1.5 px-3 text-[0.8125rem] font-semibold text-[var(--gray-700)] whitespace-nowrap tracking-tight shadow-sm transition-colors duration-150 hover:bg-[var(--gray-50,#f9fafb)] hover:border-[var(--gray-300)]"
+                  className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-(--gray-200,#e5e7eb) bg-white py-1.5 px-3 text-[0.8125rem] font-semibold text-(--gray-700) whitespace-nowrap tracking-tight shadow-sm transition-colors duration-150 hover:bg-(--gray-50,#f9fafb) hover:border-(--gray-300)"
                 >
                   {t("view")}
                 </Link>

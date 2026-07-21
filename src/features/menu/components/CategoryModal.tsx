@@ -5,7 +5,7 @@ import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
 import Dropdown from "@/components/ui/Dropdown";
 import { useTranslation } from "@/i18n";
-import { useToast } from "@/components/ToastProvider";
+import { useToast } from "@/providers/ToastProvider";
 import { MENU_LANGS, MENU_LANG_LABELS, type MenuLang } from "@/lib/menu";
 import { translateText } from "@/lib/api/menu";
 import { LocalizedInput } from "./LocalizedInput";

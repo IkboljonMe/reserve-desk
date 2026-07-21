@@ -954,5 +954,22 @@
   "wifiPassword": "Wi-Fi paroli",
   "socialLinks": "Ijtimoiy tarmoqlar va sharhlar",
   "tileSettings": "Xizmat plitkalari",
-  "tileSettingsDesc": "Mehmonlar boshlang'ich sahifada ko'radigan xizmat plitkalarini tanlang."
+  "tileSettingsDesc": "Mehmonlar boshlang'ich sahifada ko'radigan xizmat plitkalarini tanlang.",
+  "hubRoom": "Xona",
+  "hubWifiNetwork": "Tarmoq nomi",
+  "hubWifiPassword": "Parol",
+  "hubCopy": "Nusxa olish",
+  "hubCopied": "✓ Nusxa olindi",
+  "hubContactReception": "Qabulxonaga murojaat qiling",
+  "hubContactReceptionDesc": "Yordam uchun qabulxona xodimlarimizga murojaat qiling yoki quyidagi raqamga qo'ng'iroq qiling.",
+  "hubReportProblem": "Muammo haqida xabar berish",
+  "hubProblemPlaceholder": "Muammoni qisqacha tasvirlab bering...",
+  "hubSend": "Yuborish",
+  "hubSending": "Yuborilmoqda...",
+  "hubSent": "✓ Yuborildi!",
+  "hubClose": "Yopish",
+  "hubCall": "Qo'ng'iroq qilish",
+  "hubFollowUs": "Bizni ijtimoiy tarmoqlarda kuzatib boring",
+  "hubIsYourProperty": "Sizning muassasangiz bormi?",
+  "hubJoinFree": "Bronit'ga bepul ulaning"
 }

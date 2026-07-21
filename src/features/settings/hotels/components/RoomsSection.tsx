@@ -49,7 +49,7 @@ export function RoomsSection({ s }: { s: HotelsRoomsPageState }) {
             <BedDouble size={18} className="text-[var(--brand-600)]" />{" "}
             {t("rooms")}
           </h2>
-          <p className="text-[0.8125rem] text-[var(--gray-500)] mt-0.5">
+          <p className="text-[0.8125rem] text-[--gray-500] mt-0.5">
             {t("roomsSectionDesc")}
           </p>
         </div>
@@ -59,7 +59,7 @@ export function RoomsSection({ s }: { s: HotelsRoomsPageState }) {
       </div>
 
       {loading ? null : rooms.length === 0 ? (
-        <div className="bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-[var(--radius-lg)] shadow-sm p-0 overflow-hidden">
+        <div className="bg-(--surface-card) border border-(--surface-border) rounded-[var(--radius-lg)] shadow-sm p-0 overflow-hidden">
           <EmptyState icon={<BedDouble size={26} />}>
             <h3 className="text-gray-700">{t("noRoomsAdded")}</h3>
             <p>{t("noRoomsDesc")}</p>
@@ -72,7 +72,7 @@ export function RoomsSection({ s }: { s: HotelsRoomsPageState }) {
         <div className="flex flex-col gap-4">
           {/* Unassigned rooms — visible so nothing is ever hidden, with a repair control */}
           {unassignedRooms.length > 0 && (
-            <div className="bg-[var(--surface-card)] border border-amber-300 rounded-[var(--radius-lg)] shadow-sm p-0 overflow-hidden">
+            <div className="bg-(--surface-card) border border-amber-300 rounded-[var(--radius-lg)] shadow-sm p-0 overflow-hidden">
               <div className="px-5 py-3 bg-amber-50 border-b border-amber-200 flex items-center gap-2">
                 <TriangleAlert
                   size={16}
@@ -97,7 +97,7 @@ export function RoomsSection({ s }: { s: HotelsRoomsPageState }) {
                   <span className="font-bold text-[--gray-800] text-[0.9375rem] min-w-[60px] tabular-nums">
                     #{room.number}
                   </span>
-                  <span className="text-[0.72rem] text-[var(--gray-400)]">
+                  <span className="text-[0.72rem] text-(--gray-400)">
                     {t("floor")} {room.floor}
                   </span>
                   <div className="flex-1 max-w-[260px]">
@@ -138,16 +138,16 @@ export function RoomsSection({ s }: { s: HotelsRoomsPageState }) {
               return (
                 <div
                   key={hotel._id}
-                  className="bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-[var(--radius-lg)] shadow-sm p-0 overflow-hidden"
+                  className="bg-(--surface-card) border border-(--surface-border) rounded-[var(--radius-lg)] shadow-sm p-0 overflow-hidden"
                 >
                   <div className="px-5 py-3 bg-[var(--gray-50,#f9fafb)] border-b border-[var(--gray-200,#e5e7eb)] flex items-center gap-2.5">
                     <span className="inline-flex items-center justify-center min-w-10 h-6.5 px-2 rounded-md bg-[var(--brand-500,#6366f1)] text-white font-bold text-[0.75rem] tracking-wide shrink-0">
                       {displayCode(hotel)}
                     </span>
-                    <span className="font-semibold text-[0.8125rem] text-[var(--gray-700)]">
+                    <span className="font-semibold text-[0.8125rem] text-(--gray-700)">
                       {hotel.name}
                     </span>
-                    <span className="ml-auto text-[0.72rem] text-[var(--gray-400)] tabular-nums">
+                    <span className="ml-auto text-[0.72rem] text-(--gray-400) tabular-nums">
                       {hotelRooms.length}{" "}
                       {hotelRooms.length === 1
                         ? t("roomLower")
@@ -156,7 +156,7 @@ export function RoomsSection({ s }: { s: HotelsRoomsPageState }) {
                   </div>
                   {floors.map((floor) => (
                     <div key={floor}>
-                      <div className="px-5 py-1.5 bg-white text-[0.68rem] font-bold text-[var(--gray-400)] tracking-wider uppercase border-b border-[var(--gray-100,#f3f4f6)] flex items-center gap-1.5">
+                      <div className="px-5 py-1.5 bg-white text-[0.68rem] font-bold text-(--gray-400) tracking-wider uppercase border-b border-[var(--gray-100,#f3f4f6)] flex items-center gap-1.5">
                         <Layers size={11} /> {t("floor")} {floor}
                       </div>
                       <div className="grid grid-cols-[repeat(auto-fill,minmax(210px,1fr))] gap-px bg-[var(--gray-200,#e5e7eb)]">
@@ -189,7 +189,7 @@ export function RoomsSection({ s }: { s: HotelsRoomsPageState }) {
                                     onDragEnd={() => setDraggingRoomId(null)}
                                     title={t("dragToReorder")}
                                     aria-label={t("dragToReorderRoom")}
-                                    className="inline-flex items-center text-[var(--gray-300,#d1d5db)] cursor-grab shrink-0 touch-none hover:text-[var(--gray-400)]"
+                                    className="inline-flex items-center text-[var(--gray-300,#d1d5db)] cursor-grab shrink-0 touch-none hover:text-(--gray-400)"
                                   >
                                     <GripVertical size={16} />
                                   </span>
@@ -263,7 +263,7 @@ export function RoomsSection({ s }: { s: HotelsRoomsPageState }) {
 
           {/* All rooms are unassigned — nudge toward assigning them */}
           {!hasAnyGroupedRooms && unassignedRooms.length > 0 && (
-            <p className="text-[0.8125rem] text-[var(--gray-400)] text-center p-2">
+            <p className="text-[0.8125rem] text-(--gray-400) text-center p-2">
               {t("assignRoomsAboveHint")}
             </p>
           )}

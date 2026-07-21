@@ -37,7 +37,7 @@ export function ContractsFilterControls({
       }
     >
       <div
-        className={`flex items-center gap-2 ${stack ? "w-full rounded-lg border border-[var(--surface-border)] px-3 py-2" : "flex-1 min-w-[220px]"}`}
+        className={`flex items-center gap-2 ${stack ? "w-full rounded-lg border border-(--surface-border) px-3 py-2" : "flex-1 min-w-55"}`}
       >
         <svg
           width="16"
@@ -54,14 +54,14 @@ export function ContractsFilterControls({
           <path d="m21 21-4.35-4.35" />
         </svg>
         <input
-          className="flex-1 min-w-0 bg-transparent border-0 outline-none text-sm text-[--gray-800] placeholder:text-[var(--gray-400)] px-1"
+          className="flex-1 min-w-0 bg-transparent border-0 outline-none text-sm text-[--gray-800] placeholder:text-(--gray-400) px-1"
           placeholder={t("searchContractsPlaceholder")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
 
-      <div className={stack ? "w-full" : "min-w-[150px]"}>
+      <div className={stack ? "w-full" : "min-w-37.5"}>
         <Dropdown
           value={statusFilter}
           onChange={(val) => setStatusFilter(val as "" | ContractStatus)}
@@ -75,7 +75,7 @@ export function ContractsFilterControls({
         />
       </div>
 
-      <div className={stack ? "w-full" : "min-w-[160px]"}>
+      <div className={stack ? "w-full" : "min-w-40"}>
         <Dropdown
           value={expiryFilter}
           onChange={(val) => setExpiryFilter(val as ExpiryFilter)}
@@ -89,7 +89,7 @@ export function ContractsFilterControls({
         />
       </div>
 
-      <div className={stack ? "w-full" : "min-w-[150px]"}>
+      <div className={stack ? "w-full" : "min-w-37.5"}>
         <Dropdown
           value={sortKey}
           onChange={(val) => setSortKey(val as SortKey)}

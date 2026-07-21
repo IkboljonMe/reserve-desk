@@ -1,5 +1,3 @@
-import React from 'react';
-
 export default async function HotelPage({
   params,
 }: {
@@ -19,9 +17,16 @@ export default async function HotelPage({
         <div className="p-4 bg-blue-50 text-blue-800 rounded-lg text-sm text-left">
           <strong>Developer Notes:</strong>
           <ul className="list-disc pl-5 mt-2 space-y-1">
-            <li>Subdomain detected: <code>{hotelHostname}</code></li>
-            <li>Locale requested: <code>{locale}</code></li>
-            <li>Next step: Fetch the hotel document from MongoDB where <code>subdomain = "{hotelHostname}"</code></li>
+            <li>
+              Subdomain detected: <code>{hotelHostname}</code>
+            </li>
+            <li>
+              Locale requested: <code>{locale}</code>
+            </li>
+            <li>
+              Next step: Fetch the hotel document from MongoDB where{" "}
+              <code>subdomain = &quot;{hotelHostname}&quot;</code>
+            </li>
           </ul>
         </div>
       </div>

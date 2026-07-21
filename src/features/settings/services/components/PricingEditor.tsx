@@ -176,32 +176,32 @@ export function PricingEditor({
   }
 
   return (
-    <div className="bg-[var(--surface-card)] border border-[var(--brand-100,#e0e7ff)] rounded-[var(--radius-lg)] shadow-sm p-4 bg-[#fcfdff]">
+    <div className="bg-(--surface-card) border border-(--brand-100,#e0e7ff) rounded-(--radius-lg) shadow-sm p-4">
       <div className="mb-3.5">
-        <h3 className="text-[0.9rem] font-bold text-[var(--brand-700,#4338ca)] m-0">
+        <h3 className="text-[0.9rem] font-bold text-(--brand-700,#4338ca) m-0">
           {heading || t("pricingPlans")}
         </h3>
-        <p className="text-[0.72rem] text-[var(--gray-500)] mt-0.5">
+        <p className="text-[0.72rem] text-(--gray-500) mt-0.5">
           {t("pricingPlansDesc")}
         </p>
       </div>
 
       {/* Base duration→price plans */}
       {plans.length > 0 && (
-        <div className="flex flex-col gap-2 mb-3 pb-3 border-b border-dashed border-[var(--gray-200,#e5e7eb)]">
-          <span className="text-[0.72rem] font-bold text-[var(--gray-500)]">
+        <div className="flex flex-col gap-2 mb-3 pb-3 border-b border-dashed border-(--gray-200,#e5e7eb)">
+          <span className="text-[0.72rem] font-bold text-(--gray-500)">
             {t("generalPlans")}
           </span>
           {plans.map((plan, index) => (
             <div key={index} className="flex gap-3 items-start">
               <div className="flex flex-col gap-1.5 flex-1">
-                <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+                <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                   {t("ratePerHour")}
                 </label>
                 <input
                   type="text"
                   inputMode="numeric"
-                  className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] price-input"
+                  className="w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-(--gray-800) hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] price-input"
                   value={formatPrice(plan.price)}
                   onChange={(e) => {
                     const digits = e.target.value.replace(/\D/g, "");
@@ -227,7 +227,7 @@ export function PricingEditor({
                 type="button"
                 variant="ghost"
                 icon
-                className="mt-5.5 text-[var(--danger)]"
+                className="mt-5.5 text-(--danger)"
                 onClick={() => removePlan(index)}
                 aria-label={t("removePlanAria", { index: index + 1 })}
               >
@@ -267,10 +267,10 @@ export function PricingEditor({
                     )}
                     {meta.label}
                   </span>
-                  <span className="text-[0.68rem] text-[var(--gray-400)] uppercase tracking-wider">
+                  <span className="text-[0.68rem] text-(--gray-400) uppercase tracking-wider">
                     {group.target === "room" ? t("room") : t("typeClient")}
                   </span>
-                  <span className="ml-auto text-[0.7rem] text-[var(--gray-400)]">
+                  <span className="ml-auto text-[0.7rem] text-(--gray-400)">
                     {group.rows.length}{" "}
                     {group.rows.length === 1
                       ? t("priceLower")
@@ -280,7 +280,7 @@ export function PricingEditor({
                     type="button"
                     variant="ghost"
                     icon
-                    className="text-[var(--danger)]"
+                    className="text-(--danger)"
                     onClick={(e) => {
                       e.stopPropagation();
                       removeGroup(gi);
@@ -291,7 +291,7 @@ export function PricingEditor({
                   </Button>
                   <ChevronDown
                     size={15}
-                    className="text-[var(--gray-400)] transition-transform duration-150"
+                    className="text-(--gray-400) transition-transform duration-150"
                     style={{ transform: collapsed ? "rotate(-90deg)" : "none" }}
                   />
                 </div>
@@ -302,13 +302,13 @@ export function PricingEditor({
                     {group.rows.map((row, ri) => (
                       <div key={ri} className="flex gap-3 items-start">
                         <div className="flex flex-col gap-1.5 flex-1">
-                          <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+                          <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                             {t("ratePerHour")}
                           </label>
                           <input
                             type="text"
                             inputMode="numeric"
-                            className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] price-input"
+                            className="w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-(--gray-800) hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] price-input"
                             value={formatPrice(row.price)}
                             onChange={(e) => {
                               const digits = e.target.value.replace(/\D/g, "");
@@ -332,17 +332,17 @@ export function PricingEditor({
                             required
                           />
                         </div>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          icon
-                          className="mt-5.5 text-[var(--danger)]"
-                          onClick={() => removeGroupRow(gi, ri)}
-                          aria-label={t("removePriceAria", { index: ri + 1 })}
-                          disabled={group.rows.length === 1}
-                        >
-                          <Trash2 size={14} />
-                        </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            icon
+                            className="mt-5.5 text-(--danger)"
+                            onClick={() => removeGroupRow(gi, ri)}
+                            aria-label={t("removePriceAria", { index: ri + 1 })}
+                            disabled={group.rows.length === 1}
+                          >
+                            <Trash2 size={14} />
+                          </Button>
                       </div>
                     ))}
                     <Button
@@ -432,13 +432,13 @@ export function PricingEditor({
                   : t("whichClientGroup")}
               </span>
               {opts.length === 0 ? (
-                <p className="text-[0.75rem] text-[var(--gray-500)] m-0">
+                <p className="text-[0.75rem] text-(--gray-500) m-0">
                   {emptyMsg}
                 </p>
               ) : (
                 <div className="flex gap-2 items-center flex-wrap">
                   <select
-                    className="w-auto min-w-[180px] px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+                    className="w-auto min-w-45 px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-(--gray-800) hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
                     value={pickerCategory}
                     onChange={(e) => setPickerCategory(e.target.value)}
                     aria-label={t("selectCategory")}
@@ -482,12 +482,12 @@ export function PricingEditor({
         groups.length === 0 &&
         planPicker === null && (
           <div className="flex flex-col gap-1.5 mt-3">
-            <label className="text-[0.8125rem] font-semibold text-[var(--gray-500)] tracking-tight">
+            <label className="text-[0.8125rem] font-semibold text-(--gray-500) tracking-tight">
               {t("flatPriceOptional")}
             </label>
             <input
               type="number"
-              className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+              className="w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-(--gray-800) hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
               value={flatPrice ?? 0}
               onChange={(e) => onFlatPrice(Number(e.target.value))}
             />

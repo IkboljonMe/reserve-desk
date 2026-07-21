@@ -52,7 +52,7 @@ export function RoomModal({ s }: { s: HotelsRoomsPageState }) {
         <form onSubmit={handleSubmitRoom}>
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+              <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                 {t("hotel")} *
               </label>
               <Select
@@ -77,11 +77,11 @@ export function RoomModal({ s }: { s: HotelsRoomsPageState }) {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5">
-                <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+                <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                   {t("floor")} *
                 </label>
                 <input
-                  className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+                  className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
                   type="number"
                   min={0}
                   required
@@ -96,11 +96,11 @@ export function RoomModal({ s }: { s: HotelsRoomsPageState }) {
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+                <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                   {t("roomNumberField")} *
                 </label>
                 <input
-                  className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+                  className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
                   required
                   value={roomForm.number}
                   onChange={(e) =>
@@ -115,7 +115,7 @@ export function RoomModal({ s }: { s: HotelsRoomsPageState }) {
               roomHotel.roomTypes &&
               roomHotel.roomTypes.length > 0 && (
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight">
+                  <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                     {t("category")}
                   </label>
                   <Select

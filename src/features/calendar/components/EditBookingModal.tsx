@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
-  X,
   CalendarDays,
   Clock,
   User,
@@ -170,22 +169,22 @@ export function EditBookingModal({ s }: { s: CalendarPageState }) {
       <div className="flex flex-col gap-3.5">
         <div className="flex gap-3">
           <div className="flex flex-col gap-1.5 flex-1">
-            <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight flex items-center gap-1.25">
+            <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight flex items-center gap-1.25">
               <CalendarDays size={13} /> {t("date")}
             </label>
             <input
               type="date"
-              className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+              className="w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
               value={date}
               onChange={(e) => setDate(e.target.value)}
             />
           </div>
           <div className="flex flex-col gap-1.5 flex-1">
-            <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight flex items-center gap-1.25">
+            <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight flex items-center gap-1.25">
               <Clock size={13} /> {t("time")}
             </label>
             <select
-              className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] disabled:opacity-50 disabled:bg-[var(--gray-50)]"
+              className="w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] disabled:opacity-50 disabled:bg-(--gray-50)"
               value={startTime}
               onChange={(e) => setStartTime(e.target.value)}
               disabled={dayHours.closed}
@@ -207,12 +206,12 @@ export function EditBookingModal({ s }: { s: CalendarPageState }) {
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight flex items-center gap-1.25">
+          <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight flex items-center gap-1.25">
             <User size={13} /> {t("guest")}
           </label>
           <input
             type="text"
-            className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+            className="w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
@@ -220,36 +219,36 @@ export function EditBookingModal({ s }: { s: CalendarPageState }) {
 
         <div className="flex gap-3">
           <div className="flex flex-col gap-1.5 flex-1">
-            <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight flex items-center gap-1.25">
+            <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight flex items-center gap-1.25">
               <Phone size={13} /> {t("phone")}
             </label>
             <input
               type="text"
-              className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+              className="w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
             />
           </div>
           <div className="flex flex-col gap-1.5 flex-1">
-            <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight flex items-center gap-1.25">
+            <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight flex items-center gap-1.25">
               <MapPin size={13} /> {t("room")}
             </label>
             <input
               type="text"
-              className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+              className="w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
               value={room}
               onChange={(e) => setRoom(e.target.value)}
             />
           </div>
         </div>
 
-        <div className="flex flex-col gap-1.5 max-w-[160px]">
-          <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight flex items-center gap-1.25">
+        <div className="flex flex-col gap-1.5 max-w-40">
+          <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight flex items-center gap-1.25">
             <Users size={13} /> {t("personsCount")}
           </label>
           <input
             type="number"
-            className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+            className="w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
             min={1}
             step={1}
             value={persons}
@@ -261,11 +260,11 @@ export function EditBookingModal({ s }: { s: CalendarPageState }) {
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-[0.8125rem] font-semibold text-[var(--gray-700)] tracking-tight flex items-center gap-1.25">
+          <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight flex items-center gap-1.25">
             <FileText size={13} /> {t("notes")}
           </label>
           <textarea
-            className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] resize-y"
+            className="w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] resize-y"
             rows={2}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}

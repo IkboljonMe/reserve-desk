@@ -4,18 +4,31 @@ import "../globals.css";
 import { LOCALES, isLocale, FALLBACK_LOCALE } from "@/i18n/config";
 import { LanguageProvider } from "@/i18n";
 import { getT } from "@/i18n/dictionary";
-import { ThemeProvider } from "@/components/ThemeProvider";
-import QueryProvider from "@/components/QueryProvider";
+import { ThemeProvider } from "@/providers/ThemeProvider";
+import QueryProvider from "@/providers/QueryProvider";
 
 // Geometric display face for the brand wordmark / big numbers. Self-hosted by
 // next/font and exposed as the CSS variable --font-zen-dots.
-const zenDots = Zen_Dots({ weight: "400", subsets: ["latin"], variable: "--font-zen-dots", display: "swap" });
+const zenDots = Zen_Dots({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-zen-dots",
+  display: "swap",
+});
 
 // Primary body font
-const inter = Inter({ subsets: ["latin", "cyrillic"], variable: "--font-inter", display: "swap" });
+const inter = Inter({
+  subsets: ["latin", "cyrillic"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 // Open Graph locale codes for each supported language.
-const OG_LOCALE: Record<string, string> = { uz: "uz_UZ", ru: "ru_RU", en: "en_US" };
+const OG_LOCALE: Record<string, string> = {
+  uz: "uz_UZ",
+  ru: "ru_RU",
+  en: "en_US",
+};
 
 // Per-locale metadata — resolves the marketing title/description in the request
 // language so <head> tags aren't hard-coded to English.
@@ -73,7 +86,14 @@ export async function generateMetadata({
       title,
       description: t("metaOgDescription"),
       url: `https://bronit.uz/${lang}`,
-      images: [{ url: "/assets/og-image.jpg", width: 1200, height: 630, alt: "Bronit" }],
+      images: [
+        {
+          url: "/assets/og-image.jpg",
+          width: 1200,
+          height: 630,
+          alt: "Bronit",
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",

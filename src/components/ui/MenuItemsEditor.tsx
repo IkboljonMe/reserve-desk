@@ -1,13 +1,18 @@
-'use client'
+"use client";
 
-import { Plus, Trash2 } from 'lucide-react'
-import { useTranslation } from '@/i18n'
-import Button from '@/components/ui/Button'
+import { Plus, Trash2 } from "lucide-react";
+import { useTranslation } from "@/i18n";
+import Button from "@/components/ui/Button";
 
-export interface MenuItem { name: string; qty: number; price: number }
+export interface MenuItem {
+  name: string;
+  qty: number;
+  price: number;
+}
 
-const SERVICE_FEE_RATE = 0.1
-const fmt = (v: number) => String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+const SERVICE_FEE_RATE = 0.1;
+const fmt = (v: number) =>
+  String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 
 // Optional food/order request attached to a booking (e.g. for a SPA & Pool
 // event): a list of priced line items plus a "ready by" time. Subtotal /
@@ -21,58 +26,71 @@ export function MenuItemsEditor({
   readyTime,
   onReadyTimeChange,
 }: {
-  items: MenuItem[]
-  onAdd: () => void
-  onUpdate: (index: number, patch: Partial<MenuItem>) => void
-  onRemove: (index: number) => void
-  readyTime: string
-  onReadyTimeChange: (v: string) => void
+  items: MenuItem[];
+  onAdd: () => void;
+  onUpdate: (index: number, patch: Partial<MenuItem>) => void;
+  onRemove: (index: number) => void;
+  readyTime: string;
+  onReadyTimeChange: (v: string) => void;
 }) {
-  const { t } = useTranslation()
-  const subtotal = items.reduce((sum, it) => sum + it.qty * it.price, 0)
-  const fee = Math.round(subtotal * SERVICE_FEE_RATE)
-  const total = subtotal + fee
+  const { t } = useTranslation();
+  const subtotal = items.reduce((sum, it) => sum + it.qty * it.price, 0);
+  const fee = Math.round(subtotal * SERVICE_FEE_RATE);
+  const total = subtotal + fee;
 
   return (
     <div>
-      <label className="form-label" style={{ display: 'block', marginBottom: 8 }}>{t('menuOptional')}</label>
+      <label className="form-label block mb-2">{t("menuOptional")}</label>
 
       {items.length > 0 && (
-        <div style={{ display: 'flex', gap: 6, marginBottom: 4, padding: '0 2px', fontSize: '0.68rem', fontWeight: 700, color: 'var(--gray-400)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
-          <span style={{ flex: 1 }}>{t('menuItemName')}</span>
-          <span style={{ width: 56, textAlign: 'center' }}>{t('menuItemQty')}</span>
-          <span style={{ width: 100, textAlign: 'right' }}>{t('menuItemPrice')}</span>
-          <span style={{ width: 28 }} />
+        <div className="flex gap-1.5 mb-1 px-0.5 text-[0.68rem] font-bold text-(--gray-400) uppercase tracking-[0.03em]">
+          <span className="flex-1">{t("menuItemName")}</span>
+          <span className="w-14 text-center">{t("menuItemQty")}</span>
+          <span className="w-25 text-right">{t("menuItemPrice")}</span>
+          <span className="w-7" />
         </div>
       )}
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <div className="flex flex-col gap-1.5">
         {items.map((item, i) => (
-          <div key={i} style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <div key={i} className="flex gap-1.5 items-center">
             <input
-              className="form-input" style={{ flex: 1, padding: '6px 8px', fontSize: '0.82rem' }}
-              placeholder={t('menuPlaceholder')}
+              className="form-input flex-1 px-2 py-1.5 text-[0.82rem]"
+              placeholder={t("menuPlaceholder")}
               value={item.name}
-              onChange={e => onUpdate(i, { name: e.target.value })}
+              onChange={(e) => onUpdate(i, { name: e.target.value })}
             />
             <input
-              type="number" min={1} step={1} className="form-input"
-              style={{ width: 56, padding: '6px 4px', fontSize: '0.82rem', textAlign: 'center' }}
+              type="number"
+              min={1}
+              step={1}
+              className="form-input w-14 px-1 py-1.5 text-[0.82rem] text-center"
               value={item.qty}
-              onChange={e => onUpdate(i, { qty: Math.max(1, parseInt(e.target.value) || 1) })}
-              onFocus={e => e.currentTarget.select()}
+              onChange={(e) =>
+                onUpdate(i, { qty: Math.max(1, parseInt(e.target.value) || 1) })
+              }
+              onFocus={(e) => e.currentTarget.select()}
             />
             <input
-              type="text" inputMode="numeric" className="form-input"
-              style={{ width: 100, padding: '6px 8px', fontSize: '0.82rem', textAlign: 'right' }}
-              value={item.price ? fmt(item.price) : ''}
+              type="text"
+              inputMode="numeric"
+              className="form-input w-25 px-2 py-1.5 text-[0.82rem] text-right"
+              value={item.price ? fmt(item.price) : ""}
               placeholder="0"
-              onChange={e => onUpdate(i, { price: Number(e.target.value.replace(/\D/g, '')) || 0 })}
-              onFocus={e => e.currentTarget.select()}
+              onChange={(e) =>
+                onUpdate(i, {
+                  price: Number(e.target.value.replace(/\D/g, "")) || 0,
+                })
+              }
+              onFocus={(e) => e.currentTarget.select()}
             />
             <Button
-              type="button" variant="ghost" icon style={{ width: 28, flexShrink: 0 }}
-              onClick={() => onRemove(i)} aria-label={t('delete')}
+              type="button"
+              variant="ghost"
+              icon
+              className="w-7 shrink-0"
+              onClick={() => onRemove(i)}
+              aria-label={t("delete")}
             >
               <Trash2 size={14} color="var(--danger)" />
             </Button>
@@ -80,22 +98,42 @@ export function MenuItemsEditor({
         ))}
       </div>
 
-      <Button type="button" variant="secondary" size="sm" style={{ marginTop: 8, display: 'inline-flex', alignItems: 'center', gap: 6 }} onClick={onAdd}>
-        <Plus size={13} /> {t('addMenuItem')}
+      <Button
+        type="button"
+        variant="secondary"
+        size="sm"
+        className="mt-2 inline-flex items-center gap-1.5"
+        onClick={onAdd}
+      >
+        <Plus size={13} /> {t("addMenuItem")}
       </Button>
 
       {items.length > 0 && (
-        <div style={{ marginTop: 10, padding: '8px 10px', borderRadius: 8, background: 'var(--gray-50)', border: '1px solid var(--gray-200)', fontSize: '0.78rem', color: 'var(--gray-600)', display: 'flex', flexDirection: 'column', gap: 3 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>{t('menuSubtotal')}</span><span>{fmt(subtotal)}</span></div>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>{t('menuServiceFee')}</span><span>{fmt(fee)}</span></div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, color: 'var(--gray-800)' }}><span>{t('menuTotal')}</span><span>{fmt(total)}</span></div>
+        <div className="mt-2.5 px-2.5 py-2 rounded-lg bg-(--gray-50) border border-(--gray-200) text-[0.78rem] text-(--gray-600) flex flex-col gap-0.75">
+          <div className="flex justify-between">
+            <span>{t("menuSubtotal")}</span>
+            <span>{fmt(subtotal)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>{t("menuServiceFee")}</span>
+            <span>{fmt(fee)}</span>
+          </div>
+          <div className="flex justify-between font-bold text-(--gray-800)">
+            <span>{t("menuTotal")}</span>
+            <span>{fmt(total)}</span>
+          </div>
         </div>
       )}
 
-      <div style={{ marginTop: 10, maxWidth: 160 }}>
-        <label className="form-label">{t('menuReadyTime')}</label>
-        <input type="time" className="form-input" value={readyTime} onChange={e => onReadyTimeChange(e.target.value)} />
+      <div className="mt-2.5 max-w-40">
+        <label className="form-label">{t("menuReadyTime")}</label>
+        <input
+          type="time"
+          className="form-input"
+          value={readyTime}
+          onChange={(e) => onReadyTimeChange(e.target.value)}
+        />
       </div>
     </div>
-  )
+  );
 }

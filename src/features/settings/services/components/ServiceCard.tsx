@@ -48,7 +48,7 @@ export function ServiceCard({
 
   return (
     <div
-      className="bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-[var(--radius-lg)] shadow-sm flex flex-col overflow-hidden transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 border-t-3"
+      className="bg-(--surface-card) border border-(--surface-border) rounded-[var(--radius-lg)] shadow-sm flex flex-col overflow-hidden transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 border-t-3"
       style={{ borderTopColor: svc.color }}
     >
       {/* Card Header */}
@@ -93,7 +93,7 @@ export function ServiceCard({
 
           {/* Hotel tag */}
           {hotelName && (
-            <div className="flex items-center gap-1 text-[0.72rem] text-[var(--gray-400)]">
+            <div className="flex items-center gap-1 text-[0.72rem] text-(--gray-400)">
               <Building2 size={11} />
               <span>{hotelName}</span>
               {(svc.sharedHotelIds?.length ?? 0) > 0 && (
@@ -122,7 +122,7 @@ export function ServiceCard({
 
       {/* Description */}
       {svc.description && (
-        <div className="px-5 pb-3 text-[0.775rem] text-[var(--gray-500)] leading-normal">
+        <div className="px-5 pb-3 text-[0.775rem] text-[--gray-500] leading-normal">
           {svc.description}
         </div>
       )}
@@ -190,12 +190,12 @@ export function ServiceCard({
       )}
 
       {/* Footer meta */}
-      <div className="mt-auto border-t border-[var(--surface-border)] px-5 py-2.5 flex items-center gap-3 bg-[var(--gray-50,#f9fafb)]">
-        <span className="flex items-center gap-1 text-[0.72rem] text-[var(--gray-400)]">
+      <div className="mt-auto border-t border-(--surface-border) px-5 py-2.5 flex items-center gap-3 bg-[var(--gray-50,#f9fafb)]">
+        <span className="flex items-center gap-1 text-[0.72rem] text-(--gray-400)">
           <Clock size={11} />
           {svc.openTime}–{svc.closeTime}
         </span>
-        <span className="flex items-center gap-1 text-[0.72rem] text-[var(--gray-400)]">
+        <span className="flex items-center gap-1 text-[0.72rem] text-(--gray-400)">
           <Users size={11} />
           {svc.capacity}
         </span>

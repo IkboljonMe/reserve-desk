@@ -1,1 +1,1 @@
-export { default } from '@/features/calendar/CalendarPage'
+export { default } from "@/features/calendar/CalendarPage";

@@ -8,9 +8,9 @@ export function ClientsFilters({ s }: { s: ClientsPageState }) {
   const { search, setSearch, groupFilter, setGroupFilter, groups } = s;
 
   return (
-    <div className="bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-[var(--radius-lg)] shadow-sm p-4 mb-4">
+    <div className="bg-(--surface-card) border border-(--surface-border) rounded-(--radius-lg) shadow-sm p-4 mb-4">
       <div className="flex items-center gap-3 flex-wrap">
-        <div className="flex items-center gap-2 flex-1 min-w-[200px]">
+        <div className="flex items-center gap-2 flex-1 min-w-50">
           <svg
             width="16"
             height="16"
@@ -33,7 +33,7 @@ export function ClientsFilters({ s }: { s: ClientsPageState }) {
           />
         </div>
         <select
-          className="w-auto min-w-[160px] px-3 py-1.75 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-[var(--brand-500,#6366f1)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+          className="w-auto min-w-40 px-3 py-1.75 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
           value={groupFilter}
           onChange={(e) => setGroupFilter(e.target.value)}
           aria-label={t("filterByGroup")}

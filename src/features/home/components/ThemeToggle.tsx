@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Sun, Moon, Laptop, ChevronDown, Check } from "lucide-react";
-import { useTheme, type Theme } from "@/components/ThemeProvider";
+import { useTheme, type Theme } from "@/providers/ThemeProvider";
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
@@ -38,7 +38,7 @@ export function ThemeToggle() {
         aria-expanded={open}
         aria-haspopup="listbox"
         aria-label="Theme"
-        className="w-[38px] sm:w-[105px] h-[38px] px-0 sm:px-3.5 justify-center sm:justify-between inline-flex items-center rounded-[10px] bg-(--gray-100) hover:bg-[var(--gray-200)] text-[var(--gray-700)] cursor-pointer border border-[var(--surface-border)] transition-all duration-150 text-[0.8rem] font-semibold"
+        className="w-9.5 sm:w-26.25 h-9.5 px-0 sm:px-3.5 justify-center sm:justify-between inline-flex items-center rounded-[10px] bg-(--gray-100) hover:bg-(--gray-200) text-(--gray-700) cursor-pointer border border-(--surface-border) transition-all duration-150 text-[0.8rem] font-semibold"
       >
         <span className="flex items-center gap-1.75">
           <ActiveIcon size={14} className="shrink-0" />
@@ -46,12 +46,12 @@ export function ThemeToggle() {
         </span>
         <ChevronDown
           size={12}
-          className={`hidden sm:block shrink-0 text-[var(--gray-400)] transition-transform duration-150 ${open ? "rotate-180" : "rotate-0"}`}
+          className={`hidden sm:block shrink-0 text-(--gray-400) transition-transform duration-150 ${open ? "rotate-180" : "rotate-0"}`}
         />
       </button>
 
       {open && (
-        <ul className="absolute top-[calc(100%+6px)] right-0 z-[9999] list-none m-0 p-1 bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-[10px] shadow-[0_12px_32px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.04)] w-[120px] box-border">
+        <ul className="absolute top-[calc(100%+6px)] right-0 z-9999 list-none m-0 p-1 bg-(--surface-card) border border-(--surface-border) rounded-[10px] shadow-[0_12px_32px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.04)] w-30 box-border">
           {options.map((opt) => {
             const isSelected = opt.value === theme;
             const OptIcon = opt.icon;
@@ -64,8 +64,8 @@ export function ThemeToggle() {
                 }}
                 className={`flex items-center justify-between gap-2 p-2 rounded-lg cursor-pointer text-[0.8rem] transition-all duration-100 ease-in-out box-border ${
                   isSelected
-                    ? "font-bold text-[var(--brand-600)] bg-[var(--sidebar-hover)]"
-                    : "text-[var(--gray-700)] hover:bg-[var(--gray-50)] hover:text-[--gray-900]"
+                    ? "font-bold text-(--brand-600) bg-(--sidebar-hover)"
+                    : "text-(--gray-700) hover:bg-(--gray-50) hover:text-(--gray-900)"
                 }`}
               >
                 <span className="flex items-center gap-1.75">
@@ -75,7 +75,7 @@ export function ThemeToggle() {
                 {isSelected && (
                   <Check
                     size={13}
-                    className="shrink-0 text-[var(--brand-500)]"
+                    className="shrink-0 text-(--brand-500)"
                   />
                 )}
               </li>
