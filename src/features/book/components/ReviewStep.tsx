@@ -48,7 +48,7 @@ export function ReviewStep({ w }: { w: BookingWizard }) {
 
       {/* Order summary */}
       <div
-        className="bg-gray-50 border border-gray-200 rounded-[10px] p-4 mb-5 text-sm grid gap-y-[0.6rem] gap-x-4 text-gray-600"
+        className="bg-gray-50 border border-gray-200 p-4 mb-5 text-sm grid gap-y-[0.6rem] gap-x-4 text-gray-600"
         style={{ gridTemplateColumns: "auto 1fr" }}
       >
         <strong className="text-gray-800">{t("hotel")}</strong>
@@ -141,7 +141,7 @@ export function ReviewStep({ w }: { w: BookingWizard }) {
       </div>
 
       {menuItems.length > 0 && (
-        <div className="bg-gray-50 border border-gray-200 rounded-[10px] px-4 py-[0.85rem] mb-5 text-[0.82rem] text-gray-600">
+        <div className="bg-gray-50 border border-gray-200 px-4 py-[0.85rem] mb-5 text-[0.82rem] text-gray-600">
           {menuItems.map((it, i) => (
             <div key={i} className="flex justify-between mb-0.75">
               <span>

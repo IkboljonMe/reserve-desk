@@ -34,7 +34,7 @@ export function InfoHint({ text }: { text: string }) {
         <span
           id={id}
           role="tooltip"
-          className="absolute bottom-[calc(100%+6px)] left-1/2 -translate-x-1/2 z-50 w-max max-w-60 bg-(--gray-800,#1f2937) text-white text-[0.72rem] font-normal leading-snug px-2.25 py-1.5 rounded-[7px] shadow-[0_6px_18px_rgba(0,0,0,0.22)] whitespace-normal text-left pointer-events-none"
+          className="absolute bottom-[calc(100%+6px)] left-1/2 -translate-x-1/2 z-50 w-max max-w-60 bg-(--gray-800,#1f2937) text-white text-[0.72rem] font-normal leading-snug px-2.25 py-1.5 shadow-[0_6px_18px_rgba(0,0,0,0.22)] whitespace-normal text-left pointer-events-none"
         >
           {text}
         </span>

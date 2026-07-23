@@ -52,7 +52,7 @@ export function LandingLangToggle({ current }: { current: string }) {
         aria-expanded={open}
         aria-haspopup="listbox"
         aria-label="Language"
-        className="h-9.5 w-9.5 sm:w-auto justify-center sm:justify-between px-0 sm:px-3.5 inline-flex items-center gap-1.75 rounded-[10px] bg-(--gray-100) hover:bg-(--gray-200) text-(--gray-700) cursor-pointer border border-(--surface-border) transition-all duration-150 text-[0.8rem] font-semibold"
+        className="h-9.5 w-9.5 sm:w-auto justify-center sm:justify-between px-0 sm:px-3.5 inline-flex items-center gap-1.75 bg-(--gray-100) hover:bg-(--gray-200) text-(--gray-700) cursor-pointer border border-(--surface-border) transition-all duration-150 text-[0.8rem] font-semibold"
       >
         <span className="text-base leading-none">{active.flag}</span>
         <span className="hidden sm:inline">{active.label}</span>
@@ -65,7 +65,7 @@ export function LandingLangToggle({ current }: { current: string }) {
       {open && (
         <ul
           role="listbox"
-          className="absolute top-[calc(100%+6px)] right-0 z-9999 list-none m-0 p-1 bg-(--surface-card) border border-(--surface-border) rounded-[10px] shadow-[0_12px_32px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.04)] w-30 box-border"
+          className="absolute top-[calc(100%+6px)] right-0 z-9999 list-none m-0 p-1 bg-(--surface-card) border border-(--surface-border) shadow-[0_12px_32px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.04)] w-30 box-border"
         >
           {LANGUAGES.map((lang) => {
             const isSelected = lang.code === current;
@@ -75,7 +75,7 @@ export function LandingLangToggle({ current }: { current: string }) {
                 role="option"
                 aria-selected={isSelected}
                 onClick={() => switchTo(lang.code)}
-                className={`flex items-center justify-between gap-2 p-2 rounded-lg cursor-pointer text-[0.8rem] transition-all duration-100 ease-in-out box-border ${
+                className={`flex items-center justify-between gap-2 p-2 cursor-pointer text-[0.8rem] transition-all duration-100 ease-in-out box-border ${
                   isSelected
                     ? "font-bold text-(--brand-600) bg-(--sidebar-hover)"
                     : "text-(--gray-700) hover:bg-(--gray-50) hover:text-(--gray-900)"

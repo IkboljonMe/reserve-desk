@@ -37,7 +37,7 @@ export function Pricing({
               className={`${CARD} bg-white p-[1.9rem] relative flex flex-col ${plan.highlight ? "border-2! border-brand-500! shadow-[0_12px_36px_rgba(79,110,247,0.18)]!" : ""}`}
             >
               {plan.highlight && (
-                <span className="absolute -top-3.25 left-1/2 -translate-x-1/2 bg-(image:--brand-gradient) text-white text-[0.72rem] font-bold px-3.5 py-1 rounded-full whitespace-nowrap">
+                <span className="absolute -top-3.25 left-1/2 -translate-x-1/2 bg-(image:--brand-gradient) text-white text-[0.72rem] font-bold px-3.5 py-1 whitespace-nowrap">
                   {t("mostPopular")}
                 </span>
               )}
@@ -76,7 +76,7 @@ export function Pricing({
 
               <a
                 href={demoUrl}
-                className={`block text-center py-2.75 rounded-[10px] no-underline font-bold text-[0.9rem] ${
+                className={`block text-center py-2.75 no-underline font-bold text-[0.9rem] ${
                   plan.highlight
                     ? "bg-[linear-gradient(135deg,#4f6ef7,#3b5bdb)] text-white shadow-[0_6px_18px_rgba(79,110,247,0.3)]"
                     : "bg-brand-50 text-[#3b5bdb]"

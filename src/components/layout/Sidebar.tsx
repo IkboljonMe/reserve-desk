@@ -383,7 +383,7 @@ export default function Sidebar({
           const itemContent = (
             <>
               {isActive && !collapsed && (
-                <span className="absolute -left-1.75 top-1/2 -translate-y-1/2 w-0.75 h-4.5 rounded-[4px] bg-(--sidebar-active)" />
+                <span className="absolute -left-1.75 top-1/2 -translate-y-1/2 w-0.75 h-4.5 bg-(--sidebar-active)" />
               )}
               <span
                 className={`relative inline-flex shrink-0 ${isActive ? "text-white" : "text-(--sidebar-text)"}`}

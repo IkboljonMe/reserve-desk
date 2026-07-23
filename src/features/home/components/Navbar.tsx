@@ -32,7 +32,7 @@ export function Navbar({ locale, t, demoUrl, loginHref, navLinks }: Props) {
               <a
                 key={href}
                 href={href}
-                className="px-3 py-1.75 rounded-lg no-underline text-slate-500 text-sm font-medium hover:text-slate-900"
+                className="px-3 py-1.75 no-underline text-slate-500 text-sm font-medium hover:text-slate-900"
               >
                 {label}
               </a>
@@ -45,7 +45,7 @@ export function Navbar({ locale, t, demoUrl, loginHref, navLinks }: Props) {
           <div className="hidden min-[721px]:flex items-center gap-2">
             <Link
               href={loginHref}
-              className="px-4 py-2 rounded-[10px] no-underline bg-white text-slate-900 border border-slate-200 text-sm font-semibold hover:bg-slate-50"
+              className="px-4 py-2 no-underline bg-white text-slate-900 border border-slate-200 text-sm font-semibold hover:bg-slate-50"
             >
               {t('signIn')}
             </Link>
@@ -63,7 +63,7 @@ export function Navbar({ locale, t, demoUrl, loginHref, navLinks }: Props) {
       {/* Advantage Strip */}
       <div className="hidden md:block bg-[#2563eb] text-white py-3.5 px-5 lg:px-10 text-[0.8rem] font-medium border-t border-white/10 shadow-sm">
         <div className="w-full flex flex-wrap items-center justify-between gap-y-3 gap-x-6">
-          <div className="font-extrabold text-[0.85rem] tracking-wider uppercase bg-white/15 px-3 py-1 rounded-md">
+          <div className="font-extrabold text-[0.85rem] tracking-wider uppercase bg-white/15 px-3 py-1">
             {t('lpAdvantageTitle')}
           </div>
           <div className="flex items-center justify-between gap-6 flex-wrap text-white/90 flex-1 md:flex-initial">

@@ -136,7 +136,7 @@ export default function Calendar({
           const within = isInRange(d) && !selected;
           const disabled = isDisabled(d);
           
-          let dayClasses = "flex items-center justify-center h-7.5 rounded-[7px] text-[0.78rem] font-medium transition-all duration-150 ease-in-out font-[inherit]";
+          let dayClasses = "flex items-center justify-center h-7.5 text-[0.78rem] font-medium transition-all duration-150 ease-in-out font-[inherit]";
           
           if (disabled) {
             dayClasses += " text-(--gray-200,#e5e7eb) cursor-not-allowed bg-transparent";

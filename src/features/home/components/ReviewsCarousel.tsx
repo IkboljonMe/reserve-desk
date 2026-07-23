@@ -66,7 +66,7 @@ export function ReviewsCarousel({ reviews, prevLabel, nextLabel }: Props) {
           type="button"
           aria-label={prevLabel}
           onClick={() => swiperRef.current?.slidePrev()}
-          className="w-10 h-10 inline-flex items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 cursor-pointer transition-colors hover:bg-slate-50 hover:text-slate-900"
+          className="w-10 h-10 inline-flex items-center justify-center border border-slate-200 bg-white text-slate-700 cursor-pointer transition-colors hover:bg-slate-50 hover:text-slate-900"
         >
           <ChevronLeft size={18} />
         </button>
@@ -74,7 +74,7 @@ export function ReviewsCarousel({ reviews, prevLabel, nextLabel }: Props) {
           type="button"
           aria-label={nextLabel}
           onClick={() => swiperRef.current?.slideNext()}
-          className="w-10 h-10 inline-flex items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 cursor-pointer transition-colors hover:bg-slate-50 hover:text-slate-900"
+          className="w-10 h-10 inline-flex items-center justify-center border border-slate-200 bg-white text-slate-700 cursor-pointer transition-colors hover:bg-slate-50 hover:text-slate-900"
         >
           <ChevronRight size={18} />
         </button>

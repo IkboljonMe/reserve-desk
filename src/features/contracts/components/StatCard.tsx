@@ -43,7 +43,7 @@ export function StatCard({
   return (
     <div className="bg-(--surface-card) border border-(--surface-border) rounded-(--radius-lg) shadow-sm flex items-center gap-3.5 p-[1rem_1.1rem]">
       <div
-        className="w-10.5 h-10.5 rounded-[11px] flex items-center justify-center shrink-0"
+        className="w-10.5 h-10.5 flex items-center justify-center shrink-0"
         style={{ background: tintBg, color: tint }}
       >
         <svg

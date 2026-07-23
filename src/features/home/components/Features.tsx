@@ -17,7 +17,7 @@ export function Features({ t }: { t: Translate }) {
             key={title}
             className={`${CARD} bg-white border border-slate-200 p-7 transition-colors duration-200`}
           >
-            <div className="w-11 h-11 rounded-xl mb-4 flex items-center justify-center bg-brand-50 text-brand-500">
+            <div className="w-11 h-11 mb-4 flex items-center justify-center bg-brand-50 text-brand-500">
               <Icon size={22} />
             </div>
             <h3 className="text-[1.1rem] font-bold mb-2 text-slate-900">

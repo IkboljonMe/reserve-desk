@@ -18,7 +18,7 @@ export function Modules({ t }: { t: Translate }) {
             key={key}
             className={`${CARD} bg-white p-5 flex items-center gap-3`}
           >
-            <div className="w-9.5 h-9.5 rounded-[10px] shrink-0 flex items-center justify-center bg-brand-50 text-brand-500">
+            <div className="w-9.5 h-9.5 shrink-0 flex items-center justify-center bg-brand-50 text-brand-500">
               <Icon size={19} />
             </div>
             <div>

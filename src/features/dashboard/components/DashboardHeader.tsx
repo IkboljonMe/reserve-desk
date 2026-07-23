@@ -93,7 +93,7 @@ export function DashboardHeader({ s }: { s: DashboardPageState }) {
               {format(new Date(customTo), "MMM d", { locale })}
             </Button>
             {pickerOpen && (
-              <div className="absolute top-[calc(100%+6px)] left-0 z-9999 bg-white border border-gray-200 rounded-[10px] p-3 shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)]">
+              <div className="absolute top-[calc(100%+6px)] left-0 z-9999 bg-white border border-gray-200 p-3 shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)]">
                 <Calendar
                   mode="range"
                   locale={locale}

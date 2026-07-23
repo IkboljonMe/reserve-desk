@@ -58,10 +58,18 @@
   --shadow-xl: 0 24px 48px rgba(16, 24, 40, 0.16);
   --shadow-brand: 0 6px 16px rgba(79, 110, 247, 0.28);
 
-  --radius-sm: 8px;
-  --radius: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
+  /* Sharp-corner design language: the whole radius scale is zeroed, so every
+     named `rounded-*` utility (and every `var(--radius-*)` rule) renders square.
+     `rounded-full` is unaffected (it uses calc(infinity)), so genuine circles —
+     avatars, dots, spinners — stay round. */
+  --radius-xs: 0;
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius: 0;
+  --radius-lg: 0;
+  --radius-xl: 0;
+  --radius-2xl: 0;
+  --radius-3xl: 0;
 
   --font-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
 
@@ -263,7 +271,7 @@
   }
   ::-webkit-scrollbar-thumb {
     background: var(--gray-300);
-    border-radius: 4px;
+    border-radius: 0;
     border: 2px solid transparent;
     background-clip: padding-box;
   }
@@ -335,7 +343,7 @@
     width: 100%;
     padding: 10px 12px;
     border: 1.5px solid var(--gray-200);
-    border-radius: 10px;
+    border-radius: 0;
     background: var(--surface-card);
     color: var(--gray-800);
     font-family: inherit;
@@ -458,7 +466,7 @@
   }
   ::-webkit-scrollbar-thumb {
     background: var(--gray-300);
-    border-radius: 4px;
+    border-radius: 0;
     border: 2px solid transparent;
     background-clip: padding-box;
   }
@@ -530,7 +538,7 @@
     width: 100%;
     padding: 10px 12px;
     border: 1.5px solid var(--gray-200);
-    border-radius: 10px;
+    border-radius: 0;
     background: var(--surface-card);
     color: var(--gray-800);
     font-family: inherit;

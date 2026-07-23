@@ -41,7 +41,7 @@ export function MenuSlide({ badge, title1, title2, subtitle, ctaLabel, demoUrl }
 
       {/* Layered Content on Top */}
       <div className="relative z-10 max-w-215 px-6 sm:px-16 md:px-32 py-8 sm:py-12 flex flex-col items-center sm:items-start justify-center text-white">
-        <div className="inline-flex items-center gap-2 mb-3 sm:mb-4 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-[0.65rem] sm:text-[0.8rem] font-bold tracking-wide">
+        <div className="inline-flex items-center gap-2 mb-3 sm:mb-4 px-3 py-1 bg-white/10 backdrop-blur-md border border-white/20 text-white text-[0.65rem] sm:text-[0.8rem] font-bold tracking-wide">
           {badge}
         </div>
 
@@ -56,7 +56,7 @@ export function MenuSlide({ badge, title1, title2, subtitle, ctaLabel, demoUrl }
         <div className="flex gap-2.5 sm:gap-3 justify-center sm:justify-start flex-wrap">
           <a
             href={demoUrl}
-            className="px-4 py-2.5 sm:px-7.5 sm:py-3.5 rounded-xl no-underline bg-[linear-gradient(135deg,#4f6ef7,#3b5bdb)] text-white text-xs sm:text-sm font-bold shadow-[0_8px_24px_rgba(79,110,247,0.35)] inline-flex items-center gap-2 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(79,110,247,0.45)]"
+            className="px-4 py-2.5 sm:px-7.5 sm:py-3.5 no-underline bg-[linear-gradient(135deg,#4f6ef7,#3b5bdb)] text-white text-xs sm:text-sm font-bold shadow-[0_8px_24px_rgba(79,110,247,0.35)] inline-flex items-center gap-2 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(79,110,247,0.45)]"
           >
             {ctaLabel} <ChevronRight size={16} />
           </a>

@@ -23,7 +23,7 @@ export function EmptyState({
       style={style}
     >
       <div
-        className={`w-15 h-15 flex items-center justify-center rounded-[18px] bg-(image:--brand-gradient-soft) border border-brand-100 text-brand-500 ${iconClassName}`}
+        className={`w-15 h-15 flex items-center justify-center bg-(image:--brand-gradient-soft) border border-brand-100 text-brand-500 ${iconClassName}`}
         style={iconStyle}
       >
         {icon}

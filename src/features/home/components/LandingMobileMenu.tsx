@@ -63,7 +63,7 @@ export function LandingMobileMenu({
     <>
       <button
         type="button"
-        className="inline-flex min-[721px]:hidden w-9.5 h-9.5 rounded-lg border border-slate-200 bg-white text-slate-900 items-center justify-center cursor-pointer shrink-0"
+        className="inline-flex min-[721px]:hidden w-9.5 h-9.5 border border-slate-200 bg-white text-slate-900 items-center justify-center cursor-pointer shrink-0"
         aria-label="Menu"
         aria-expanded={open}
         onClick={() => setOpen(true)}
@@ -97,7 +97,7 @@ export function LandingMobileMenu({
                   type="button"
                   aria-label="Close"
                   onClick={close}
-                  className="w-9.5 h-9.5 rounded-lg border border-slate-200 bg-white text-slate-900 inline-flex items-center justify-center cursor-pointer"
+                  className="w-9.5 h-9.5 border border-slate-200 bg-white text-slate-900 inline-flex items-center justify-center cursor-pointer"
                 >
                   <X size={20} />
                 </button>
@@ -109,7 +109,7 @@ export function LandingMobileMenu({
                     key={l.href}
                     href={l.href}
                     onClick={close}
-                    className="px-3 py-2.75 rounded-lg no-underline text-slate-900 text-[0.95rem] font-semibold"
+                    className="px-3 py-2.75 no-underline text-slate-900 text-[0.95rem] font-semibold"
                   >
                     {l.label}
                   </a>
@@ -120,14 +120,14 @@ export function LandingMobileMenu({
                 <Link
                   href={signInHref}
                   onClick={close}
-                  className="px-4 py-3 rounded-xl no-underline text-center bg-white text-slate-900 border border-slate-200 text-[0.95rem] font-semibold"
+                  className="px-4 py-3 no-underline text-center bg-white text-slate-900 border border-slate-200 text-[0.95rem] font-semibold"
                 >
                   {signInLabel}
                 </Link>
                 <a
                   href={demoHref}
                   onClick={close}
-                  className="px-4 py-3 rounded-xl no-underline text-center bg-[linear-gradient(135deg,#4f6ef7,#3b5bdb)] text-white text-[0.95rem] font-bold shadow-[0_6px_18px_rgba(79,110,247,0.3)] inline-flex items-center justify-center gap-2"
+                  className="px-4 py-3 no-underline text-center bg-[linear-gradient(135deg,#4f6ef7,#3b5bdb)] text-white text-[0.95rem] font-bold shadow-[0_6px_18px_rgba(79,110,247,0.3)] inline-flex items-center justify-center gap-2"
                 >
                   {demoLabel} <ChevronRight size={17} />
                 </a>

@@ -258,7 +258,7 @@ export function GuestHubClient({
                 type="button"
                 onClick={toggleTheme}
                 aria-label="Toggle theme"
-                className="w-10 rounded-[10px] bg-black/45 backdrop-blur-md border border-white/10 flex items-center justify-center text-white cursor-pointer shrink-0"
+                className="w-10 bg-black/45 backdrop-blur-md border border-white/10 flex items-center justify-center text-white cursor-pointer shrink-0"
               >
                 {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
               </button>

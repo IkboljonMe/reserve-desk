@@ -62,7 +62,7 @@ export default function IncomeChart({ data }: IncomeChartProps) {
                       background: `${EXPECTED}1f`,
                       border: `1.5px solid ${EXPECTED}66`,
                       borderBottom: 'none',
-                      borderRadius: '4px 4px 0 0',
+                      borderRadius: 0,
                       transition: `height 0.6s cubic-bezier(0.22,1,0.36,1) ${i * 12}ms`,
                       boxShadow: hover?.i === i ? `0 0 0 2px ${EXPECTED}44` : 'none',
                     }}
@@ -73,7 +73,7 @@ export default function IncomeChart({ data }: IncomeChartProps) {
                       style={{
                         height: colH,
                         background: FILL_COLLECTED,
-                        borderRadius: colH >= expH - 1 ? '4px 4px 0 0' : '0',
+                        borderRadius: 0,
                         transition: `height 0.6s cubic-bezier(0.22,1,0.36,1) ${i * 12 + 60}ms`,
                       }}
                     />

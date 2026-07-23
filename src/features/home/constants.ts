@@ -10,7 +10,7 @@ export type Translate = (key: string, params?: Record<string, string | number>) 
 export const DISPLAY_FONT = 'var(--font-zen-dots), system-ui, sans-serif'
 
 // Shared Tailwind class strings for the landing sections.
-export const CARD = 'border border-slate-200 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.04),0_8px_24px_rgba(15,23,42,0.04)]'
+export const CARD = 'border border-slate-200 shadow-[0_1px_3px_rgba(15,23,42,0.04),0_8px_24px_rgba(15,23,42,0.04)]'
 export const SECTION_TITLE = 'text-center font-extrabold tracking-[-0.02em] text-slate-900 mb-2.5 text-[clamp(1.5rem,3vw,2rem)]'
 export const SECTION_SUB = 'text-center text-slate-500 max-w-155 mx-auto mb-10 text-base leading-relaxed'
 

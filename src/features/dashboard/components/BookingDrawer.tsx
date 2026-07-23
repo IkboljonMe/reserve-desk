@@ -175,7 +175,7 @@ export default function BookingDrawer({
             {/* Header */}
             <div className="flex items-center gap-2.5 mb-[1.1rem]">
               <span
-                className="w-10 h-10 rounded-[11px] shrink-0 flex items-center justify-center"
+                className="w-10 h-10 shrink-0 flex items-center justify-center"
                 style={{ background: `${b.serviceId?.color || '#6366f1'}1f`, color: b.serviceId?.color || '#6366f1' }}
               >
                 {getServiceIcon(b.serviceId?.name || '')}
@@ -197,7 +197,7 @@ export default function BookingDrawer({
 
             {/* Status + price banner */}
             <div className="flex gap-2.5 mb-[1.1rem]">
-              <div className="flex-1 p-[0.7rem_0.85rem] rounded-[10px]" style={{ background: st.bg }}>
+              <div className="flex-1 p-[0.7rem_0.85rem]" style={{ background: st.bg }}>
                 <div className="text-[0.66rem] font-bold uppercase tracking-[0.04em]" style={{ color: st.color }}>
                   {t('status')}
                 </div>
@@ -206,7 +206,7 @@ export default function BookingDrawer({
                   {t(st.key)}
                 </div>
               </div>
-              <div className="flex-1 p-[0.7rem_0.85rem] rounded-[10px] bg-gray-50">
+              <div className="flex-1 p-[0.7rem_0.85rem] bg-gray-50">
                 <div className="text-[0.66rem] font-bold text-gray-400 uppercase tracking-[0.04em]">
                   {t('price')}
                 </div>

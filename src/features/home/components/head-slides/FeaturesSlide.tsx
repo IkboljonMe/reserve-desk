@@ -20,7 +20,7 @@ export function FeaturesSlide({ badge, title, features }: Props) {
 
       {/* Layered Content on Top */}
       <div className="relative z-10 w-full max-w-250 px-5 sm:px-10 py-8 sm:py-12 flex flex-col items-center text-white">
-        <div className="inline-flex items-center gap-2 mb-3 sm:mb-4 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-[0.65rem] sm:text-[0.8rem] font-bold tracking-wide">
+        <div className="inline-flex items-center gap-2 mb-3 sm:mb-4 px-3 py-1 bg-white/10 backdrop-blur-md border border-white/20 text-white text-[0.65rem] sm:text-[0.8rem] font-bold tracking-wide">
           {badge}
         </div>
 
@@ -34,9 +34,9 @@ export function FeaturesSlide({ badge, title, features }: Props) {
             return (
               <li
                 key={label}
-                className="flex items-center gap-2.5 sm:gap-3 text-left px-3 py-2.5 sm:px-4 sm:py-3.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/20"
+                className="flex items-center gap-2.5 sm:gap-3 text-left px-3 py-2.5 sm:px-4 sm:py-3.5 bg-white/10 backdrop-blur-md border border-white/20"
               >
-                <span className="shrink-0 flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-white/15 text-[#a5b4fc]">
+                <span className="shrink-0 flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 bg-white/15 text-[#a5b4fc]">
                   <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
                 </span>
                 <span className="text-[0.75rem] sm:text-[0.95rem] font-semibold leading-tight text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)]">

@@ -89,14 +89,14 @@ export default function IncomeAnalytics({
         <div className="flex gap-4 mt-3 text-[0.72rem] text-gray-500">
           <span className="inline-flex items-center gap-1.5">
             <span
-              className="w-3 h-3 rounded-[3px]"
+              className="w-3 h-3"
               style={{ background: FILL_COLLECTED }}
             />{" "}
             {t("collected")}
           </span>
           <span className="inline-flex items-center gap-1.5">
             <span
-              className="w-3 h-3 rounded-[3px]"
+              className="w-3 h-3"
               style={{
                 background: `${EXPECTED}33`,
                 border: `1.5px solid ${EXPECTED}`,
@@ -137,9 +137,9 @@ export default function IncomeAnalytics({
                       {money(svcTotal)}
                     </span>
                   </div>
-                  <div className="h-1.5 bg-gray-100 rounded-[3px] overflow-hidden">
+                  <div className="h-1.5 bg-gray-100 overflow-hidden">
                     <div
-                      className="h-full rounded-[3px]"
+                      className="h-full"
                       style={{
                         background: svc.color,
                         width: `${pct}%`,

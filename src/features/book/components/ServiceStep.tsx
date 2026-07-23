@@ -56,7 +56,7 @@ export function ServiceStep({ w }: { w: BookingWizard }) {
                 }}
               >
                 <div
-                  className="w-10 h-10 rounded-[10px] mb-2.5 flex items-center justify-center"
+                  className="w-10 h-10 mb-2.5 flex items-center justify-center"
                   style={{ background: `${svc.color}18`, color: svc.color }}
                 >
                   {getServiceIcon(svc.name)}

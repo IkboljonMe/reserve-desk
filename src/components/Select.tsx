@@ -114,7 +114,7 @@ export default function Select({
     <div ref={rootRef} className="relative">
       <button
         type="button"
-        className="w-full flex items-center gap-2.5 py-2.5 px-3 border-[1.5px] border-(--gray-200,#e5e7eb) rounded-[10px] bg-(--surface-card) font-sans text-[0.8125rem] font-medium text-(--gray-700,#374151) cursor-pointer outline-none text-left transition-all duration-150 ease-in-out hover:border-(--gray-300,#d1d5db) focus-visible:border-(--brand-500,#6366f1) focus-visible:shadow-[0_0_0_3px_rgba(79,110,247,0.14)] aria-expanded:border-(--brand-500,#6366f1) aria-expanded:shadow-[0_0_0_3px_rgba(79,110,247,0.14)]"
+        className="w-full flex items-center gap-2.5 py-2.5 px-3 border-[1.5px] border-(--gray-200,#e5e7eb) bg-(--surface-card) font-sans text-[0.8125rem] font-medium text-(--gray-700,#374151) cursor-pointer outline-none text-left transition-all duration-150 ease-in-out hover:border-(--gray-300,#d1d5db) focus-visible:border-(--brand-500,#6366f1) focus-visible:shadow-[0_0_0_3px_rgba(79,110,247,0.14)] aria-expanded:border-(--brand-500,#6366f1) aria-expanded:shadow-[0_0_0_3px_rgba(79,110,247,0.14)]"
         onClick={() => (open ? setOpen(false) : openList())}
         onKeyDown={onKeyDown}
         aria-haspopup="listbox"

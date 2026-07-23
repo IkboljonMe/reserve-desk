@@ -80,7 +80,7 @@ export function BookingsTable({ s }: { s: DashboardPageState }) {
                   <div className="flex items-center gap-1.5">
                     {b.roomNumber ? <span className="text-gray-600 inline-flex items-center gap-0.75"><BedDouble size={12} />{b.roomNumber}</span> : <span className="text-gray-300">—</span>}
                     <span
-                      className="inline-flex items-center gap-0.75 px-1.5 py-0.25 rounded-[6px] text-[0.66rem] font-bold"
+                      className="inline-flex items-center gap-0.75 px-1.5 py-0.25 text-[0.66rem] font-bold"
                       style={{ background: `${TYPE_META[type].color}14`, color: TYPE_META[type].color }}
                     >
                       {TYPE_META[type].icon}{t(TYPE_META[type].labelKey)}
@@ -92,7 +92,7 @@ export function BookingsTable({ s }: { s: DashboardPageState }) {
                 </td>
                 <td className="p-[9px_12px]">
                   <span
-                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[20px] text-[0.7rem] font-bold"
+                    className="inline-flex items-center gap-1 px-2 py-0.5 text-[0.7rem] font-bold"
                     style={{ background: st.bg, color: st.color }}
                   >
                     {st.key === 'finished' && <Check size={11} />}{t(st.key)}

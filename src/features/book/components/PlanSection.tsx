@@ -60,7 +60,7 @@ export function PlanSection({ w }: { w: BookingWizard }) {
                   key={v.id}
                   type="button"
                   onClick={() => chooseVariant(v)}
-                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-[10px] font-bold text-[0.85rem] cursor-pointer transition-all duration-150"
+                  className="inline-flex items-center gap-1.5 px-4 py-2.5 font-bold text-[0.85rem] cursor-pointer transition-all duration-150"
                   style={{
                     border: `2px solid ${active ? accent : "var(--gray-200)"}`,
                     background: active ? `${accent}15` : "var(--surface-card)",
@@ -192,7 +192,7 @@ export function PlanSection({ w }: { w: BookingWizard }) {
                 (() => {
                   const accent = categoryMeta?.color || selectedService.color;
                   const pillCls = (active: boolean) =>
-                    `px-4 py-2 rounded-[10px] cursor-pointer min-w-16 text-center font-bold text-[0.85rem] transition-all duration-150 border-2`;
+                    `px-4 py-2 cursor-pointer min-w-16 text-center font-bold text-[0.85rem] transition-all duration-150 border-2`;
                   const pillStyle = (active: boolean) => ({
                     borderColor: active ? accent : "var(--gray-200)",
                     background: active ? `${accent}15` : "var(--surface-card)",

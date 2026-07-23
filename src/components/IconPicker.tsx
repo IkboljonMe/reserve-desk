@@ -102,7 +102,7 @@ export default function IconPicker({
           gap: 8,
           padding: "9px 12px", // same padding as .form-input
           border: `1.5px solid ${open ? "var(--brand-500)" : "var(--gray-200)"}`,
-          borderRadius: 10,
+          borderRadius: 0,
           background: "var(--surface-card)",
           boxShadow: open ? "0 0 0 3px rgba(79,110,247,0.14)" : undefined,
           cursor: "pointer",
@@ -121,7 +121,7 @@ export default function IconPicker({
             justifyContent: "center",
             width: 20,
             height: 20,
-            borderRadius: 6,
+            borderRadius: 0,
             flexShrink: 0,
             background: "var(--brand-50)",
             color: "var(--brand-600)",
@@ -171,7 +171,7 @@ export default function IconPicker({
             zIndex: 9999,
             background: "var(--surface-card)",
             border: "1.5px solid var(--brand-100)",
-            borderRadius: 14,
+            borderRadius: 0,
             boxShadow: "var(--shadow-xl)",
             animation: "slideUp 0.18s cubic-bezier(0.16,1,0.3,1)",
             overflow: "hidden",
@@ -263,7 +263,7 @@ export default function IconPicker({
                       alignItems: "center",
                       justifyContent: "center",
                       height: 40,
-                      borderRadius: 8,
+                      borderRadius: 0,
                       cursor: "pointer",
                       border: selected
                         ? "1.5px solid var(--brand-500)"

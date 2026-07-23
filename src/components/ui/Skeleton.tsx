@@ -17,7 +17,7 @@ export function Skeleton({
 }
 
 export function SkeletonText({ width = "100%" }: { width?: string | number }) {
-  return <Skeleton className="h-3.5 rounded-[4px]" style={{ width }} />;
+  return <Skeleton className="h-3.5" style={{ width }} />;
 }
 
 export function SkeletonTableRows({
