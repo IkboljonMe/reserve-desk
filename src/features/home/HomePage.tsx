@@ -88,6 +88,14 @@ export async function HomePage({ locale }: { locale: string }) {
 
   // Structured data for rich results, from the same plan prices.
   const prices = plans.map((p) => p.price).filter((p) => p > 0);
+  // WebSite schema is the signal Google uses to render the SERP site name — this
+  // is what turns the "bronit.uz" line above the title into "Bronit".
+  const webSiteLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Bronit",
+    url: "https://bronit.uz",
+  };
   const organizationLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -116,6 +124,7 @@ export async function HomePage({ locale }: { locale: string }) {
 
   return (
     <main className="bg-[--surface-bg] text-[--gray-900] min-h-dvh overflow-x-clip transition-colors duration-200">
+      <JsonLd data={webSiteLd} />
       <JsonLd data={organizationLd} />
       <JsonLd data={softwareLd} />
       <Navbar

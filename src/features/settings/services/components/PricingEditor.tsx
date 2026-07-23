@@ -371,7 +371,7 @@ export function PricingEditor({
           size="sm"
           onClick={() => setPlanPicker("choose")}
         >
-          <Plus size={13} /> {t("addPlan")}
+          <Plus size={13} /> {t("addPricingPlan")}
         </Button>
       )}
 

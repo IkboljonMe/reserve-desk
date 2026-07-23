@@ -18,7 +18,7 @@ export default function NotificationsPage() {
       <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
         <div>
           <h1>{t("notifications")}</h1>
-          <p className="mt-1">{t("notificationsSubtitle")}</p>
+          <p className="mt-1">{t("contractNotificationsSubtitle")}</p>
         </div>
         <Button
           variant="secondary"
@@ -78,7 +78,7 @@ export default function NotificationsPage() {
             iconStyle={{ color: "var(--success)" }}
           >
             <h3 className="text-gray-700">{t("allCaughtUp")}</h3>
-            <p>{t("noNotificationsDesc")}</p>
+            <p>{t("noContractNotificationsDesc")}</p>
             <Link
               href={`/${lang}/contracts`}
               className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-(--gray-200,#e5e7eb) bg-white py-2 px-4 text-sm font-semibold text-(--gray-700) whitespace-nowrap tracking-tight shadow-sm transition-colors duration-150 hover:bg-(--gray-50,#f9fafb) hover:border-(--gray-300) mt-2"
