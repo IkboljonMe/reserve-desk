@@ -7,7 +7,7 @@ import { MENU_LANGS, MENU_LANG_LABELS, type MenuLang } from "@/lib/menu";
 import type { LocalizedText } from "../types";
 
 export const FIELD_INPUT =
-  "flex-1 min-w-0 px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] disabled:bg-(--gray-50) disabled:text-[--gray-500]";
+  "flex-1 min-w-0 px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-(--gray-800) hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] disabled:bg-(--gray-50) disabled:text-(--gray-500)";
 
 // A translatable text field: language tabs (10 — MENU_LANGS) editing a
 // LocalizedText value in place, plus a "Translate" button (Google Translate,
@@ -127,7 +127,7 @@ export function LocalizedInput({
               checked={allSame}
               onChange={toggleAllSame}
             />
-            <span className="text-[0.7rem] font-semibold text-[--gray-500]">
+            <span className="text-[0.7rem] font-semibold text-(--gray-500)">
               {t("sameInAllLangs")}
             </span>
           </label>
@@ -153,10 +153,10 @@ export function LocalizedInput({
             onClick={() => setActiveLang(lang)}
             className={`px-2 py-1 rounded-md text-[0.7rem] font-bold whitespace-nowrap transition-colors ${
               activeLang === lang
-                ? "bg-[--brand-500] text-white"
+                ? "bg-(--brand-500) text-white"
                 : isLocked(lang)
                   ? "bg-(--gray-100) text-(--gray-400)"
-                  : "bg-(--gray-100) text-[--gray-600] hover:bg-(--gray-200)"
+                  : "bg-(--gray-100) text-(--gray-600) hover:bg-(--gray-200)"
             }`}
           >
             {lang === sourceLang && "★ "}
@@ -196,7 +196,7 @@ export function LocalizedInput({
             checked={isLocked(activeLang)}
             onChange={() => toggleLock(activeLang)}
           />
-          <span className="text-[0.72rem] text-[--gray-500] font-medium">
+          <span className="text-[0.72rem] text-(--gray-500) font-medium">
             {t("keepOriginalLang")}
           </span>
         </label>

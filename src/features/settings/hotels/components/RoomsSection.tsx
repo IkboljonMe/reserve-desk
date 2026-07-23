@@ -45,11 +45,11 @@ export function RoomsSection({ s }: { s: HotelsRoomsPageState }) {
     <section>
       <div className="flex items-center justify-between mb-4 flex-wrap gap-4">
         <div>
-          <h2 className="m-0 text-lg font-bold text-[--gray-800] flex items-center gap-2">
+          <h2 className="m-0 text-lg font-bold text-(--gray-800) flex items-center gap-2">
             <BedDouble size={18} className="text-(--brand-600)" />{" "}
             {t("rooms")}
           </h2>
-          <p className="text-[0.8125rem] text-[--gray-500] mt-0.5">
+          <p className="text-[0.8125rem] text-(--gray-500) mt-0.5">
             {t("roomsSectionDesc")}
           </p>
         </div>
@@ -94,7 +94,7 @@ export function RoomsSection({ s }: { s: HotelsRoomsPageState }) {
                   key={room._id}
                   className="flex items-center gap-2.5 px-5 py-3 border-b border-(--gray-100,#f3f4f6) last:border-0"
                 >
-                  <span className="font-bold text-[--gray-800] text-[0.9375rem] min-w-15 tabular-nums">
+                  <span className="font-bold text-(--gray-800) text-[0.9375rem] min-w-15 tabular-nums">
                     #{room.number}
                   </span>
                   <span className="text-[0.72rem] text-(--gray-400)">
@@ -197,7 +197,7 @@ export function RoomsSection({ s }: { s: HotelsRoomsPageState }) {
                                     <DoorClosed size={16} />
                                   </span>
                                   <div className="min-w-0 overflow-hidden">
-                                    <div className="font-bold text-[--gray-800] text-[0.9375rem] whitespace-nowrap overflow-hidden text-ellipsis tabular-nums">
+                                    <div className="font-bold text-(--gray-800) text-[0.9375rem] whitespace-nowrap overflow-hidden text-ellipsis tabular-nums">
                                       {displayCode(hotel)}-{room.number}
                                       {room.type && (
                                         <span className="ml-2 text-[0.7rem] font-semibold text-(--brand-600,#4f46e5) bg-(--brand-50,#eef2ff) px-1.5 py-0.5 rounded-md inline-block align-middle">

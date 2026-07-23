@@ -79,7 +79,7 @@ export function ScheduleEditor({
         <h3 className="text-[0.9rem] font-bold text-(--brand-700,#4338ca) m-0">
           {t("weeklySchedule")}
         </h3>
-        <p className="text-[0.72rem] text-[--gray-500] mt-0.5">
+        <p className="text-[0.72rem] text-(--gray-500) mt-0.5">
           {t("weeklyScheduleHint")}
         </p>
       </div>
@@ -111,7 +111,7 @@ export function ScheduleEditor({
                 <span className="w-10.5 text-[0.8rem] font-semibold text-(--gray-700)">
                   {t(labelKey)}
                 </span>
-                <label className="flex items-center gap-1.25 text-[0.76rem] text-[--gray-500] w-22">
+                <label className="flex items-center gap-1.25 text-[0.76rem] text-(--gray-500) w-22">
                   <input
                     type="checkbox"
                     checked={!row.closed}
@@ -123,7 +123,7 @@ export function ScheduleEditor({
                 </label>
                 <input
                   type="time"
-                  className={`w-30 px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] ${
+                  className={`w-30 px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-(--gray-800) hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] ${
                     row.closed ? "opacity-50" : "opacity-100"
                   }`}
                   value={row.open}
@@ -133,7 +133,7 @@ export function ScheduleEditor({
                 <span className="text-(--gray-400)">–</span>
                 <input
                   type="time"
-                  className={`w-30 px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] ${
+                  className={`w-30 px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-(--gray-800) hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] ${
                     row.closed ? "opacity-50" : "opacity-100"
                   }`}
                   value={row.close}
@@ -152,7 +152,7 @@ export function ScheduleEditor({
         <h3 className="text-[0.9rem] font-bold text-(--brand-700,#4338ca) m-0">
           {t("blackoutDates")}
         </h3>
-        <p className="text-[0.72rem] text-[--gray-500] mt-0.5">
+        <p className="text-[0.72rem] text-(--gray-500) mt-0.5">
           {t("blackoutDatesHint")}
         </p>
       </div>
@@ -162,7 +162,7 @@ export function ScheduleEditor({
       >
         <input
           type="date"
-          className="w-auto px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+          className="w-auto px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-(--gray-800) hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
           onChange={(e) => {
             addBlackout(e.target.value);
             e.target.value = "";

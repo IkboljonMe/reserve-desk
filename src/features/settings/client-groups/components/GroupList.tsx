@@ -46,7 +46,7 @@ export function GroupList({ s }: { s: ClientGroupsPageState }) {
                 className="w-3 h-3 rounded-full shrink-0"
                 style={{ background: g.color }}
               />
-              <span className="font-semibold text-[--gray-800] flex-1">
+              <span className="font-semibold text-(--gray-800) flex-1">
                 {g.name}
               </span>
               <div className="flex gap-1.5">

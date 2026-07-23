@@ -33,7 +33,7 @@ export function ClientsFilters({ s }: { s: ClientsPageState }) {
           />
         </div>
         <select
-          className="w-auto min-w-40 px-3 py-1.75 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+          className="w-auto min-w-40 px-3 py-1.75 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-(--gray-800) hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
           value={groupFilter}
           onChange={(e) => setGroupFilter(e.target.value)}
           aria-label={t("filterByGroup")}

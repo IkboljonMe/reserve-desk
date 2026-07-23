@@ -73,7 +73,7 @@ export function ServiceCard({
         {/* Name + badges */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 flex-wrap mb-1">
-            <span className="font-bold text-[0.9375rem] text-[--gray-800] tracking-tight overflow-hidden text-ellipsis whitespace-nowrap">
+            <span className="font-bold text-[0.9375rem] text-(--gray-800) tracking-tight overflow-hidden text-ellipsis whitespace-nowrap">
               {svc.name}
             </span>
             {/* Status dot */}
@@ -122,7 +122,7 @@ export function ServiceCard({
 
       {/* Description */}
       {svc.description && (
-        <div className="px-5 pb-3 text-[0.775rem] text-[--gray-500] leading-normal">
+        <div className="px-5 pb-3 text-[0.775rem] text-(--gray-500) leading-normal">
           {svc.description}
         </div>
       )}

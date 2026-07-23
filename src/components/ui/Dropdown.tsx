@@ -141,7 +141,7 @@ export default function Dropdown({
           aria-activedescendant={
             open && activeIndex >= 0 ? `${listId}-${activeIndex}` : undefined
           }
-          className={`w-full flex items-center gap-2.5 px-3 py-2.5 min-h-10 border border-(--surface-border) rounded-lg bg-(--surface-card) text-[0.8125rem] font-medium text-[--gray-800] cursor-pointer outline-none text-left transition-all duration-150 box-border hover:not-disabled:border-(--gray-400) focus-visible:border-(--brand-500,#6366f1) focus-visible:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] disabled:opacity-60 disabled:cursor-not-allowed disabled:bg-(--gray-50) ${
+          className={`w-full flex items-center gap-2.5 px-3 py-2.5 min-h-10 border border-(--surface-border) rounded-lg bg-(--surface-card) text-[0.8125rem] font-medium text-(--gray-800) cursor-pointer outline-none text-left transition-all duration-150 box-border hover:not-disabled:border-(--gray-400) focus-visible:border-(--brand-500,#6366f1) focus-visible:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] disabled:opacity-60 disabled:cursor-not-allowed disabled:bg-(--gray-50) ${
             open
               ? "border-(--brand-500,#6366f1) ring-2 ring-(--brand-500)/15 shadow-sm"
               : ""
@@ -155,7 +155,7 @@ export default function Dropdown({
           <span
             className={`flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap ${
               selected && selected.value
-                ? "text-[--gray-900] font-semibold"
+                ? "text-(--gray-900) font-semibold"
                 : "text-(--gray-400)"
             }`}
           >
@@ -196,8 +196,8 @@ export default function Dropdown({
                   className={`flex items-center justify-between gap-2 p-2 rounded-md cursor-pointer text-[0.8125rem] transition-all duration-100 ease-in-out box-border ${
                     isSelected
                       ? "font-bold text-(--brand-600,#4f6ef7) bg-(--brand-50)/30 dark:bg-(--brand-500)/15 hover:bg-(--brand-50)/50"
-                      : "text-(--gray-700) hover:bg-(--gray-50) hover:text-[--gray-900]"
-                  } ${isActive && !isSelected ? "bg-(--gray-100) text-[--gray-900]" : ""}`}
+                      : "text-(--gray-700) hover:bg-(--gray-50) hover:text-(--gray-900)"
+                  } ${isActive && !isSelected ? "bg-(--gray-100) text-(--gray-900)" : ""}`}
                 >
                   <span className="flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">
                     {opt.label}

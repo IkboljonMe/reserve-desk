@@ -27,7 +27,7 @@ export function ServicesFilterBar({ s }: { s: ServicesPageState }) {
           className="absolute left-3 top-1/2 -translate-y-1/2 text-(--gray-400) pointer-events-none"
         />
         <input
-          className="w-full pl-9 pr-3 py-1.75 min-h-9.5 rounded-lg text-[0.8125rem] outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+          className="w-full pl-9 pr-3 py-1.75 min-h-9.5 rounded-lg text-[0.8125rem] outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-(--gray-800) hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
           placeholder={t("searchServices")}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}

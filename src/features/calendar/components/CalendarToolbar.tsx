@@ -147,7 +147,7 @@ export function CalendarToolbar({ s }: { s: CalendarPageState }) {
     return (
       <div className="flex flex-col gap-2.5 mb-3.5">
         {/* Dates */}
-        <span className="font-bold text-[--gray-800] text-[1.0625rem] tracking-tight text-center">
+        <span className="font-bold text-(--gray-800) text-[1.0625rem] tracking-tight text-center">
           {headerLabel}
         </span>
         {/* Date nav (prev · today · next · pick-a-date) and Filters in one row */}
@@ -193,7 +193,7 @@ export function CalendarToolbar({ s }: { s: CalendarPageState }) {
       {/* Left: Navigation and Date */}
       <div className="flex items-center gap-3">
         {navGroup}
-        <span className="font-bold text-[--gray-800] text-[1.0625rem] tracking-tight">
+        <span className="font-bold text-(--gray-800) text-[1.0625rem] tracking-tight">
           {headerLabel}
         </span>
         <button

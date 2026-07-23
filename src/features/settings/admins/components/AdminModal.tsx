@@ -9,7 +9,7 @@ import type { AdminsPageState } from "../useAdminsPage";
 import Button from "@/components/ui/Button";
 
 const FIELD_CLASS =
-  "w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]";
+  "w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-(--gray-800) hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]";
 
 export function AdminModal({ s }: { s: AdminsPageState }) {
   const { t } = useTranslation();
@@ -72,7 +72,7 @@ export function AdminModal({ s }: { s: AdminsPageState }) {
                     value={bronitLocalPart(form.email)}
                     onChange={(e) => setEmailLocalPart(e.target.value)}
                   />
-                  <span className="inline-flex items-center px-3 rounded-r-lg border border-l-0 border-(--gray-200) bg-(--gray-50) text-[--gray-500] text-sm whitespace-nowrap">
+                  <span className="inline-flex items-center px-3 rounded-r-lg border border-l-0 border-(--gray-200) bg-(--gray-50) text-(--gray-500) text-sm whitespace-nowrap">
                     {BRONIT_DOMAIN}
                   </span>
                 </div>
@@ -95,7 +95,7 @@ export function AdminModal({ s }: { s: AdminsPageState }) {
                 {t("hotel")} *
               </label>
               <select
-                className="w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+                className="w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-(--gray-800) hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
                 required
                 value={form.hotelId}
                 onChange={(e) =>

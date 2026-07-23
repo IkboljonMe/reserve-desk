@@ -18,7 +18,7 @@ export function CalendarSidebar({ s }: { s: CalendarPageState }) {
       <div className="bg-(--surface-card) border border-(--surface-border) rounded-(--radius-lg) shadow-sm p-[0.9rem_1rem]">
         <div className="flex justify-between mb-2">
           <div>
-            <div className="text-2xl font-extrabold text-[--gray-800] leading-none">
+            <div className="text-2xl font-extrabold text-(--gray-800) leading-none">
               {summary.count}
             </div>
             <div className="text-[0.7rem] text-(--gray-400) uppercase tracking-wider mt-0.5">

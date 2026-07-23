@@ -171,7 +171,7 @@ export function GuestSection({ w }: { w: BookingWizard }) {
                     className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold text-[0.8125rem] cursor-pointer transition-all duration-150"
                     style={{
                       border: `1.5px solid ${active ? "var(--brand-500)" : "var(--gray-200)"}`,
-                      background: active ? "var(--brand-50)" : "#fff",
+                      background: active ? "var(--brand-50)" : "var(--surface-card)",
                       color: active ? "var(--brand-700)" : "var(--gray-700)",
                     }}
                   >

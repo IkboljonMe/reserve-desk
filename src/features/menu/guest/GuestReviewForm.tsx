@@ -53,7 +53,7 @@ export function GuestReviewForm({
         <span className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
           <Check size={16} />
         </span>
-        <p className="text-[0.9rem] font-semibold text-[--gray-700] m-0">
+        <p className="text-[0.9rem] font-semibold text-(--gray-700) m-0">
           {labels.reviewThanks}
         </p>
       </div>
@@ -62,7 +62,7 @@ export function GuestReviewForm({
 
   return (
     <div className="rounded-xl border border-(--surface-border) bg-(--surface-card) p-3.5 flex flex-col gap-3">
-      <h4 className="text-[0.85rem] font-bold text-[--gray-700] m-0">
+      <h4 className="text-[0.85rem] font-bold text-(--gray-700) m-0">
         {labels.reviewTitle}
       </h4>
       <div className="flex items-center gap-1">
@@ -88,7 +88,7 @@ export function GuestReviewForm({
         ))}
       </div>
       <textarea
-        className="w-full px-3 py-2 min-h-16 resize-y rounded-lg text-sm outline-none bg-[--surface-bg] border border-(--surface-border) text-[--gray-800] focus:border-(--brand-500) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+        className="w-full px-3 py-2 min-h-16 resize-y rounded-lg text-sm outline-none bg-(--surface-bg) border border-(--surface-border) text-(--gray-800) focus:border-(--brand-500) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
         value={comment}
         onChange={(e) => setComment(e.target.value)}
         placeholder={labels.reviewCommentPlaceholder}

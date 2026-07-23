@@ -123,7 +123,7 @@ export async function HomePage({ locale }: { locale: string }) {
   };
 
   return (
-    <main className="bg-[--surface-bg] text-[--gray-900] min-h-dvh overflow-x-clip transition-colors duration-200">
+    <main className="bg-(--surface-bg) text-(--gray-900) min-h-dvh overflow-x-clip transition-colors duration-200">
       <JsonLd data={webSiteLd} />
       <JsonLd data={organizationLd} />
       <JsonLd data={softwareLd} />
@@ -140,7 +140,7 @@ export async function HomePage({ locale }: { locale: string }) {
         demoMenuUrl={demoMenuUrl}
         demoHubUrl={demoHubUrl}
       />
-      <div className="relative bg-[--surface-bg] transition-colors duration-200">
+      <div className="relative bg-(--surface-bg) transition-colors duration-200">
         <Features t={t} />
         <Reviews t={t} />
         <Modules t={t} />

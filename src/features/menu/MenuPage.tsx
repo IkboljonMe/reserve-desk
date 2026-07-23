@@ -98,8 +98,8 @@ export default function MenuPage() {
           onClick={() => setTab("menu")}
           className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[0.82rem] font-semibold transition-all cursor-pointer border-none ${
             tab === "menu"
-              ? "bg-[--brand-500] text-white shadow-sm"
-              : "text-[--gray-500] bg-transparent hover:text-(--gray-700)"
+              ? "bg-(--brand-500) text-white shadow-sm"
+              : "text-(--gray-500) bg-transparent hover:text-(--gray-700)"
           }`}
         >
           <UtensilsCrossed size={13} />
@@ -110,8 +110,8 @@ export default function MenuPage() {
           onClick={() => setTab("services")}
           className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[0.82rem] font-semibold transition-all cursor-pointer border-none ${
             tab === "services"
-              ? "bg-[--brand-500] text-white shadow-sm"
-              : "text-[--gray-500] bg-transparent hover:text-(--gray-700)"
+              ? "bg-(--brand-500) text-white shadow-sm"
+              : "text-(--gray-500) bg-transparent hover:text-(--gray-700)"
           }`}
         >
           <ConciergeBell size={13} />
@@ -122,8 +122,8 @@ export default function MenuPage() {
           onClick={() => setTab("settings")}
           className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[0.82rem] font-semibold transition-all cursor-pointer border-none ${
             tab === "settings"
-              ? "bg-[--brand-500] text-white shadow-sm"
-              : "text-[--gray-500] bg-transparent hover:text-(--gray-700)"
+              ? "bg-(--brand-500) text-white shadow-sm"
+              : "text-(--gray-500) bg-transparent hover:text-(--gray-700)"
           }`}
         >
           <Settings size={13} />
@@ -149,7 +149,7 @@ export default function MenuPage() {
           <h3 className="text-(--gray-700) font-bold">
             {t("noCategoriesYet")}
           </h3>
-          <p className="text-[--gray-500] text-sm">{t("noCategoriesDesc")}</p>
+          <p className="text-(--gray-500) text-sm">{t("noCategoriesDesc")}</p>
           <Button
             className="mt-2"
             leftIcon={<Plus size={14} strokeWidth={2.5} />}
@@ -166,7 +166,7 @@ export default function MenuPage() {
             return (
               <div key={cat._id} className={CARD}>
                 <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-(--surface-border)">
-                  <h2 className="text-[1rem] font-bold text-[--gray-800] m-0">
+                  <h2 className="text-[1rem] font-bold text-(--gray-800) m-0">
                     {cname}
                   </h2>
                   <div className="flex items-center gap-1.5">
@@ -245,7 +245,7 @@ export default function MenuPage() {
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2">
                               <span
-                                className={`font-semibold text-[0.9rem] truncate ${p.available ? "text-[--gray-800]" : "text-(--gray-400) line-through"}`}
+                                className={`font-semibold text-[0.9rem] truncate ${p.available ? "text-(--gray-800)" : "text-(--gray-400) line-through"}`}
                               >
                                 {pname}
                               </span>

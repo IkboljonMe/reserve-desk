@@ -377,7 +377,7 @@ export function PricingEditor({
 
       {planPicker === "choose" && (
         <div className="flex flex-col gap-2">
-          <span className="text-[0.78rem] font-semibold text-[--gray-600]">
+          <span className="text-[0.78rem] font-semibold text-(--gray-600)">
             {t("whoIsPriceFor")}
           </span>
           <div className="flex gap-2">
@@ -426,7 +426,7 @@ export function PricingEditor({
               : t("noMoreClientGroups");
           return (
             <div className="flex flex-col gap-2">
-              <span className="text-[0.78rem] font-semibold text-[--gray-600]">
+              <span className="text-[0.78rem] font-semibold text-(--gray-600)">
                 {planPicker === "room"
                   ? t("whichRoomCategory")
                   : t("whichClientGroup")}

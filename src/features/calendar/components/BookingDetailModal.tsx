@@ -148,7 +148,7 @@ export function BookingDetailModal({ s }: { s: CalendarPageState }) {
           >
             {getServiceIcon(selectedBooking.serviceId?.name || "")}
           </span>
-          <strong className="text-[--gray-800] text-[0.95rem] font-bold">
+          <strong className="text-(--gray-800) text-[0.95rem] font-bold">
             {selectedBooking.serviceId?.name}
           </strong>
           {(() => {

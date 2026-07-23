@@ -63,7 +63,7 @@ export function DateTimeSection({ w }: { w: BookingWizard }) {
                 className="px-3.5 py-1.75 rounded-lg text-[0.8125rem] cursor-pointer transition-all duration-150 tabular-nums"
                 style={{
                   border: `1.5px solid ${selected ? selectedService.color : "var(--gray-200)"}`,
-                  background: selected ? selectedService.color : "#fff",
+                  background: selected ? selectedService.color : "var(--surface-card)",
                   color: selected ? "#fff" : "var(--gray-700)",
                   fontWeight: selected ? 600 : 500,
                 }}

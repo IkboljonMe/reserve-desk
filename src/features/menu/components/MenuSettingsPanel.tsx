@@ -11,8 +11,8 @@ import { TILE_META } from "@/lib/tiles";
 type S = ReturnType<typeof useMenuSettings>;
 
 const FIELD =
-  "w-full px-3 py-2 min-h-10.5 rounded-lg text-sm outline-none bg-(--surface-card) border border-(--surface-border) text-[--gray-800] focus:border-(--brand-500) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]";
-const LABEL = "block text-[0.8rem] font-semibold text-[--gray-600] mb-1";
+  "w-full px-3 py-2 min-h-10.5 rounded-lg text-sm outline-none bg-(--surface-card) border border-(--surface-border) text-(--gray-800) focus:border-(--brand-500) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]";
+const LABEL = "block text-[0.8rem] font-semibold text-(--gray-600) mb-1";
 const SECTION =
   "bg-(--surface-card) border border-(--surface-border) rounded-(--radius-lg) p-5 flex flex-col gap-4";
 
@@ -45,10 +45,10 @@ export function MenuSettingsPanel({
       <section className={SECTION}>
         <div className="flex items-center justify-between gap-3">
           <div>
-            <h2 className="text-[1rem] font-bold text-[--gray-800] m-0">
+            <h2 className="text-[1rem] font-bold text-(--gray-800) m-0">
               {t("guestHub")}
             </h2>
-            <p className="text-[0.8rem] text-[--gray-500] m-0 mt-0.5">
+            <p className="text-[0.8rem] text-(--gray-500) m-0 mt-0.5">
               {t("menuEnabledDesc")}
             </p>
           </div>
@@ -60,7 +60,7 @@ export function MenuSettingsPanel({
               onChange={(e) => setField("menuEnabled", e.target.checked)}
             />
             <div
-              className={`w-11 h-6 rounded-full transition-colors ${form.menuEnabled ? "bg-[--brand-500]" : "bg-(--gray-300)"}`}
+              className={`w-11 h-6 rounded-full transition-colors ${form.menuEnabled ? "bg-(--brand-500)" : "bg-(--gray-300)"}`}
             >
               <div
                 className={`w-5 h-5 bg-white rounded-full shadow-sm transition-transform mt-0.5 ml-0.5 ${form.menuEnabled ? "translate-x-5" : "translate-x-0"}`}
@@ -87,7 +87,7 @@ export function MenuSettingsPanel({
 
       {/* ── Branding ─────────────────────────────────────────── */}
       <section className={SECTION}>
-        <h2 className="text-[1rem] font-bold text-[--gray-800] m-0">
+        <h2 className="text-[1rem] font-bold text-(--gray-800) m-0">
           {t("hubBranding")}
         </h2>
 
@@ -120,7 +120,7 @@ export function MenuSettingsPanel({
 
       {/* ── Wi-Fi ────────────────────────────────────────────── */}
       <section className={SECTION}>
-        <h2 className="text-[1rem] font-bold text-[--gray-800] m-0">
+        <h2 className="text-[1rem] font-bold text-(--gray-800) m-0">
           {t("wifiSettings")}
         </h2>
         <div className="grid grid-cols-2 gap-3">
@@ -147,7 +147,7 @@ export function MenuSettingsPanel({
 
       {/* ── Social & reviews ─────────────────────────────────── */}
       <section className={SECTION}>
-        <h2 className="text-[1rem] font-bold text-[--gray-800] m-0">
+        <h2 className="text-[1rem] font-bold text-(--gray-800) m-0">
           {t("socialLinks")}
         </h2>
         <div>
@@ -190,10 +190,10 @@ export function MenuSettingsPanel({
 
       {/* ── Tiles ─────────────────────────────────────────────── */}
       <section className={SECTION}>
-        <h2 className="text-[1rem] font-bold text-[--gray-800] m-0">
+        <h2 className="text-[1rem] font-bold text-(--gray-800) m-0">
           {t("tileSettings")}
         </h2>
-        <p className="text-[0.8rem] text-[--gray-500] m-0">
+        <p className="text-[0.8rem] text-(--gray-500) m-0">
           {t("tileSettingsDesc")}
         </p>
         <div className="flex flex-col gap-2">
@@ -211,7 +211,7 @@ export function MenuSettingsPanel({
                   className="w-6 h-6 object-contain shrink-0"
                 />
                 <div className="flex-1 min-w-0">
-                  <div className="text-[0.85rem] font-semibold text-[--gray-800]">
+                  <div className="text-[0.85rem] font-semibold text-(--gray-800)">
                     {meta.label.uz}
                   </div>
                   <div className="text-[0.72rem] text-(--gray-400)">
@@ -226,7 +226,7 @@ export function MenuSettingsPanel({
                     onChange={() => toggleTile(tile.id)}
                   />
                   <div
-                    className={`w-10 h-5.5 rounded-full transition-colors ${tile.enabled ? "bg-[--brand-500]" : "bg-(--gray-300)"}`}
+                    className={`w-10 h-5.5 rounded-full transition-colors ${tile.enabled ? "bg-(--brand-500)" : "bg-(--gray-300)"}`}
                   >
                     <div
                       className={`w-4.5 h-4.5 bg-white rounded-full shadow-sm transition-transform mt-0.5 ml-0.5 ${tile.enabled ? "translate-x-4.5" : "translate-x-0"}`}

@@ -26,7 +26,7 @@ export function GuestServicesPanel({
   return (
     <div className={CARD}>
       <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-(--surface-border)">
-        <h2 className="text-[1rem] font-bold text-[--gray-800] m-0">
+        <h2 className="text-[1rem] font-bold text-(--gray-800) m-0">
           {t("guestServices")}
         </h2>
         <Button
@@ -46,7 +46,7 @@ export function GuestServicesPanel({
           <h3 className="text-(--gray-700) font-bold m-0">
             {t("noGuestServicesYet")}
           </h3>
-          <p className="text-[--gray-500] text-sm m-0">
+          <p className="text-(--gray-500) text-sm m-0">
             {t("noGuestServicesDesc")}
           </p>
         </div>
@@ -69,7 +69,7 @@ export function GuestServicesPanel({
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <span
-                      className={`font-semibold text-[0.9rem] truncate ${g.active ? "text-[--gray-800]" : "text-(--gray-400) line-through"}`}
+                      className={`font-semibold text-[0.9rem] truncate ${g.active ? "text-(--gray-800)" : "text-(--gray-400) line-through"}`}
                     >
                       {gname}
                     </span>

@@ -47,8 +47,8 @@ export function AdminList({ s }: { s: AdminsPageState }) {
               className={`flex items-center gap-3 px-4 py-3 ${i === 0 ? "" : "border-t border-(--gray-100,#f3f4f6)"}`}
             >
               <div className="flex-1 min-w-0">
-                <div className="font-semibold text-[--gray-800]">{a.name}</div>
-                <div className="text-[0.8125rem] text-[--gray-500]">
+                <div className="font-semibold text-(--gray-800)">{a.name}</div>
+                <div className="text-[0.8125rem] text-(--gray-500)">
                   {a.email}
                 </div>
               </div>

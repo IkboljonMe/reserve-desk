@@ -25,7 +25,7 @@ export default function ServicesPage() {
               </span>
             )}
           </h2>
-          <p className="text-[0.8125rem] text-[--gray-500] mt-0.5">
+          <p className="text-[0.8125rem] text-(--gray-500) mt-0.5">
             {t("servicesSubtitle")}
           </p>
         </div>

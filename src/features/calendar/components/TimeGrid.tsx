@@ -423,11 +423,11 @@ function EventBlock({
         )}
       </span>
 
-      <div className="text-[0.7rem] font-bold text-[--gray-800] pr-4 leading-[1.15] overflow-hidden text-ellipsis whitespace-nowrap">
+      <div className="text-[0.7rem] font-bold text-(--gray-800) pr-4 leading-[1.15] overflow-hidden text-ellipsis whitespace-nowrap">
         {label}
       </div>
       {height > 30 && (
-        <div className="text-[0.64rem] text-[--gray-600] leading-[1.2] tabular-nums overflow-hidden whitespace-nowrap text-ellipsis">
+        <div className="text-[0.64rem] text-(--gray-600) leading-[1.2] tabular-nums overflow-hidden whitespace-nowrap text-ellipsis">
           {b.startTime}–{b.endTime}
         </div>
       )}

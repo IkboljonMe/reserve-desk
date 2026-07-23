@@ -84,7 +84,7 @@ export function ContactWidget(p: Props) {
     >
       <button
         type="button"
-        className="absolute top-2.5 right-2.5 w-7 h-7 border-none bg-(--gray-100) hover:bg-(--gray-200) rounded-lg text-[--gray-500] cursor-pointer inline-flex items-center justify-center transition-colors"
+        className="absolute top-2.5 right-2.5 w-7 h-7 border-none bg-(--gray-100) hover:bg-(--gray-200) rounded-lg text-(--gray-500) cursor-pointer inline-flex items-center justify-center transition-colors"
         onClick={() => setOpen(false)}
         aria-label={p.closeLabel}
       >
@@ -92,22 +92,22 @@ export function ContactWidget(p: Props) {
       </button>
 
       {status === "success" ? (
-        <div className="py-3 px-1 text-center text-sm font-semibold text-[--gray-900]">
+        <div className="py-3 px-1 text-center text-sm font-semibold text-(--gray-900)">
           ✅ {p.successMsg}
         </div>
       ) : (
         <form onSubmit={submit}>
-          <div className="flex items-center gap-2 text-[0.98rem] text-[--gray-900]">
+          <div className="flex items-center gap-2 text-[0.98rem] text-(--gray-900)">
             <span className="inline-flex w-7 h-7 rounded-lg items-center justify-center bg-(--brand-50)/50 text-(--brand-500) dark:text-white">
               <PhoneCall size={16} />
             </span>
             <strong>{p.title}</strong>
           </div>
-          <p className="my-2 text-[0.82rem] text-[--gray-500] leading-normal">
+          <p className="my-2 text-[0.82rem] text-(--gray-500) leading-normal">
             {p.desc}
           </p>
           <input
-            className="w-full box-border px-3 py-2.5 mb-2 border border-(--surface-border) bg-[--surface-bg] text-[--gray-900] placeholder:text-(--gray-400) rounded-xl text-sm outline-none focus:border-brand-500 focus:shadow-[0_0_0_3px_rgba(79,110,247,0.14)] transition-colors"
+            className="w-full box-border px-3 py-2.5 mb-2 border border-(--surface-border) bg-(--surface-bg) text-(--gray-900) placeholder:text-(--gray-400) rounded-xl text-sm outline-none focus:border-brand-500 focus:shadow-[0_0_0_3px_rgba(79,110,247,0.14)] transition-colors"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder={p.namePlaceholder}
@@ -115,7 +115,7 @@ export function ContactWidget(p: Props) {
             maxLength={120}
           />
           <input
-            className="w-full box-border px-3 py-2.5 mb-2 border border-(--surface-border) bg-[--surface-bg] text-[--gray-900] placeholder:text-(--gray-400) rounded-xl text-sm outline-none focus:border-brand-500 focus:shadow-[0_0_0_3px_rgba(79,110,247,0.14)] transition-colors"
+            className="w-full box-border px-3 py-2.5 mb-2 border border-(--surface-border) bg-(--surface-bg) text-(--gray-900) placeholder:text-(--gray-400) rounded-xl text-sm outline-none focus:border-brand-500 focus:shadow-[0_0_0_3px_rgba(79,110,247,0.14)] transition-colors"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             placeholder={p.phonePlaceholder}

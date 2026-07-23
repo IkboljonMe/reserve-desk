@@ -34,11 +34,11 @@ export function HotelsSection({ s }: { s: HotelsRoomsPageState }) {
     <section>
       <div className="flex items-center justify-between mb-4 flex-wrap gap-4">
         <div>
-          <h2 className="m-0 text-lg font-bold text-[--gray-800] flex items-center gap-2">
+          <h2 className="m-0 text-lg font-bold text-(--gray-800) flex items-center gap-2">
             <Building2 size={18} className="text-(--brand-600)" />{" "}
             {t("hotels")}
           </h2>
-          <p className="text-[0.8125rem] text-[--gray-500] mt-0.5">
+          <p className="text-[0.8125rem] text-(--gray-500) mt-0.5">
             {t("hotelCodeDesc")}
           </p>
         </div>
@@ -79,7 +79,7 @@ export function HotelsSection({ s }: { s: HotelsRoomsPageState }) {
                     {displayCode(hotel)}
                   </span>
                   <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-[--gray-800] text-[0.9375rem] overflow-hidden text-ellipsis whitespace-nowrap">
+                    <div className="font-semibold text-(--gray-800) text-[0.9375rem] overflow-hidden text-ellipsis whitespace-nowrap">
                       {hotel.name}
                     </div>
                     <div className="text-[0.75rem] text-(--gray-400) mt-0.5 flex items-center gap-1">
@@ -130,7 +130,7 @@ export function HotelsSection({ s }: { s: HotelsRoomsPageState }) {
                     </div>
                   )}
                 </div>
-                <div className="flex items-center gap-1.5 text-[0.75rem] text-[--gray-500] pt-2.5 border-t border-(--surface-border)">
+                <div className="flex items-center gap-1.5 text-[0.75rem] text-(--gray-500) pt-2.5 border-t border-(--surface-border)">
                   <BedDouble size={13} />
                   <span className="tabular-nums">{roomCount}</span>{" "}
                   {roomCount === 1 ? t("roomLower") : t("roomsLower")}

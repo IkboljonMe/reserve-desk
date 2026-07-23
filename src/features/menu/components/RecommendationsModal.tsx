@@ -82,7 +82,7 @@ export function RecommendationsModal({
       size="lg"
       closeLabel={t("close")}
     >
-      <p className="text-sm text-[--gray-500] mb-4">
+      <p className="text-sm text-(--gray-500) mb-4">
         {t("recommendationsDesc")}
       </p>
       {loading ? (
@@ -103,7 +103,7 @@ export function RecommendationsModal({
                 className="rounded-xl border border-(--surface-border) p-3"
               >
                 <div className="flex items-center justify-between gap-3">
-                  <h3 className="font-bold text-[--gray-800] m-0">
+                  <h3 className="font-bold text-(--gray-800) m-0">
                     {t(labelKey)}
                   </h3>
                   <div className="w-56 shrink-0">

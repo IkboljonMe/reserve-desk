@@ -63,7 +63,7 @@ export function PlanSection({ w }: { w: BookingWizard }) {
                   className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-[10px] font-bold text-[0.85rem] cursor-pointer transition-all duration-150"
                   style={{
                     border: `2px solid ${active ? accent : "var(--gray-200)"}`,
-                    background: active ? `${accent}15` : "#fff",
+                    background: active ? `${accent}15` : "var(--surface-card)",
                     color: active ? accent : "var(--gray-800)",
                   }}
                 >
@@ -107,7 +107,7 @@ export function PlanSection({ w }: { w: BookingWizard }) {
                   className="rounded-xl p-4 text-left transition-all duration-150 border-2"
                   style={{
                     borderColor: active ? meta.color : "var(--gray-200)",
-                    background: active ? `${meta.color}12` : "#fff",
+                    background: active ? `${meta.color}12` : "var(--surface-card)",
                     opacity: disabled ? 0.45 : 1,
                     cursor: disabled ? "not-allowed" : "pointer",
                   }}
@@ -152,7 +152,7 @@ export function PlanSection({ w }: { w: BookingWizard }) {
                       className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full font-semibold text-[0.8125rem] cursor-pointer transition-all duration-150"
                       style={{
                         border: `2px solid ${active ? meta.color : "var(--gray-200)"}`,
-                        background: active ? `${meta.color}15` : "#fff",
+                        background: active ? `${meta.color}15` : "var(--surface-card)",
                         color: active ? meta.color : "var(--gray-700)",
                       }}
                     >
@@ -174,7 +174,7 @@ export function PlanSection({ w }: { w: BookingWizard }) {
                       background:
                         selectedCategory === UNGROUPED
                           ? "var(--gray-100)"
-                          : "#fff",
+                          : "var(--surface-card)",
                       color:
                         selectedCategory === UNGROUPED
                           ? "var(--gray-700)"
@@ -195,7 +195,7 @@ export function PlanSection({ w }: { w: BookingWizard }) {
                     `px-4 py-2 rounded-[10px] cursor-pointer min-w-16 text-center font-bold text-[0.85rem] transition-all duration-150 border-2`;
                   const pillStyle = (active: boolean) => ({
                     borderColor: active ? accent : "var(--gray-200)",
-                    background: active ? `${accent}15` : "#fff",
+                    background: active ? `${accent}15` : "var(--surface-card)",
                     color: active ? accent : "var(--gray-700)",
                   });
                   return (

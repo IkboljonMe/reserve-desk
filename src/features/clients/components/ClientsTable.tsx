@@ -89,7 +89,7 @@ export function ClientsTable({ s }: { s: ClientsPageState }) {
                       <div className="w-8 h-8 rounded-full bg-(--brand-50,#eef2ff) text-(--brand-600,#4f46e5) flex items-center justify-center font-bold text-[0.8125rem] shrink-0">
                         {c.name.charAt(0).toUpperCase()}
                       </div>
-                      <span className="font-semibold text-[--gray-800]">
+                      <span className="font-semibold text-(--gray-800)">
                         {c.name}
                       </span>
                     </div>

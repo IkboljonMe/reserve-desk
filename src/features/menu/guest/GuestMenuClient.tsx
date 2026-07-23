@@ -30,7 +30,7 @@ import type { GuestLabels, TrackedOrder } from "./menuTypes";
 export type { GuestLabels } from "./menuTypes";
 
 const FIELD =
-  "w-full px-3 py-2 min-h-10.5 rounded-lg text-sm outline-none bg-(--surface-card) border border-(--surface-border) text-[--gray-800] focus:border-(--brand-500) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]";
+  "w-full px-3 py-2 min-h-10.5 rounded-lg text-sm outline-none bg-(--surface-card) border border-(--surface-border) text-(--gray-800) focus:border-(--brand-500) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]";
 
 export function GuestMenuClient({
   labels,
@@ -210,7 +210,7 @@ export function GuestMenuClient({
       );
     }
     return (
-      <div className="flex items-center gap-1.5 bg-[--surface-bg] rounded-full p-1 border border-(--surface-border)">
+      <div className="flex items-center gap-1.5 bg-(--surface-bg) rounded-full p-1 border border-(--surface-border)">
         <button
           onClick={() => setQty(id, qty - 1)}
           className="w-6 h-6 rounded-full flex items-center justify-center text-(--gray-700) bg-white shadow-sm active:scale-95"
@@ -329,7 +329,7 @@ export function GuestMenuClient({
                   id={`cat-${cat._id}`}
                   className="scroll-mt-32.5"
                 >
-                  <h2 className="text-[1.1rem] font-extrabold mb-3 text-[--gray-800] px-1">
+                  <h2 className="text-[1.1rem] font-extrabold mb-3 text-(--gray-800) px-1">
                     {localized(cat.nameI18n, cat.name, contentLang)}
                   </h2>
                   <div className="grid grid-cols-2 gap-3">
@@ -358,7 +358,7 @@ export function GuestMenuClient({
                             </div>
                           )}
                           <div className="p-2.5 flex flex-col flex-1">
-                            <div className="font-bold text-[0.88rem] text-[--gray-800] leading-tight">
+                            <div className="font-bold text-[0.88rem] text-(--gray-800) leading-tight">
                               {name}
                             </div>
                             {desc && (
@@ -455,7 +455,7 @@ export function GuestMenuClient({
               {lines.map((l) => (
                 <li key={l.p._id} className="flex items-center gap-3">
                   <div className="min-w-0 flex-1">
-                    <div className="font-semibold text-[0.9rem] text-[--gray-800] truncate">
+                    <div className="font-semibold text-[0.9rem] text-(--gray-800) truncate">
                       {localized(l.p.nameI18n, l.p.name, contentLang)}
                     </div>
                     <div className="text-[0.78rem] text-(--gray-500) tabular-nums">
@@ -471,21 +471,21 @@ export function GuestMenuClient({
             </ul>
 
             <div className="border-t border-(--surface-border) pt-3 flex flex-col gap-1.5 text-[0.85rem]">
-              <div className="flex justify-between text-[--gray-600]">
+              <div className="flex justify-between text-(--gray-600)">
                 <span>{labels.subtotal}</span>
                 <span className="tabular-nums">
                   {money(subtotal)} {labels.sum}
                 </span>
               </div>
               {fee > 0 && (
-                <div className="flex justify-between text-[--gray-600]">
+                <div className="flex justify-between text-(--gray-600)">
                   <span>{labels.serviceFee}</span>
                   <span className="tabular-nums">
                     {money(fee)} {labels.sum}
                   </span>
                 </div>
               )}
-              <div className="flex justify-between font-extrabold text-[--gray-900] text-[0.95rem]">
+              <div className="flex justify-between font-extrabold text-(--gray-900) text-[0.95rem]">
                 <span>{labels.total}</span>
                 <span className="tabular-nums">
                   {money(total)} {labels.sum}

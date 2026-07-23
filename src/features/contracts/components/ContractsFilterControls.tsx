@@ -59,7 +59,7 @@ export function ContractsFilterControls({
           <path d="m21 21-4.35-4.35" />
         </svg>
         <input
-          className="flex-1 min-w-0 bg-transparent border-0 outline-none text-sm text-[--gray-800] placeholder:text-(--gray-400) px-1"
+          className="flex-1 min-w-0 bg-transparent border-0 outline-none text-sm text-(--gray-800) placeholder:text-(--gray-400) px-1"
           placeholder={t("searchContractsPlaceholder")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}

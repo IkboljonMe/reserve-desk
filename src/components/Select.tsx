@@ -133,7 +133,7 @@ export default function Select({
         <span
           className={`flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap ${
             selected && selected.value
-              ? "text-[--gray-800]"
+              ? "text-(--gray-800)"
               : "text-(--gray-400)"
           }`}
         >

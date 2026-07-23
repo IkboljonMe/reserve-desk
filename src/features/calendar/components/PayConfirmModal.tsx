@@ -36,7 +36,7 @@ export function PayConfirmModal({ s }: { s: CalendarPageState }) {
             <Wallet size={24} />
           </span>
           <h2 className="m-0 text-[1.1rem]">{t("confirmPayment")}</h2>
-          <p className="m-0 text-[--gray-600] text-[0.9rem] leading-normal">
+          <p className="m-0 text-(--gray-600) text-[0.9rem] leading-normal">
             {t("didYouReceive", {
               amount: `${money(total)} ${t("sum")}`,
               name: payConfirm.customerName,
@@ -47,7 +47,7 @@ export function PayConfirmModal({ s }: { s: CalendarPageState }) {
         <div className="h-px bg-surface-border my-4" />
 
         {collected > 0 && (
-          <div className="flex justify-between text-[0.85rem] text-[--gray-600] mb-2.5">
+          <div className="flex justify-between text-[0.85rem] text-(--gray-600) mb-2.5">
             <span>{t("alreadyCollected")}</span>
             <strong>
               {money(collected)} {t("sum")}
@@ -62,7 +62,7 @@ export function PayConfirmModal({ s }: { s: CalendarPageState }) {
           <input
             type="text"
             inputMode="numeric"
-            className="w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+            className="w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-(--gray-800) hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
             value={received}
             placeholder={money(due)}
             onChange={(e) => setReceived(e.target.value.replace(/\D/g, ""))}

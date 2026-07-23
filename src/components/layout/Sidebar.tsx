@@ -390,7 +390,7 @@ export default function Sidebar({
               >
                 {item.icon}
                 {collapsed && badge > 0 && (
-                  <span className="absolute -top-1 -right-1 min-w-2 h-2 rounded-full bg-[--color-danger] shadow-[0_0_0_2px_var(--sidebar-bg)]" />
+                  <span className="absolute -top-1 -right-1 min-w-2 h-2 rounded-full bg-(--color-danger) shadow-[0_0_0_2px_var(--sidebar-bg)]" />
                 )}
               </span>
               <span
@@ -398,7 +398,7 @@ export default function Sidebar({
               >
                 <span className="flex-1 text-left">{item.label}</span>
                 {badge > 0 && (
-                  <span className="ml-2 min-w-4.5 h-4.5 px-1.25 rounded-full bg-[--color-danger] text-white text-[0.68rem] font-bold inline-flex items-center justify-center shadow-[0_2px_6px_rgba(239,68,68,0.45)]">
+                  <span className="ml-2 min-w-4.5 h-4.5 px-1.25 rounded-full bg-(--color-danger) text-white text-[0.68rem] font-bold inline-flex items-center justify-center shadow-[0_2px_6px_rgba(239,68,68,0.45)]">
                     {badge > 99 ? "99+" : badge}
                   </span>
                 )}
@@ -473,7 +473,7 @@ export default function Sidebar({
                         className={`block px-2.5 py-1.5 rounded-md no-underline text-[0.8125rem] transition-all duration-150 ease-in-out whitespace-nowrap ${
                           childActive
                             ? "text-white bg-brand-500/20 font-medium"
-                            : "text-[--sidebar-text] hover:bg-white/6"
+                            : "text-(--sidebar-text) hover:bg-white/6"
                         }`}
                       >
                         {child.label}

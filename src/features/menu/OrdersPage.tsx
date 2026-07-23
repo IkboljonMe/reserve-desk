@@ -75,7 +75,7 @@ export default function OrdersPage() {
         >
           <UtensilsCrossed size={26} className="text-(--gray-400)" />
           <h3 className="text-(--gray-700) font-bold">{t("noOrdersYet")}</h3>
-          <p className="text-[--gray-500] text-sm">{t("noOrdersDesc")}</p>
+          <p className="text-(--gray-500) text-sm">{t("noOrdersDesc")}</p>
         </div>
       ) : (
         <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4">
@@ -89,7 +89,7 @@ export default function OrdersPage() {
               <div key={o._id} className={`${CARD} p-4 flex flex-col gap-3`}>
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <div className="text-[1.05rem] font-extrabold text-[--gray-800] leading-none">
+                    <div className="text-[1.05rem] font-extrabold text-(--gray-800) leading-none">
                       {t("room")} {o.roomNumber}
                     </div>
                     <div className="text-[0.72rem] text-(--gray-400) mt-1">
@@ -115,7 +115,7 @@ export default function OrdersPage() {
                         <span className="font-bold">{it.quantity}×</span>{" "}
                         {it.name}
                       </span>
-                      <span className="text-[--gray-500] tabular-nums whitespace-nowrap">
+                      <span className="text-(--gray-500) tabular-nums whitespace-nowrap">
                         {money(it.price * it.quantity)}
                       </span>
                     </li>
@@ -123,7 +123,7 @@ export default function OrdersPage() {
                 </ul>
 
                 {o.note && (
-                  <p className="text-[0.78rem] text-[--gray-500] italic border-l-2 border-(--surface-border) pl-2">
+                  <p className="text-[0.78rem] text-(--gray-500) italic border-l-2 border-(--surface-border) pl-2">
                     {o.note}
                   </p>
                 )}
@@ -132,7 +132,7 @@ export default function OrdersPage() {
                   <span className="text-[0.72rem] text-(--gray-400) uppercase tracking-wide">
                     {t("total")}
                   </span>
-                  <span className="text-[0.95rem] font-extrabold text-[--gray-800] tabular-nums">
+                  <span className="text-[0.95rem] font-extrabold text-(--gray-800) tabular-nums">
                     {money(o.total)} {t("sum")}
                   </span>
                 </div>

@@ -16,7 +16,7 @@ export default function AdminsPage() {
       <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
         <div>
           <h2 className="m-0 text-lg font-bold">{t("admins")}</h2>
-          <p className="mt-1 text-sm text-[--gray-500]">
+          <p className="mt-1 text-sm text-(--gray-500)">
             {t("adminsSubtitle")}
           </p>
         </div>

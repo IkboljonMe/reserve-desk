@@ -81,15 +81,15 @@ export function NotificationGroup({
               </div>
 
               <div className="flex-1 min-w-0">
-                <div className="font-bold text-[--gray-800] text-[0.9rem]">
+                <div className="font-bold text-(--gray-800) text-[0.9rem]">
                   {n.title}
                 </div>
-                <div className="text-[--gray-600] text-[0.83rem] mt-0.5">
+                <div className="text-(--gray-600) text-[0.83rem] mt-0.5">
                   {n.message}
                 </div>
-                <div className="flex flex-wrap items-center gap-3 mt-2 text-[0.75rem] text-[--gray-500]">
+                <div className="flex flex-wrap items-center gap-3 mt-2 text-[0.75rem] text-(--gray-500)">
                   {n.contractNumber && (
-                    <span className="font-semibold text-[--gray-600]">
+                    <span className="font-semibold text-(--gray-600)">
                       № {n.contractNumber}
                     </span>
                   )}

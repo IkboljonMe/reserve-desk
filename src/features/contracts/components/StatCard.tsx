@@ -60,7 +60,7 @@ export function StatCard({
         </svg>
       </div>
       <div className="min-w-0">
-        <div className="text-2xl font-extrabold text-[--gray-900] leading-none">
+        <div className="text-2xl font-extrabold text-(--gray-900) leading-none">
           {value}
         </div>
         <div className="text-[0.75rem] text-(--gray-500) mt-1 font-medium">

@@ -69,7 +69,7 @@ export function OrderTracker({
           <p className="font-bold m-0 text-(--color-danger)">
             {labels.cancelledTitle}
           </p>
-          <p className="text-sm mt-1 m-0 text-[--gray-600]">
+          <p className="text-sm mt-1 m-0 text-(--gray-600)">
             {labels.cancelledSub}
           </p>
         </div>
@@ -99,7 +99,7 @@ export function OrderTracker({
                   )}
                 </div>
                 <p
-                  className={`pt-1.5 pb-3 text-sm font-semibold m-0 ${active ? "text-[--gray-800]" : "text-(--gray-400)"}`}
+                  className={`pt-1.5 pb-3 text-sm font-semibold m-0 ${active ? "text-(--gray-800)" : "text-(--gray-400)"}`}
                 >
                   {statusLabel(status)}
                 </p>
@@ -111,14 +111,14 @@ export function OrderTracker({
 
       {tracked && (
         <div className="rounded-xl border border-(--surface-border) bg-(--surface-card) p-3.5">
-          <h4 className="text-[0.8rem] font-bold text-[--gray-600] m-0 mb-2">
+          <h4 className="text-[0.8rem] font-bold text-(--gray-600) m-0 mb-2">
             {labels.orderSummary}
           </h4>
           <ul className="list-none m-0 p-0 flex flex-col gap-1">
             {tracked.items.map((it, i) => (
               <li
                 key={i}
-                className="flex justify-between gap-3 text-[0.82rem] text-[--gray-600]"
+                className="flex justify-between gap-3 text-[0.82rem] text-(--gray-600)"
               >
                 <span>
                   {it.quantity}× {it.name}
@@ -146,7 +146,7 @@ export function OrderTracker({
                 </div>
               </>
             )}
-            <div className="flex justify-between font-extrabold text-[--gray-900]">
+            <div className="flex justify-between font-extrabold text-(--gray-900)">
               <span>{labels.total}</span>
               <span className="tabular-nums">
                 {money(tracked.total)} {labels.sum}

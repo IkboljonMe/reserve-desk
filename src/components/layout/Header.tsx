@@ -35,7 +35,7 @@ export default function Header({
       {onToggleSidebar && (
         <button
           onClick={onToggleSidebar}
-          className="w-8.5 h-8.5 shrink-0 bg-[--gray-100] border border-[--gray-200] rounded-lg text-[--gray-600] cursor-pointer flex items-center justify-center transition-colors duration-150 hover:bg-[--gray-200]"
+          className="w-8.5 h-8.5 shrink-0 bg-(--gray-100) border border-(--gray-200) rounded-lg text-(--gray-600) cursor-pointer flex items-center justify-center transition-colors duration-150 hover:bg-(--gray-200)"
           title={sidebarCollapsed ? t("showSidebar") : t("hideSidebar")}
         >
           <svg
@@ -65,7 +65,7 @@ export default function Header({
           containerClassName="lang-dropdown"
         />
 
-        <div className="w-px h-6 bg-[--surface-border]" />
+        <div className="w-px h-6 bg-(--surface-border)" />
 
         {/* User chip */}
         <div className="flex items-center gap-2.5 p-[4px_6px_4px_4px] rounded-full">
@@ -74,10 +74,10 @@ export default function Header({
           </div>
 
           <div className="leading-snug">
-            <div className="text-[0.8125rem] font-semibold text-[--gray-800]">
+            <div className="text-[0.8125rem] font-semibold text-(--gray-800)">
               {userName}
             </div>
-            <div className="text-[0.7rem] text-[--gray-400]">{userEmail}</div>
+            <div className="text-[0.7rem] text-(--gray-400)">{userEmail}</div>
           </div>
         </div>
 

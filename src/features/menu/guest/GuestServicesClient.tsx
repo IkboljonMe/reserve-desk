@@ -45,7 +45,7 @@ export interface GuestServiceDto {
 }
 
 const FIELD =
-  "w-full px-3 py-2 min-h-10.5 rounded-lg text-sm outline-none bg-(--surface-card) border border-(--surface-border) text-[--gray-800] focus:border-(--brand-500) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]";
+  "w-full px-3 py-2 min-h-10.5 rounded-lg text-sm outline-none bg-(--surface-card) border border-(--surface-border) text-(--gray-800) focus:border-(--brand-500) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]";
 const FIELD_LABEL =
   "text-[0.72rem] font-semibold text-(--gray-500) tracking-tight";
 
@@ -152,7 +152,7 @@ export function GuestServicesClient({
 
   return (
     <div
-      className="min-h-dvh bg-[--surface-bg] text-[--gray-900] pb-12"
+      className="min-h-dvh bg-(--surface-bg) text-(--gray-900) pb-12"
       style={themeVars}
     >
       <header className="sticky top-0 z-10 max-w-md mx-auto bg-(--surface-card) border-b border-(--surface-border) px-4 py-3 flex items-stretch justify-between gap-3 shadow-sm">
@@ -219,7 +219,7 @@ export function GuestServicesClient({
                     />
                   )}
                   <div className="p-4 flex flex-col gap-2">
-                    <h3 className="font-extrabold text-[1.1rem] text-[--gray-800] m-0">
+                    <h3 className="font-extrabold text-[1.1rem] text-(--gray-800) m-0">
                       {name}
                     </h3>
                     {desc && (
@@ -287,8 +287,8 @@ export function GuestServicesClient({
           </div>
         ) : selectedService ? (
           <div className="flex flex-col gap-4">
-            <div className="rounded-xl border border-(--surface-border) bg-[--surface-bg] p-3">
-              <div className="font-bold text-[0.95rem] text-[--gray-800]">
+            <div className="rounded-xl border border-(--surface-border) bg-(--surface-bg) p-3">
+              <div className="font-bold text-[0.95rem] text-(--gray-800)">
                 {localized(
                   selectedService.nameI18n,
                   selectedService.name,

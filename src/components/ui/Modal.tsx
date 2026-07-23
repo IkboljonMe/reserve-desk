@@ -67,11 +67,11 @@ export default function Modal({
         role="dialog"
         aria-modal="true"
         onClick={(e) => e.stopPropagation()}
-        className={`bg-(--surface-card) text-[--gray-800] flex flex-col w-full h-full sm:h-auto sm:max-h-[90dvh] sm:border sm:border-(--surface-border) sm:shadow-(--shadow-xl) animate-[slideUp_0.24s_cubic-bezier(0.16,1,0.3,1)] ${SIZE[size]}`}
+        className={`bg-(--surface-card) text-(--gray-800) flex flex-col w-full h-full sm:h-auto sm:max-h-[90dvh] sm:border sm:border-(--surface-border) sm:shadow-(--shadow-xl) animate-[slideUp_0.24s_cubic-bezier(0.16,1,0.3,1)] ${SIZE[size]}`}
       >
         {!hideHeader && (
           <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-(--surface-border) shrink-0">
-            <h2 className="m-0 text-[1.05rem] font-bold text-[--gray-800]">
+            <h2 className="m-0 text-[1.05rem] font-bold text-(--gray-800)">
               {title}
             </h2>
             <button

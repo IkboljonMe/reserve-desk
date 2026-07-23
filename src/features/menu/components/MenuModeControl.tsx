@@ -24,7 +24,7 @@ export function MenuModeControl({
           {mode.shared ? <Layers size={17} /> : <Building2 size={17} />}
         </span>
         <div className="min-w-0">
-          <h3 className="text-[0.9rem] font-bold text-[--gray-800] m-0">
+          <h3 className="text-[0.9rem] font-bold text-(--gray-800) m-0">
             {t("menuScope")}
           </h3>
           <p className="text-[0.78rem] text-(--gray-500) m-0 mt-0.5">

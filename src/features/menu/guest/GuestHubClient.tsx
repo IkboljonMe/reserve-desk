@@ -45,7 +45,7 @@ function CopyButton({
       className={`text-[0.75rem] px-2.5 py-1 rounded-md border-none cursor-pointer transition-colors ${
         copied
           ? "bg-emerald-500/20 text-emerald-400"
-          : "bg-(--gray-100) text-[--gray-600]"
+          : "bg-(--gray-100) text-(--gray-600)"
       }`}
     >
       {copied ? copiedLabel : label}
@@ -92,7 +92,7 @@ function HubModal({
 }
 
 const MODAL_CLOSE_BTN =
-  "w-full p-3 rounded-xl border-none bg-(--gray-100) text-[--gray-600] text-[0.9rem] font-semibold cursor-pointer";
+  "w-full p-3 rounded-xl border-none bg-(--gray-100) text-(--gray-600) text-[0.9rem] font-semibold cursor-pointer";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -205,7 +205,7 @@ export function GuestHubClient({
 
   return (
     <div
-      className="min-h-dvh bg-[--surface-bg] text-[--gray-800]"
+      className="min-h-dvh bg-(--surface-bg) text-(--gray-800)"
       style={{ fontFamily: "'Inter',system-ui,sans-serif", ...themeVars }}
     >
       <div className="max-w-md mx-auto">
@@ -302,7 +302,7 @@ export function GuestHubClient({
                 alt=""
                 className="w-24 h-24 -mt-8 block mx-auto object-contain drop-shadow-[0_12px_16px_rgba(0,0,0,0.3)]"
               />
-              <span className="text-[0.88rem] font-bold text-[--gray-800] leading-snug">
+              <span className="text-[0.88rem] font-bold text-(--gray-800) leading-snug">
                 {tile.label[hubLang] || tile.label.uz}
               </span>
             </button>
