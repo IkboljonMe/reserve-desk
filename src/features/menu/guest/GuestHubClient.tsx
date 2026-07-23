@@ -8,18 +8,11 @@ import {
   guestFoodPath,
   guestServicesPath,
   rootDomain,
-  MENU_LANGS,
-  MENU_LANG_LABELS,
+  MENU_LANG_OPTIONS,
 } from "@/lib/menu";
 import { useGuestPrefs } from "./useGuestPrefs";
 import { useTranslation } from "@/i18n";
 import type { TileId, ResolvedTile } from "@/lib/tiles";
-
-const LANG_OPTIONS = MENU_LANGS.map((l) => ({
-  value: l,
-  label: MENU_LANG_LABELS[l],
-}));
-
 
 
 // ─── CopyButton ───────────────────────────────────────────────────────────────
@@ -155,6 +148,9 @@ export function GuestHubClient({
   const [joinHref, setJoinHref] = useState(`/${locale}`);
 
   useEffect(() => {
+    // Client-only: the join link needs window.location to build an absolute URL
+    // on the right (sub)domain, so it can only be set after mount.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setJoinHref(
       `${window.location.protocol}//${rootDomain(window.location.host)}/${locale}`,
     );
@@ -254,7 +250,7 @@ export function GuestHubClient({
                 <Dropdown
                   value={lang}
                   onChange={(v) => setLang(v as typeof lang)}
-                  options={LANG_OPTIONS}
+                  options={MENU_LANG_OPTIONS}
                   ariaLabel="Language"
                 />
               </div>

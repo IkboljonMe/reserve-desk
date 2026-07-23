@@ -9,6 +9,7 @@ import {
   QrCode,
   Sparkles,
   Settings,
+  ConciergeBell,
 } from "lucide-react";
 import { useTranslation } from "@/i18n";
 import Button from "@/components/ui/Button";
@@ -16,21 +17,27 @@ import Dropdown from "@/components/ui/Dropdown";
 import { money } from "@/lib/bookingHelpers";
 import { useMenuPage } from "./useMenuPage";
 import { useMenuSettings } from "./useMenuSettings";
+import { useGuestServices } from "./useGuestServices";
+import { useMenuMode } from "./useMenuMode";
 import { CategoryModal } from "./components/CategoryModal";
 import { ProductModal } from "./components/ProductModal";
 import { RoomQrModal } from "./components/RoomQrModal";
 import { RecommendationsModal } from "./components/RecommendationsModal";
 import { MenuSettingsPanel } from "./components/MenuSettingsPanel";
+import { GuestServicesPanel } from "./components/GuestServicesPanel";
+import { MenuModeControl } from "./components/MenuModeControl";
 
 const CARD =
-  "bg-(--surface-card) border border-(--surface-border) rounded-[var(--radius-lg)] shadow-sm";
+  "bg-(--surface-card) border border-(--surface-border) rounded-(--radius-lg) shadow-sm";
 
-type Tab = "menu" | "settings";
+type Tab = "menu" | "services" | "settings";
 
 export default function MenuPage() {
   const { t, lang } = useTranslation();
-  const s = useMenuPage();
+  const mode = useMenuMode();
+  const s = useMenuPage(mode.shared ? mode.sourceHotelId ?? undefined : undefined);
   const ss = useMenuSettings(s.hotelId);
+  const gs = useGuestServices(s.hotelId);
   const [confirmId, setConfirmId] = useState<string | null>(null);
   const [qrOpen, setQrOpen] = useState(false);
   const [recsOpen, setRecsOpen] = useState(false);
@@ -45,7 +52,7 @@ export default function MenuPage() {
           <p className="mt-1">{t("menuSubtitle")}</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          {s.hotels.length > 1 && (
+          {s.hotels.length > 1 && !(tab === "menu" && mode.shared) && (
             <div className="w-50">
               <Dropdown
                 value={s.hotelId}
@@ -100,6 +107,18 @@ export default function MenuPage() {
         </button>
         <button
           type="button"
+          onClick={() => setTab("services")}
+          className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[0.82rem] font-semibold transition-all cursor-pointer border-none ${
+            tab === "services"
+              ? "bg-[--brand-500] text-white shadow-sm"
+              : "text-[--gray-500] bg-transparent hover:text-(--gray-700)"
+          }`}
+        >
+          <ConciergeBell size={13} />
+          {t("guestServices")}
+        </button>
+        <button
+          type="button"
           onClick={() => setTab("settings")}
           className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[0.82rem] font-semibold transition-all cursor-pointer border-none ${
             tab === "settings"
@@ -112,8 +131,14 @@ export default function MenuPage() {
         </button>
       </div>
 
+      {tab === "menu" && s.hotels.length > 1 && (
+        <MenuModeControl mode={mode} hotels={s.hotels} />
+      )}
+
       {tab === "settings" ? (
         <MenuSettingsPanel s={ss} hotelSlug={selectedHotel?.slug || ""} />
+      ) : tab === "services" ? (
+        <GuestServicesPanel s={gs} lang={lang} />
       ) : s.loading ? (
         <p className="text-(--gray-400) text-sm">{t("loading")}</p>
       ) : s.categories.length === 0 ? (
@@ -299,7 +324,7 @@ export default function MenuPage() {
           <RecommendationsModal
             open={recsOpen}
             onClose={() => setRecsOpen(false)}
-            hotelId={selectedHotel._id}
+            hotelId={s.contentHotelId}
             products={s.products}
             lang={lang}
           />

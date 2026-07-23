@@ -20,7 +20,7 @@ export function BookingsToolbar({ s }: { s: DashboardPageState }) {
         <Button
           onClick={exportToExcel}
           variant="secondary" size="sm"
-          className="flex items-center gap-1.5 px-2.5 py-[5px] h-[30px] text-[0.8rem] cursor-pointer"
+          className="flex items-center gap-1.5 px-2.5 py-1.25 h-7.5 text-[0.8rem] cursor-pointer"
           title={t('exportTitle')}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -33,7 +33,7 @@ export function BookingsToolbar({ s }: { s: DashboardPageState }) {
         <Button
           onClick={() => setFiltersOpen(true)}
           variant="secondary" size="sm"
-          className="flex items-center gap-1.5 px-2.5 py-[5px] h-[30px] text-[0.8rem] cursor-pointer relative"
+          className="flex items-center gap-1.5 px-2.5 py-1.25 h-7.5 text-[0.8rem] cursor-pointer relative"
         >
           <SlidersHorizontal size={13} />
           {t('filters')}
@@ -43,8 +43,8 @@ export function BookingsToolbar({ s }: { s: DashboardPageState }) {
             </span>
           )}
         </Button>
-        <div className="relative ml-auto flex-[1_1_220px] max-w-[320px]">
-          <Search size={14} className="absolute left-[11px] top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+        <div className="relative ml-auto flex-[1_1_220px] max-w-80">
+          <Search size={14} className="absolute left-2.75 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
           <input className="form-input pl-8 py-1.5 text-[0.82rem]"
             placeholder={t('searchGuestRoomPhone')} value={search} onChange={e => setSearch(e.target.value)} />
           {search && <button onClick={() => setSearch('')} className="absolute right-2 top-1/2 -translate-y-1/2 bg-transparent border-0 cursor-pointer text-gray-400" aria-label={t('clear')}><X size={14} /></button>}

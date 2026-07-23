@@ -7,7 +7,7 @@ import { MENU_LANGS, MENU_LANG_LABELS, type MenuLang } from "@/lib/menu";
 import type { LocalizedText } from "../types";
 
 export const FIELD_INPUT =
-  "flex-1 min-w-0 px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] disabled:bg-[var(--gray-50)] disabled:text-[--gray-500]";
+  "flex-1 min-w-0 px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] disabled:bg-(--gray-50) disabled:text-[--gray-500]";
 
 // A translatable text field: language tabs (10 — MENU_LANGS) editing a
 // LocalizedText value in place, plus a "Translate" button (Google Translate,
@@ -52,7 +52,20 @@ export function LocalizedInput({
     setActiveLang(sourceLang);
   }
 
-  const set = (key: MenuLang, v: string) => onChange({ ...value, [key]: v });
+  // Editing the source language mirrors its text into every "kept-original"
+  // (locked) language live, so a locked language never goes stale as the source
+  // is edited — and "same in all languages" stays truly identical.
+  const set = (key: MenuLang, v: string) => {
+    if (key !== sourceLang) {
+      onChange({ ...value, [key]: v });
+      return;
+    }
+    const next = { ...value, [key]: v };
+    for (const lang of locked) {
+      if (lang !== sourceLang) next[lang as MenuLang] = v;
+    }
+    onChange(next);
+  };
 
   const isLocked = (lang: MenuLang) => locked.includes(lang);
   const toggleLock = (lang: MenuLang) => {
@@ -61,6 +74,24 @@ export function LocalizedInput({
     } else {
       onLockedChange([...locked, lang]);
       set(lang, value[sourceLang]);
+    }
+  };
+
+  // "Same in all languages": one switch that keeps every other language locked
+  // to the source text instead of translating it — the common case of a name
+  // that reads the same everywhere (e.g. a proper dish name). No per-language
+  // clicking needed.
+  const otherLangs = MENU_LANGS.filter((l) => l !== sourceLang);
+  const allSame =
+    otherLangs.length > 0 && otherLangs.every((l) => isLocked(l));
+  const toggleAllSame = () => {
+    if (allSame) {
+      onLockedChange([]);
+    } else {
+      onLockedChange(otherLangs);
+      const next = { ...value };
+      for (const lang of otherLangs) next[lang] = value[sourceLang];
+      onChange(next);
     }
   };
 
@@ -88,15 +119,30 @@ export function LocalizedInput({
         <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
           {label}
         </label>
-        <button
-          type="button"
-          onClick={translateAll}
-          disabled={translating || !value[sourceLang]?.trim()}
-          className="inline-flex items-center gap-1 text-[0.7rem] font-semibold text-(--brand-600) hover:text-(--brand-700) disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          <Languages size={12} />
-          {translating ? t("translating") : t("translateAll")}
-        </button>
+        <div className="flex items-center gap-3">
+          <label className="inline-flex items-center gap-1.5 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              className="w-3.5 h-3.5 accent-(--brand-500)"
+              checked={allSame}
+              onChange={toggleAllSame}
+            />
+            <span className="text-[0.7rem] font-semibold text-[--gray-500]">
+              {t("sameInAllLangs")}
+            </span>
+          </label>
+          {!allSame && (
+            <button
+              type="button"
+              onClick={translateAll}
+              disabled={translating || !value[sourceLang]?.trim()}
+              className="inline-flex items-center gap-1 text-[0.7rem] font-semibold text-(--brand-600) hover:text-(--brand-700) disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <Languages size={12} />
+              {translating ? t("translating") : t("translateAll")}
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-1">

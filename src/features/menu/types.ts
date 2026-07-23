@@ -38,6 +38,25 @@ export interface MenuProduct {
   sortOrder: number
 }
 
+// Guest-hub service the manager offers (airport transfer, pool, conference
+// hall …). Orderable-on-request only — a guest submits a booking request, not a
+// self-service booking. Translatable like menu items.
+export interface GuestServiceItem {
+  _id: string
+  hotelId: string
+  name: string
+  sourceLang: string
+  nameI18n: LocalizedText
+  nameI18nLocked: string[]
+  description: string
+  descI18n: LocalizedText
+  descI18nLocked: string[]
+  imageUrl: string
+  price: number
+  sortOrder: number
+  active: boolean
+}
+
 export interface MenuRecommendation {
   _id: string
   hotelId: string

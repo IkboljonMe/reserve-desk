@@ -27,7 +27,7 @@ export function SlideBackground({ eager = false }: { eager?: boolean }) {
           fetchPriority={eager ? 'high' : 'auto'}
           loading={eager ? 'eager' : 'lazy'}
           decoding="async"
-          className="w-full h-full object-cover blur-[8px] scale-[1.03]"
+          className="w-full h-full object-cover blur-sm scale-[1.03]"
         />
       </picture>
       {/* Soft dark overlay to enhance text contrast and make whites pop */}

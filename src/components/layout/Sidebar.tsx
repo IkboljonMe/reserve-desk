@@ -377,7 +377,7 @@ export default function Sidebar({
           } ${
             isActive
               ? "bg-[linear-gradient(135deg,rgba(79,110,247,0.28),rgba(124,58,237,0.22))] text-white font-semibold shadow-[inset_0_0_0_1px_rgba(124,146,255,0.25)]"
-              : "text-[var(--sidebar-text)]"
+              : "text-(--sidebar-text)"
           }`;
 
           const itemContent = (

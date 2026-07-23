@@ -12,8 +12,10 @@ export interface IGuestService extends Document {
   name: string
   sourceLang: string
   nameI18n: LocalizedText
+  nameI18nLocked: string[]      // languages kept as sourceLang text, not auto-translated
   description: string
   descI18n: LocalizedText
+  descI18nLocked: string[]
   icon: string                 // optional icon key
   imageUrl: string
   price: number                // integer UZS; 0 = no price shown
@@ -30,8 +32,10 @@ const GuestServiceSchema = new Schema<IGuestService>(
     name: { type: String, required: true, trim: true },
     sourceLang: { type: String, default: 'en' },
     nameI18n: { type: LocalizedSchema, default: () => ({}) },
+    nameI18nLocked: { type: [String], default: [] },
     description: { type: String, default: '' },
     descI18n: { type: LocalizedSchema, default: () => ({}) },
+    descI18nLocked: { type: [String], default: [] },
     icon: { type: String, default: '' },
     imageUrl: { type: String, default: '' },
     price: { type: Number, default: 0, min: 0 },

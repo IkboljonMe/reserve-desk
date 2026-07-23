@@ -136,20 +136,20 @@ export default function Calendar({
           const within = isInRange(d) && !selected;
           const disabled = isDisabled(d);
           
-          let dayClasses = "flex items-center justify-center h-[30px] rounded-[7px] text-[0.78rem] font-medium transition-all duration-150 ease-in-out font-[inherit]";
+          let dayClasses = "flex items-center justify-center h-7.5 rounded-[7px] text-[0.78rem] font-medium transition-all duration-150 ease-in-out font-[inherit]";
           
           if (disabled) {
-            dayClasses += " text-[var(--gray-200,#e5e7eb)] cursor-not-allowed bg-transparent";
+            dayClasses += " text-(--gray-200,#e5e7eb) cursor-not-allowed bg-transparent";
           } else if (selected) {
-            dayClasses += " bg-[var(--brand-500,#6366f1)] text-white font-semibold cursor-pointer";
+            dayClasses += " bg-(--brand-500,#6366f1) text-white font-semibold cursor-pointer";
           } else if (within) {
-            dayClasses += " bg-[var(--brand-50,#e0e7ff)] !rounded-none text-[var(--gray-700,#374151)] cursor-pointer hover:bg-[var(--gray-100,#f3f4f6)]";
+            dayClasses += " bg-(--brand-50,#e0e7ff) !rounded-none text-(--gray-700,#374151) cursor-pointer hover:bg-(--gray-100,#f3f4f6)";
           } else {
-            dayClasses += " bg-transparent cursor-pointer hover:bg-[var(--gray-100,#f3f4f6)]";
+            dayClasses += " bg-transparent cursor-pointer hover:bg-(--gray-100,#f3f4f6)";
             if (outside) {
-              dayClasses += " text-[var(--gray-300,#d1d5db)]";
+              dayClasses += " text-(--gray-300,#d1d5db)";
             } else {
-              dayClasses += " text-[var(--gray-700,#374151)]";
+              dayClasses += " text-(--gray-700,#374151)";
             }
           }
 

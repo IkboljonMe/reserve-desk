@@ -1,24 +1,25 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft, Sparkles, Plus, Sun, Moon } from "lucide-react";
+import { ArrowLeft, Sparkles, Sun, Moon } from "lucide-react";
 import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
 import Dropdown from "@/components/ui/Dropdown";
-import {
-  localized,
-  guestHubPath,
-  MENU_LANGS,
-  MENU_LANG_LABELS,
-} from "@/lib/menu";
+import { localized, guestHubPath, MENU_LANG_OPTIONS } from "@/lib/menu";
 import { money } from "@/lib/bookingHelpers";
 import { useGuestPrefs } from "./useGuestPrefs";
 
 export interface GuestServiceLabels {
   room: string;
   roomNumber: string;
-  guestNamePlaceholder: string;
+  firstName: string;
+  lastName: string;
+  persons: string;
+  date: string;
+  startTime: string;
+  endTime: string;
   orderNotePlaceholder: string;
+  requestHint: string;
   bookService: string;
   sending: string;
   requestSent: string;
@@ -30,6 +31,7 @@ export interface GuestServiceLabels {
   bookNow: string;
   errorFailed: string;
   errorRoomRequired: string;
+  errorFillAll: string;
 }
 
 export interface GuestServiceDto {
@@ -43,11 +45,9 @@ export interface GuestServiceDto {
 }
 
 const FIELD =
-  "w-full px-3 py-2 min-h-[42px] rounded-lg text-sm outline-none bg-(--surface-card) border border-(--surface-border) text-[--gray-800] focus:border-[var(--brand-500)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]";
-const LANG_OPTIONS = MENU_LANGS.map((l) => ({
-  value: l,
-  label: MENU_LANG_LABELS[l],
-}));
+  "w-full px-3 py-2 min-h-10.5 rounded-lg text-sm outline-none bg-(--surface-card) border border-(--surface-border) text-[--gray-800] focus:border-(--brand-500) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]";
+const FIELD_LABEL =
+  "text-[0.72rem] font-semibold text-(--gray-500) tracking-tight";
 
 export function GuestServicesClient({
   labels,
@@ -77,7 +77,12 @@ export function GuestServicesClient({
   const [selectedService, setSelectedService] =
     useState<GuestServiceDto | null>(null);
   const [roomNumber, setRoomNumber] = useState(room);
-  const [guestName, setGuestName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [persons, setPersons] = useState("1");
+  const [date, setDate] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
   const [note, setNote] = useState("");
 
   const [submitting, setSubmitting] = useState(false);
@@ -88,6 +93,18 @@ export function GuestServicesClient({
     if (!selectedService) return;
     if (!roomNumber.trim()) {
       setError(labels.errorRoomRequired);
+      return;
+    }
+    // Reception books manually, so we require the details they need to call
+    // back: who, when, and for how many. Note stays optional.
+    if (
+      !firstName.trim() ||
+      !lastName.trim() ||
+      !date ||
+      !startTime ||
+      !endTime
+    ) {
+      setError(labels.errorFillAll);
       return;
     }
 
@@ -101,7 +118,12 @@ export function GuestServicesClient({
         body: JSON.stringify({
           hotel: hotelSlug,
           room: roomNumber.trim(),
-          guestName,
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+          persons: Math.max(1, Number(persons) || 1),
+          date,
+          startTime,
+          endTime,
           note,
           serviceId: selectedService._id,
         }),
@@ -119,6 +141,12 @@ export function GuestServicesClient({
     setSelectedService(null);
     setSuccess(false);
     setError("");
+    setFirstName("");
+    setLastName("");
+    setPersons("1");
+    setDate("");
+    setStartTime("");
+    setEndTime("");
     setNote("");
   }
 
@@ -152,7 +180,7 @@ export function GuestServicesClient({
             <Dropdown
               value={contentLang}
               onChange={(v) => setContentLang(v as typeof contentLang)}
-              options={LANG_OPTIONS}
+              options={MENU_LANG_OPTIONS}
               ariaLabel="Language"
             />
           </div>
@@ -183,6 +211,7 @@ export function GuestServicesClient({
                   className="bg-(--surface-card) border border-(--surface-border) rounded-2xl overflow-hidden shadow-sm flex flex-col"
                 >
                   {s.imageUrl && (
+                    // eslint-disable-next-line @next/next/no-img-element -- arbitrary hotel-supplied URLs; next/image needs configured domains
                     <img
                       src={s.imageUrl}
                       alt=""
@@ -274,18 +303,65 @@ export function GuestServicesClient({
             </div>
 
             <div className="flex flex-col gap-2.5">
+              <p className="text-[0.78rem] text-(--gray-500) m-0 leading-snug">
+                {labels.requestHint}
+              </p>
               <input
                 className={FIELD}
                 value={roomNumber}
                 onChange={(e) => setRoomNumber(e.target.value)}
                 placeholder={labels.roomNumber}
               />
+              <div className="grid grid-cols-2 gap-2.5">
+                <input
+                  className={FIELD}
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder={labels.firstName}
+                />
+                <input
+                  className={FIELD}
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder={labels.lastName}
+                />
+              </div>
+              <label className={FIELD_LABEL}>{labels.persons}</label>
               <input
                 className={FIELD}
-                value={guestName}
-                onChange={(e) => setGuestName(e.target.value)}
-                placeholder={labels.guestNamePlaceholder}
+                type="number"
+                min={1}
+                inputMode="numeric"
+                value={persons}
+                onChange={(e) => setPersons(e.target.value)}
               />
+              <label className={FIELD_LABEL}>{labels.date}</label>
+              <input
+                className={FIELD}
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+              />
+              <div className="grid grid-cols-2 gap-2.5">
+                <div className="flex flex-col gap-1">
+                  <label className={FIELD_LABEL}>{labels.startTime}</label>
+                  <input
+                    className={FIELD}
+                    type="time"
+                    value={startTime}
+                    onChange={(e) => setStartTime(e.target.value)}
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className={FIELD_LABEL}>{labels.endTime}</label>
+                  <input
+                    className={FIELD}
+                    type="time"
+                    value={endTime}
+                    onChange={(e) => setEndTime(e.target.value)}
+                  />
+                </div>
+              </div>
               <textarea
                 className={`${FIELD} resize-y min-h-17.5`}
                 value={note}

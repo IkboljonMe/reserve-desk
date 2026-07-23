@@ -74,9 +74,9 @@ export function ScheduleEditor({
   }
 
   return (
-    <div className="bg-(--surface-card) border border-[var(--brand-100,#e0e7ff)] rounded-[var(--radius-lg)] shadow-sm p-4 bg-[#fcfdff]">
+    <div className="bg-(--surface-card) border border-(--brand-100,#e0e7ff) rounded-(--radius-lg) shadow-sm p-4 bg-[#fcfdff]">
       <div className="mb-3">
-        <h3 className="text-[0.9rem] font-bold text-[var(--brand-700,#4338ca)] m-0">
+        <h3 className="text-[0.9rem] font-bold text-(--brand-700,#4338ca) m-0">
           {t("weeklySchedule")}
         </h3>
         <p className="text-[0.72rem] text-[--gray-500] mt-0.5">
@@ -123,7 +123,7 @@ export function ScheduleEditor({
                 </label>
                 <input
                   type="time"
-                  className={`w-[120px] px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] ${
+                  className={`w-30 px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] ${
                     row.closed ? "opacity-50" : "opacity-100"
                   }`}
                   value={row.open}
@@ -133,7 +133,7 @@ export function ScheduleEditor({
                 <span className="text-(--gray-400)">–</span>
                 <input
                   type="time"
-                  className={`w-[120px] px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] ${
+                  className={`w-30 px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] ${
                     row.closed ? "opacity-50" : "opacity-100"
                   }`}
                   value={row.close}
@@ -149,7 +149,7 @@ export function ScheduleEditor({
       <div className="h-px bg-surface-border my-3.5" />
 
       <div className="mb-2">
-        <h3 className="text-[0.9rem] font-bold text-[var(--brand-700,#4338ca)] m-0">
+        <h3 className="text-[0.9rem] font-bold text-(--brand-700,#4338ca) m-0">
           {t("blackoutDates")}
         </h3>
         <p className="text-[0.72rem] text-[--gray-500] mt-0.5">
@@ -162,7 +162,7 @@ export function ScheduleEditor({
       >
         <input
           type="date"
-          className="w-auto px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+          className="w-auto px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
           onChange={(e) => {
             addBlackout(e.target.value);
             e.target.value = "";
@@ -179,14 +179,14 @@ export function ScheduleEditor({
           {blackoutDates.map((d) => (
             <span
               key={d}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[0.75rem] bg-[var(--gray-100,#f3f4f6)] text-[var(--gray-700,#374151)] font-semibold tabular-nums"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[0.75rem] bg-(--gray-100,#f3f4f6) text-(--gray-700,#374151) font-semibold tabular-nums"
             >
               {d}
               <button
                 type="button"
                 onClick={() => removeBlackout(d)}
                 aria-label={t("remove")}
-                className="inline-flex text-[var(--gray-400,#9ca3af)] hover:text-[var(--danger,#ef4444)] bg-transparent border-0 cursor-pointer p-0"
+                className="inline-flex text-(--gray-400,#9ca3af) hover:text-(--danger,#ef4444) bg-transparent border-0 cursor-pointer p-0"
               >
                 <X size={13} />
               </button>

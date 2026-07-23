@@ -80,7 +80,7 @@ export default function NotificationsPage() {
                     </div>
                   </div>
                   <span
-                    className={`inline-flex items-center gap-1 px-[9px] py-[3px] rounded-full text-xs font-semibold tracking-[0.01em] shrink-0 ${
+                    className={`inline-flex items-center gap-1 px-2.25 py-0.75 rounded-full text-xs font-semibold tracking-[0.01em] shrink-0 ${
                       expired
                         ? "bg-red-100 text-red-800"
                         : "bg-amber-100 text-amber-800"

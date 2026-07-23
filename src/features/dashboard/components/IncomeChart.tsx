@@ -29,7 +29,7 @@ export default function IncomeChart({ data }: IncomeChartProps) {
   return (
     <div className="relative flex gap-2">
       {/* Y axis */}
-      <div className="w-[46px] shrink-0 relative" style={{ height: H }}>
+      <div className="w-11.5 shrink-0 relative" style={{ height: H }}>
         {gridVals.slice().reverse().map((v, i) => (
           <div key={i} className="absolute right-1 -translate-y-1/2 text-[0.62rem] text-gray-400 tabular-nums" style={{ top: `${(i / 4) * 100}%` }}>
             {v >= 1000 ? `${Math.round(v / 1000)}k` : Math.round(v)}
@@ -56,7 +56,7 @@ export default function IncomeChart({ data }: IncomeChartProps) {
                 >
                   {/* expected (ceiling) */}
                   <div
-                    className="relative w-full max-w-[34px] group-hover:brightness-[0.97]"
+                    className="relative w-full max-w-8.5 group-hover:brightness-[0.97]"
                     style={{
                       height: expH,
                       background: `${EXPECTED}1f`,
@@ -94,16 +94,16 @@ export default function IncomeChart({ data }: IncomeChartProps) {
         {/* Tooltip */}
         {hover && data[hover.i] && (
           <div
-            className="absolute -top-2 pointer-events-none whitespace-nowrap z-10 bg-gray-900 text-[var(--surface-bg)] px-2.5 py-[7px] rounded-lg text-[0.7rem]"
+            className="absolute -top-2 pointer-events-none whitespace-nowrap z-10 bg-gray-900 text-(--surface-bg) px-2.5 py-1.75 rounded-lg text-[0.7rem]"
             style={{
               left: Math.min(Math.max(hover.x, 70), 100000),
               transform: 'translate(-50%,-100%)',
               boxShadow: '0 6px 20px rgba(0,0,0,0.25)',
             }}
           >
-            <div className="font-bold mb-[3px]">{data[hover.i].label} · {data[hover.i].count} booking{data[hover.i].count === 1 ? '' : 's'}</div>
-            <div className="flex items-center gap-[5px]"><span className="w-2 h-2 rounded-full" style={{ background: FILL_COLLECTED }} /> Collected {money(data[hover.i].collected)}</div>
-            <div className="flex items-center gap-[5px] opacity-85"><span className="w-2 h-2 rounded-full" style={{ background: EXPECTED }} /> Expected {money(data[hover.i].expected)}</div>
+            <div className="font-bold mb-0.75">{data[hover.i].label} · {data[hover.i].count} booking{data[hover.i].count === 1 ? '' : 's'}</div>
+            <div className="flex items-center gap-1.25"><span className="w-2 h-2 rounded-full" style={{ background: FILL_COLLECTED }} /> Collected {money(data[hover.i].collected)}</div>
+            <div className="flex items-center gap-1.25 opacity-85"><span className="w-2 h-2 rounded-full" style={{ background: EXPECTED }} /> Expected {money(data[hover.i].expected)}</div>
           </div>
         )}
       </div>

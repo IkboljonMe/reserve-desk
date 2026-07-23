@@ -1,4 +1,4 @@
-import type { MenuCategory, MenuProduct, MenuOrder, MenuRecommendation, OrderStatus } from '@/features/menu/types'
+import type { MenuCategory, MenuProduct, MenuOrder, MenuRecommendation, OrderStatus, GuestServiceItem } from '@/features/menu/types'
 
 async function json<T>(res: Response): Promise<T> {
   if (!res.ok) {
@@ -58,6 +58,31 @@ export function deleteProduct(id: string): Promise<{ ok: true }> {
   return fetch(`/api/menu/products/${id}`, { method: 'DELETE' }).then(r => json<{ ok: true }>(r))
 }
 
+// ── Guest services (manager-defined guest-hub offerings) ──
+export function getGuestServices(hotelId: string): Promise<GuestServiceItem[]> {
+  return fetch(`/api/menu/guest-services?hotelId=${encodeURIComponent(hotelId)}`).then(r => json<GuestServiceItem[]>(r))
+}
+
+export function createGuestService(data: Partial<GuestServiceItem> & { hotelId: string }): Promise<GuestServiceItem> {
+  return fetch('/api/menu/guest-services', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  }).then(r => json<GuestServiceItem>(r))
+}
+
+export function updateGuestService(id: string, data: Partial<GuestServiceItem>): Promise<GuestServiceItem> {
+  return fetch(`/api/menu/guest-services/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  }).then(r => json<GuestServiceItem>(r))
+}
+
+export function deleteGuestService(id: string): Promise<{ ok: true }> {
+  return fetch(`/api/menu/guest-services/${id}`, { method: 'DELETE' }).then(r => json<{ ok: true }>(r))
+}
+
 // ── Recommendations ──
 export function getRecommendations(hotelId: string): Promise<MenuRecommendation[]> {
   return fetch(`/api/menu/recommendations?hotelId=${encodeURIComponent(hotelId)}`).then(r => json<MenuRecommendation[]>(r))
@@ -73,6 +98,24 @@ export function createRecommendation(data: { hotelId: string; dayOfWeek: number;
 
 export function deleteRecommendation(id: string): Promise<{ ok: true }> {
   return fetch(`/api/menu/recommendations/${id}`, { method: 'DELETE' }).then(r => json<{ ok: true }>(r))
+}
+
+// ── Menu mode (shared vs per-hotel) ──
+export interface MenuMode {
+  mode: 'per_hotel' | 'shared'
+  sourceHotelId: string | null
+}
+
+export function getMenuMode(): Promise<MenuMode> {
+  return fetch('/api/menu/mode').then(r => json<MenuMode>(r))
+}
+
+export function setMenuMode(data: { mode: 'per_hotel' | 'shared'; sourceHotelId?: string | null }): Promise<MenuMode> {
+  return fetch('/api/menu/mode', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  }).then(r => json<MenuMode>(r))
 }
 
 // ── Translate ──

@@ -22,9 +22,9 @@ interface ModalProps {
 }
 
 const SIZE: Record<NonNullable<ModalProps["size"]>, string> = {
-  sm: "sm:max-w-[400px]",
-  md: "sm:max-w-[520px]",
-  lg: "sm:max-w-[680px]",
+  sm: "sm:max-w-100",
+  md: "sm:max-w-130",
+  lg: "sm:max-w-170",
 };
 
 // Reusable modal. Full-bleed (w-full h-full) on mobile — a proper full-screen

@@ -4,6 +4,7 @@ import { Building2 } from "lucide-react";
 import { useTranslation } from "@/i18n";
 import Select from "@/components/Select";
 import Spinner from "@/components/ui/Spinner";
+import Input from "@/components/ui/Input";
 import { displayCode } from "../utils";
 import type { HotelsRoomsPageState } from "../useHotelsRoomsPage";
 import Button from "@/components/ui/Button";
@@ -27,7 +28,7 @@ export function RoomModal({ s }: { s: HotelsRoomsPageState }) {
 
   return (
     <div className="modal-overlay" onClick={() => setRoomOpen(false)}>
-      <div className="modal max-w-[440px]" onClick={(e) => e.stopPropagation()}>
+      <div className="modal max-w-110" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>{editRoomId ? t("editRoom") : t("addRoom")}</h2>
           <Button
@@ -76,39 +77,29 @@ export function RoomModal({ s }: { s: HotelsRoomsPageState }) {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
-                  {t("floor")} *
-                </label>
-                <input
-                  className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
-                  type="number"
-                  min={0}
-                  required
-                  value={roomForm.floor}
-                  onChange={(e) =>
-                    setRoomForm((f) => ({
-                      ...f,
-                      floor: parseInt(e.target.value) || 1,
-                    }))
-                  }
-                  placeholder="2"
-                />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
-                  {t("roomNumberField")} *
-                </label>
-                <input
-                  className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
-                  required
-                  value={roomForm.number}
-                  onChange={(e) =>
-                    setRoomForm((f) => ({ ...f, number: e.target.value }))
-                  }
-                  placeholder="202"
-                />
-              </div>
+              <Input
+                label={`${t("floor")} *`}
+                type="number"
+                min={0}
+                required
+                value={roomForm.floor}
+                onChange={(e) =>
+                  setRoomForm((f) => ({
+                    ...f,
+                    floor: parseInt(e.target.value) || 1,
+                  }))
+                }
+                placeholder="2"
+              />
+              <Input
+                label={`${t("roomNumberField")} *`}
+                required
+                value={roomForm.number}
+                onChange={(e) =>
+                  setRoomForm((f) => ({ ...f, number: e.target.value }))
+                }
+                placeholder="202"
+              />
             </div>
 
             {roomHotel &&
@@ -132,7 +123,7 @@ export function RoomModal({ s }: { s: HotelsRoomsPageState }) {
               )}
 
             {/* Live preview of the generated room name */}
-            <div className="bg-[var(--brand-50,#eef2ff)] border border-[var(--brand-100,#e0e7ff)] rounded-lg p-[10px_14px] text-[0.8125rem] text-[var(--brand-700,#4338ca)] flex items-center gap-2">
+            <div className="bg-(--brand-50,#eef2ff) border border-(--brand-100,#e0e7ff) rounded-lg p-[10px_14px] text-[0.8125rem] text-(--brand-700,#4338ca) flex items-center gap-2">
               {t("roomNameLabel")}&nbsp;
               <strong className="text-[0.9375rem] font-bold tabular-nums">
                 {roomShort}-{roomForm.number || "###"}

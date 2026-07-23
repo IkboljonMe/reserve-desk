@@ -11,7 +11,7 @@ import { ORDER_STATUS_META, nextStatus, ADVANCE_LABEL_KEY } from "./constants";
 import type { OrderStatus } from "./types";
 
 const CARD =
-  "bg-(--surface-card) border border-(--surface-border) rounded-[var(--radius-lg)] shadow-sm";
+  "bg-(--surface-card) border border-(--surface-border) rounded-(--radius-lg) shadow-sm";
 
 export default function OrdersPage() {
   const { t } = useTranslation();

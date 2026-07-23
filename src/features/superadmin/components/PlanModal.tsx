@@ -3,6 +3,7 @@
 import { X } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import Spinner from '@/components/ui/Spinner'
+import Input from '@/components/ui/Input'
 import { FEATURE_KEYS, FEATURE_LABELS } from '@/lib/planFeatures'
 import type { PlansPageState } from '../usePlansPage'
 import Button from '@/components/ui/Button'
@@ -24,31 +25,34 @@ export function PlanModal({ s }: { s: PlansPageState }) {
 
         <form onSubmit={handleSave}>
           <div className="flex flex-col gap-4">
-            <div className="form-group">
-              <label className="form-label">{t('planName')} *</label>
-              <input className="form-input" required autoFocus value={form.name} onChange={e => setName(e.target.value)} />
-            </div>
+            <Input
+              label={`${t('planName')} *`}
+              required
+              autoFocus
+              value={form.name}
+              onChange={e => setName(e.target.value)}
+            />
 
             {!editPlan && (
-              <div className="form-group">
-                <label className="form-label">{t('planKey')} *</label>
-                <input className="form-input" required value={form.key} onChange={e => setKey(e.target.value)} />
-                <p className="mt-1 text-[0.75rem] text-gray-500">{t('planKeyHelp')}</p>
-              </div>
+              <Input
+                label={`${t('planKey')} *`}
+                required
+                value={form.key}
+                onChange={e => setKey(e.target.value)}
+                helperText={t('planKeyHelp')}
+              />
             )}
 
             <div className="flex gap-3">
-              <div className="form-group flex-1">
-                <label className="form-label">{t('planPrice')}</label>
-                <input
-                  className="form-input"
-                  inputMode="numeric"
-                  value={form.price ? String(form.price) : ''}
-                  placeholder="0"
-                  onChange={e => setForm(f => ({ ...f, price: Math.max(0, Number(e.target.value.replace(/\D/g, '')) || 0) }))}
-                />
-                <p className="mt-1 text-[0.75rem] text-gray-500">{t('planPriceHelp')}</p>
-              </div>
+              <Input
+                containerClassName="flex-1"
+                label={t('planPrice')}
+                inputMode="numeric"
+                value={form.price ? String(form.price) : ''}
+                placeholder="0"
+                onChange={e => setForm(f => ({ ...f, price: Math.max(0, Number(e.target.value.replace(/\D/g, '')) || 0) }))}
+                helperText={t('planPriceHelp')}
+              />
             </div>
 
             <div className="form-group">

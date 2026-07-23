@@ -7,6 +7,10 @@ export interface ITelegramConfig extends Document {
   companyId: Types.ObjectId
   groupChatId: number
   loggedInBy: Types.ObjectId // Admin (owner) who completed /login
+  // Forum topic where the periodic (monthly) reports are posted, created on
+  // demand. Absent until the first monthly report, or when the group isn't a
+  // forum (reports then fall back to the General topic).
+  reportsThreadId?: number
   createdAt: Date
   updatedAt: Date
 }
@@ -16,6 +20,7 @@ const TelegramConfigSchema = new Schema<ITelegramConfig>(
     companyId: { type: Schema.Types.ObjectId, ref: 'Company', required: true, unique: true },
     groupChatId: { type: Number, required: true },
     loggedInBy: { type: Schema.Types.ObjectId, ref: 'Admin', required: true },
+    reportsThreadId: { type: Number },
   },
   { timestamps: true }
 )

@@ -43,22 +43,22 @@ export function OccupancyCard({ s }: { s: DashboardPageState }) {
             <div key={svc._id} className="flex items-center gap-3 flex-wrap">
               {/* name */}
               <span
-                className="text-[0.8rem] text-gray-700 font-semibold overflow-hidden text-ellipsis whitespace-nowrap w-[130px] shrink-0 max-[480px]:w-full"
+                className="text-[0.8rem] text-gray-700 font-semibold overflow-hidden text-ellipsis whitespace-nowrap w-32.5 shrink-0 max-[480px]:w-full"
                 title={svc.name}
               >
                 {svc.name}
               </span>
               {/* bar */}
-              <div className="flex-1 basis-[100px] min-w-[80px] h-2 rounded-[6px] bg-gray-100 overflow-hidden">
+              <div className="flex-1 basis-[100px] min-w-20 h-2 rounded-[6px] bg-gray-100 overflow-hidden">
                 <div
-                  className="h-full rounded-[6px] transition-[width] duration-[400ms] ease-out"
+                  className="h-full rounded-[6px] transition-[width] duration-400 ease-out"
                   style={{ width: pct(util), background: svc.color || 'var(--brand-500)' }}
                 />
               </div>
               {/* pct */}
               <span className="w-11 shrink-0 text-right text-[0.78rem] font-bold text-gray-800 tabular-nums">{pct(util)}</span>
               {/* hours */}
-              <span className="w-[92px] shrink-0 text-right text-[0.72rem] text-gray-400 tabular-nums max-[480px]:hidden">
+              <span className="w-23 shrink-0 text-right text-[0.72rem] text-gray-400 tabular-nums max-[480px]:hidden">
                 {t('hoursBookedOfAvail', { booked: hrs(bookedMin), avail: hrs(availMin) })}
               </span>
             </div>

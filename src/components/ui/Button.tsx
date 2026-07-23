@@ -16,17 +16,17 @@ const VARIANT_CLASSES: Record<ButtonVariant, string> = {
     "bg-[image:var(--brand-gradient)] text-white shadow-brand border-transparent " +
     "hover:enabled:brightness-[1.06] hover:enabled:shadow-[0_8px_20px_rgba(79,110,247,0.36)] hover:enabled:-translate-y-px",
   secondary:
-    "bg-(--surface-card) text-(--gray-700) border-[var(--gray-400)] shadow-sm " +
-    "hover:enabled:bg-[var(--gray-50)] hover:enabled:border-[var(--gray-500)] hover:enabled:-translate-y-px hover:enabled:shadow-md",
+    "bg-(--surface-card) text-(--gray-700) border-(--gray-400) shadow-sm " +
+    "hover:enabled:bg-(--gray-50) hover:enabled:border-(--gray-500) hover:enabled:-translate-y-px hover:enabled:shadow-md",
   danger: "bg-red-100 text-danger border-red-200 hover:enabled:bg-red-200",
   ghost:
     "bg-transparent text-gray-600 border-transparent hover:enabled:bg-gray-100 hover:enabled:text-gray-800",
 };
 
 const SIZE_CLASSES: Record<ButtonSize, string> = {
-  sm: "py-[6px] px-3 text-[0.8125rem]",
-  md: "py-[9px] px-4",
-  lg: "py-[11px] px-[22px] text-[0.9375rem]",
+  sm: "py-1.5 px-3 text-[0.8125rem]",
+  md: "py-2.25 px-4",
+  lg: "py-2.75 px-5.5 text-[0.9375rem]",
 };
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {

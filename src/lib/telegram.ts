@@ -88,6 +88,30 @@ async function createForumTopic(chatId: number, name: string): Promise<number> {
   return result.message_thread_id
 }
 
+// Ensures a "Reports" forum topic exists for a company's group, so periodic
+// (monthly) reports post there instead of cluttering General. Best-effort: if
+// the group isn't a forum, threadId comes back undefined and callers fall back
+// to the General topic. Returns null only when Telegram isn't set up.
+export async function ensureReportsTopic(
+  companyId: Types.ObjectId | string,
+): Promise<{ chatId: number; threadId?: number } | null> {
+  await connectDB()
+  const config = await TelegramConfig.findOne({ companyId })
+  if (!config) return null
+  if (config.reportsThreadId) {
+    return { chatId: config.groupChatId, threadId: config.reportsThreadId }
+  }
+  try {
+    const threadId = await createForumTopic(config.groupChatId, '📊 Отчёты')
+    config.reportsThreadId = threadId
+    await config.save()
+    return { chatId: config.groupChatId, threadId }
+  } catch {
+    // Not a forum (or no rights) — reports go to the General topic instead.
+    return { chatId: config.groupChatId }
+  }
+}
+
 // Ensures a forum topic exists for a given (hotel, service) pair, creating it
 // in the configured group if missing. Returns null if Telegram isn't set up
 // for this company, or the topic's notifications are muted.
@@ -154,7 +178,9 @@ export async function syncAllTopics(companyId: Types.ObjectId | string): Promise
   }
 }
 
-const money = (v: number) => v.toLocaleString('en-US').replace(/,/g, ' ')
+// Groups thousands with spaces for Telegram messages (e.g. 1 234 567). Shared
+// with telegramReports so both format amounts identically.
+export const money = (v: number) => Math.round(v).toLocaleString('en-US').replace(/,/g, ' ')
 
 export interface BookingMenuItem {
   name: string

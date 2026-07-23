@@ -6,37 +6,24 @@ import Button from "@/components/ui/Button";
 import Dropdown from "@/components/ui/Dropdown";
 import { useTranslation } from "@/i18n";
 import { useToast } from "@/providers/ToastProvider";
-import { MENU_LANGS, MENU_LANG_LABELS, type MenuLang } from "@/lib/menu";
+import {
+  MENU_LANG_OPTIONS,
+  EMPTY_LOCALIZED,
+  type MenuLang,
+} from "@/lib/menu";
 import { translateText } from "@/lib/api/menu";
 import { LocalizedInput, FIELD_INPUT } from "./LocalizedInput";
 import { ImageUpload } from "@/components/ui/ImageUpload";
 import type { MenuPageState } from "../useMenuPage";
 import type { LocalizedText } from "../types";
 
-const EMPTY: LocalizedText = {
-  en: "",
-  ru: "",
-  uz: "",
-  ar: "",
-  zh: "",
-  fr: "",
-  es: "",
-  de: "",
-  kk: "",
-  tr: "",
-};
-const LANG_OPTIONS = MENU_LANGS.map((l) => ({
-  value: l,
-  label: MENU_LANG_LABELS[l],
-}));
-
 export function ProductModal({ s }: { s: MenuPageState }) {
   const { t, lang } = useTranslation();
   const { showToast } = useToast();
   const [categoryId, setCategoryId] = useState("");
-  const [name, setName] = useState<LocalizedText>(EMPTY);
+  const [name, setName] = useState<LocalizedText>(EMPTY_LOCALIZED);
   const [nameLocked, setNameLocked] = useState<string[]>([]);
-  const [desc, setDesc] = useState<LocalizedText>(EMPTY);
+  const [desc, setDesc] = useState<LocalizedText>(EMPTY_LOCALIZED);
   const [descLocked, setDescLocked] = useState<string[]>([]);
   const [sourceLang, setSourceLang] = useState<MenuLang>("en");
   const [price, setPrice] = useState("");
@@ -51,9 +38,9 @@ export function ProductModal({ s }: { s: MenuPageState }) {
     setCategoryId(
       p?.categoryId || s.productCategoryId || s.categories[0]?._id || "",
     );
-    setName(p ? { ...EMPTY, ...p.nameI18n } : EMPTY);
+    setName(p ? { ...EMPTY_LOCALIZED, ...p.nameI18n } : EMPTY_LOCALIZED);
     setNameLocked(p?.nameI18nLocked || []);
-    setDesc(p ? { ...EMPTY, ...p.descI18n } : EMPTY);
+    setDesc(p ? { ...EMPTY_LOCALIZED, ...p.descI18n } : EMPTY_LOCALIZED);
     setDescLocked(p?.descI18nLocked || []);
     setSourceLang((p?.sourceLang as MenuLang) || "en");
     setPrice(p ? String(p.price) : "");
@@ -139,7 +126,7 @@ export function ProductModal({ s }: { s: MenuPageState }) {
             <Dropdown
               value={sourceLang}
               onChange={(v) => setSourceLang(v as MenuLang)}
-              options={LANG_OPTIONS}
+              options={MENU_LANG_OPTIONS}
               ariaLabel={t("inputLanguage")}
             />
           </div>

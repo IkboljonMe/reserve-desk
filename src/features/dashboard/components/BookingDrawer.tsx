@@ -201,7 +201,7 @@ export default function BookingDrawer({
                 <div className="text-[0.66rem] font-bold uppercase tracking-[0.04em]" style={{ color: st.color }}>
                   {t('status')}
                 </div>
-                <div className="inline-flex items-center gap-[5px] font-[800] text-[0.95rem] mt-0.5" style={{ color: st.color }}>
+                <div className="inline-flex items-center gap-1.25 font-[800] text-[0.95rem] mt-0.5" style={{ color: st.color }}>
                   {st.key === 'finished' && <Check size={14} />}
                   {t(st.key)}
                 </div>
@@ -214,7 +214,7 @@ export default function BookingDrawer({
                   {b.totalPrice > 0 ? `${money(b.totalPrice)} ${t('sum')}` : t('free')}
                 </div>
                 {isPartiallyPaid(b) && (
-                  <div className="text-[0.72rem] text-cyan-600 mt-[3px] tabular-nums">
+                  <div className="text-[0.72rem] text-cyan-600 mt-0.75 tabular-nums">
                     {t('collectedOfDue', { paid: money(amountCollected(b)), due: `${money(amountDue(b))} ${t('sum')}` })}
                   </div>
                 )}
@@ -249,10 +249,10 @@ export default function BookingDrawer({
             </Section>
 
             {/* Notes */}
-            <Section title={t('notes')} action={!editingNotes ? <Button variant="ghost" size="sm" className="px-1.5 py-[2px]" onClick={() => setEditingNotes(true)}><Pencil size={12} /> {t('edit')}</Button> : undefined}>
+            <Section title={t('notes')} action={!editingNotes ? <Button variant="ghost" size="sm" className="px-1.5 py-0.5" onClick={() => setEditingNotes(true)}><Pencil size={12} /> {t('edit')}</Button> : undefined}>
               {editingNotes ? (
                 <div>
-                  <textarea className="form-textarea text-[0.82rem] min-h-[70px]" value={notesDraft} onChange={e => setNotesDraft(e.target.value)} placeholder={t('addNotesPlaceholder')} />
+                  <textarea className="form-textarea text-[0.82rem] min-h-17.5" value={notesDraft} onChange={e => setNotesDraft(e.target.value)} placeholder={t('addNotesPlaceholder')} />
                   <div className="flex gap-1.5 justify-end mt-1.5">
                     <Button variant="secondary" size="sm" onClick={() => { setEditingNotes(false); setNotesDraft(b.notes || '') }}>{t('cancel')}</Button>
                     <Button size="sm" disabled={busy} onClick={async () => { await mutate({ notes: notesDraft }, t('notesSaved')); setEditingNotes(false) }}>{t('save')}</Button>
@@ -264,7 +264,7 @@ export default function BookingDrawer({
             </Section>
 
             {/* Menu / order */}
-            <Section title={t('menu')} action={!editingMenu ? <Button variant="ghost" size="sm" className="px-1.5 py-[2px]" onClick={() => setEditingMenu(true)}><Pencil size={12} /> {t('edit')}</Button> : undefined}>
+            <Section title={t('menu')} action={!editingMenu ? <Button variant="ghost" size="sm" className="px-1.5 py-0.5" onClick={() => setEditingMenu(true)}><Pencil size={12} /> {t('edit')}</Button> : undefined}>
               {editingMenu ? (
                 <div>
                   <MenuItemsEditor
@@ -297,7 +297,7 @@ export default function BookingDrawer({
                   const last = i === timeline.length - 1
                   return (
                     <div key={i} className="flex gap-3 relative" style={{ paddingBottom: last ? 0 : 18 }}>
-                      {!last && <div className="absolute left-[11px] top-6 bottom-0 w-0.5 bg-gray-200" />}
+                      {!last && <div className="absolute left-2.75 top-6 bottom-0 w-0.5 bg-gray-200" />}
                       <span
                         className="w-6 h-6 rounded-full shrink-0 flex items-center justify-center z-[1]"
                         style={{ background: `${meta.color}18`, color: meta.color }}
@@ -341,7 +341,7 @@ export default function BookingDrawer({
         <div className="modal-overlay" style={{ zIndex: 2000 }} onClick={() => setPayConfirm(false)}>
           <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 384 }}>
             <div className="flex flex-col items-center text-center gap-3">
-              <span className="w-[52px] h-[52px] rounded-full flex items-center justify-center" style={{ background: '#10b98118', color: INK_COLLECTED }}>
+              <span className="w-13 h-13 rounded-full flex items-center justify-center" style={{ background: '#10b98118', color: INK_COLLECTED }}>
                 <Wallet size={24} />
               </span>
               <h2 className="m-0 text-[1.1rem]">{t('confirmPayment')}</h2>
@@ -392,7 +392,7 @@ function Field({ icon, label, value }: { icon: React.ReactNode; label: string; v
       <span className="text-gray-400 w-4 flex justify-center">
         {icon}
       </span>
-      <span className="w-[76px] text-[0.78rem] text-gray-500 shrink-0">
+      <span className="w-19 text-[0.78rem] text-gray-500 shrink-0">
         {label}
       </span>
       <span className="text-[0.82rem] text-gray-800 font-medium">

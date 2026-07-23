@@ -10,13 +10,13 @@ export const ORDER_STATUS_META: Record<OrderStatus, { labelKey: DictionaryKeys; 
   cancelled: { labelKey: 'orderCancelled', color: '#dc2626', bg: 'rgba(239,68,68,0.13)' },
 }
 
-// The forward status flow. `nextStatus` returns the button target, or null when
-// the order is finished/cancelled.
-const FLOW: OrderStatus[] = ['pending', 'preparing', 'ready', 'delivered']
+// The forward status flow (also drives the guest order-tracker steps).
+// `nextStatus` returns the button target, or null when finished/cancelled.
+export const STATUS_FLOW: OrderStatus[] = ['pending', 'preparing', 'ready', 'delivered']
 
 export function nextStatus(status: OrderStatus): OrderStatus | null {
-  const i = FLOW.indexOf(status)
-  return i >= 0 && i < FLOW.length - 1 ? FLOW[i + 1] : null
+  const i = STATUS_FLOW.indexOf(status)
+  return i >= 0 && i < STATUS_FLOW.length - 1 ? STATUS_FLOW[i + 1] : null
 }
 
 // Label for the "advance" action button per current status.
