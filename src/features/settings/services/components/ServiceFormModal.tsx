@@ -6,6 +6,7 @@ import { ServiceIcon } from "@/lib/serviceIcons";
 import IconPicker from "@/components/IconPicker";
 import Select from "@/components/Select";
 import { InfoHint } from "@/components/ui/InfoHint";
+import Input from "@/components/ui/Input";
 import Spinner from "@/components/ui/Spinner";
 import { PRESET_COLORS, bufferError, selectAllOnFocus } from "../utils";
 import { PricingEditor } from "./PricingEditor";
@@ -71,21 +72,18 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
         <form onSubmit={handleSubmit}>
           <div className="flex flex-col gap-4">
             <div className="grid grid-cols-[1fr_auto] gap-4 items-start">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
-                  {t("name")} *<InfoHint text={t("nameHint")} />
-                </label>
-                <input
-                  type="text"
-                  className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
-                  value={form.name}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, name: e.target.value }))
-                  }
-                  required
-                  autoFocus
-                />
-              </div>
+              <Input
+                label={
+                  <>
+                    {t("name")} *<InfoHint text={t("nameHint")} />
+                  </>
+                }
+                type="text"
+                value={form.name}
+                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                required
+                autoFocus
+              />
               <div className="flex flex-col gap-1.5">
                 <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                   {t("icon")} *<InfoHint text={t("iconHint")} />
@@ -174,128 +172,101 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
               />
             </div>
 
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
-                {t("details")}
-                <InfoHint text={t("detailsHint")} />
-              </label>
-              <input
-                type="text"
-                className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
-                placeholder={t("detailsPlaceholder")}
-                value={form.details}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, details: e.target.value }))
-                }
-              />
-            </div>
+            <Input
+              label={
+                <>
+                  {t("details")}
+                  <InfoHint text={t("detailsHint")} />
+                </>
+              }
+              type="text"
+              placeholder={t("detailsPlaceholder")}
+              value={form.details}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, details: e.target.value }))
+              }
+            />
 
             <div className="h-px bg-surface-border my-1" />
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
-                  {t("opensAt")} *<InfoHint text={t("opensAtHint")} />
-                </label>
-                <input
-                  type="time"
-                  className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
-                  value={form.openTime}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, openTime: e.target.value }))
-                  }
-                  required
-                />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
-                  {t("closesAt")} *<InfoHint text={t("closesAtHint")} />
-                </label>
-                <input
-                  type="time"
-                  className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
-                  value={form.closeTime}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, closeTime: e.target.value }))
-                  }
-                  required
-                />
-              </div>
+              <Input
+                label={
+                  <>
+                    {t("opensAt")} *<InfoHint text={t("opensAtHint")} />
+                  </>
+                }
+                type="time"
+                value={form.openTime}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, openTime: e.target.value }))
+                }
+                required
+              />
+              <Input
+                label={
+                  <>
+                    {t("closesAt")} *<InfoHint text={t("closesAtHint")} />
+                  </>
+                }
+                type="time"
+                value={form.closeTime}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, closeTime: e.target.value }))
+                }
+                required
+              />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
-                  {t("bufferBefore")}
-                  <InfoHint text={t("bufferBeforeHint")} />
-                </label>
-                <input
-                  type="number"
-                  className={`w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border text-[--gray-800] hover:border-[var(--gray-300)] focus:border-(--brand-500,#6366f1) hide-arrows ${
-                    bufferError(form.bufferTimeBefore)
-                      ? "border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.14)]"
-                      : "border-[var(--gray-200,#e5e7eb)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
-                  }`}
-                  min={0}
-                  max={120}
-                  step={15}
-                  placeholder="e.g. 15"
-                  value={form.bufferTimeBefore}
-                  onFocus={selectAllOnFocus}
-                  onChange={(e) =>
-                    setForm((f) => ({
-                      ...f,
-                      bufferTimeBefore: Number(e.target.value),
-                    }))
-                  }
-                  aria-invalid={bufferError(form.bufferTimeBefore)}
-                />
-                {bufferError(form.bufferTimeBefore) ? (
-                  <small className="mt-1 text-xs text-[var(--danger,#ef4444)] block">
-                    {t("mustBe15")}
-                  </small>
-                ) : (
-                  <small className="mt-1 text-[0.7rem] text-(--gray-400) block">
-                    {t("min15IntervalsShort")}
-                  </small>
-                )}
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
-                  {t("bufferAfter")}
-                  <InfoHint text={t("bufferAfterHint")} />
-                </label>
-                <input
-                  type="number"
-                  className={`w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border text-[--gray-800] hover:border-[var(--gray-300)] focus:border-(--brand-500,#6366f1) hide-arrows ${
-                    bufferError(form.bufferTimeAfter)
-                      ? "border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.14)]"
-                      : "border-[var(--gray-200,#e5e7eb)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
-                  }`}
-                  min={0}
-                  max={120}
-                  step={15}
-                  placeholder="e.g. 15"
-                  value={form.bufferTimeAfter}
-                  onFocus={selectAllOnFocus}
-                  onChange={(e) =>
-                    setForm((f) => ({
-                      ...f,
-                      bufferTimeAfter: Number(e.target.value),
-                    }))
-                  }
-                  aria-invalid={bufferError(form.bufferTimeAfter)}
-                />
-                {bufferError(form.bufferTimeAfter) ? (
-                  <small className="mt-1 text-xs text-[var(--danger,#ef4444)] block">
-                    {t("mustBe15")}
-                  </small>
-                ) : (
-                  <small className="mt-1 text-[0.7rem] text-(--gray-400) block">
-                    {t("min15IntervalsShort")}
-                  </small>
-                )}
-              </div>
+              <Input
+                label={
+                  <>
+                    {t("bufferBefore")}
+                    <InfoHint text={t("bufferBeforeHint")} />
+                  </>
+                }
+                type="number"
+                className="hide-arrows"
+                min={0}
+                max={120}
+                step={15}
+                placeholder="e.g. 15"
+                value={form.bufferTimeBefore}
+                onFocus={selectAllOnFocus}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    bufferTimeBefore: Number(e.target.value),
+                  }))
+                }
+                error={bufferError(form.bufferTimeBefore) ? t("mustBe15") : undefined}
+                helperText={t("min15IntervalsShort")}
+              />
+              <Input
+                label={
+                  <>
+                    {t("bufferAfter")}
+                    <InfoHint text={t("bufferAfterHint")} />
+                  </>
+                }
+                type="number"
+                className="hide-arrows"
+                min={0}
+                max={120}
+                step={15}
+                placeholder="e.g. 15"
+                value={form.bufferTimeAfter}
+                onFocus={selectAllOnFocus}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    bufferTimeAfter: Number(e.target.value),
+                  }))
+                }
+                error={bufferError(form.bufferTimeAfter) ? t("mustBe15") : undefined}
+                helperText={t("min15IntervalsShort")}
+              />
             </div>
 
             <ScheduleEditor
@@ -386,21 +357,15 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
                     className="border border-[var(--gray-200,#e5e7eb)] rounded-xl p-3.5 flex flex-col gap-3 bg-white"
                   >
                     <div className="flex gap-2 items-end">
-                      <div className="flex flex-col gap-1.5 flex-1 m-0">
-                        <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
-                          {t("variantName")} *
-                        </label>
-                        <input
-                          type="text"
-                          className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
-                          value={v.name}
-                          placeholder={t("variantNamePlaceholder")}
-                          onChange={(e) =>
-                            updateVariantName(v.id, e.target.value)
-                          }
-                          required
-                        />
-                      </div>
+                      <Input
+                        containerClassName="flex-1"
+                        label={`${t("variantName")} *`}
+                        type="text"
+                        value={v.name}
+                        placeholder={t("variantNamePlaceholder")}
+                        onChange={(e) => updateVariantName(v.id, e.target.value)}
+                        required
+                      />
                       <Button
                         type="button"
                         variant="ghost"

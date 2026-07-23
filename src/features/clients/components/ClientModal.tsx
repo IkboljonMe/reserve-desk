@@ -2,6 +2,7 @@
 
 import { useTranslation } from "@/i18n";
 import Spinner from "@/components/ui/Spinner";
+import Input from "@/components/ui/Input";
 import type { ClientsPageState } from "../useClientsPage";
 import Button from "@/components/ui/Button";
 
@@ -46,20 +47,13 @@ export function ClientModal({ s }: { s: ClientsPageState }) {
 
         <form onSubmit={handleSave}>
           <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
-                {t("fullName")} *
-              </label>
-              <input
-                className="w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
-                required
-                value={form.name}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, name: e.target.value }))
-                }
-                placeholder={t("fullNamePlaceholder")}
-              />
-            </div>
+            <Input
+              label={`${t("fullName")} *`}
+              required
+              value={form.name}
+              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+              placeholder={t("fullNamePlaceholder")}
+            />
 
             <div className="flex flex-col gap-1.5">
               <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
@@ -86,20 +80,13 @@ export function ClientModal({ s }: { s: ClientsPageState }) {
               )}
             </div>
 
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
-                {t("phone")}
-              </label>
-              <input
-                className="w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
-                type="tel"
-                value={form.phone}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, phone: e.target.value }))
-                }
-                placeholder="+998 90 123 45 67"
-              />
-            </div>
+            <Input
+              label={t("phone")}
+              type="tel"
+              value={form.phone}
+              onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+              placeholder="+998 90 123 45 67"
+            />
 
             <div className="flex flex-col gap-1.5">
               <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">

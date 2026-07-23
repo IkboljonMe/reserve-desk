@@ -3,6 +3,7 @@
 import { X } from "lucide-react";
 import { useTranslation } from "@/i18n";
 import Spinner from "@/components/ui/Spinner";
+import Input from "@/components/ui/Input";
 import { bronitLocalPart, BRONIT_DOMAIN } from "@/lib/bronitEmail";
 import type { AdminsPageState } from "../useAdminsPage";
 import Button from "@/components/ui/Button";
@@ -42,28 +43,20 @@ export function AdminModal({ s }: { s: AdminsPageState }) {
 
         <form onSubmit={handleSave}>
           <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
-                {t("fullName")} *
-              </label>
-              <input
-                className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
-                required
-                autoFocus
-                value={form.name}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, name: e.target.value }))
-                }
-              />
-            </div>
+            <Input
+              label={`${t("fullName")} *`}
+              required
+              autoFocus
+              value={form.name}
+              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+            />
 
             <div className="flex flex-col gap-1.5">
               <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
                 {t("email")} *
               </label>
               {editAdmin ? (
-                <input
-                  className={FIELD_CLASS}
+                <Input
                   type="email"
                   required
                   value={form.email}
@@ -86,25 +79,16 @@ export function AdminModal({ s }: { s: AdminsPageState }) {
               )}
             </div>
 
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
-                {t("password")} {editAdmin ? "" : "*"}
-              </label>
-              <input
-                className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
-                type="password"
-                required={!editAdmin}
-                value={form.password}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, password: e.target.value }))
-                }
-              />
-              {editAdmin && (
-                <p className="mt-1 text-xs text-[--gray-500]">
-                  {t("passwordKeepHint")}
-                </p>
-              )}
-            </div>
+            <Input
+              label={`${t("password")} ${editAdmin ? "" : "*"}`}
+              type="password"
+              required={!editAdmin}
+              value={form.password}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, password: e.target.value }))
+              }
+              helperText={editAdmin ? t("passwordKeepHint") : undefined}
+            />
 
             <div className="flex flex-col gap-1.5">
               <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">

@@ -3,6 +3,7 @@
 import { X } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import Spinner from '@/components/ui/Spinner'
+import Input from '@/components/ui/Input'
 import { bronitLocalPart, BRONIT_DOMAIN } from '@/lib/bronitEmail'
 import type { CompaniesPageState } from '../useCompaniesPage'
 import Button from '@/components/ui/Button'
@@ -24,10 +25,13 @@ export function CompanyModal({ s }: { s: CompaniesPageState }) {
 
         <form onSubmit={handleSave}>
           <div className="flex flex-col gap-4">
-            <div className="form-group">
-              <label className="form-label">{t('companyName')} *</label>
-              <input className="form-input" required autoFocus value={form.name} onChange={e => setName(e.target.value)} />
-            </div>
+            <Input
+              label={`${t('companyName')} *`}
+              required
+              autoFocus
+              value={form.name}
+              onChange={e => setName(e.target.value)}
+            />
 
             <div className="flex gap-3">
               <div className="form-group flex-1">
@@ -38,20 +42,28 @@ export function CompanyModal({ s }: { s: CompaniesPageState }) {
                   ))}
                 </select>
               </div>
-              <div className="form-group flex-1">
-                <label className="form-label">{t('expiresAt')} *</label>
-                <input className="form-input" type="date" required value={form.expiresAt} onChange={e => setForm(f => ({ ...f, expiresAt: e.target.value }))} />
-              </div>
+              <Input
+                containerClassName="flex-1"
+                label={`${t('expiresAt')} *`}
+                type="date"
+                required
+                value={form.expiresAt}
+                onChange={e => setForm(f => ({ ...f, expiresAt: e.target.value }))}
+              />
             </div>
 
-            <div className="form-group">
-              <label className="form-label">{t('fullName')} *</label>
-              <input className="form-input" required value={form.fullName} onChange={e => setForm(f => ({ ...f, fullName: e.target.value }))} />
-            </div>
-            <div className="form-group">
-              <label className="form-label">{t('paymentMethod')}</label>
-              <input className="form-input" placeholder="Payme, Click, cash…" value={form.paymentMethod} onChange={e => setForm(f => ({ ...f, paymentMethod: e.target.value }))} />
-            </div>
+            <Input
+              label={`${t('fullName')} *`}
+              required
+              value={form.fullName}
+              onChange={e => setForm(f => ({ ...f, fullName: e.target.value }))}
+            />
+            <Input
+              label={t('paymentMethod')}
+              placeholder="Payme, Click, cash…"
+              value={form.paymentMethod}
+              onChange={e => setForm(f => ({ ...f, paymentMethod: e.target.value }))}
+            />
             <div className="form-group">
               <label className="form-label">{t('notes')}</label>
               <textarea className="form-input" rows={2} value={form.note} onChange={e => setForm(f => ({ ...f, note: e.target.value }))} />
@@ -75,10 +87,13 @@ export function CompanyModal({ s }: { s: CompaniesPageState }) {
                     </span>
                   </div>
                 </div>
-                <div className="form-group">
-                  <label className="form-label">{t('password')} *</label>
-                  <input className="form-input" type="password" required value={form.ownerPassword} onChange={e => setForm(f => ({ ...f, ownerPassword: e.target.value }))} />
-                </div>
+                <Input
+                  label={`${t('password')} *`}
+                  type="password"
+                  required
+                  value={form.ownerPassword}
+                  onChange={e => setForm(f => ({ ...f, ownerPassword: e.target.value }))}
+                />
               </>
             )}
           </div>

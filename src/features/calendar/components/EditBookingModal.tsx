@@ -19,6 +19,7 @@ import {
   type MenuItem,
 } from "@/components/ui/MenuItemsEditor";
 import Spinner from "@/components/ui/Spinner";
+import Input from "@/components/ui/Input";
 import type { Booking } from "@/types";
 import type { CalendarPageState } from "../useCalendarPage";
 import Button from "@/components/ui/Button";
@@ -168,17 +169,17 @@ export function EditBookingModal({ s }: { s: CalendarPageState }) {
     >
       <div className="flex flex-col gap-3.5">
         <div className="flex gap-3">
-          <div className="flex flex-col gap-1.5 flex-1">
-            <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight flex items-center gap-1.25">
-              <CalendarDays size={13} /> {t("date")}
-            </label>
-            <input
-              type="date"
-              className="w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-            />
-          </div>
+          <Input
+            containerClassName="flex-1"
+            label={
+              <span className="flex items-center gap-1.25">
+                <CalendarDays size={13} /> {t("date")}
+              </span>
+            }
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+          />
           <div className="flex flex-col gap-1.5 flex-1">
             <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight flex items-center gap-1.25">
               <Clock size={13} /> {t("time")}
@@ -205,59 +206,58 @@ export function EditBookingModal({ s }: { s: CalendarPageState }) {
           </div>
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight flex items-center gap-1.25">
-            <User size={13} /> {t("guest")}
-          </label>
-          <input
-            type="text"
-            className="w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </div>
+        <Input
+          label={
+            <span className="flex items-center gap-1.25">
+              <User size={13} /> {t("guest")}
+            </span>
+          }
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
 
         <div className="flex gap-3">
-          <div className="flex flex-col gap-1.5 flex-1">
-            <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight flex items-center gap-1.25">
-              <Phone size={13} /> {t("phone")}
-            </label>
-            <input
-              type="text"
-              className="w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-            />
-          </div>
-          <div className="flex flex-col gap-1.5 flex-1">
-            <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight flex items-center gap-1.25">
-              <MapPin size={13} /> {t("room")}
-            </label>
-            <input
-              type="text"
-              className="w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
-              value={room}
-              onChange={(e) => setRoom(e.target.value)}
-            />
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-1.5 max-w-40">
-          <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight flex items-center gap-1.25">
-            <Users size={13} /> {t("personsCount")}
-          </label>
-          <input
-            type="number"
-            className="w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
-            min={1}
-            step={1}
-            value={persons}
-            onChange={(e) =>
-              setPersons(Math.max(1, parseInt(e.target.value) || 1))
+          <Input
+            containerClassName="flex-1"
+            label={
+              <span className="flex items-center gap-1.25">
+                <Phone size={13} /> {t("phone")}
+              </span>
             }
-            onFocus={(e) => e.currentTarget.select()}
+            type="text"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+          />
+          <Input
+            containerClassName="flex-1"
+            label={
+              <span className="flex items-center gap-1.25">
+                <MapPin size={13} /> {t("room")}
+              </span>
+            }
+            type="text"
+            value={room}
+            onChange={(e) => setRoom(e.target.value)}
           />
         </div>
+
+        <Input
+          containerClassName="max-w-40"
+          label={
+            <span className="flex items-center gap-1.25">
+              <Users size={13} /> {t("personsCount")}
+            </span>
+          }
+          type="number"
+          min={1}
+          step={1}
+          value={persons}
+          onChange={(e) =>
+            setPersons(Math.max(1, parseInt(e.target.value) || 1))
+          }
+          onFocus={(e) => e.currentTarget.select()}
+        />
 
         <div className="flex flex-col gap-1.5">
           <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight flex items-center gap-1.25">
