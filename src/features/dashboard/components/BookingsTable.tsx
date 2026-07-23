@@ -32,7 +32,7 @@ export function BookingsTable({ s }: { s: DashboardPageState }) {
   }
 
   return (
-    <div className="overflow-auto max-h-[560px]">
+    <div className="overflow-auto max-h-140">
       <table className="w-full border-collapse text-[0.8125rem]">
         <thead>
           <tr className="sticky top-0 bg-gray-50 z-[1] border-b border-gray-200">
@@ -78,9 +78,9 @@ export function BookingsTable({ s }: { s: DashboardPageState }) {
                 <td className="p-[9px_12px] text-gray-800 font-medium">{b.customerName}</td>
                 <td className="p-[9px_12px]">
                   <div className="flex items-center gap-1.5">
-                    {b.roomNumber ? <span className="text-gray-600 inline-flex items-center gap-[3px]"><BedDouble size={12} />{b.roomNumber}</span> : <span className="text-gray-300">—</span>}
+                    {b.roomNumber ? <span className="text-gray-600 inline-flex items-center gap-0.75"><BedDouble size={12} />{b.roomNumber}</span> : <span className="text-gray-300">—</span>}
                     <span
-                      className="inline-flex items-center gap-[3px] px-1.5 py-[1px] rounded-[6px] text-[0.66rem] font-bold"
+                      className="inline-flex items-center gap-0.75 px-1.5 py-0.25 rounded-[6px] text-[0.66rem] font-bold"
                       style={{ background: `${TYPE_META[type].color}14`, color: TYPE_META[type].color }}
                     >
                       {TYPE_META[type].icon}{t(TYPE_META[type].labelKey)}
@@ -92,7 +92,7 @@ export function BookingsTable({ s }: { s: DashboardPageState }) {
                 </td>
                 <td className="p-[9px_12px]">
                   <span
-                    className="inline-flex items-center gap-1 px-2 py-[2px] rounded-[20px] text-[0.7rem] font-bold"
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[20px] text-[0.7rem] font-bold"
                     style={{ background: st.bg, color: st.color }}
                   >
                     {st.key === 'finished' && <Check size={11} />}{t(st.key)}

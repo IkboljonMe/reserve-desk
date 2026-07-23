@@ -20,7 +20,7 @@ export function GroupList({ s }: { s: ClientGroupsPageState }) {
   } = s;
 
   return (
-    <div className="bg-(--surface-card) border border-(--surface-border) rounded-[var(--radius-lg)] shadow-sm p-0 overflow-hidden">
+    <div className="bg-(--surface-card) border border-(--surface-border) rounded-(--radius-lg) shadow-sm p-0 overflow-hidden">
       {loading ? (
         <table className="w-full border-collapse">
           <tbody>
@@ -40,7 +40,7 @@ export function GroupList({ s }: { s: ClientGroupsPageState }) {
           {groups.map((g, i) => (
             <div
               key={g._id}
-              className={`flex items-center gap-3 px-4 py-3 ${i === 0 ? "" : "border-t border-[var(--gray-100,#f3f4f6)]"}`}
+              className={`flex items-center gap-3 px-4 py-3 ${i === 0 ? "" : "border-t border-(--gray-100,#f3f4f6)"}`}
             >
               <span
                 className="w-3 h-3 rounded-full shrink-0"

@@ -30,7 +30,7 @@ export function PayConfirmModal({ s }: { s: CalendarPageState }) {
 
   return (
     <div className="modal-overlay z-2000" onClick={close}>
-      <div className="modal max-w-[384px]" onClick={(e) => e.stopPropagation()}>
+      <div className="modal max-w-96" onClick={(e) => e.stopPropagation()}>
         <div className="flex flex-col items-center text-center gap-3">
           <span className="w-13 h-13 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
             <Wallet size={24} />

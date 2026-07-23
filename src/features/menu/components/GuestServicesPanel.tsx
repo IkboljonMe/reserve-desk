@@ -9,7 +9,7 @@ import type { GuestServicesState } from "../useGuestServices";
 import { GuestServiceModal } from "./GuestServiceModal";
 
 const CARD =
-  "bg-(--surface-card) border border-(--surface-border) rounded-[var(--radius-lg)] shadow-sm";
+  "bg-(--surface-card) border border-(--surface-border) rounded-(--radius-lg) shadow-sm";
 
 // Manager list of a hotel's guest-hub services: add, edit, delete, and toggle
 // each one's visibility on the guest landing (hidden = not shown to guests).

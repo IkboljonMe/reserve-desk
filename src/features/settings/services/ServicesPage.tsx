@@ -20,7 +20,7 @@ export default function ServicesPage() {
           <h2 className="flex items-center gap-2 m-0 text-lg font-bold">
             {t("services")}
             {!s.loading && (
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full font-bold text-[0.7rem] bg-[var(--brand-50,#eef2ff)] text-[var(--brand-700,#4338ca)] border border-[var(--brand-100,#e0e7ff)] ml-1">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full font-bold text-[0.7rem] bg-(--brand-50,#eef2ff) text-(--brand-700,#4338ca) border border-(--brand-100,#e0e7ff) ml-1">
                 {t("activeCount", { count: s.activeCount })}
               </span>
             )}

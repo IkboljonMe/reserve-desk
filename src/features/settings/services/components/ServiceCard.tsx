@@ -48,7 +48,7 @@ export function ServiceCard({
 
   return (
     <div
-      className="bg-(--surface-card) border border-(--surface-border) rounded-[var(--radius-lg)] shadow-sm flex flex-col overflow-hidden transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 border-t-3"
+      className="bg-(--surface-card) border border-(--surface-border) rounded-(--radius-lg) shadow-sm flex flex-col overflow-hidden transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 border-t-3"
       style={{ borderTopColor: svc.color }}
     >
       {/* Card Header */}
@@ -81,11 +81,11 @@ export function ServiceCard({
               className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-semibold text-[0.7rem] tracking-wide border ${
                 svc.isActive
                   ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                  : "bg-[var(--gray-100,#f3f4f6)] text-[var(--gray-500,#6b7280)] border-[var(--gray-200,#e5e7eb)]"
+                  : "bg-(--gray-100,#f3f4f6) text-(--gray-500,#6b7280) border-(--gray-200,#e5e7eb)"
               }`}
             >
               <span
-                className={`w-1.25 h-1.25 rounded-full shrink-0 ${svc.isActive ? "bg-emerald-500" : "bg-[var(--gray-400)]"}`}
+                className={`w-1.25 h-1.25 rounded-full shrink-0 ${svc.isActive ? "bg-emerald-500" : "bg-(--gray-400)"}`}
               />
               {svc.isActive ? t("active") : t("inactive")}
             </span>
@@ -97,7 +97,7 @@ export function ServiceCard({
               <Building2 size={11} />
               <span>{hotelName}</span>
               {(svc.sharedHotelIds?.length ?? 0) > 0 && (
-                <span className="text-[var(--brand-600,#4f46e5)] font-semibold">
+                <span className="text-(--brand-600,#4f46e5) font-semibold">
                   {t("plusNHotels", { count: svc.sharedHotelIds!.length })}
                 </span>
               )}
@@ -113,7 +113,7 @@ export function ServiceCard({
             svc.isActive ? t("deactivateService") : t("activateService")
           }
           className={`bg-transparent border-0 cursor-pointer p-1 shrink-0 transition-colors duration-150 ${
-            svc.isActive ? "text-emerald-500" : "text-[var(--gray-300)]"
+            svc.isActive ? "text-emerald-500" : "text-(--gray-300)"
           }`}
         >
           {svc.isActive ? <ToggleRight size={24} /> : <ToggleLeft size={24} />}
@@ -190,7 +190,7 @@ export function ServiceCard({
       )}
 
       {/* Footer meta */}
-      <div className="mt-auto border-t border-(--surface-border) px-5 py-2.5 flex items-center gap-3 bg-[var(--gray-50,#f9fafb)]">
+      <div className="mt-auto border-t border-(--surface-border) px-5 py-2.5 flex items-center gap-3 bg-(--gray-50,#f9fafb)">
         <span className="flex items-center gap-1 text-[0.72rem] text-(--gray-400)">
           <Clock size={11} />
           {svc.openTime}–{svc.closeTime}
@@ -200,7 +200,7 @@ export function ServiceCard({
           {svc.capacity}
         </span>
         {hasBuffer && (
-          <span className="flex items-center gap-1 text-[0.72rem] text-[var(--warning,#f59e0b)]">
+          <span className="flex items-center gap-1 text-[0.72rem] text-(--warning,#f59e0b)">
             <Zap size={10} />
             {svc.bufferTimeBefore || 0}+{svc.bufferTimeAfter || 0}m
           </span>
@@ -244,7 +244,7 @@ export function ServiceCard({
                 onClick={onDeleteRequest}
                 title={t("delete")}
                 aria-label={t("deleteNamed", { name: svc.name })}
-                className="text-[var(--danger)]"
+                className="text-(--danger)"
               >
                 <Trash2 size={14} />
               </Button>

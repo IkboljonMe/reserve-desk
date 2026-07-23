@@ -28,7 +28,7 @@ export function RoomModal({ s }: { s: HotelsRoomsPageState }) {
 
   return (
     <div className="modal-overlay" onClick={() => setRoomOpen(false)}>
-      <div className="modal max-w-[440px]" onClick={(e) => e.stopPropagation()}>
+      <div className="modal max-w-110" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>{editRoomId ? t("editRoom") : t("addRoom")}</h2>
           <Button
@@ -123,7 +123,7 @@ export function RoomModal({ s }: { s: HotelsRoomsPageState }) {
               )}
 
             {/* Live preview of the generated room name */}
-            <div className="bg-[var(--brand-50,#eef2ff)] border border-[var(--brand-100,#e0e7ff)] rounded-lg p-[10px_14px] text-[0.8125rem] text-[var(--brand-700,#4338ca)] flex items-center gap-2">
+            <div className="bg-(--brand-50,#eef2ff) border border-(--brand-100,#e0e7ff) rounded-lg p-[10px_14px] text-[0.8125rem] text-(--brand-700,#4338ca) flex items-center gap-2">
               {t("roomNameLabel")}&nbsp;
               <strong className="text-[0.9375rem] font-bold tabular-nums">
                 {roomShort}-{roomForm.number || "###"}

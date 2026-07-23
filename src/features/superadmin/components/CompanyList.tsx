@@ -57,7 +57,7 @@ export function CompanyList({ s }: { s: CompaniesPageState }) {
                   {planName(c.plan)}
                 </Badge>
                 <span
-                  className={`inline-flex items-center gap-1 px-[9px] py-[3px] rounded-full text-xs font-semibold tracking-[0.01em] border border-transparent shrink-0 ${
+                  className={`inline-flex items-center gap-1 px-2.25 py-0.75 rounded-full text-xs font-semibold tracking-[0.01em] border border-transparent shrink-0 ${
                     status === 'expired' ? 'bg-red-100 text-red-800' : status === 'soon' ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'
                   }`}
                 >

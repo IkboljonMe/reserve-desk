@@ -28,7 +28,7 @@ import { GuestServicesPanel } from "./components/GuestServicesPanel";
 import { MenuModeControl } from "./components/MenuModeControl";
 
 const CARD =
-  "bg-(--surface-card) border border-(--surface-border) rounded-[var(--radius-lg)] shadow-sm";
+  "bg-(--surface-card) border border-(--surface-border) rounded-(--radius-lg) shadow-sm";
 
 type Tab = "menu" | "services" | "settings";
 

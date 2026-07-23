@@ -45,7 +45,7 @@ export interface GuestServiceDto {
 }
 
 const FIELD =
-  "w-full px-3 py-2 min-h-[42px] rounded-lg text-sm outline-none bg-(--surface-card) border border-(--surface-border) text-[--gray-800] focus:border-[var(--brand-500)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]";
+  "w-full px-3 py-2 min-h-10.5 rounded-lg text-sm outline-none bg-(--surface-card) border border-(--surface-border) text-[--gray-800] focus:border-(--brand-500) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]";
 const FIELD_LABEL =
   "text-[0.72rem] font-semibold text-(--gray-500) tracking-tight";
 

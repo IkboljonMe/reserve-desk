@@ -35,7 +35,7 @@ export function HotelsSection({ s }: { s: HotelsRoomsPageState }) {
       <div className="flex items-center justify-between mb-4 flex-wrap gap-4">
         <div>
           <h2 className="m-0 text-lg font-bold text-[--gray-800] flex items-center gap-2">
-            <Building2 size={18} className="text-[var(--brand-600)]" />{" "}
+            <Building2 size={18} className="text-(--brand-600)" />{" "}
             {t("hotels")}
           </h2>
           <p className="text-[0.8125rem] text-[--gray-500] mt-0.5">
@@ -56,7 +56,7 @@ export function HotelsSection({ s }: { s: HotelsRoomsPageState }) {
           ))}
         </div>
       ) : hotels.length === 0 ? (
-        <div className="bg-(--surface-card) border border-(--surface-border) rounded-[var(--radius-lg)] shadow-sm p-0 overflow-hidden">
+        <div className="bg-(--surface-card) border border-(--surface-border) rounded-(--radius-lg) shadow-sm p-0 overflow-hidden">
           <EmptyState icon={<Building2 size={26} />}>
             <h3 className="text-gray-700">{t("noHotelsAdded")}</h3>
             <p>{t("noHotelsDesc")}</p>
@@ -72,10 +72,10 @@ export function HotelsSection({ s }: { s: HotelsRoomsPageState }) {
             return (
               <div
                 key={hotel._id}
-                className="bg-(--surface-card) border border-(--surface-border) rounded-[var(--radius-lg)] shadow-sm p-4.5 flex flex-col gap-3"
+                className="bg-(--surface-card) border border-(--surface-border) rounded-(--radius-lg) shadow-sm p-4.5 flex flex-col gap-3"
               >
                 <div className="flex items-start gap-3">
-                  <span className="inline-flex items-center justify-center min-w-[46px] h-10 px-2.5 rounded-lg bg-[var(--brand-500,#6366f1)] text-white font-bold text-[0.9375rem] tracking-wider shrink-0">
+                  <span className="inline-flex items-center justify-center min-w-11.5 h-10 px-2.5 rounded-lg bg-(--brand-500,#6366f1) text-white font-bold text-[0.9375rem] tracking-wider shrink-0">
                     {displayCode(hotel)}
                   </span>
                   <div className="flex-1 min-w-0">
@@ -120,7 +120,7 @@ export function HotelsSection({ s }: { s: HotelsRoomsPageState }) {
                       <Button
                         variant="ghost"
                         icon
-                        className="text-[var(--danger)]"
+                        className="text-(--danger)"
                         onClick={() => setHotelDeleteConfirm(hotel._id)}
                         title={t("deleteHotelAria")}
                         aria-label={t("deleteHotelAria")}
@@ -139,7 +139,7 @@ export function HotelsSection({ s }: { s: HotelsRoomsPageState }) {
                       {hotel.roomTypes.slice(0, 3).map((rt) => (
                         <span
                           key={rt}
-                          className="bg-[var(--brand-50,#eef2ff)] text-[var(--brand-600,#4f46e5)] px-1.5 py-0.5 rounded-md font-semibold text-[0.68rem]"
+                          className="bg-(--brand-50,#eef2ff) text-(--brand-600,#4f46e5) px-1.5 py-0.5 rounded-md font-semibold text-[0.68rem]"
                         >
                           {rt}
                         </span>

@@ -7,7 +7,7 @@ import { MENU_LANGS, MENU_LANG_LABELS, type MenuLang } from "@/lib/menu";
 import type { LocalizedText } from "../types";
 
 export const FIELD_INPUT =
-  "flex-1 min-w-0 px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] disabled:bg-[var(--gray-50)] disabled:text-[--gray-500]";
+  "flex-1 min-w-0 px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] disabled:bg-(--gray-50) disabled:text-[--gray-500]";
 
 // A translatable text field: language tabs (10 — MENU_LANGS) editing a
 // LocalizedText value in place, plus a "Translate" button (Google Translate,

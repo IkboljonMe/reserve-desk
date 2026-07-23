@@ -39,7 +39,7 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
 
   return (
     <div className="modal-overlay" onClick={closeForm}>
-      <div className="modal max-w-[660px]" onClick={(e) => e.stopPropagation()}>
+      <div className="modal max-w-165" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div className="flex items-center gap-2.5">
             {/* Preview icon in title */}
@@ -133,8 +133,8 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
                           type="button"
                           className={`px-3.5 py-1.5 rounded-full text-[0.8rem] font-semibold cursor-pointer border transition-all duration-150 whitespace-nowrap inline-flex items-center gap-1.25 ${
                             on
-                              ? "bg-gradient-to-r from-[var(--brand-500)] to-[var(--brand-600)] text-white border-transparent shadow-[var(--shadow-brand)]"
-                              : "border-[var(--gray-200,#e5e7eb)] bg-(--surface-card) text-[var(--gray-600,#4b5563)] hover:border-[var(--brand-500,#6366f1)] hover:text-[var(--brand-700,#4338ca)] hover:bg-[var(--brand-50,#eef2ff)]"
+                              ? "bg-gradient-to-r from-(--brand-500) to-(--brand-600) text-white border-transparent shadow-(--shadow-brand)"
+                              : "border-(--gray-200,#e5e7eb) bg-(--surface-card) text-(--gray-600,#4b5563) hover:border-(--brand-500,#6366f1) hover:text-(--brand-700,#4338ca) hover:bg-(--brand-50,#eef2ff)"
                           }`}
                           aria-pressed={on}
                           onClick={() =>
@@ -164,7 +164,7 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
                 <InfoHint text={t("descriptionHint")} />
               </label>
               <textarea
-                className="w-full px-3 py-2 min-h-[60px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] resize-y"
+                className="w-full px-3 py-2 min-h-15 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)] resize-y"
                 value={form.description}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, description: e.target.value }))
@@ -354,7 +354,7 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
                 {form.variants.map((v) => (
                   <div
                     key={v.id}
-                    className="border border-[var(--gray-200,#e5e7eb)] rounded-xl p-3.5 flex flex-col gap-3 bg-white"
+                    className="border border-(--gray-200,#e5e7eb) rounded-xl p-3.5 flex flex-col gap-3 bg-white"
                   >
                     <div className="flex gap-2 items-end">
                       <Input
@@ -370,7 +370,7 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
                         type="button"
                         variant="ghost"
                         icon
-                        className="text-[var(--danger)]"
+                        className="text-(--danger)"
                         onClick={() => removeVariant(v.id)}
                         aria-label={t("removeVariant", { name: v.name || "" })}
                       >

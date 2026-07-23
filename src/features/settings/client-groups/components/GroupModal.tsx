@@ -22,7 +22,7 @@ export function GroupModal({ s }: { s: ClientGroupsPageState }) {
 
   return (
     <div className="modal-overlay" onClick={closeModal}>
-      <div className="modal max-w-[420px]" onClick={(e) => e.stopPropagation()}>
+      <div className="modal max-w-105" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>{editGroup ? t("editGroup") : t("addGroup")}</h2>
           <Button
@@ -42,7 +42,7 @@ export function GroupModal({ s }: { s: ClientGroupsPageState }) {
                 {t("groupName")} *
               </label>
               <input
-                className="w-full px-3 py-2 min-h-[38px] rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-[var(--gray-200,#e5e7eb)] text-[--gray-800] hover:border-[var(--gray-300)] focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
+                className="w-full px-3 py-2 min-h-9.5 rounded-lg text-sm outline-none transition-all duration-150 bg-white border border-(--gray-200,#e5e7eb) text-[--gray-800] hover:border-(--gray-300) focus:border-(--brand-500,#6366f1) focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]"
                 required
                 autoFocus
                 value={form.name}
@@ -66,7 +66,7 @@ export function GroupModal({ s }: { s: ClientGroupsPageState }) {
                     aria-label={t("selectColor", { color: c })}
                     className={`w-7 h-7 rounded-full cursor-pointer flex items-center justify-center transition-all duration-150 ${
                       form.color === c
-                        ? "ring-2 ring-[var(--gray-800,#1f2937)] ring-offset-2"
+                        ? "ring-2 ring-(--gray-800,#1f2937) ring-offset-2"
                         : ""
                     }`}
                     style={{ background: c }}

@@ -5,8 +5,8 @@ import type { ContractStatus } from './ContractModal'
 
 export function ExpiryPill({ status, daysLeft }: { status: ContractStatus; daysLeft: number | null }) {
   const { t } = useTranslation()
-  if (status === 'terminated') return <span className="text-[var(--gray-300)]">—</span>
-  if (daysLeft === null) return <span className="text-[var(--gray-300)]">{t('noDate')}</span>
+  if (status === 'terminated') return <span className="text-(--gray-300)">—</span>
+  if (daysLeft === null) return <span className="text-(--gray-300)">{t('noDate')}</span>
 
   let color = '#0f9d58', bg = 'rgba(16,185,129,0.12)', label = t('daysLeft', { days: daysLeft })
   if (daysLeft < 0) { color = 'var(--danger)'; bg = 'rgba(239,68,68,0.12)'; label = t('expiredAgo', { days: Math.abs(daysLeft) }) }

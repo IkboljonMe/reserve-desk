@@ -9,7 +9,7 @@ import { FilterGroup } from './FilterGroup'
 import Button from '@/components/ui/Button'
 
 // Pill button styles: base, active, and service-specific active (uses inline style for dynamic color)
-const PILL_BASE = 'inline-flex items-center gap-[5px] px-3 py-[5px] rounded-full text-[0.78rem] font-semibold cursor-pointer border-[1.5px] border-gray-200 bg-surface-card text-gray-600 transition-all duration-150 whitespace-nowrap hover:border-brand-400 hover:text-brand-700 font-inherit'
+const PILL_BASE = 'inline-flex items-center gap-1.25 px-3 py-1.25 rounded-full text-[0.78rem] font-semibold cursor-pointer border-[1.5px] border-gray-200 bg-surface-card text-gray-600 transition-all duration-150 whitespace-nowrap hover:border-brand-400 hover:text-brand-700 font-inherit'
 const PILL_ACTIVE = 'bg-brand-500 text-white border-transparent'
 
 export function FiltersModal({ s, open, onClose }: { s: DashboardPageState; open: boolean; onClose: () => void }) {

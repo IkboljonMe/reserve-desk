@@ -19,7 +19,7 @@ export function FeaturesSlide({ badge, title, features }: Props) {
       <SlideBackground />
 
       {/* Layered Content on Top */}
-      <div className="relative z-10 w-full max-w-[1000px] px-5 sm:px-10 py-8 sm:py-12 flex flex-col items-center text-white">
+      <div className="relative z-10 w-full max-w-250 px-5 sm:px-10 py-8 sm:py-12 flex flex-col items-center text-white">
         <div className="inline-flex items-center gap-2 mb-3 sm:mb-4 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-[0.65rem] sm:text-[0.8rem] font-bold tracking-wide">
           {badge}
         </div>

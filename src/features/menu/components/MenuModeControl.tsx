@@ -18,7 +18,7 @@ export function MenuModeControl({
   const { t } = useTranslation();
 
   return (
-    <div className="bg-(--surface-card) border border-(--surface-border) rounded-[var(--radius-lg)] shadow-sm p-4 mb-4 flex flex-wrap items-center justify-between gap-3">
+    <div className="bg-(--surface-card) border border-(--surface-border) rounded-(--radius-lg) shadow-sm p-4 mb-4 flex flex-wrap items-center justify-between gap-3">
       <div className="flex items-start gap-2.5 min-w-0">
         <span className="w-9 h-9 rounded-lg bg-(--brand-50,#eef2ff) text-(--brand-600,#4f46e5) flex items-center justify-center shrink-0">
           {mode.shared ? <Layers size={17} /> : <Building2 size={17} />}

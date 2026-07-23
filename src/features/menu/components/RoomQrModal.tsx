@@ -128,7 +128,7 @@ export function RoomQrModal({
       {loading ? (
         <p className="text-center text-(--gray-400) py-8">{t("loading")}</p>
       ) : !hotelSlug ? (
-        <p className="text-center text-[var(--color-danger)] text-sm py-8">
+        <p className="text-center text-(--color-danger) text-sm py-8">
           {t("hotelNeedsSlugForQr")}
         </p>
       ) : rooms.length === 0 ? (

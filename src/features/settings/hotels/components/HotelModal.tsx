@@ -29,7 +29,7 @@ export function HotelModal({ s }: { s: HotelsRoomsPageState }) {
 
   return (
     <div className="modal-overlay" onClick={() => setHotelOpen(false)}>
-      <div className="modal max-w-[440px]" onClick={(e) => e.stopPropagation()}>
+      <div className="modal max-w-110" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>{editHotelId ? t("editHotel") : t("addHotel")}</h2>
           <Button
@@ -101,7 +101,7 @@ export function HotelModal({ s }: { s: HotelsRoomsPageState }) {
                   {hotelForm.roomTypes.map((rt, i) => (
                     <span
                       key={i}
-                      className="bg-[var(--brand-100,#eef2ff)] text-[var(--brand-700,#4338ca)] px-2.5 py-0.5 rounded-full font-semibold text-[0.8125rem] inline-flex items-center gap-1.5"
+                      className="bg-(--brand-100,#eef2ff) text-(--brand-700,#4338ca) px-2.5 py-0.5 rounded-full font-semibold text-[0.8125rem] inline-flex items-center gap-1.5"
                     >
                       {rt}
                       <button
@@ -114,7 +114,7 @@ export function HotelModal({ s }: { s: HotelsRoomsPageState }) {
                             ),
                           }))
                         }
-                        className="bg-transparent border-0 text-[var(--danger,#ef4444)] cursor-pointer p-0 inline-flex items-center hover:opacity-80"
+                        className="bg-transparent border-0 text-(--danger,#ef4444) cursor-pointer p-0 inline-flex items-center hover:opacity-80"
                       >
                         <X size={14} />
                       </button>
