@@ -5,12 +5,7 @@ import { ArrowLeft, Sparkles, Sun, Moon } from "lucide-react";
 import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
 import Dropdown from "@/components/ui/Dropdown";
-import {
-  localized,
-  guestHubPath,
-  MENU_LANGS,
-  MENU_LANG_LABELS,
-} from "@/lib/menu";
+import { localized, guestHubPath, MENU_LANG_OPTIONS } from "@/lib/menu";
 import { money } from "@/lib/bookingHelpers";
 import { useGuestPrefs } from "./useGuestPrefs";
 
@@ -53,10 +48,6 @@ const FIELD =
   "w-full px-3 py-2 min-h-[42px] rounded-lg text-sm outline-none bg-(--surface-card) border border-(--surface-border) text-[--gray-800] focus:border-[var(--brand-500)] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.14)]";
 const FIELD_LABEL =
   "text-[0.72rem] font-semibold text-(--gray-500) tracking-tight";
-const LANG_OPTIONS = MENU_LANGS.map((l) => ({
-  value: l,
-  label: MENU_LANG_LABELS[l],
-}));
 
 export function GuestServicesClient({
   labels,
@@ -189,7 +180,7 @@ export function GuestServicesClient({
             <Dropdown
               value={contentLang}
               onChange={(v) => setContentLang(v as typeof contentLang)}
-              options={LANG_OPTIONS}
+              options={MENU_LANG_OPTIONS}
               ariaLabel="Language"
             />
           </div>
