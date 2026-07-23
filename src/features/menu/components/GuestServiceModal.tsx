@@ -12,15 +12,14 @@ import {
   type MenuLang,
 } from "@/lib/menu";
 import { translateText } from "@/lib/api/menu";
-import { LocalizedInput, FIELD_INPUT } from "./LocalizedInput";
 import { ImageUpload } from "@/components/ui/ImageUpload";
-import type { MenuPageState } from "../useMenuPage";
+import { LocalizedInput, FIELD_INPUT } from "./LocalizedInput";
+import type { GuestServicesState } from "../useGuestServices";
 import type { LocalizedText } from "../types";
 
-export function ProductModal({ s }: { s: MenuPageState }) {
-  const { t, lang } = useTranslation();
+export function GuestServiceModal({ s }: { s: GuestServicesState }) {
+  const { t } = useTranslation();
   const { showToast } = useToast();
-  const [categoryId, setCategoryId] = useState("");
   const [name, setName] = useState<LocalizedText>(EMPTY_LOCALIZED);
   const [nameLocked, setNameLocked] = useState<string[]>([]);
   const [desc, setDesc] = useState<LocalizedText>(EMPTY_LOCALIZED);
@@ -28,33 +27,28 @@ export function ProductModal({ s }: { s: MenuPageState }) {
   const [sourceLang, setSourceLang] = useState<MenuLang>("en");
   const [price, setPrice] = useState("");
   const [imageUrl, setImageUrl] = useState("");
-  const [available, setAvailable] = useState(true);
+  const [active, setActive] = useState(true);
 
-  // Reset the form when the modal opens (sync from the edited product).
   useEffect(() => {
-    if (!s.productOpen) return;
-    const p = s.editProduct;
+    if (!s.serviceOpen) return;
+    const g = s.editService;
     /* eslint-disable react-hooks/set-state-in-effect -- form reset on open */
-    setCategoryId(
-      p?.categoryId || s.productCategoryId || s.categories[0]?._id || "",
-    );
-    setName(p ? { ...EMPTY_LOCALIZED, ...p.nameI18n } : EMPTY_LOCALIZED);
-    setNameLocked(p?.nameI18nLocked || []);
-    setDesc(p ? { ...EMPTY_LOCALIZED, ...p.descI18n } : EMPTY_LOCALIZED);
-    setDescLocked(p?.descI18nLocked || []);
-    setSourceLang((p?.sourceLang as MenuLang) || "en");
-    setPrice(p ? String(p.price) : "");
-    setImageUrl(p?.imageUrl || "");
-    setAvailable(p ? p.available : true);
+    setName(g ? { ...EMPTY_LOCALIZED, ...g.nameI18n } : EMPTY_LOCALIZED);
+    setNameLocked(g?.nameI18nLocked || []);
+    setDesc(g ? { ...EMPTY_LOCALIZED, ...g.descI18n } : EMPTY_LOCALIZED);
+    setDescLocked(g?.descI18nLocked || []);
+    setSourceLang((g?.sourceLang as MenuLang) || "en");
+    setPrice(g ? String(g.price) : "");
+    setImageUrl(g?.imageUrl || "");
+    setActive(g ? g.active : true);
     /* eslint-enable react-hooks/set-state-in-effect */
-  }, [s.productOpen, s.editProduct, s.productCategoryId, s.categories]);
+  }, [s.serviceOpen, s.editService]);
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
     const source = name[sourceLang];
-    if (!source.trim() || !categoryId) return;
-    s.saveProduct({
-      categoryId,
+    if (!source.trim()) return;
+    s.save({
       name: source,
       nameI18n: name,
       nameI18nLocked: nameLocked,
@@ -63,7 +57,7 @@ export function ProductModal({ s }: { s: MenuPageState }) {
       descI18nLocked: descLocked,
       price: Math.max(0, Math.round(Number(price) || 0)),
       imageUrl,
-      available,
+      active,
       sourceLang,
     });
   };
@@ -79,9 +73,9 @@ export function ProductModal({ s }: { s: MenuPageState }) {
 
   return (
     <Modal
-      open={s.productOpen}
-      onClose={() => s.setProductOpen(false)}
-      title={s.editProduct ? t("editProduct") : t("addProduct")}
+      open={s.serviceOpen}
+      onClose={() => s.setServiceOpen(false)}
+      title={s.editService ? t("editService") : t("addService")}
       size="md"
       closeLabel={t("close")}
       footer={
@@ -89,51 +83,35 @@ export function ProductModal({ s }: { s: MenuPageState }) {
           <Button
             type="button"
             variant="secondary"
-            onClick={() => s.setProductOpen(false)}
+            onClick={() => s.setServiceOpen(false)}
           >
             {t("cancel")}
           </Button>
-          <Button type="submit" form="product-form" loading={s.saving}>
+          <Button type="submit" form="guest-service-form" loading={s.saving}>
             {t("save")}
           </Button>
         </div>
       }
     >
       <form
-        id="product-form"
+        id="guest-service-form"
         onSubmit={submit}
         className="flex flex-col gap-3.5"
       >
-        <div className="grid grid-cols-2 max-[480px]:grid-cols-1 gap-4">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
-              {t("category")}
-            </label>
-            <Dropdown
-              value={categoryId}
-              onChange={setCategoryId}
-              options={s.categories.map((c) => ({
-                value: c._id,
-                label: c.nameI18n?.[lang] || c.name,
-              }))}
-              ariaLabel={t("category")}
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
-              {t("inputLanguage")}
-            </label>
-            <Dropdown
-              value={sourceLang}
-              onChange={(v) => setSourceLang(v as MenuLang)}
-              options={MENU_LANG_OPTIONS}
-              ariaLabel={t("inputLanguage")}
-            />
-          </div>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
+            {t("inputLanguage")}
+          </label>
+          <Dropdown
+            value={sourceLang}
+            onChange={(v) => setSourceLang(v as MenuLang)}
+            options={MENU_LANG_OPTIONS}
+            ariaLabel={t("inputLanguage")}
+          />
         </div>
 
         <LocalizedInput
-          label={t("productName")}
+          label={t("serviceName")}
           value={name}
           onChange={setName}
           sourceLang={sourceLang}
@@ -166,7 +144,7 @@ export function ProductModal({ s }: { s: MenuPageState }) {
             />
           </div>
           <ImageUpload
-            label={t("productImage")}
+            label={t("serviceImage")}
             value={imageUrl}
             onChange={setImageUrl}
             scope="products"
@@ -177,11 +155,11 @@ export function ProductModal({ s }: { s: MenuPageState }) {
           <input
             type="checkbox"
             className="w-4 h-4 accent-(--brand-500)"
-            checked={available}
-            onChange={(e) => setAvailable(e.target.checked)}
+            checked={active}
+            onChange={(e) => setActive(e.target.checked)}
           />
           <span className="text-sm text-(--gray-700) font-medium">
-            {t("availableForOrder")}
+            {t("visibleInMenu")}
           </span>
         </label>
       </form>

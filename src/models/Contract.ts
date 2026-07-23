@@ -23,6 +23,9 @@ export interface IContract extends Document {
   reminderDays: number[]
   // Reminder tiers the admin has already dismissed. 0 = the "expired" tier.
   dismissedReminders: number[]
+  // Reminder tiers already pushed to the Telegram group, so each tier posts
+  // at most once. Reset when finishDate/reminderDays change (a renewal).
+  telegramSentReminders: number[]
   createdAt: Date
   updatedAt: Date
 }
@@ -43,6 +46,7 @@ const ContractSchema = new Schema<IContract>(
     notes: { type: String, default: '' },
     reminderDays: { type: [Number], default: [30, 7] },
     dismissedReminders: { type: [Number], default: [] },
+    telegramSentReminders: { type: [Number], default: [] },
   },
   { timestamps: true }
 )

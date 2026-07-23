@@ -6,40 +6,31 @@ import Button from "@/components/ui/Button";
 import Dropdown from "@/components/ui/Dropdown";
 import { useTranslation } from "@/i18n";
 import { useToast } from "@/providers/ToastProvider";
-import { MENU_LANGS, MENU_LANG_LABELS, type MenuLang } from "@/lib/menu";
+import {
+  MENU_LANG_OPTIONS,
+  EMPTY_LOCALIZED,
+  type MenuLang,
+} from "@/lib/menu";
 import { translateText } from "@/lib/api/menu";
 import { LocalizedInput } from "./LocalizedInput";
 import type { MenuPageState } from "../useMenuPage";
 import type { LocalizedText } from "../types";
 
-const EMPTY: LocalizedText = {
-  en: "",
-  ru: "",
-  uz: "",
-  ar: "",
-  zh: "",
-  fr: "",
-  es: "",
-  de: "",
-  kk: "",
-  tr: "",
-};
-const LANG_OPTIONS = MENU_LANGS.map((l) => ({
-  value: l,
-  label: MENU_LANG_LABELS[l],
-}));
-
 export function CategoryModal({ s }: { s: MenuPageState }) {
   const { t } = useTranslation();
   const { showToast } = useToast();
-  const [name, setName] = useState<LocalizedText>(EMPTY);
+  const [name, setName] = useState<LocalizedText>(EMPTY_LOCALIZED);
   const [sourceLang, setSourceLang] = useState<MenuLang>("en");
   const [locked, setLocked] = useState<string[]>([]);
 
   useEffect(() => {
     if (!s.categoryOpen) return;
     /* eslint-disable react-hooks/set-state-in-effect -- form reset on open */
-    setName(s.editCategory ? { ...EMPTY, ...s.editCategory.nameI18n } : EMPTY);
+    setName(
+      s.editCategory
+        ? { ...EMPTY_LOCALIZED, ...s.editCategory.nameI18n }
+        : EMPTY_LOCALIZED,
+    );
     setSourceLang((s.editCategory?.sourceLang as MenuLang) || "en");
     setLocked(s.editCategory?.nameI18nLocked || []);
     /* eslint-enable react-hooks/set-state-in-effect */
@@ -100,7 +91,7 @@ export function CategoryModal({ s }: { s: MenuPageState }) {
           <Dropdown
             value={sourceLang}
             onChange={(v) => setSourceLang(v as MenuLang)}
-            options={LANG_OPTIONS}
+            options={MENU_LANG_OPTIONS}
             ariaLabel={t("inputLanguage")}
           />
         </div>

@@ -6,6 +6,12 @@ import mongoose, { Schema, Document, Types } from 'mongoose'
 // current Plan catalog is checked at the API layer, not in the schema.
 export type CompanyPlan = string
 
+// How the guest food menu is scoped across a company's hotels:
+//  - 'per_hotel' (default): each hotel has its own menu (categories/products).
+//  - 'shared': every hotel shows one shared menu — the content of
+//    menuSourceHotelId — so the owner edits it once.
+export type MenuMode = 'per_hotel' | 'shared'
+
 // Slugs that would collide with real routes under /secure/company/{slug} or
 // with other top-level app paths.
 export const RESERVED_SLUGS = [
@@ -25,6 +31,9 @@ export interface ICompany extends Document {
   contactPhone: string
   paymentMethod: string
   note: string
+  // Guest food-menu scope across this company's hotels.
+  menuMode: MenuMode
+  menuSourceHotelId: Types.ObjectId | null  // the shared menu's source hotel (used when menuMode === 'shared')
   createdAt: Date
   updatedAt: Date
 }
@@ -60,6 +69,8 @@ const CompanySchema = new Schema<ICompany>(
     contactPhone: { type: String, default: '', trim: true },
     paymentMethod: { type: String, default: '', trim: true },
     note: { type: String, default: '', trim: true },
+    menuMode: { type: String, enum: ['per_hotel', 'shared'], default: 'per_hotel' },
+    menuSourceHotelId: { type: Schema.Types.ObjectId, ref: 'Hotel', default: null },
   },
   { timestamps: true }
 )

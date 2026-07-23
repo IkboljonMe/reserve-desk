@@ -7,6 +7,11 @@ import { MenuTelegramTopic } from '@/models/MenuTelegramTopic'
 import { TelegramSession } from '@/models/TelegramSession'
 import { deleteMessage, sendMessage, syncAllTopics } from '@/lib/telegram'
 import { companyHasFeature } from '@/lib/planAccess'
+import {
+  buildOrdersMessage,
+  buildActiveOrdersMessage,
+  buildIncomeMessage,
+} from '@/lib/telegramReports'
 
 interface TelegramUpdate {
   message?: {
@@ -52,6 +57,32 @@ export async function POST(req: NextRequest) {
         { upsert: true }
       )
       await sendMessage(chatId, 'Пожалуйста, отправьте email владельца.', message.message_thread_id)
+      return new Response('OK')
+    }
+
+    // Report commands: readable by anyone in a connected group. The command may
+    // carry a @botname suffix in groups (e.g. "/income@MyBot"), so match the
+    // leading token only.
+    const cmd = text.split(/[\s@]/)[0]
+    if (cmd === '/orders' || cmd === '/active-orders' || cmd === '/income') {
+      const config = await TelegramConfig.findOne({ groupChatId: chatId }).lean()
+      if (!config) {
+        await sendMessage(chatId, 'Эта группа ещё не подключена. Отправьте /login, чтобы подключить.', message.message_thread_id)
+        return new Response('OK')
+      }
+      const build =
+        cmd === '/orders'
+          ? buildOrdersMessage
+          : cmd === '/active-orders'
+            ? buildActiveOrdersMessage
+            : buildIncomeMessage
+      try {
+        const reply = await build(config.companyId)
+        await sendMessage(chatId, reply, message.message_thread_id)
+      } catch (err) {
+        console.error(`Failed to build ${cmd} report`, err)
+        await sendMessage(chatId, 'Не удалось получить данные. Попробуйте позже.', message.message_thread_id)
+      }
       return new Response('OK')
     }
 

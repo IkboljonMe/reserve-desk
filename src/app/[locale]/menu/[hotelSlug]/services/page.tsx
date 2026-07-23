@@ -54,8 +54,14 @@ export default async function GuestServicesPage({
   const labels: GuestServiceLabels = {
     room: t("room"),
     roomNumber: t("roomNumber"),
-    guestNamePlaceholder: t("guestNamePlaceholder"),
+    firstName: t("firstName"),
+    lastName: t("lastName"),
+    persons: t("persons"),
+    date: t("date"),
+    startTime: t("startTime"),
+    endTime: t("endTime"),
     orderNotePlaceholder: t("orderNotePlaceholder"),
+    requestHint: t("serviceRequestHint"),
     bookService: t("bookService") || "Забронировать",
     sending: t("sending") || "Отправка...",
     requestSent: t("requestSent") || "Заявка отправлена",
@@ -69,6 +75,7 @@ export default async function GuestServicesPage({
     bookNow: t("bookNow") || "Забронировать",
     errorFailed: t("errorFailed") || "Произошла ошибка",
     errorRoomRequired: t("roomRequiredError"),
+    errorFillAll: t("fillAllFields"),
   };
 
   return (

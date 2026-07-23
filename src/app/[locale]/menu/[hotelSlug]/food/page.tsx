@@ -8,6 +8,7 @@ import { MenuCategory } from "@/models/MenuCategory";
 import { MenuProduct } from "@/models/MenuProduct";
 import { MenuRecommendation } from "@/models/MenuRecommendation";
 import { HotelMenuSettings } from "@/models/HotelMenuSettings";
+import { resolveMenuHotelId } from "@/lib/menuScope";
 import { nowUZ } from "@/lib/timezone";
 import { getT } from "@/i18n/dictionary";
 import {
@@ -68,14 +69,17 @@ export default async function GuestFoodPage({
     );
   }
 
+  // In shared-menu mode all hotels display the source hotel's menu content.
+  const menuHotelId = await resolveMenuHotelId(hotel.companyId, hotel._id);
+
   const [categories, products, recommendationDocs] = await Promise.all([
-    MenuCategory.find({ hotelId: hotel._id })
+    MenuCategory.find({ hotelId: menuHotelId })
       .sort({ sortOrder: 1, createdAt: 1 })
       .lean(),
-    MenuProduct.find({ hotelId: hotel._id, available: true })
+    MenuProduct.find({ hotelId: menuHotelId, available: true })
       .sort({ sortOrder: 1, createdAt: 1 })
       .lean(),
-    MenuRecommendation.find({ hotelId: hotel._id, dayOfWeek: nowUZ().getDay() })
+    MenuRecommendation.find({ hotelId: menuHotelId, dayOfWeek: nowUZ().getDay() })
       .sort({ sortOrder: 1 })
       .populate("productId")
       .lean(),
@@ -122,6 +126,10 @@ export default async function GuestFoodPage({
     orderReady: t("orderReady"),
     orderDelivered: t("orderDelivered"),
     recommendedToday: t("recommendedToday"),
+    reviewTitle: t("reviewTitle"),
+    reviewCommentPlaceholder: t("reviewCommentPlaceholder"),
+    reviewSubmit: t("reviewSubmit"),
+    reviewThanks: t("reviewThanks"),
   };
 
   return (

@@ -29,20 +29,32 @@ export async function POST(req: NextRequest) {
       .lean<{ name: string; price: number } | null>()
     if (!service) return Response.json({ error: 'Unknown service' }, { status: 404 })
 
-    const guestName = typeof body.guestName === 'string' ? body.guestName.slice(0, 120) : ''
-    const note = typeof body.note === 'string' ? body.note.slice(0, 500) : ''
-    
-    // Construct the notification text
+    const str = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice(0, max) : '')
+    const firstName = str(body.firstName, 80)
+    const lastName = str(body.lastName, 80)
+    const date = str(body.date, 20)
+    const startTime = str(body.startTime, 10)
+    const endTime = str(body.endTime, 10)
+    const persons = Math.max(1, Math.min(999, Math.round(Number(body.persons) || 1)))
+    const note = str(body.note, 500)
+
+    const fullName = [firstName, lastName].filter(Boolean).join(' ')
+
+    // Reception books manually from this request, so surface everything they
+    // need to call the guest back: who, when, how many.
     const lines = [
       '🛎️ <b>Новая заявка на услугу!</b>',
       '',
       `🏢 Отель: ${hotel.name || hotel.shortName}`,
       `🛏️ Номер: ${roomNumber}`,
+      `🛠️ Услуга: ${service.name}`,
     ]
-    if (guestName) lines.push(`👤 Гость: ${guestName}`)
-    lines.push(`🛠️ Услуга: ${service.name}`)
+    if (fullName) lines.push(`👤 Гость: ${fullName}`)
+    if (persons > 1) lines.push(`👥 Кол-во человек: ${persons}`)
+    if (date) lines.push(`📅 Дата: ${date}`)
+    if (startTime && endTime) lines.push(`🕒 Время: ${startTime}–${endTime}`)
     if (note) lines.push('', `✍️ Примечание: ${note}`)
-    
+
     const text = lines.join('\n')
 
     // Fire-and-forget to Telegram (we don't await this blocking the response, though here it's fast enough)

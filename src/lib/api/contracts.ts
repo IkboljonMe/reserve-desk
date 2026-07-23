@@ -51,3 +51,11 @@ export async function deleteContract(id: string) {
   if (!res.ok) throw new Error('Failed to delete contract')
   return res.json()
 }
+
+// Runs the reminder sweep for the current company on demand and returns how
+// many reminders were posted to the Telegram group.
+export async function runContractReminders(): Promise<{ ok: true; sent: number }> {
+  const res = await fetch('/api/contracts/reminders/run', { method: 'POST' })
+  if (!res.ok) throw new Error('Failed to run reminders')
+  return res.json()
+}

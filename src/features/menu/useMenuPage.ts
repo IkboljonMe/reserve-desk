@@ -17,7 +17,11 @@ import {
 } from "@/lib/api/menu";
 import type { MenuCategory, MenuProduct, MenuHotel } from "./types";
 
-export function useMenuPage() {
+// `contentHotelIdOverride` decouples the menu content (categories/products)
+// from the selected hotel: in shared-menu mode the page still lets the owner
+// pick a hotel (for services/settings), but the menu itself always reads/writes
+// the shared source hotel passed here.
+export function useMenuPage(contentHotelIdOverride?: string) {
   const { t } = useTranslation();
   const { showToast } = useToast();
   const qc = useQueryClient();
@@ -38,16 +42,18 @@ export function useMenuPage() {
   const hotels = hotelsQuery.data ?? [];
   // Sticky default: the first hotel, until the user picks one explicitly.
   const hotelId = pickedHotelId || hotels[0]?._id || "";
+  // The hotel whose menu content is edited — the shared source when overridden.
+  const contentHotelId = contentHotelIdOverride || hotelId;
 
   const categoriesQuery = useQuery<MenuCategory[]>({
-    queryKey: ["menu", "categories", hotelId],
-    queryFn: () => getCategories(hotelId),
-    enabled: !!hotelId,
+    queryKey: ["menu", "categories", contentHotelId],
+    queryFn: () => getCategories(contentHotelId),
+    enabled: !!contentHotelId,
   });
   const productsQuery = useQuery<MenuProduct[]>({
-    queryKey: ["menu", "products", hotelId],
-    queryFn: () => getProducts(hotelId),
-    enabled: !!hotelId,
+    queryKey: ["menu", "products", contentHotelId],
+    queryFn: () => getProducts(contentHotelId),
+    enabled: !!contentHotelId,
   });
   const categories = categoriesQuery.data ?? [];
   const products = productsQuery.data ?? [];
@@ -57,8 +63,8 @@ export function useMenuPage() {
     productsQuery.isLoading;
 
   const invalidate = () => {
-    qc.invalidateQueries({ queryKey: ["menu", "categories", hotelId] });
-    qc.invalidateQueries({ queryKey: ["menu", "products", hotelId] });
+    qc.invalidateQueries({ queryKey: ["menu", "categories", contentHotelId] });
+    qc.invalidateQueries({ queryKey: ["menu", "products", contentHotelId] });
   };
 
   // ── Category mutations ──
@@ -85,7 +91,7 @@ export function useMenuPage() {
       else
         await createCategoryMut.mutateAsync({
           ...data,
-          hotelId,
+          hotelId: contentHotelId,
         } as Partial<MenuCategory> & { hotelId: string });
       setCategoryOpen(false);
       invalidate();
@@ -131,7 +137,7 @@ export function useMenuPage() {
       else
         await createProductMut.mutateAsync({
           ...data,
-          hotelId,
+          hotelId: contentHotelId,
         } as Partial<MenuProduct> & { hotelId: string; categoryId: string });
       setProductOpen(false);
       invalidate();
@@ -164,6 +170,7 @@ export function useMenuPage() {
     hotels,
     hotelId,
     setHotelId,
+    contentHotelId,
     categories,
     products,
     productsByCategory,

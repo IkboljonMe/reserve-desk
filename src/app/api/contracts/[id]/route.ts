@@ -25,10 +25,12 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     if (body.finishDate !== undefined) update.finishDate = body.finishDate || null
     if (Array.isArray(body.reminderDays)) update.reminderDays = body.reminderDays
 
-    // Editing the contract's reminder config or finish date resets dismissals
-    // so fresh reminders can fire against the new schedule.
+    // Editing the contract's reminder config or finish date resets both the
+    // in-app dismissals and the Telegram-sent tiers, so fresh reminders can
+    // fire (and re-post to the group) against the new schedule.
     if (body.finishDate !== undefined || body.reminderDays !== undefined) {
       update.dismissedReminders = []
+      update.telegramSentReminders = []
     }
 
     await connectDB()

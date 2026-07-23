@@ -26,6 +26,7 @@ import {
 import { money } from "@/lib/bookingHelpers";
 import { ORDER_STATUS_META } from "../constants";
 import { useGuestPrefs } from "./useGuestPrefs";
+import { GuestReviewForm } from "./GuestReviewForm";
 import type { MenuCategory, MenuProduct, OrderStatus } from "../types";
 
 export interface GuestLabels {
@@ -63,6 +64,10 @@ export interface GuestLabels {
   orderReady: string;
   orderDelivered: string;
   recommendedToday: string;
+  reviewTitle: string;
+  reviewCommentPlaceholder: string;
+  reviewSubmit: string;
+  reviewThanks: string;
 }
 
 interface TrackedOrder {
@@ -497,6 +502,8 @@ export function GuestMenuClient({
             tracked={tracked}
             loading={trackLoading}
             labels={labels}
+            hotelSlug={hotelSlug}
+            room={roomNumber}
           />
         ) : count === 0 ? (
           <p className="text-center text-(--gray-400) py-10">
@@ -700,11 +707,15 @@ function OrderTracker({
   tracked,
   loading,
   labels,
+  hotelSlug,
+  room,
 }: {
   placed: { id: string; total: number };
   tracked: TrackedOrder | null;
   loading: boolean;
   labels: GuestLabels;
+  hotelSlug: string;
+  room: string;
 }) {
   const statusLabel = (s: OrderStatus): string =>
     (
@@ -840,6 +851,20 @@ function OrderTracker({
             </p>
           )}
         </div>
+      )}
+
+      {tracked && !cancelled && (
+        <GuestReviewForm
+          hotelSlug={hotelSlug}
+          orderId={placed.id}
+          room={room}
+          labels={{
+            reviewTitle: labels.reviewTitle,
+            reviewCommentPlaceholder: labels.reviewCommentPlaceholder,
+            reviewSubmit: labels.reviewSubmit,
+            reviewThanks: labels.reviewThanks,
+          }}
+        />
       )}
     </div>
   );

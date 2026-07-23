@@ -122,7 +122,10 @@ export function ContractsTable({ s }: { s: ContractsPageState }) {
                     </td>
                     {multiHotel && (
                       <td className="px-4 py-3">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-(--gray-100,#f3f4f6) text-(--gray-700,#374151) font-semibold text-[0.78rem] whitespace-nowrap">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-(--brand-50,#eef2ff) text-(--brand-700,#4338ca) border border-(--brand-100,#e0e7ff) font-bold text-[0.78rem] whitespace-nowrap">
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4" />
+                          </svg>
                           {hotelLabel(c.hotelId)}
                         </span>
                       </td>

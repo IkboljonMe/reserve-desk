@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useToast } from "@/providers/ToastProvider";
 import { getHotels } from "@/lib/api/hotels";
+import { runContractReminders } from "@/lib/api/contracts";
 import { useTranslation } from "@/i18n";
 import type {
   Contract,
@@ -23,7 +24,9 @@ export function useContractsPage() {
   const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"" | ContractStatus>("");
+  const [hotelFilter, setHotelFilter] = useState("");
   const [expiryFilter, setExpiryFilter] = useState<ExpiryFilter>("all");
+  const [runningReminders, setRunningReminders] = useState(false);
   const [sortKey, setSortKey] = useState<SortKey>("finishSoon");
   const [modalOpen, setModalOpen] = useState(false);
   const [editContract, setEditContract] = useState<Contract | null>(null);
@@ -122,6 +125,7 @@ export function useContractsPage() {
 
   const visible = useMemo(() => {
     let list = contracts.filter((c) => {
+      if (hotelFilter && c.hotelId !== hotelFilter) return false;
       const dl = daysLeftOf(c.finishDate);
       if (expiryFilter === "expiring")
         return c.status !== "terminated" && dl !== null && dl >= 0 && dl <= 30;
@@ -152,16 +156,43 @@ export function useContractsPage() {
       }
     });
     return list;
-  }, [contracts, expiryFilter, sortKey]);
+  }, [contracts, hotelFilter, expiryFilter, sortKey]);
 
   const activeFilterCount =
-    (statusFilter ? 1 : 0) + (expiryFilter !== "all" ? 1 : 0);
+    (statusFilter ? 1 : 0) +
+    (hotelFilter ? 1 : 0) +
+    (expiryFilter !== "all" ? 1 : 0);
+
+  function clearFilters() {
+    setStatusFilter("");
+    setHotelFilter("");
+    setExpiryFilter("all");
+  }
+
+  // Post any newly-due contract reminders to the Telegram group on demand, so
+  // the owner can verify the flow without waiting for the daily cron.
+  async function runReminders() {
+    setRunningReminders(true);
+    try {
+      const { sent } = await runContractReminders();
+      showToast(
+        sent > 0 ? t("remindersSent", { count: sent }) : t("noRemindersDue"),
+        "success",
+      );
+    } catch {
+      showToast(t("remindersFailed"), "error");
+    } finally {
+      setRunningReminders(false);
+    }
+  }
 
   return {
     search,
     setSearch,
     statusFilter,
     setStatusFilter,
+    hotelFilter,
+    setHotelFilter,
     expiryFilter,
     setExpiryFilter,
     sortKey,
@@ -184,6 +215,9 @@ export function useContractsPage() {
     stats,
     visible,
     activeFilterCount,
+    clearFilters,
+    runReminders,
+    runningReminders,
   };
 }
 

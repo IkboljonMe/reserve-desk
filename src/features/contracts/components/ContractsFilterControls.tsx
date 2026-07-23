@@ -23,11 +23,16 @@ export function ContractsFilterControls({
     setSearch,
     statusFilter,
     setStatusFilter,
+    hotelFilter,
+    setHotelFilter,
     expiryFilter,
     setExpiryFilter,
     sortKey,
     setSortKey,
     activeFilterCount,
+    clearFilters,
+    hotels,
+    multiHotel,
   } = s;
 
   return (
@@ -75,6 +80,23 @@ export function ContractsFilterControls({
         />
       </div>
 
+      {multiHotel && (
+        <div className={stack ? "w-full" : "min-w-40"}>
+          <Dropdown
+            value={hotelFilter}
+            onChange={setHotelFilter}
+            options={[
+              { value: "", label: t("allHotels") },
+              ...hotels.map((h) => ({
+                value: h._id,
+                label: h.shortName || h.name || "—",
+              })),
+            ]}
+            ariaLabel={t("filterByHotel")}
+          />
+        </div>
+      )}
+
       <div className={stack ? "w-full" : "min-w-40"}>
         <Dropdown
           value={expiryFilter}
@@ -107,10 +129,7 @@ export function ContractsFilterControls({
           variant="ghost"
           size="sm"
           className={stack ? "w-full justify-center" : undefined}
-          onClick={() => {
-            setStatusFilter("");
-            setExpiryFilter("all");
-          }}
+          onClick={clearFilters}
         >
           {t("clearFilters")}
         </Button>

@@ -18,6 +18,10 @@ export const MENU_LANG_LABELS = {
 export const MENU_LANGS = Object.keys(MENU_LANG_LABELS) as (keyof typeof MENU_LANG_LABELS)[]
 export type MenuLang = (typeof MENU_LANGS)[number]
 
+// Ready-made {value,label} options for a language <Dropdown>, shared by the
+// menu editors so each one doesn't rebuild the same list.
+export const MENU_LANG_OPTIONS = MENU_LANGS.map(l => ({ value: l, label: MENU_LANG_LABELS[l] }))
+
 // Coerce arbitrary request input into a clean 10-language string map.
 export function sanitizeI18n(input: unknown): LocalizedText {
   const src = (input ?? {}) as Record<string, unknown>
@@ -25,6 +29,10 @@ export function sanitizeI18n(input: unknown): LocalizedText {
   for (const lang of MENU_LANGS) out[lang] = typeof src[lang] === 'string' ? (src[lang] as string) : ''
   return out
 }
+
+// An all-empty localized map — the initial value for a new menu name/description.
+// Callers spread into a fresh object, so this constant is never mutated.
+export const EMPTY_LOCALIZED: LocalizedText = sanitizeI18n(undefined)
 
 // Coerce arbitrary request input into a clean list of valid language codes
 // (used for nameI18nLocked/descI18nLocked — languages kept as sourceLang text
