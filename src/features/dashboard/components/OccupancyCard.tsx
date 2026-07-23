@@ -51,7 +51,7 @@ export function OccupancyCard({ s }: { s: DashboardPageState }) {
               {/* bar */}
               <div className="flex-1 basis-[100px] min-w-20 h-2 rounded-[6px] bg-gray-100 overflow-hidden">
                 <div
-                  className="h-full rounded-[6px] transition-[width] duration-[400ms] ease-out"
+                  className="h-full rounded-[6px] transition-[width] duration-400 ease-out"
                   style={{ width: pct(util), background: svc.color || 'var(--brand-500)' }}
                 />
               </div>

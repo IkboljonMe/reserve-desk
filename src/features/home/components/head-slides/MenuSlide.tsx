@@ -34,7 +34,7 @@ export function MenuSlide({ badge, title1, title2, subtitle, ctaLabel, demoUrl }
           />
         </picture>
         {/* Soft dark overlay on left and right for text contrast */}
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-transparent to-slate-950/80 lg:to-slate-950" />
+        <div className="absolute inset-0 bg-linear-to-r from-slate-950/80 via-transparent to-slate-950/80 lg:to-slate-950" />
         {/* Subtle blur on the right side for tablet/desktop */}
         <div className="hidden sm:block absolute inset-y-0 right-0 w-[40%] lg:w-[30%] backdrop-blur-[6px] [mask-image:linear-gradient(to_left,black_20%,transparent_100%)] pointer-events-none" />
       </div>

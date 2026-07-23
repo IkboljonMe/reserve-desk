@@ -46,7 +46,7 @@ export function ServicesFilterBar({ s }: { s: ServicesPageState }) {
         <button
           className={`px-3.5 py-1.5 rounded-full text-[0.8rem] font-semibold cursor-pointer border transition-all duration-150 whitespace-nowrap ${
             filterHotel === ""
-              ? "bg-gradient-to-r from-(--brand-500) to-(--brand-600) text-white border-transparent shadow-(--shadow-brand)"
+              ? "bg-linear-to-r from-(--brand-500) to-(--brand-600) text-white border-transparent shadow-(--shadow-brand)"
               : "border-(--gray-200,#e5e7eb) bg-(--surface-card) text-(--gray-600,#4b5563) hover:border-(--brand-500,#6366f1) hover:text-(--brand-700,#4338ca) hover:bg-(--brand-50,#eef2ff)"
           }`}
           onClick={() => setFilterHotel("")}
@@ -58,7 +58,7 @@ export function ServicesFilterBar({ s }: { s: ServicesPageState }) {
             key={h._id}
             className={`px-3.5 py-1.5 rounded-full text-[0.8rem] font-semibold cursor-pointer border transition-all duration-150 whitespace-nowrap ${
               filterHotel === h._id
-                ? "bg-gradient-to-r from-(--brand-500) to-(--brand-600) text-white border-transparent shadow-(--shadow-brand)"
+                ? "bg-linear-to-r from-(--brand-500) to-(--brand-600) text-white border-transparent shadow-(--shadow-brand)"
                 : "border-(--gray-200,#e5e7eb) bg-(--surface-card) text-(--gray-600,#4b5563) hover:border-(--brand-500,#6366f1) hover:text-(--brand-700,#4338ca) hover:bg-(--brand-50,#eef2ff)"
             }`}
             onClick={() => setFilterHotel(filterHotel === h._id ? "" : h._id)}
@@ -80,7 +80,7 @@ export function ServicesFilterBar({ s }: { s: ServicesPageState }) {
             key={val || "all"}
             className={`px-3.5 py-1.5 rounded-full text-[0.8rem] font-semibold cursor-pointer border transition-all duration-150 whitespace-nowrap ${
               filterStatus === val
-                ? "bg-gradient-to-r from-(--brand-500) to-(--brand-600) text-white border-transparent shadow-(--shadow-brand)"
+                ? "bg-linear-to-r from-(--brand-500) to-(--brand-600) text-white border-transparent shadow-(--shadow-brand)"
                 : "border-(--gray-200,#e5e7eb) bg-(--surface-card) text-(--gray-600,#4b5563) hover:border-(--brand-500,#6366f1) hover:text-(--brand-700,#4338ca) hover:bg-(--brand-50,#eef2ff)"
             }`}
             onClick={() => setFilterStatus(val)}

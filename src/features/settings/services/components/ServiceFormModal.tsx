@@ -133,7 +133,7 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
                           type="button"
                           className={`px-3.5 py-1.5 rounded-full text-[0.8rem] font-semibold cursor-pointer border transition-all duration-150 whitespace-nowrap inline-flex items-center gap-1.25 ${
                             on
-                              ? "bg-gradient-to-r from-(--brand-500) to-(--brand-600) text-white border-transparent shadow-(--shadow-brand)"
+                              ? "bg-linear-to-r from-(--brand-500) to-(--brand-600) text-white border-transparent shadow-(--shadow-brand)"
                               : "border-(--gray-200,#e5e7eb) bg-(--surface-card) text-(--gray-600,#4b5563) hover:border-(--brand-500,#6366f1) hover:text-(--brand-700,#4338ca) hover:bg-(--brand-50,#eef2ff)"
                           }`}
                           aria-pressed={on}
@@ -297,7 +297,7 @@ export function ServiceFormModal({ s }: { s: ServicesPageState }) {
                   <button
                     key={c}
                     type="button"
-                    className={`w-6.5 h-6.5 rounded-full cursor-pointer border-2 border-white transition-all duration-[120ms] hover:scale-115 ${
+                    className={`w-6.5 h-6.5 rounded-full cursor-pointer border-2 border-white transition-all duration-120 hover:scale-115 ${
                       form.color === c
                         ? "shadow-[0_0_0_2px_var(--color-gray-900,#1f2937)]"
                         : "shadow-[0_0_0_1.5px_var(--color-gray-200,#e5e7eb)]"
