@@ -9,6 +9,7 @@ import {
   deletePlan,
   type PlanRecord,
 } from "@/lib/api/plans";
+import type { FeatureKey } from "@/lib/planFeatures";
 
 function slugify(name: string) {
   return name
@@ -24,6 +25,7 @@ export const EMPTY_FORM = {
   key: "",
   name: "",
   price: 0,
+  features: [] as FeatureKey[],
 };
 
 export function usePlansPage() {
@@ -64,8 +66,17 @@ export function usePlansPage() {
   function openEdit(p: PlanRecord) {
     setEditPlan(p);
     setKeyTouched(true);
-    setForm({ key: p.key, name: p.name, price: p.price });
+    setForm({ key: p.key, name: p.name, price: p.price, features: p.features ?? [] });
     setModalOpen(true);
+  }
+
+  function toggleFeature(key: FeatureKey) {
+    setForm((f) => ({
+      ...f,
+      features: f.features.includes(key)
+        ? f.features.filter((k) => k !== key)
+        : [...f.features, key],
+    }));
   }
 
   function closeModal() {
@@ -92,6 +103,7 @@ export function usePlansPage() {
         {
           name: form.name.trim(),
           price: form.price,
+          features: form.features,
           ...(editPlan ? {} : { key: form.key.trim() }),
         },
         editPlan?._id,
@@ -140,6 +152,7 @@ export function usePlansPage() {
     closeModal,
     handleSave,
     handleDelete,
+    toggleFeature,
   };
 }
 

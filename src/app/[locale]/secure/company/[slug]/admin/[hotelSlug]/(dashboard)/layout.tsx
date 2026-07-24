@@ -4,6 +4,7 @@ import { getSession, isCompanyExpired } from "@/lib/session";
 import { connectDB } from "@/lib/mongodb";
 import { Hotel } from "@/models/Hotel";
 import { Company } from "@/models/Company";
+import type { FeatureKey } from "@/lib/planFeatures";
 import { ToastProvider } from "@/providers/ToastProvider";
 import { DraftProvider } from "@/components/DraftProvider";
 import { BookingModalProvider } from "@/components/BookingModalProvider";
@@ -37,9 +38,11 @@ export default async function HotelAdminLayout({
     .select("name")
     .lean<{ name: string }>();
   const company = await Company.findById(session.companyId)
-    .select("expiresAt plan")
-    .lean<{ expiresAt: Date; plan: string }>();
+    .select("expiresAt features")
+    .lean<{ expiresAt: Date; features?: FeatureKey[] }>();
   const readOnly = !!company && isCompanyExpired(company.expiresAt);
+  // `undefined` (legacy company with no features field) means "don't gate".
+  const planFeatures = company?.features ?? undefined;
 
   // Detect subdomain → clean basePath for the sidebar.
   const headersList = await headers();
@@ -63,6 +66,7 @@ export default async function HotelAdminLayout({
             basePath={basePath}
             hotelName={hotel?.name ?? ""}
             readOnly={readOnly}
+            planFeatures={planFeatures}
           >
             {children}
           </DashboardContainer>

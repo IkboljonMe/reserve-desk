@@ -18,7 +18,9 @@ const NAV_FEATURE_GATE: Record<string, FeatureKey> = {
   "/clients": "clients",
   "/contracts": "contracts",
   "/orders": "menu",
-  "/notifications": "notifications",
+  // Notifications are contract-expiry reminders, so they follow the contracts
+  // module rather than being their own feature.
+  "/notifications": "contracts",
 };
 
 // Settings sub-pages gated by a plan feature (others are always shown to the

@@ -5,6 +5,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import mongoose from 'mongoose'
 import { Plan } from '../models/Plan'
+import { DEFAULT_PLAN_FEATURES, type FeatureKey } from '../lib/planFeatures'
 
 function loadEnvLocal() {
   try {
@@ -26,14 +27,14 @@ function loadEnvLocal() {
   }
 }
 
-// Plans are billing records only ({ name, price }); feature access is no longer
-// gated per plan. Prices mirror the static landing tiers.
-type SeedPlan = { key: string; name: string; price: number }
+// Plans carry a name, price, and the default feature set for the tier. Prices
+// and features mirror the static landing tiers (see features/home constants).
+type SeedPlan = { key: string; name: string; price: number; features: FeatureKey[] }
 
 const DEFAULT_PLANS: SeedPlan[] = [
-  { key: 'standard', name: 'Standard', price: 300000 },
-  { key: 'pro', name: 'Pro', price: 600000 },
-  { key: 'vip', name: 'VIP', price: 800000 },
+  { key: 'standard', name: 'Standard', price: 300000, features: DEFAULT_PLAN_FEATURES.standard },
+  { key: 'pro', name: 'Pro', price: 600000, features: DEFAULT_PLAN_FEATURES.pro },
+  { key: 'vip', name: 'VIP', price: 800000, features: DEFAULT_PLAN_FEATURES.vip },
 ]
 
 async function main() {
@@ -50,7 +51,7 @@ async function main() {
   for (const p of DEFAULT_PLANS) {
     const res = await Plan.updateOne(
       { key: p.key },
-      { $set: { name: p.name, price: p.price } },
+      { $set: { name: p.name, price: p.price, features: p.features } },
       { upsert: true },
     )
     const action = res.upsertedCount ? 'Created' : 'Updated'

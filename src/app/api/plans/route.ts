@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Plan, PLAN_KEY_PATTERN } from '@/models/Plan'
 import { requireSuperadmin } from '@/lib/session'
+import { normalizeFeatures } from '@/lib/planFeatures'
 
 export async function GET() {
   const session = await requireSuperadmin()
@@ -12,11 +13,12 @@ export async function GET() {
   return Response.json(plans)
 }
 
-// Coerce the plan's editable fields (name + price) from a request body.
+// Coerce the plan's editable fields (name + price + features) from a body.
 function readPlanFields(body: Record<string, unknown>) {
   const out: Record<string, unknown> = {}
   if (typeof body.name === 'string' && body.name.trim()) out.name = body.name.trim()
   if (body.price !== undefined) out.price = Math.max(0, Math.round(Number(body.price) || 0))
+  if (body.features !== undefined) out.features = normalizeFeatures(body.features)
   return out
 }
 

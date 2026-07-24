@@ -1,8 +1,11 @@
+import type { FeatureKey } from '@/lib/planFeatures'
+
 export interface PlanRecord {
   _id: string
   key: string
   name: string
   price: number
+  features: FeatureKey[]
   createdAt: string
 }
 
@@ -16,6 +19,7 @@ export interface PlanInput {
   key?: string
   name: string
   price: number
+  features: FeatureKey[]
 }
 
 export async function savePlan(input: PlanInput, id?: string) {

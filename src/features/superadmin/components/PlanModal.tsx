@@ -6,10 +6,11 @@ import Spinner from '@/components/ui/Spinner'
 import Input from '@/components/ui/Input'
 import type { PlansPageState } from '../usePlansPage'
 import Button from '@/components/ui/Button'
+import { FeatureCheckboxes } from './FeatureCheckboxes'
 
 export function PlanModal({ s }: { s: PlansPageState }) {
   const { t } = useTranslation()
-  const { modalOpen, editPlan, closeModal, handleSave, saving, form, setForm, setName, setKey } = s
+  const { modalOpen, editPlan, closeModal, handleSave, saving, form, setForm, setName, setKey, toggleFeature } = s
   if (!modalOpen) return null
 
   return (
@@ -53,6 +54,8 @@ export function PlanModal({ s }: { s: PlansPageState }) {
                 helperText={t('planPriceHelp')}
               />
             </div>
+
+            <FeatureCheckboxes label={t('planFeatures')} value={form.features} onToggle={toggleFeature} />
           </div>
 
           <div className="h-px bg-surface-border my-4" />

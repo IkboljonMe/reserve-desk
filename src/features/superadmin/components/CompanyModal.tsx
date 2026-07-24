@@ -5,12 +5,14 @@ import { useTranslation } from '@/i18n'
 import Spinner from '@/components/ui/Spinner'
 import Input from '@/components/ui/Input'
 import { bronitLocalPart, BRONIT_DOMAIN } from '@/lib/bronitEmail'
+import { PAYMENT_STATUSES, PAYMENT_STATUS_I18N } from '@/lib/paymentStatus'
 import type { CompaniesPageState } from '../useCompaniesPage'
 import Button from '@/components/ui/Button'
+import { FeatureCheckboxes } from './FeatureCheckboxes'
 
 export function CompanyModal({ s }: { s: CompaniesPageState }) {
   const { t } = useTranslation()
-  const { modalOpen, editCompany, closeModal, handleSave, saving, form, setForm, setName, setOwnerEmailLocalPart, plans } = s
+  const { modalOpen, editCompany, closeModal, handleSave, saving, form, setForm, setName, setPlan, toggleFeature, setOwnerEmailLocalPart, plans } = s
   if (!modalOpen) return null
 
   return (
@@ -36,7 +38,7 @@ export function CompanyModal({ s }: { s: CompaniesPageState }) {
             <div className="flex gap-3">
               <div className="form-group flex-1">
                 <label className="form-label">{t('plan')} *</label>
-                <select className="form-input" required value={form.plan} onChange={e => setForm(f => ({ ...f, plan: e.target.value }))}>
+                <select className="form-input" required value={form.plan} onChange={e => setPlan(e.target.value)}>
                   {plans.map(p => (
                     <option key={p._id} value={p.key}>{p.name}</option>
                   ))}
@@ -52,17 +54,35 @@ export function CompanyModal({ s }: { s: CompaniesPageState }) {
               />
             </div>
 
+            <FeatureCheckboxes label={t('features')} value={form.features} onToggle={toggleFeature} />
+
+            <div className="flex gap-3">
+              <div className="form-group flex-1">
+                <label className="form-label">{t('paymentStatus')}</label>
+                <select
+                  className="form-input"
+                  value={form.paymentStatus}
+                  onChange={e => setForm(f => ({ ...f, paymentStatus: e.target.value as typeof f.paymentStatus }))}
+                >
+                  {PAYMENT_STATUSES.map(st => (
+                    <option key={st} value={st}>{t(PAYMENT_STATUS_I18N[st])}</option>
+                  ))}
+                </select>
+              </div>
+              <Input
+                containerClassName="flex-1"
+                label={t('paymentMethod')}
+                placeholder="Payme, Click, cash…"
+                value={form.paymentMethod}
+                onChange={e => setForm(f => ({ ...f, paymentMethod: e.target.value }))}
+              />
+            </div>
+
             <Input
               label={`${t('fullName')} *`}
               required
               value={form.fullName}
               onChange={e => setForm(f => ({ ...f, fullName: e.target.value }))}
-            />
-            <Input
-              label={t('paymentMethod')}
-              placeholder="Payme, Click, cash…"
-              value={form.paymentMethod}
-              onChange={e => setForm(f => ({ ...f, paymentMethod: e.target.value }))}
             />
             <div className="form-group">
               <label className="form-label">{t('notes')}</label>

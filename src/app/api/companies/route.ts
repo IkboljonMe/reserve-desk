@@ -6,6 +6,8 @@ import { Plan } from '@/models/Plan'
 import { requireSuperadmin } from '@/lib/session'
 import { isBronitEmail } from '@/lib/bronitEmail'
 import { DEMO_SLUG } from '@/features/demo/config'
+import { normalizeFeatures } from '@/lib/planFeatures'
+import { isPaymentStatus, type PaymentStatus } from '@/lib/paymentStatus'
 
 // Derives a URL-safe, globally-unique company slug from its name — appending
 // -2, -3, … on a clash and avoiding reserved words. Returns '' if the name has
@@ -60,6 +62,7 @@ export async function POST(req: NextRequest) {
     // and the owner login's display name.
     const fullName = typeof body.fullName === 'string' ? body.fullName.trim() : ''
     const paymentMethod = typeof body.paymentMethod === 'string' ? body.paymentMethod.trim() : ''
+    const paymentStatus: PaymentStatus = isPaymentStatus(body.paymentStatus) ? body.paymentStatus : 'pending'
     const note = typeof body.note === 'string' ? body.note.trim() : ''
     const expiresAt = body.expiresAt ? new Date(body.expiresAt) : null
 
@@ -86,6 +89,13 @@ export async function POST(req: NextRequest) {
     const planDoc = await Plan.findOne({ key: plan })
     if (!planDoc) return Response.json({ error: 'Unknown plan' }, { status: 400 })
 
+    // Features default to the plan's tier defaults, but the superadmin may
+    // override them per-business (checkboxes in the create form).
+    const features =
+      body.features !== undefined
+        ? normalizeFeatures(body.features)
+        : normalizeFeatures(planDoc.features)
+
     const emailClash = await Admin.findOne({ email: ownerEmail })
     if (emailClash) return Response.json({ error: 'An account with that email already exists' }, { status: 409 })
 
@@ -94,7 +104,7 @@ export async function POST(req: NextRequest) {
     const slug = await uniqueCompanySlug(name)
     if (!slug) return Response.json({ error: 'Could not derive a URL from that company name — use letters or numbers' }, { status: 400 })
 
-    const company = await Company.create({ name, slug, plan, expiresAt, contactName: fullName, paymentMethod, note })
+    const company = await Company.create({ name, slug, plan, features, expiresAt, contactName: fullName, paymentMethod, paymentStatus, note })
     const owner = await Admin.create({
       name: fullName,
       email: ownerEmail,

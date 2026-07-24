@@ -12,6 +12,8 @@ import {
 } from "@/lib/api/companies";
 import { getPlans, type PlanRecord } from "@/lib/api/plans";
 import { toBronitEmail } from "@/lib/bronitEmail";
+import { defaultFeaturesForPlan, type FeatureKey } from "@/lib/planFeatures";
+import type { PaymentStatus } from "@/lib/paymentStatus";
 
 function defaultExpiry() {
   const d = new Date();
@@ -23,9 +25,11 @@ function defaultExpiry() {
 export const EMPTY_FORM = {
   name: "",
   plan: "standard" as CompanyPlan,
+  features: [] as FeatureKey[],
   expiresAt: defaultExpiry(),
   fullName: "",
   paymentMethod: "",
+  paymentStatus: "pending" as PaymentStatus,
   note: "",
   ownerEmail: "",
   ownerPassword: "",
@@ -67,9 +71,20 @@ export function useCompaniesPage() {
     loadData();
   }, [loadData]);
 
+  // The feature set a plan grants — the live plan record's, falling back to the
+  // built-in tier defaults if the catalog hasn't loaded yet.
+  const planFeaturesFor = useCallback(
+    (key: string): FeatureKey[] => {
+      const plan = plans.find((p) => p.key === key);
+      return plan?.features ?? defaultFeaturesForPlan(key);
+    },
+    [plans],
+  );
+
   function openAdd() {
     setEditCompany(null);
-    setForm({ ...EMPTY_FORM, plan: plans[0]?.key ?? EMPTY_FORM.plan });
+    const plan = plans[0]?.key ?? EMPTY_FORM.plan;
+    setForm({ ...EMPTY_FORM, plan, features: planFeaturesFor(plan) });
     setModalOpen(true);
   }
 
@@ -79,12 +94,31 @@ export function useCompaniesPage() {
       ...EMPTY_FORM,
       name: c.name,
       plan: c.plan,
+      // Legacy companies have no stored features — show the plan's defaults so
+      // saving upgrades them to an explicit (gated) set.
+      features: c.features ?? planFeaturesFor(c.plan),
       expiresAt: c.expiresAt.slice(0, 10),
       fullName: c.contactName,
       paymentMethod: c.paymentMethod,
+      paymentStatus: c.paymentStatus ?? "pending",
       note: c.note ?? "",
     });
     setModalOpen(true);
+  }
+
+  // Changing the plan reseeds the feature checkboxes from that plan's defaults;
+  // the superadmin can then tweak them per-business.
+  function setPlan(key: string) {
+    setForm((f) => ({ ...f, plan: key, features: planFeaturesFor(key) }));
+  }
+
+  function toggleFeature(key: FeatureKey) {
+    setForm((f) => ({
+      ...f,
+      features: f.features.includes(key)
+        ? f.features.filter((k) => k !== key)
+        : [...f.features, key],
+    }));
   }
 
   function closeModal() {
@@ -112,9 +146,11 @@ export function useCompaniesPage() {
         {
           name: form.name.trim(),
           plan: form.plan,
+          features: form.features,
           expiresAt: form.expiresAt,
           fullName: form.fullName.trim(),
           paymentMethod: form.paymentMethod.trim(),
+          paymentStatus: form.paymentStatus,
           note: form.note.trim(),
           ...(editCompany
             ? {}
@@ -164,6 +200,8 @@ export function useCompaniesPage() {
     form,
     setForm,
     setName,
+    setPlan,
+    toggleFeature,
     setOwnerEmailLocalPart,
     saving,
     deleteConfirm,

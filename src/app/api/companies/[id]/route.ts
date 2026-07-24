@@ -5,6 +5,8 @@ import { Hotel } from '@/models/Hotel'
 import { Admin } from '@/models/Admin'
 import { Plan } from '@/models/Plan'
 import { requireSuperadmin } from '@/lib/session'
+import { normalizeFeatures } from '@/lib/planFeatures'
+import { isPaymentStatus } from '@/lib/paymentStatus'
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireSuperadmin()
@@ -24,6 +26,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       update.slug = slug
     }
     if (typeof body.plan === 'string' && body.plan.trim()) update.plan = body.plan.trim().toLowerCase()
+    if (body.features !== undefined) update.features = normalizeFeatures(body.features)
+    if (isPaymentStatus(body.paymentStatus)) update.paymentStatus = body.paymentStatus
     if (body.expiresAt) {
       const d = new Date(body.expiresAt)
       if (Number.isNaN(d.getTime())) return Response.json({ error: 'Invalid expiry date' }, { status: 400 })

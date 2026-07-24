@@ -12,6 +12,7 @@ import { useBookingModal } from "@/components/BookingModalProvider";
 import { nowUZ } from "@/lib/timezone";
 import type { SessionRole } from "@/lib/session";
 import type { FeatureKey } from "@/lib/planFeatures";
+import { PlanFeaturesProvider } from "./PlanFeaturesContext";
 import { DemoGuard } from "@/components/DemoGuard";
 
 interface Props {
@@ -136,7 +137,9 @@ export default function DashboardContainer({
           <main
             className={`flex-1 overflow-auto bg-(--surface-card) ${isMobile ? "p-[1.1rem]" : "py-7 px-8"}`}
           >
-            {children}
+            <PlanFeaturesProvider features={planFeatures}>
+              {children}
+            </PlanFeaturesProvider>
           </main>
         </div>
       </div>

@@ -3,6 +3,7 @@ import { connectDB } from '@/lib/mongodb'
 import { Plan } from '@/models/Plan'
 import { Company } from '@/models/Company'
 import { requireSuperadmin } from '@/lib/session'
+import { normalizeFeatures } from '@/lib/planFeatures'
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireSuperadmin()
@@ -15,6 +16,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     const update: Record<string, unknown> = {}
     if (typeof body.name === 'string' && body.name.trim()) update.name = body.name.trim()
     if (body.price !== undefined) update.price = Math.max(0, Math.round(Number(body.price) || 0))
+    if (body.features !== undefined) update.features = normalizeFeatures(body.features)
 
     await connectDB()
     const plan = await Plan.findByIdAndUpdate(id, update, { new: true, runValidators: true })

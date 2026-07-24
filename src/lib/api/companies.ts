@@ -1,3 +1,6 @@
+import type { FeatureKey } from '@/lib/planFeatures'
+import type { PaymentStatus } from '@/lib/paymentStatus'
+
 // A free-form key referencing Plan.key — see src/models/Plan.ts.
 export type CompanyPlan = string
 
@@ -6,10 +9,12 @@ export interface CompanyRecord {
   name: string
   slug: string
   plan: CompanyPlan
+  features?: FeatureKey[]  // absent on legacy companies (ungated)
   expiresAt: string
   contactName: string
   contactPhone: string
   paymentMethod: string
+  paymentStatus: PaymentStatus
   note: string
   createdAt: string
   // Owner login (attached by the list endpoint) — so the superadmin can see
@@ -27,9 +32,11 @@ export async function getCompanies(): Promise<CompanyRecord[]> {
 export interface CompanyInput {
   name: string
   plan: CompanyPlan
+  features: FeatureKey[]
   expiresAt: string
   fullName?: string
   paymentMethod?: string
+  paymentStatus: PaymentStatus
   note?: string
   ownerEmail?: string
   ownerPassword?: string
