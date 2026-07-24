@@ -972,7 +972,7 @@
   "hotelSlugPlaceholder": "tashkent-grand-hotel",
   "hotelSlugHint": "Admins of this hotel sign in at …/admin/{slug}/login. Leave empty to use the hotel name.",
   "hotelSlugTaken": "Another hotel already uses this slug",
-  "metaTitleDefault": "Bronit — Manage & automate every bookable service in one panel",
+  "metaTitleDefault": "Bronit — Automate your business",
   "metaDescription": "Still running your business on Excel sheets? Bronit is a well-designed panel to manage and automate every bookable service — reservations, payments, deposits, staff roles and instant Telegram alerts, all in one place.",
   "metaOgDescription": "Ditch the spreadsheets — one well-designed panel to manage and automate every bookable service: reservations, payments, deposits, staff roles and Telegram alerts.",
   "metaTwitterDescription": "One well-designed panel to manage and automate every service your business books.",
