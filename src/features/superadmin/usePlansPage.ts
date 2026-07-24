@@ -9,8 +9,6 @@ import {
   deletePlan,
   type PlanRecord,
 } from "@/lib/api/plans";
-import type { FeatureKey } from "@/lib/planFeatures";
-import { EMPTY_PLAN_DESCRIPTION } from "@/lib/planFeatures";
 
 function slugify(name: string) {
   return name
@@ -25,10 +23,7 @@ function slugify(name: string) {
 export const EMPTY_FORM = {
   key: "",
   name: "",
-  features: [] as FeatureKey[],
   price: 0,
-  description: { ...EMPTY_PLAN_DESCRIPTION },
-  highlight: false,
 };
 
 export function usePlansPage() {
@@ -69,18 +64,7 @@ export function usePlansPage() {
   function openEdit(p: PlanRecord) {
     setEditPlan(p);
     setKeyTouched(true);
-    setForm({
-      key: p.key,
-      name: p.name,
-      features: p.features,
-      price: p.price,
-      highlight: p.highlight,
-      // Tolerate legacy string descriptions by lifting them into `en`.
-      description:
-        typeof p.description === "string"
-          ? { ...EMPTY_PLAN_DESCRIPTION, en: p.description }
-          : { ...EMPTY_PLAN_DESCRIPTION, ...p.description },
-    });
+    setForm({ key: p.key, name: p.name, price: p.price });
     setModalOpen(true);
   }
 
@@ -99,15 +83,6 @@ export function usePlansPage() {
     setForm((f) => ({ ...f, key: slugify(key) }));
   }
 
-  function toggleFeature(feature: FeatureKey) {
-    setForm((f) => ({
-      ...f,
-      features: f.features.includes(feature)
-        ? f.features.filter((x) => x !== feature)
-        : [...f.features, feature],
-    }));
-  }
-
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     if (!form.name.trim() || !form.key.trim()) return;
@@ -116,10 +91,7 @@ export function usePlansPage() {
       await savePlan(
         {
           name: form.name.trim(),
-          features: form.features,
           price: form.price,
-          description: form.description,
-          highlight: form.highlight,
           ...(editPlan ? {} : { key: form.key.trim() }),
         },
         editPlan?._id,
@@ -160,7 +132,6 @@ export function usePlansPage() {
     setForm,
     setName,
     setKey,
-    toggleFeature,
     saving,
     deleteConfirm,
     setDeleteConfirm,

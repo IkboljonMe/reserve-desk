@@ -1,14 +1,8 @@
-import type { FeatureKey, PlanDescription } from '@/lib/planFeatures'
-
 export interface PlanRecord {
   _id: string
   key: string
   name: string
-  features: FeatureKey[]
   price: number
-  description: PlanDescription
-  highlight: boolean
-  sortOrder: number
   createdAt: string
 }
 
@@ -21,10 +15,7 @@ export async function getPlans(): Promise<PlanRecord[]> {
 export interface PlanInput {
   key?: string
   name: string
-  features: FeatureKey[]
   price: number
-  description: PlanDescription
-  highlight: boolean
 }
 
 export async function savePlan(input: PlanInput, id?: string) {

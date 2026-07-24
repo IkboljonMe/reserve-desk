@@ -1,7 +1,6 @@
 import { NextRequest } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import { Plan, PLAN_KEY_PATTERN } from '@/models/Plan'
-import { FEATURE_KEYS } from '@/lib/planFeatures'
 import { requireSuperadmin } from '@/lib/session'
 
 export async function GET() {
@@ -9,26 +8,15 @@ export async function GET() {
   if (session instanceof Response) return session
 
   await connectDB()
-  const plans = await Plan.find().sort({ sortOrder: 1, price: 1, createdAt: 1 }).lean()
+  const plans = await Plan.find().sort({ price: 1, createdAt: 1 }).lean()
   return Response.json(plans)
 }
 
-// Coerces a trilingual description `{ en, uz, ru }` from a request body.
-function readDescription(v: unknown): { en: string; uz: string; ru: string } {
-  const d = (v && typeof v === 'object' ? v : {}) as Record<string, unknown>
-  const s = (x: unknown) => (typeof x === 'string' ? x.trim() : '')
-  return { en: s(d.en), uz: s(d.uz), ru: s(d.ru) }
-}
-
-// Coerce the shared pricing/marketing fields from a request body.
+// Coerce the plan's editable fields (name + price) from a request body.
 function readPlanFields(body: Record<string, unknown>) {
   const out: Record<string, unknown> = {}
   if (typeof body.name === 'string' && body.name.trim()) out.name = body.name.trim()
-  if (Array.isArray(body.features)) out.features = body.features.filter((f: unknown) => FEATURE_KEYS.includes(f as never))
   if (body.price !== undefined) out.price = Math.max(0, Math.round(Number(body.price) || 0))
-  if (body.description !== undefined) out.description = readDescription(body.description)
-  if (body.highlight !== undefined) out.highlight = Boolean(body.highlight)
-  if (body.sortOrder !== undefined) out.sortOrder = Math.round(Number(body.sortOrder) || 0)
   return out
 }
 

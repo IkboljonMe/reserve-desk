@@ -2,6 +2,7 @@
 
 import IncomeAnalytics from './components/IncomeAnalytics'
 import { OccupancyCard } from './components/OccupancyCard'
+import { PaymentsByMethodCard } from './components/PaymentsByMethodCard'
 import BookingDrawer from './components/BookingDrawer'
 import { useDashboardPage } from './useDashboardPage'
 import { DashboardHeader } from './components/DashboardHeader'
@@ -19,6 +20,9 @@ export default function DashboardPage() {
       <div>
         <IncomeAnalytics analytics={s.analytics} loading={s.loading} perService={s.perService} />
       </div>
+
+      {/* Payments by method */}
+      {!s.loading && <PaymentsByMethodCard s={s} />}
 
       {/* Occupancy */}
       {!s.loading && <OccupancyCard s={s} />}

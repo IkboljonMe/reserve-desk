@@ -3,22 +3,21 @@ import { getT } from "@/i18n/dictionary";
 import { JsonLd } from "@/components/JsonLd";
 import type { Types } from "mongoose";
 import { connectDB } from "@/lib/mongodb";
-import { Plan } from "@/models/Plan";
 import { Company } from "@/models/Company";
 import { Hotel } from "@/models/Hotel";
 import { HotelMenuSettings } from "@/models/HotelMenuSettings";
 import { DEMO_SLUG } from "@/features/demo/config";
 import { guestHubPath } from "@/lib/menu";
-import { planDescriptionFor, type FeatureKey } from "@/lib/planFeatures";
+import { PRICING_PLANS } from "./constants";
 import { Navbar } from "./components/Navbar";
 import { Hero } from "./components/Hero";
 import { Features } from "./components/Features";
 import { Reviews } from "./components/Reviews";
 import { Modules } from "./components/Modules";
-import { Pricing, type PricingPlan } from "./components/Pricing";
+import { Pricing } from "./components/Pricing";
 import { Faq } from "./components/Faq";
 import { FinalCta } from "./components/FinalCta";
-import { Footer } from "./components/Footer";
+import { Footer, TELEGRAM_URL, INSTAGRAM_URL } from "./components/Footer";
 import { ContactWidget } from "./components/ContactWidget";
 
 // The marketing landing page. Server component: resolves translations + the
@@ -68,26 +67,8 @@ export async function HomePage({ locale }: { locale: string }) {
     { href: "#faq", label: "FAQ" },
   ];
 
-  // Pricing is data-driven from the superadmin-managed Plans in the DB.
-  const planDocs = await Plan.find()
-    .select("key name price description features highlight sortOrder")
-    .sort({ sortOrder: 1, price: 1, createdAt: 1 })
-    .lean();
-  const plans: PricingPlan[] = planDocs.map((p) => ({
-    key: p.key,
-    name: p.name,
-    price: p.price ?? 0,
-    // Resolve the trilingual description to the landing page's language.
-    description: planDescriptionFor(
-      p.description as Parameters<typeof planDescriptionFor>[0],
-      locale,
-    ),
-    features: (p.features ?? []) as FeatureKey[],
-    highlight: !!p.highlight,
-  }));
-
-  // Structured data for rich results, from the same plan prices.
-  const prices = plans.map((p) => p.price).filter((p) => p > 0);
+  // Structured data for rich results, from the static landing prices.
+  const prices = PRICING_PLANS.map((p) => p.price).filter((p) => p > 0);
   // WebSite schema is the signal Google uses to render the SERP site name — this
   // is what turns the "bronit.uz" line above the title into "Bronit".
   const webSiteLd = {
@@ -102,6 +83,8 @@ export async function HomePage({ locale }: { locale: string }) {
     name: "Bronit",
     url: "https://bronit.uz",
     logo: "https://bronit.uz/assets/bronit-logo.png",
+    // Verified brand profiles — helps Google associate them with the entity.
+    sameAs: [TELEGRAM_URL, INSTAGRAM_URL],
   };
   const softwareLd = {
     "@context": "https://schema.org",
@@ -117,7 +100,7 @@ export async function HomePage({ locale }: { locale: string }) {
           priceCurrency: "UZS",
           lowPrice: String(Math.min(...prices)),
           highPrice: String(Math.max(...prices)),
-          offerCount: plans.length,
+          offerCount: PRICING_PLANS.length,
         }
       : undefined,
   };
@@ -144,10 +127,10 @@ export async function HomePage({ locale }: { locale: string }) {
         <Features t={t} />
         <Reviews t={t} />
         <Modules t={t} />
-        <Pricing t={t} demoUrl={demoHubUrl} plans={plans} />
+        <Pricing t={t} demoUrl={demoHubUrl} />
         <Faq t={t} />
         <FinalCta t={t} demoUrl={demoHubUrl} />
-        <Footer t={t} demoUrl={demoHubUrl} loginHref={loginHref} />
+        <Footer t={t} lang={locale} demoUrl={demoHubUrl} loginHref={loginHref} />
       </div>
 
       <ContactWidget

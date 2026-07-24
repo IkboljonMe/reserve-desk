@@ -25,6 +25,7 @@ import {
   amountCollected,
 } from "@/lib/bookingHelpers";
 import { Booking } from "@/types";
+import type { PaymentMethodValue } from "@/lib/paymentMethods";
 import { useServicesQuery } from "@/hooks/useServices";
 import { useHotelsQuery } from "@/hooks/useHotels";
 import {
@@ -219,13 +220,20 @@ export function useCalendarPage() {
     );
   // Record a (possibly partial) collected total for a booking. `amount` is the
   // new cumulative amountPaid; paid flips true once it covers the total.
-  const recordPayment = (b: Booking, amount: number) => {
+  // `method` records how it was collected (for reporting).
+  const recordPayment = (
+    b: Booking,
+    amount: number,
+    method?: PaymentMethodValue,
+  ) => {
     const total = b.totalPrice || 0;
     const amt = Math.max(0, Math.min(total, amount));
     const fully = total > 0 && amt >= total;
+    const changes: Partial<Booking> = { amountPaid: amt, paid: fully };
+    if (method) changes.paymentMethod = method;
     return updateBooking(
       b._id,
-      { amountPaid: amt, paid: fully },
+      changes,
       fully ? t("markedAsPaid") : t("paymentRecorded"),
     );
   };

@@ -1,16 +1,15 @@
 'use client'
 
-import { Pencil, Trash2, Layers, Check, Star } from 'lucide-react'
+import { Pencil, Trash2, Layers } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { FEATURE_LABELS, planDescriptionFor } from '@/lib/planFeatures'
 import type { PlansPageState } from '../usePlansPage'
 import Button from '@/components/ui/Button'
 
 const money = (v: number) => v.toLocaleString('en-US').replace(/,/g, ' ')
 
 export function PlanList({ s }: { s: PlansPageState }) {
-  const { t, lang } = useTranslation()
+  const { t } = useTranslation()
   const { plans, loading, openAdd, openEdit, deleteConfirm, setDeleteConfirm, handleDelete } = s
 
   if (loading) {
@@ -38,16 +37,7 @@ export function PlanList({ s }: { s: PlansPageState }) {
   return (
     <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(240px,1fr))] items-stretch">
       {plans.map(p => (
-        <div
-          key={p._id}
-          className={`card flex flex-col relative ${p.highlight ? 'border-2! border-brand-400! shadow-[0_10px_30px_rgba(79,110,247,0.14)]!' : ''}`}
-        >
-          {p.highlight && (
-            <span className="absolute -top-2.5 left-4 inline-flex items-center gap-1 bg-[image:var(--brand-gradient)] text-white text-[0.68rem] font-bold px-2.5 py-0.5 rounded-full">
-              <Star size={10} fill="currentColor" /> {t('mostPopular')}
-            </span>
-          )}
-
+        <div key={p._id} className="card flex flex-col relative">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               <div className="font-extrabold text-gray-800 text-[1.05rem]">{p.name}</div>
@@ -76,23 +66,6 @@ export function PlanList({ s }: { s: PlansPageState }) {
             </span>
             {p.price > 0 && <span className="text-[0.8rem] text-gray-500 font-medium"> {t('uzsPerMonth')}</span>}
           </div>
-
-          {planDescriptionFor(p.description, lang) && (
-            <p className="text-[0.8rem] text-gray-500 mb-3">{planDescriptionFor(p.description, lang)}</p>
-          )}
-
-          <ul className="flex flex-col gap-1.5 mt-auto pt-2">
-            {p.features.length === 0 ? (
-              <li className="text-[0.8125rem] text-gray-400">{t('noFeatures')}</li>
-            ) : (
-              p.features.map(f => (
-                <li key={f} className="flex items-center gap-1.5 text-[0.8125rem] text-gray-700">
-                  <Check size={13} className="text-emerald-500 shrink-0" />
-                  {FEATURE_LABELS[f]}
-                </li>
-              ))
-            )}
-          </ul>
         </div>
       ))}
     </div>

@@ -1,16 +1,15 @@
 import mongoose, { Schema, Document } from 'mongoose'
-import { FEATURE_KEYS, type FeatureKey, type PlanDescription } from '@/lib/planFeatures'
 
 export const PLAN_KEY_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/
 
+// A subscription plan is now just a billing record: a stable `key` (referenced
+// by Company.plan), a display `name`, and a monthly `price`. Feature access is
+// no longer gated per plan — every business gets every module — so the old
+// features/description/highlight/sortOrder fields were dropped.
 export interface IPlan extends Document {
   key: string // matches Company.plan, e.g. "standard" — immutable after creation
   name: string
-  features: FeatureKey[]
   price: number        // integer UZS per month (0 = "contact us" / free)
-  description: PlanDescription  // short marketing line (per language) on the landing card
-  highlight: boolean   // the "most popular" card on the landing page
-  sortOrder: number    // ascending display order on the landing page
   createdAt: Date
   updatedAt: Date
 }
@@ -29,15 +28,7 @@ const PlanSchema = new Schema<IPlan>(
       },
     },
     name: { type: String, required: true, trim: true },
-    features: [{ type: String, enum: FEATURE_KEYS }],
     price: { type: Number, default: 0, min: 0 },
-    description: {
-      en: { type: String, default: '', trim: true },
-      uz: { type: String, default: '', trim: true },
-      ru: { type: String, default: '', trim: true },
-    },
-    highlight: { type: Boolean, default: false },
-    sortOrder: { type: Number, default: 0 },
   },
   { timestamps: true }
 )

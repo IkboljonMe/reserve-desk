@@ -5,6 +5,11 @@ import { useTranslation } from "@/i18n";
 import { getServiceIcon } from "@/lib/serviceIcons";
 import { formatDuration, formatUZS, slotEnd } from "../utils";
 import type { BookingWizard } from "../useBookingWizard";
+import {
+  PAYMENT_METHODS,
+  PAYMENT_METHOD_LABEL_KEY,
+  type PaymentMethodValue,
+} from "@/lib/paymentMethods";
 
 // Slide: a read-only summary of everything picked in the previous slides,
 // plus headcount and payment status. Back/Confirm live in the modal's shared
@@ -36,6 +41,8 @@ export function ReviewStep({ w }: { w: BookingWizard }) {
     setPaid,
     amountPaid,
     setAmountPaid,
+    paymentMethod,
+    setPaymentMethod,
   } = w;
   if (!selectedService || !activePlan || !selectedSlot) return null;
 
@@ -234,6 +241,27 @@ export function ReviewStep({ w }: { w: BookingWizard }) {
                     amount: `${formatUZS(Math.max(0, activePlan.price - amountPaid))} ${t("sum")}`,
                   })}
                 </p>
+              </div>
+            )}
+            {/* How the collected money was paid — only when money is taken now. */}
+            {(paid || amountPaid > 0) && (
+              <div className="mt-2.5 max-w-50">
+                <label className="form-label text-[0.78rem]">
+                  {t("paymentMethod")}
+                </label>
+                <select
+                  className="form-select"
+                  value={paymentMethod || "cash"}
+                  onChange={(e) =>
+                    setPaymentMethod(e.target.value as PaymentMethodValue)
+                  }
+                >
+                  {PAYMENT_METHODS.map((m) => (
+                    <option key={m} value={m}>
+                      {t(PAYMENT_METHOD_LABEL_KEY[m])}
+                    </option>
+                  ))}
+                </select>
               </div>
             )}
           </>

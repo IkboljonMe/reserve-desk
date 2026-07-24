@@ -74,6 +74,7 @@ export interface Booking {
   totalPrice: number
   amountPaid?: number  // money collected so far; a value < totalPrice is a deposit
   paid: boolean
+  paymentMethod?: '' | 'cash' | 'uzcard_humo' | 'visa_mastercard' | 'transfer'
   finished: boolean
   bookingType?: 'client' | 'room' | 'custom' | null
   duration?: number
