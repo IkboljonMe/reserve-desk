@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Check, ChevronDown } from "lucide-react";
 import { LANGUAGES } from "@/i18n";
+import { FlagIcon } from "@/i18n/FlagIcon";
 import { LOCALE_COOKIE, isLocale, type LanguageCode } from "@/i18n/config";
 
 // Remember the chosen language so the proxy honours it on later locale-less
@@ -54,7 +55,7 @@ export function LandingLangToggle({ current }: { current: string }) {
         aria-label="Language"
         className="h-9.5 w-9.5 sm:w-auto justify-center sm:justify-between px-0 sm:px-3.5 inline-flex items-center gap-1.75 bg-(--gray-100) hover:bg-(--gray-200) text-(--gray-700) cursor-pointer border border-(--surface-border) transition-all duration-150 text-[0.8rem] font-semibold"
       >
-        <span className="text-base leading-none">{active.flag}</span>
+        <FlagIcon code={active.code} className="block shrink-0" />
         <span className="hidden sm:inline">{active.label}</span>
         <ChevronDown
           size={12}
@@ -82,7 +83,7 @@ export function LandingLangToggle({ current }: { current: string }) {
                 }`}
               >
                 <span className="flex items-center gap-2">
-                  <span className="text-base leading-none">{lang.flag}</span>
+                  <FlagIcon code={lang.code} className="block shrink-0" />
                   {lang.label}
                 </span>
                 {isSelected && (
