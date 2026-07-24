@@ -50,7 +50,7 @@ export default async function SuperadminLayout({
 
   return (
     <ToastProvider>
-      <div className="min-h-dvh bg-(--surface-card)">
+      <div className="sa-light min-h-dvh bg-(--surface-card)">
         <div className="flex items-center justify-between py-4 px-6 border-b border-(--surface-border) bg-[#14192a]">
           <div className="text-white font-extrabold tracking-[-0.01em]">
             Bronit — Superadmin

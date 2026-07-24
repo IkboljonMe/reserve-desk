@@ -65,7 +65,7 @@ export function OrderTracker({
           </p>
         )
       ) : cancelled ? (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-center">
+        <div className="rounded-xl border border-(--color-danger)/30 bg-(--color-danger)/10 p-4 text-center">
           <p className="font-bold m-0 text-(--color-danger)">
             {labels.cancelledTitle}
           </p>

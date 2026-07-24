@@ -58,6 +58,7 @@
   "uploadImage": "Rasm yuklash",
   "uploadFailed": "Yuklab bo'lmadi",
   "removeImage": "Rasmni o'chirish",
+  "removeImageConfirm": "Bu rasm o'chirilsinmi?",
   "hubBanner": "Banner",
   "hubLogo": "Logotip",
   "guestHub": "Mehmon hubi",

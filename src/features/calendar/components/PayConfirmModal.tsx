@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { Check, Wallet } from "lucide-react";
 import { money, amountCollected, amountDue } from "@/lib/bookingHelpers";
 import { useTranslation } from "@/i18n";
 import type { CalendarPageState } from "../useCalendarPage";
 import Button from "@/components/ui/Button";
+import Dropdown from "@/components/ui/Dropdown";
 import {
   PAYMENT_METHODS,
   PAYMENT_METHOD_LABEL_KEY,
@@ -36,8 +38,8 @@ export function PayConfirmModal({ s }: { s: CalendarPageState }) {
     setMethod("cash");
   };
 
-  return (
-    <div className="modal-overlay z-2000" onClick={close}>
+  return createPortal(
+    <div className="modal-overlay z-2100" onClick={close}>
       <div className="modal max-w-96" onClick={(e) => e.stopPropagation()}>
         <div className="flex flex-col items-center text-center gap-3">
           <span className="w-13 h-13 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
@@ -91,17 +93,15 @@ export function PayConfirmModal({ s }: { s: CalendarPageState }) {
           <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
             {t("paymentMethod")}
           </label>
-          <select
-            className="form-select"
+          <Dropdown
             value={method || "cash"}
-            onChange={(e) => setMethod(e.target.value as PaymentMethodValue)}
-          >
-            {PAYMENT_METHODS.map((m) => (
-              <option key={m} value={m}>
-                {t(PAYMENT_METHOD_LABEL_KEY[m])}
-              </option>
-            ))}
-          </select>
+            onChange={(v) => setMethod(v as PaymentMethodValue)}
+            options={PAYMENT_METHODS.map((m) => ({
+              value: m,
+              label: t(PAYMENT_METHOD_LABEL_KEY[m]),
+            }))}
+            ariaLabel={t("paymentMethod")}
+          />
         </div>
 
         <div className="flex gap-2.5">
@@ -121,6 +121,7 @@ export function PayConfirmModal({ s }: { s: CalendarPageState }) {
           </Button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

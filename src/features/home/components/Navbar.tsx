@@ -61,9 +61,9 @@ export function Navbar({ locale, t, demoUrl, loginHref, navLinks }: Props) {
       </div>
 
       {/* Advantage Strip */}
-      <div className="hidden md:block bg-[#2563eb] text-white py-3.5 px-5 lg:px-10 text-[0.8rem] font-medium border-t border-white/10 shadow-sm">
+      <div className="hidden md:block bg-[#2563eb] text-white py-3.5 px-5 lg:px-10 text-[0.8rem] font-normal">
         <div className="w-full flex flex-wrap items-center justify-between gap-y-3 gap-x-6">
-          <div className="font-extrabold text-[0.85rem] tracking-wider uppercase bg-white/15 px-3 py-1">
+          <div className="font-semibold text-[0.85rem] tracking-wider uppercase">
             {t('lpAdvantageTitle')}
           </div>
           <div className="flex items-center justify-between gap-6 flex-wrap text-white/90 flex-1 md:flex-initial">
@@ -83,8 +83,8 @@ export function Navbar({ locale, t, demoUrl, loginHref, navLinks }: Props) {
               <Users size={14} className="text-white/80 shrink-0" />
               {t('lpAdvantageNoLosing')}
             </span>
-            <span className="inline-flex items-center gap-1.5 font-extrabold text-white">
-              <ShieldCheck size={14} className="text-amber-300 shrink-0" />
+            <span className="inline-flex items-center gap-1.5">
+              <ShieldCheck size={14} className="text-white/80 shrink-0" />
               {t('lpAdvantageSolution')}
             </span>
           </div>

@@ -213,7 +213,7 @@ export function GuestMenuClient({
       <div className="flex items-center gap-1.5 bg-(--surface-bg) rounded-full p-1 border border-(--surface-border)">
         <button
           onClick={() => setQty(id, qty - 1)}
-          className="w-6 h-6 rounded-full flex items-center justify-center text-(--gray-700) bg-white shadow-sm active:scale-95"
+          className="w-6 h-6 rounded-full flex items-center justify-center text-(--gray-700) bg-(--surface-card) shadow-sm active:scale-95"
           aria-label="−"
         >
           <Minus size={14} />

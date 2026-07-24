@@ -74,7 +74,7 @@ export function ScheduleEditor({
   }
 
   return (
-    <div className="bg-(--surface-card) border border-(--brand-100,#e0e7ff) rounded-(--radius-lg) shadow-sm p-4 bg-[#fcfdff]">
+    <div className="bg-(--surface-card) border border-(--brand-100,#e0e7ff) rounded-(--radius-lg) shadow-sm p-4">
       <div className="mb-3">
         <h3 className="text-[0.9rem] font-bold text-(--brand-700,#4338ca) m-0">
           {t("weeklySchedule")}

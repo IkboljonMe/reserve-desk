@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { ImagePlus, X, Loader2 } from "lucide-react";
+import { ImagePlus, X, Loader2, Check } from "lucide-react";
 import { useTranslation } from "@/i18n";
 import { useToast } from "@/providers/ToastProvider";
 import { uploadImage, type UploadScope } from "@/lib/api/uploads";
@@ -27,6 +27,9 @@ export function ImageUpload({
   const { showToast } = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  // Removing an image is destructive, so require a second confirming click
+  // (shown as an overlay) rather than clearing it on the first click.
+  const [confirming, setConfirming] = useState(false);
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -82,15 +85,49 @@ export function ImageUpload({
             </div>
           )}
         </button>
-        {value && !uploading && (
+        {value && !uploading && !confirming && (
           <button
             type="button"
-            onClick={() => onChange("")}
+            onClick={() => setConfirming(true)}
             className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-(--danger) text-white flex items-center justify-center shadow cursor-pointer"
             aria-label={t("removeImage")}
           >
             <X size={13} />
           </button>
+        )}
+        {confirming && (
+          <div
+            className={`absolute inset-0 z-10 flex flex-col items-center justify-center gap-1.5 bg-black/65 backdrop-blur-[1px] p-1.5 text-center ${isAvatar ? "rounded-full" : "rounded-lg"}`}
+          >
+            {!isAvatar && (
+              <span className="text-white text-[0.72rem] font-semibold leading-tight px-1">
+                {t("removeImageConfirm")}
+              </span>
+            )}
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => {
+                  onChange("");
+                  setConfirming(false);
+                }}
+                className="w-7 h-7 rounded-full bg-(--danger) text-white flex items-center justify-center shadow cursor-pointer hover:opacity-90"
+                aria-label={t("remove")}
+                title={t("remove")}
+              >
+                <Check size={14} />
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirming(false)}
+                className="w-7 h-7 rounded-full bg-white/25 text-white flex items-center justify-center cursor-pointer hover:bg-white/35"
+                aria-label={t("cancel")}
+                title={t("cancel")}
+              >
+                <X size={14} />
+              </button>
+            </div>
+          </div>
         )}
         <input
           ref={inputRef}

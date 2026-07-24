@@ -50,9 +50,10 @@ export function ContractsFilters({ s }: { s: ContractsPageState }) {
     );
   }
 
-  // Desktop: inline filter bar.
+  // Desktop: inline filter row — search + dropdowns each as their own field
+  // (no enclosing card, so they read as separate controls).
   return (
-    <div className="bg-(--surface-card) border border-(--surface-border) rounded-(--radius-lg) shadow-sm p-4 mb-4">
+    <div className="mb-4">
       <ContractsFilterControls s={s} />
     </div>
   );

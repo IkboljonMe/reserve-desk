@@ -2,6 +2,7 @@
 
 import { BedDouble } from "lucide-react";
 import { useTranslation } from "@/i18n";
+import Dropdown from "@/components/ui/Dropdown";
 import { getServiceIcon } from "@/lib/serviceIcons";
 import { formatDuration, formatUZS, slotEnd } from "../utils";
 import type { BookingWizard } from "../useBookingWizard";
@@ -197,11 +198,10 @@ export function ReviewStep({ w }: { w: BookingWizard }) {
           </div>
         ) : (
           <>
-            <select
-              className="form-select max-w-50"
+            <Dropdown
+              containerClassName="max-w-50"
               value={paid ? "paid" : amountPaid > 0 ? "deposit" : "unpaid"}
-              onChange={(e) => {
-                const v = e.target.value;
+              onChange={(v) => {
                 if (v === "paid") {
                   setPaid(true);
                   setAmountPaid(activePlan.price);
@@ -213,11 +213,13 @@ export function ReviewStep({ w }: { w: BookingWizard }) {
                   setAmountPaid(0);
                 }
               }}
-            >
-              <option value="unpaid">{t("unpaid")}</option>
-              <option value="deposit">{t("deposit")}</option>
-              <option value="paid">{t("paid")}</option>
-            </select>
+              options={[
+                { value: "unpaid", label: t("unpaid") },
+                { value: "deposit", label: t("deposit") },
+                { value: "paid", label: t("paid") },
+              ]}
+              ariaLabel={t("payment")}
+            />
             {!paid && amountPaid > 0 && (
               <div className="mt-2.5 max-w-50">
                 <label className="form-label text-[0.78rem]">
@@ -249,19 +251,15 @@ export function ReviewStep({ w }: { w: BookingWizard }) {
                 <label className="form-label text-[0.78rem]">
                   {t("paymentMethod")}
                 </label>
-                <select
-                  className="form-select"
+                <Dropdown
                   value={paymentMethod || "cash"}
-                  onChange={(e) =>
-                    setPaymentMethod(e.target.value as PaymentMethodValue)
-                  }
-                >
-                  {PAYMENT_METHODS.map((m) => (
-                    <option key={m} value={m}>
-                      {t(PAYMENT_METHOD_LABEL_KEY[m])}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(v) => setPaymentMethod(v as PaymentMethodValue)}
+                  options={PAYMENT_METHODS.map((m) => ({
+                    value: m,
+                    label: t(PAYMENT_METHOD_LABEL_KEY[m]),
+                  }))}
+                  ariaLabel={t("paymentMethod")}
+                />
               </div>
             )}
           </>

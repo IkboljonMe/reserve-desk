@@ -408,7 +408,7 @@ export function GuestHubClient({
           </p>
           <a
             href={joinHref}
-            className="text-[0.8rem] font-bold tracking-wide no-underline text-[rgba(245,166,35,0.9)]"
+            className="text-[0.8rem] font-bold tracking-wide no-underline text-amber-600"
           >
             {t("hubJoinFree")}
           </a>
@@ -542,7 +542,7 @@ export function GuestHubClient({
         {receptionPhone && (
           <a
             href={`tel:${receptionPhone}`}
-            className="block text-center py-3.5 rounded-xl bg-[rgba(79,110,247,0.2)] border border-[rgba(79,110,247,0.4)] text-[#8ea2ff] no-underline font-bold text-base mb-2.5"
+            className="block text-center py-3.5 rounded-xl bg-[rgba(79,110,247,0.2)] border border-[rgba(79,110,247,0.4)] text-(--brand-600) no-underline font-bold text-base mb-2.5"
           >
             📞 {receptionPhone}
           </a>

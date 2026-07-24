@@ -58,6 +58,7 @@
   "uploadImage": "Upload image",
   "uploadFailed": "Upload failed",
   "removeImage": "Remove image",
+  "removeImageConfirm": "Remove this image?",
   "hubBanner": "Banner",
   "hubLogo": "Logo",
   "guestHub": "Guest Hub",

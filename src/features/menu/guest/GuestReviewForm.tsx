@@ -50,7 +50,7 @@ export function GuestReviewForm({
   if (done) {
     return (
       <div className="rounded-xl border border-(--surface-border) bg-(--surface-card) p-3.5 flex items-center gap-2.5">
-        <span className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+        <span className="w-8 h-8 rounded-full bg-emerald-500/15 text-emerald-500 flex items-center justify-center shrink-0">
           <Check size={16} />
         </span>
         <p className="text-[0.9rem] font-semibold text-(--gray-700) m-0">

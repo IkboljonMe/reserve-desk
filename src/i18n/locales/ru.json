@@ -58,6 +58,7 @@
   "uploadImage": "Загрузить фото",
   "uploadFailed": "Не удалось загрузить",
   "removeImage": "Удалить фото",
+  "removeImageConfirm": "Удалить это фото?",
   "hubBanner": "Баннер",
   "hubLogo": "Логотип",
   "guestHub": "Гостевой хаб",

@@ -107,7 +107,7 @@ export function ContactWidget(p: Props) {
       ) : (
         <form onSubmit={submit}>
           <div className="flex items-center gap-2 text-[0.98rem] text-(--gray-900)">
-            <span className="inline-flex w-7 h-7 items-center justify-center bg-(--brand-50)/50 text-(--brand-500) dark:text-white">
+            <span className="inline-flex w-7 h-7 items-center justify-center bg-brand-500 text-white shrink-0">
               <PhoneCall size={16} />
             </span>
             <strong>{p.title}</strong>

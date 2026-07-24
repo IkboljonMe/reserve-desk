@@ -178,6 +178,16 @@
     --status-pending: #f59e0b;
     --status-cancelled: #ef4444;
 
+    /* Status/accent pill tints — LIGHT values. The `.dark` block overrides them;
+       the always-light superadmin panel (.sa-light) re-asserts these. Referenced
+       by the dark accent-utility overrides further down so a single var flip
+       themes every pill/banner/danger-button. */
+    --pill-green-bg: #dcfce7; --pill-green-fg: #166534; --pill-green-bd: #bbf7d0;
+    --pill-amber-bg: #fef3c7; --pill-amber-fg: #92400e; --pill-amber-bd: #fde68a;
+    --pill-red-bg: #fee2e2;   --pill-red-fg: #991b1b;   --pill-red-bd: #fecaca;
+    --pill-blue-bg: #dbeafe;  --pill-blue-fg: #1e40af;  --pill-blue-bd: #bfdbfe;
+    --pill-brand-bg: rgba(79, 110, 247, 0.1);
+
     /* Surface & Glassmorphism (Light Mode) */
     --surface-bg: #f8fafc;
     --surface-card: #ffffff;
@@ -213,6 +223,14 @@
     --sidebar-active: #5f7fff;
     --sidebar-hover: rgba(95, 127, 255, 0.15);
     --header-bg: rgba(11, 15, 23, 0.85);
+
+    /* Accent pill tints — DARK: pale fill + dark text become translucent fill +
+       light text so they read on dark surfaces. */
+    --pill-green-bg: rgba(16, 185, 129, 0.15); --pill-green-fg: #6ee7b7; --pill-green-bd: rgba(16, 185, 129, 0.32);
+    --pill-amber-bg: rgba(245, 158, 11, 0.15); --pill-amber-fg: #fcd34d; --pill-amber-bd: rgba(245, 158, 11, 0.32);
+    --pill-red-bg: rgba(239, 68, 68, 0.15);    --pill-red-fg: #fca5a5;   --pill-red-bd: rgba(239, 68, 68, 0.32);
+    --pill-blue-bg: rgba(59, 130, 246, 0.15);  --pill-blue-fg: #93c5fd;  --pill-blue-bd: rgba(59, 130, 246, 0.32);
+    --pill-brand-bg: rgba(79, 110, 247, 0.18);
   }
 
   * {
@@ -884,4 +902,93 @@ button.swiper-button-next::after {
 .dark div.border-slate-200.rounded-2xl {
   background-color: var(--surface-card) !important;
   border-color: var(--surface-border) !important;
+}
+
+/* ─── Dark Mode: remaining non-var palette leaks ─────────────────────────────
+   The utilities below use Tailwind's built-in `slate-*` / accent palettes,
+   which are NOT wired to our light/dark CSS variables — so left alone they stay
+   light in dark mode. These flat overrides bring them in line, matching the
+   pattern of the blocks above. (Applies to the global `.dark` theme only; the
+   guest menu runs its own var-scoped theme and is handled in its components.) */
+
+/* `slate` surfaces (the var-driven `gray-*` scale already inverts). */
+.dark .bg-slate-50 { background-color: var(--surface-bg) !important; }
+.dark .bg-slate-100 { background-color: var(--surface-muted) !important; }
+.dark .bg-slate-200 { background-color: var(--surface-border) !important; }
+.dark .hover\:bg-slate-50:hover,
+.dark .hover\:bg-slate-100:hover { background-color: var(--surface-muted) !important; }
+
+/* `slate` text/border shades the earlier block didn't cover (it stops at 400). */
+.dark .text-slate-300 { color: var(--gray-400) !important; }
+.dark .text-slate-100,
+.dark .text-slate-200 { color: var(--gray-300) !important; }
+.dark .border-slate-100 { border-color: var(--surface-border) !important; }
+
+/* `bg-white` opacity variants other than the /90 and /95 handled above — e.g.
+   a loading veil. Fade the themed card colour instead of literal white. */
+.dark .bg-white\/45,
+.dark .bg-white\/60,
+.dark .bg-white\/70,
+.dark .bg-white\/80 {
+  background-color: color-mix(in srgb, var(--surface-card) 55%, transparent) !important;
+}
+
+/* Light accent TINTS used for status pills, banners and the danger button.
+   Resolved through the --pill-* vars (light in :root, dark in .dark, and forced
+   back to light inside .sa-light) so one var flip themes them everywhere. */
+.dark .bg-amber-50,
+.dark .bg-amber-100 { background-color: var(--pill-amber-bg) !important; }
+.dark .bg-green-50,
+.dark .bg-green-100,
+.dark .bg-emerald-50,
+.dark .bg-emerald-100 { background-color: var(--pill-green-bg) !important; }
+.dark .bg-red-50,
+.dark .bg-red-100 { background-color: var(--pill-red-bg) !important; }
+.dark .bg-blue-50,
+.dark .bg-blue-100 { background-color: var(--pill-blue-bg) !important; }
+
+.dark .border-amber-200,
+.dark .border-amber-300 { border-color: var(--pill-amber-bd) !important; }
+.dark .border-green-200,
+.dark .border-emerald-200 { border-color: var(--pill-green-bd) !important; }
+.dark .border-red-200,
+.dark .border-red-300 { border-color: var(--pill-red-bd) !important; }
+.dark .border-blue-200 { border-color: var(--pill-blue-bd) !important; }
+
+.dark .text-amber-700,
+.dark .text-amber-800,
+.dark .text-amber-900 { color: var(--pill-amber-fg) !important; }
+.dark .text-green-700,
+.dark .text-green-800,
+.dark .text-emerald-600,
+.dark .text-emerald-700 { color: var(--pill-green-fg) !important; }
+.dark .text-red-700,
+.dark .text-red-800 { color: var(--pill-red-fg) !important; }
+.dark .text-blue-700,
+.dark .text-blue-800 { color: var(--pill-blue-fg) !important; }
+
+/* Brand-50 tints (e.g. the pricing table's "Most popular" column, selected
+   order-builder rows) are a fixed pale lavender that washes out on dark. */
+.dark .bg-brand-50,
+.dark .bg-brand-50\/30,
+.dark .bg-brand-50\/40,
+.dark .bg-brand-50\/50,
+.dark .bg-brand-50\/60 { background-color: var(--pill-brand-bg) !important; }
+
+/* ─── Superadmin: always-light island ────────────────────────────────────────
+   The superadmin panel is a light-only internal tool. Re-declaring the themed
+   vars (including the --pill-* accents) to their light values on the panel root
+   forces everything under it light EVEN when the global theme is dark — because
+   the `.dark …` overrides above all resolve through these same vars. */
+.sa-light {
+  color-scheme: light;
+  --gray-50: #f8fafc;  --gray-100: #f1f5f9; --gray-200: #e2e8f0;
+  --gray-300: #cbd5e1; --gray-400: #94a3b8; --gray-500: #64748b;
+  --gray-600: #475569; --gray-700: #334155; --gray-800: #1e293b; --gray-900: #0f172a;
+  --surface-bg: #f8fafc; --surface-card: #ffffff; --surface-border: #e2e8f0; --surface-muted: #f1f5f9;
+  --pill-green-bg: #dcfce7; --pill-green-fg: #166534; --pill-green-bd: #bbf7d0;
+  --pill-amber-bg: #fef3c7; --pill-amber-fg: #92400e; --pill-amber-bd: #fde68a;
+  --pill-red-bg: #fee2e2;   --pill-red-fg: #991b1b;   --pill-red-bd: #fecaca;
+  --pill-blue-bg: #dbeafe;  --pill-blue-fg: #1e40af;  --pill-blue-bd: #bfdbfe;
+  --pill-brand-bg: rgba(79, 110, 247, 0.1);
 }

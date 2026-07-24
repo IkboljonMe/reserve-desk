@@ -40,7 +40,8 @@ export function MenuSettingsPanel({
   const hubDisplay = hubUrl.replace(/^https?:\/\//, "");
 
   return (
-    <div className="flex flex-col gap-5 max-w-2xl">
+    <div className="flex flex-col gap-5 max-w-5xl">
+      <div className="columns-1 lg:columns-2 gap-x-5 [&>section]:mb-5 [&>section]:break-inside-avoid">
       {/* ── Guest hub: enable + public link ──────────────────── */}
       <section className={SECTION}>
         <div className="flex items-center justify-between gap-3">
@@ -238,6 +239,8 @@ export function MenuSettingsPanel({
           })}
         </div>
       </section>
+
+      </div>
 
       {/* ── Save ─────────────────────────────────────────────── */}
       <Button

@@ -275,7 +275,7 @@ export function GuestServicesClient({
       >
         {success ? (
           <div className="py-6 text-center">
-            <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 rounded-full bg-emerald-500/15 text-emerald-500 flex items-center justify-center mx-auto mb-4">
               <Sparkles size={32} />
             </div>
             <p className="text-lg font-bold text-(--gray-800) mb-2 m-0">

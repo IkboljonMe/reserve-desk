@@ -18,7 +18,10 @@ const CTA_BASE =
 // after sign-up); the Custom tier opens the call-back contact form.
 export function Pricing({ t, demoUrl }: { t: Translate; demoUrl: string }) {
   // Highlighted (Most Popular) column gets a tint across header, rows, footer.
-  const colTint = (highlight: boolean) => (highlight ? "bg-brand-50/60" : "");
+  // Uses the themed --pill-brand-bg var (subtle lavender in light, translucent
+  // brand in dark) instead of a fixed pale `bg-brand-50` that washed out and hid
+  // the column's text in dark mode.
+  const colTint = (highlight: boolean) => (highlight ? "bg-(--pill-brand-bg)" : "");
 
   return (
     <section id="pricing" className="bg-white border-y border-slate-200">
@@ -123,7 +126,7 @@ export function Pricing({ t, demoUrl }: { t: Translate; demoUrl: string }) {
                         className={`${CTA_BASE} ${
                           plan.highlight
                             ? "bg-[linear-gradient(135deg,#4f6ef7,#3b5bdb)] text-white shadow-[0_6px_18px_rgba(79,110,247,0.3)]"
-                            : "bg-brand-50 text-[#3b5bdb]"
+                            : "bg-brand-50 text-brand-600"
                         }`}
                       >
                         {t("lpViewLiveDemo")}

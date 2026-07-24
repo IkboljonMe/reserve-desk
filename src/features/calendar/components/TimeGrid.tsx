@@ -418,7 +418,7 @@ function EventBlock({
         ) : (
           <span
             title={t("unpaid")}
-            className="w-2.25 h-2.25 rounded-full bg-amber-500 block shadow-[0_0_0_2px_#fff]"
+            className="w-2.25 h-2.25 rounded-full bg-amber-500 block shadow-[0_0_0_2px_var(--surface-card)]"
           />
         )}
       </span>

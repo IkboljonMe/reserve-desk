@@ -42,7 +42,7 @@ export function ContractsFilterControls({
       }
     >
       <div
-        className={`flex items-center gap-2 ${stack ? "w-full rounded-lg border border-(--surface-border) px-3 py-2" : "flex-1 min-w-55"}`}
+        className={`flex items-center gap-2 min-h-10 px-3 rounded-lg border border-(--surface-border) bg-(--surface-card) ${stack ? "w-full" : "flex-1 min-w-55"}`}
       >
         <svg
           width="16"
