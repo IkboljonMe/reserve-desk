@@ -16,6 +16,7 @@ export default function SuperadminNav({
 
   const tabs = [
     { href: basePath, label: t("companies") },
+    { href: `${basePath}/orders`, label: t("orders") },
     { href: `${basePath}/plans`, label: t("plans") },
     {
       href: `${basePath}/notifications`,

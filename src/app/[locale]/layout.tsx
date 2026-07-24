@@ -121,7 +121,15 @@ export default async function RootLayout({
   const lang = isLocale(locale) ? locale : FALLBACK_LOCALE;
 
   return (
-    <html lang={lang} className={`${zenDots.variable} ${inter.variable}`}>
+    // suppressHydrationWarning: some browser extensions inject attributes on
+    // <html> (e.g. __gcrremoteframetoken) before React hydrates, which would
+    // otherwise trip a hydration mismatch. It only affects this element's own
+    // attributes, not its children.
+    <html
+      lang={lang}
+      className={`${zenDots.variable} ${inter.variable}`}
+      suppressHydrationWarning
+    >
       <body>
         <QueryProvider>
           <ThemeProvider>

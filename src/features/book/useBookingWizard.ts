@@ -30,6 +30,7 @@ import {
   toMin,
 } from "./utils";
 import { hoursForDate } from "@/lib/serviceHours";
+import type { PaymentMethodValue } from "@/lib/paymentMethods";
 
 // Sentinel category value meaning "client has no group" — maps to `groupId=none`
 // server-side. There's no configured pricing for it, so price/duration are manual.
@@ -102,6 +103,9 @@ export function useBookingWizard({
   const [paid, setPaid] = useState(false);
   // Deposit taken at booking time (0 = none). `paid` covers the full-payment case.
   const [amountPaid, setAmountPaid] = useState(0);
+  // How money is collected — only meaningful when some amount is taken now.
+  // Defaults to cash so a method is pre-selected once paid/deposit is chosen.
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethodValue>("cash");
 
   // Client search (client booking type)
   const [clientSearch, setClientSearch] = useState("");
@@ -462,6 +466,7 @@ export function useBookingWizard({
     setPersons(1);
     setPaid(false);
     setAmountPaid(0);
+    setPaymentMethod("cash");
     setClientSearch("");
     setClientResults([]);
   }
@@ -576,6 +581,9 @@ export function useBookingWizard({
             : paid
               ? activePlan.price
               : Math.min(amountPaid, activePlan.price),
+        // Method only matters when money is taken now; unpaid → asked later.
+        paymentMethod:
+          activePlan.price > 0 && (paid || amountPaid > 0) ? paymentMethod : "",
         bookingType,
         category: selectedCategory,
         variantId: selectedVariant?.id,
@@ -661,6 +669,8 @@ export function useBookingWizard({
     setPaid,
     amountPaid,
     setAmountPaid,
+    paymentMethod,
+    setPaymentMethod,
     loading: createMutation.isPending,
     clientSearch,
     setClientSearch,

@@ -41,6 +41,9 @@ export interface IBooking extends Document {
   menuReadyTime: string          // "HH:mm" — when the order should be ready
   status: BookingStatus
   paid: boolean       // fully paid (amountPaid >= totalPrice); free bookings need no payment
+  // How money was collected — '' when nothing has been collected yet (asked
+  // later). Not a payment integration; purely for reporting. See lib/paymentMethods.
+  paymentMethod: '' | 'cash' | 'uzcard_humo' | 'visa_mastercard' | 'transfer'
   finished: boolean   // booking fulfilled/completed
   bookingType?: BookingType  // how it was booked: client group, room category, or custom
   category?: string          // client-group id or room-type chosen at booking
@@ -95,6 +98,11 @@ const BookingSchema = new Schema<IBooking>(
     menuReadyTime: { type: String, default: '' },
     status: { type: String, enum: ['confirmed', 'pending', 'cancelled'], default: 'confirmed' },
     paid: { type: Boolean, default: false },
+    paymentMethod: {
+      type: String,
+      enum: ['', 'cash', 'uzcard_humo', 'visa_mastercard', 'transfer'],
+      default: '',
+    },
     finished: { type: Boolean, default: false },
     bookingType: { type: String, enum: ['client', 'room', 'custom'], default: undefined },
     category: { type: String, default: '' },

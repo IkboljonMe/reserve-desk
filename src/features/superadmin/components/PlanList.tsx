@@ -1,24 +1,22 @@
 'use client'
 
-import { Pencil, Trash2, Layers, Check, Star } from 'lucide-react'
+import { Pencil, Trash2, Layers } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { FEATURE_LABELS, planDescriptionFor } from '@/lib/planFeatures'
+import { FEATURE_LABELS } from '@/lib/planFeatures'
 import type { PlansPageState } from '../usePlansPage'
 import Button from '@/components/ui/Button'
 
 const money = (v: number) => v.toLocaleString('en-US').replace(/,/g, ' ')
 
 export function PlanList({ s }: { s: PlansPageState }) {
-  const { t, lang } = useTranslation()
+  const { t } = useTranslation()
   const { plans, loading, openAdd, openEdit, deleteConfirm, setDeleteConfirm, handleDelete } = s
 
   if (loading) {
     return (
-      <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(240px,1fr))]">
-        {[0, 1, 2].map(i => (
-          <div key={i} className="card h-56 animate-pulse bg-gray-50" />
-        ))}
+      <div className="card p-4">
+        <div className="h-40 animate-pulse bg-gray-50" />
       </div>
     )
   }
@@ -36,65 +34,68 @@ export function PlanList({ s }: { s: PlansPageState }) {
   }
 
   return (
-    <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(240px,1fr))] items-stretch">
-      {plans.map(p => (
-        <div
-          key={p._id}
-          className={`card flex flex-col relative ${p.highlight ? 'border-2! border-brand-400! shadow-[0_10px_30px_rgba(79,110,247,0.14)]!' : ''}`}
-        >
-          {p.highlight && (
-            <span className="absolute -top-2.5 left-4 inline-flex items-center gap-1 bg-[image:var(--brand-gradient)] text-white text-[0.68rem] font-bold px-2.5 py-0.5 rounded-full">
-              <Star size={10} fill="currentColor" /> {t('mostPopular')}
-            </span>
-          )}
-
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0">
-              <div className="font-extrabold text-gray-800 text-[1.05rem]">{p.name}</div>
-              <div className="text-[0.75rem] text-gray-400 font-mono">{p.key}</div>
-            </div>
-            <div className="flex gap-1 shrink-0">
-              <Button variant="ghost" icon size="sm" onClick={() => openEdit(p)} title={t('edit')} aria-label={t('editPlanAria')}>
-                <Pencil size={14} />
-              </Button>
-              {deleteConfirm === p._id ? (
-                <div className="flex gap-1 items-center">
-                  <Button variant="danger" size="sm" onClick={() => handleDelete(p._id)}>{t('delete')}</Button>
-                  <Button variant="ghost" size="sm" onClick={() => setDeleteConfirm(null)}>{t('cancel')}</Button>
-                </div>
-              ) : (
-                <Button variant="ghost" icon size="sm" onClick={() => setDeleteConfirm(p._id)} title={t('delete')} aria-label={t('deletePlanAria')}>
-                  <Trash2 size={14} color="var(--danger)" />
-                </Button>
-              )}
-            </div>
-          </div>
-
-          <div className="mt-3 mb-1">
-            <span className="text-[1.6rem] font-extrabold tracking-[-0.02em] text-gray-900">
-              {p.price > 0 ? money(p.price) : t('planFree')}
-            </span>
-            {p.price > 0 && <span className="text-[0.8rem] text-gray-500 font-medium"> {t('uzsPerMonth')}</span>}
-          </div>
-
-          {planDescriptionFor(p.description, lang) && (
-            <p className="text-[0.8rem] text-gray-500 mb-3">{planDescriptionFor(p.description, lang)}</p>
-          )}
-
-          <ul className="flex flex-col gap-1.5 mt-auto pt-2">
-            {p.features.length === 0 ? (
-              <li className="text-[0.8125rem] text-gray-400">{t('noFeatures')}</li>
-            ) : (
-              p.features.map(f => (
-                <li key={f} className="flex items-center gap-1.5 text-[0.8125rem] text-gray-700">
-                  <Check size={13} className="text-emerald-500 shrink-0" />
-                  {FEATURE_LABELS[f]}
-                </li>
-              ))
-            )}
-          </ul>
-        </div>
-      ))}
+    <div className="card p-0 overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse text-sm">
+          <thead>
+            <tr className="text-left text-gray-500 text-[0.78rem] uppercase tracking-wide border-b border-gray-100">
+              <th className="p-[10px_16px] font-semibold">{t('planName')}</th>
+              <th className="p-[10px_16px] font-semibold">{t('planPrice')}</th>
+              <th className="p-[10px_16px] font-semibold">{t('planFeatures')}</th>
+              <th className="p-[10px_16px] font-semibold text-right">{t('actions')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {plans.map(p => (
+              <tr key={p._id} className="border-b border-gray-100 last:border-b-0 align-top">
+                <td className="p-[12px_16px]">
+                  <div className="font-semibold text-gray-800">{p.name}</div>
+                  <div className="text-[0.75rem] text-gray-400 font-mono">{p.key}</div>
+                </td>
+                <td className="p-[12px_16px] whitespace-nowrap">
+                  {p.price > 0 ? (
+                    <span className="font-semibold text-gray-900">
+                      {money(p.price)}<span className="text-[0.75rem] text-gray-500 font-medium"> {t('uzsPerMonth')}</span>
+                    </span>
+                  ) : (
+                    <span className="text-gray-500">{t('planFree')}</span>
+                  )}
+                </td>
+                <td className="p-[12px_16px]">
+                  {p.features && p.features.length > 0 ? (
+                    <div className="flex flex-wrap gap-1 max-w-90">
+                      {p.features.map(f => (
+                        <span key={f} className="inline-block px-2 py-0.5 text-[0.72rem] font-medium bg-gray-100 text-gray-600">
+                          {FEATURE_LABELS[f]}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="text-gray-400 text-[0.8rem]">—</span>
+                  )}
+                </td>
+                <td className="p-[12px_16px]">
+                  <div className="flex gap-1 justify-end">
+                    <Button variant="ghost" icon size="sm" onClick={() => openEdit(p)} title={t('edit')} aria-label={t('editPlanAria')}>
+                      <Pencil size={14} />
+                    </Button>
+                    {deleteConfirm === p._id ? (
+                      <div className="flex gap-1 items-center">
+                        <Button variant="danger" size="sm" onClick={() => handleDelete(p._id)}>{t('delete')}</Button>
+                        <Button variant="ghost" size="sm" onClick={() => setDeleteConfirm(null)}>{t('cancel')}</Button>
+                      </div>
+                    ) : (
+                      <Button variant="ghost" icon size="sm" onClick={() => setDeleteConfirm(p._id)} title={t('delete')} aria-label={t('deletePlanAria')}>
+                        <Trash2 size={14} color="var(--danger)" />
+                      </Button>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }

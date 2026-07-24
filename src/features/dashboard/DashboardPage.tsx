@@ -2,23 +2,33 @@
 
 import IncomeAnalytics from './components/IncomeAnalytics'
 import { OccupancyCard } from './components/OccupancyCard'
+import { PaymentsByMethodCard } from './components/PaymentsByMethodCard'
 import BookingDrawer from './components/BookingDrawer'
 import { useDashboardPage } from './useDashboardPage'
 import { DashboardHeader } from './components/DashboardHeader'
 import { BookingsToolbar } from './components/BookingsToolbar'
 import { BookingsTable } from './components/BookingsTable'
+import { usePlanFeature } from '@/components/layout/PlanFeaturesContext'
 
 export default function DashboardPage() {
   const s = useDashboardPage()
+  // Revenue analytics (income breakdown + payments-by-method) are a plan
+  // feature; businesses without it still get occupancy and the bookings table.
+  const showAnalytics = usePlanFeature('analytics')
 
   return (
     <div className="flex flex-col gap-5">
       <DashboardHeader s={s} />
 
       {/* Zone A — Income analytics */}
-      <div>
-        <IncomeAnalytics analytics={s.analytics} loading={s.loading} perService={s.perService} />
-      </div>
+      {showAnalytics && (
+        <div>
+          <IncomeAnalytics analytics={s.analytics} loading={s.loading} perService={s.perService} />
+        </div>
+      )}
+
+      {/* Payments by method */}
+      {showAnalytics && !s.loading && <PaymentsByMethodCard s={s} />}
 
       {/* Occupancy */}
       {!s.loading && <OccupancyCard s={s} />}

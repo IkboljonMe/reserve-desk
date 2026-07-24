@@ -5,6 +5,7 @@ import { Service } from '@/models/Service'
 import { requireDashboard, requireWritable } from '@/lib/session'
 import { hoursForDate } from '@/lib/serviceHours'
 import { notifyNewBooking } from '@/lib/telegram'
+import { normalizePaymentMethod } from '@/lib/paymentMethods'
 
 // Fields kept when a booking on a shared service belongs to another hotel: the
 // viewer needs to see the slot is occupied, but not the other hotel's guest data.
@@ -186,6 +187,9 @@ export async function POST(req: NextRequest) {
       else if (Boolean(body.paid)) amountPaid = total
     }
     const paid = total > 0 && amountPaid >= total
+    // Only record a method when money was actually collected; an unpaid booking
+    // has its method asked later (when the balance is settled).
+    const paymentMethod = amountPaid > 0 ? normalizePaymentMethod(body.paymentMethod) : ''
     const history = [
       { action: 'created', at: now, by: session.userId },
       ...(paid
@@ -217,6 +221,7 @@ export async function POST(req: NextRequest) {
       menuReadyTime: menuReadyTime || '',
       status: status || 'confirmed',
       paid,
+      paymentMethod,
       finished: false,
       bookingType: bookingType || undefined,
       category: category || '',

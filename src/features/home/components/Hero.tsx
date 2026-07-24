@@ -21,7 +21,7 @@ export function Hero({
       title2={t('lpHeroTitle2')}
       subtitle={t('lpHeroSubtitle')}
       ctaLabel={t('lpHeroCta')}
-      pricingLabel={t('pricingTitle')}
+      pricingLabel={t('lpHeroSeePrices')}
       demoUrl={demoDashboardUrl}
       demoMenuUrl={demoMenuUrl}
       scrollLabel={t('lpScrollDown')}

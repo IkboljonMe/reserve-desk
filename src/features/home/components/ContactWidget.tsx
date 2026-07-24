@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { X, PhoneCall } from "lucide-react";
+import { OPEN_CONTACT_EVENT } from "./OpenContactButton";
 
 interface Props {
   title: string;
@@ -45,6 +46,14 @@ export function ContactWidget(p: Props) {
       window.removeEventListener("scroll", check);
     };
   }, [autoDone]);
+
+  // Open on demand when another element (e.g. the Custom plan's "Contact Us"
+  // CTA) dispatches the open event.
+  useEffect(() => {
+    const open = () => setOpen(true);
+    window.addEventListener(OPEN_CONTACT_EVENT, open);
+    return () => window.removeEventListener(OPEN_CONTACT_EVENT, open);
+  }, []);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();

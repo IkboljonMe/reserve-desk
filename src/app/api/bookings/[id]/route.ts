@@ -5,6 +5,7 @@ import { Service } from '@/models/Service'
 import { requireDashboard, requireWritable, bookingIdScope } from '@/lib/session'
 import { hoursForDate } from '@/lib/serviceHours'
 import { notifyBookingUpdated } from '@/lib/telegram'
+import { normalizePaymentMethod } from '@/lib/paymentMethods'
 
 const pad = (n: number) => n.toString().padStart(2, '0')
 const toMin = (t: string) => { const [h, m] = t.split(':').map(Number); return h * 60 + m }
@@ -81,6 +82,13 @@ export async function PUT(req: NextRequest, ctx: RouteContext<'/api/bookings/[id
     } else {
       current.paidAt = null
       events.push({ action: 'reopened', at: now, by: session.userId })
+    }
+    // Record how it was collected (asked at payment time); clear it if the
+    // booking was reopened back to fully unpaid.
+    if (nextAmount > 0) {
+      if (body.paymentMethod !== undefined) current.paymentMethod = normalizePaymentMethod(body.paymentMethod)
+    } else {
+      current.paymentMethod = ''
     }
   }
   if (typeof body.finished === 'boolean' && body.finished !== current.finished) {

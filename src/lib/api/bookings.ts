@@ -15,6 +15,7 @@ export interface BookingInput {
   menuItems?: { name: string; qty: number; price: number }[]
   menuReadyTime?: string
   paid: boolean
+  paymentMethod?: '' | 'cash' | 'uzcard_humo' | 'visa_mastercard' | 'transfer'
   bookingType?: 'client' | 'room' | 'custom' | null
   category?: string
   variantId?: string

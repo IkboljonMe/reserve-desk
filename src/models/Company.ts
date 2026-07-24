@@ -1,4 +1,8 @@
 import mongoose, { Schema, Document, Types } from 'mongoose'
+import { FEATURE_KEYS, type FeatureKey } from '@/lib/planFeatures'
+import { PAYMENT_STATUSES, type PaymentStatus } from '@/lib/paymentStatus'
+
+export type { PaymentStatus }
 
 // A company's plan is a free-form key referencing Plan.key (see
 // src/models/Plan.ts) — superadmins can create plans beyond the seeded
@@ -26,10 +30,17 @@ export interface ICompany extends Document {
   name: string
   slug: string
   plan: CompanyPlan
+  // The modules this business can actually use. Seeded from its plan's default
+  // features at creation, then editable per-business (so a "Custom" deal or a
+  // one-off add-on works without inventing a new plan). An empty array is a
+  // fully-locked business; the *absence* of the field (legacy docs) means
+  // "ungated" — see companyFeatureAccess in lib/planAccess.ts.
+  features: FeatureKey[]
   expiresAt: Date
   contactName: string
   contactPhone: string
   paymentMethod: string
+  paymentStatus: PaymentStatus
   note: string
   // Guest food-menu scope across this company's hotels.
   menuMode: MenuMode
@@ -64,10 +75,16 @@ const CompanySchema = new Schema<ICompany>(
       },
     },
     plan: { type: String, default: 'standard', trim: true, lowercase: true },
+    features: {
+      type: [String],
+      default: undefined, // absent => ungated (legacy); a set array => gated
+      enum: FEATURE_KEYS as unknown as string[],
+    },
     expiresAt: { type: Date, required: true },
     contactName: { type: String, default: '', trim: true },
     contactPhone: { type: String, default: '', trim: true },
     paymentMethod: { type: String, default: '', trim: true },
+    paymentStatus: { type: String, enum: PAYMENT_STATUSES, default: 'pending' },
     note: { type: String, default: '', trim: true },
     menuMode: { type: String, enum: ['per_hotel', 'shared'], default: 'per_hotel' },
     menuSourceHotelId: { type: Schema.Types.ObjectId, ref: 'Hotel', default: null },

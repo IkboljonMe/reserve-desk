@@ -23,6 +23,7 @@ import {
   toMin,
 } from "@/lib/bookingHelpers";
 import { hoursForDate, weekdayOf } from "@/lib/serviceHours";
+import { PAYMENT_METHODS, isPaymentMethod } from "@/lib/paymentMethods";
 import { useQueryClient } from "@tanstack/react-query";
 import { Booking } from "@/types";
 import { useServicesQuery } from "@/hooks/useServices";
@@ -279,6 +280,37 @@ export function useDashboardPage() {
       .sort((a, b) => b.total - a.total);
   }, [bookings, services]);
 
+  // Collected money grouped by how it was paid. The whole collected amount is
+  // attributed to the booking's recorded method (we store one method per
+  // booking). Money collected without a recorded method (e.g. a one-click
+  // "mark paid", or legacy bookings) falls into `unspecified`.
+  const byMethod = useMemo(() => {
+    const acc = new Map<string, { amount: number; count: number }>();
+    let unspecified = { amount: 0, count: 0 };
+    bookings.forEach((b) => {
+      const collected = amountCollected(b);
+      if (collected <= 0) return;
+      const m = b.paymentMethod || "";
+      if (isPaymentMethod(m)) {
+        const cur = acc.get(m) || { amount: 0, count: 0 };
+        cur.amount += collected;
+        cur.count += 1;
+        acc.set(m, cur);
+      } else {
+        unspecified.amount += collected;
+        unspecified.count += 1;
+      }
+    });
+    const rows = PAYMENT_METHODS.map((method) => ({
+      method,
+      amount: acc.get(method)?.amount || 0,
+      count: acc.get(method)?.count || 0,
+    }));
+    const totalCollected =
+      rows.reduce((s, r) => s + r.amount, 0) + unspecified.amount;
+    return { rows, unspecified, totalCollected };
+  }, [bookings]);
+
   // Occupancy: booked time vs. the service's *available* time in the range.
   // Available minutes = Σ over each open day (per weekly schedule / blackouts) of
   // (close − open) × capacity. Utilization = booked ÷ available (capped at 100%).
@@ -386,6 +418,7 @@ export function useDashboardPage() {
     rows,
     analytics,
     perService,
+    byMethod,
     occupancy,
     allHotelsOn,
     allServicesOn,

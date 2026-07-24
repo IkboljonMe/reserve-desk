@@ -45,11 +45,53 @@ export const REVIEWS = [
   { name: 'Sherzod Tashkentov', hotelKey: 'lpReview3Hotel', quoteKey: 'lpReview3Quote', initial: 'S' },
 ] as const
 
-export const PLANS = [
-  { key: 'standard', price: '100 000', highlight: false, features: ['lpPlanF1', 'lpPlanF2', 'lpPlanF3'] },
-  { key: 'pro', price: '200 000', highlight: true, features: ['lpPlanF1', 'lpPlanF2', 'lpPlanF3', 'lpPlanF4', 'lpPlanF5'] },
-  { key: 'vip', price: '300 000', highlight: false, features: ['lpPlanF1', 'lpPlanF2', 'lpPlanF3', 'lpPlanF4', 'lpPlanF5', 'lpPlanF6'] },
-] as const
+// Static landing pricing. NOTE: this is marketing copy only and is intentionally
+// decoupled from the operational `Plan` model (which gates features per company
+// in the dashboard). Prices are monthly, per hotel, in UZS. `taglineKey` is a
+// separate line above the feature bullets ("Everything in X, plus:").
+export interface LandingPlan {
+  key: string
+  name: string
+  price: number         // 0 for the Custom / "talk to us" plan
+  highlight: boolean
+  // Custom plan: renders without a numeric price and routes its CTA to the
+  // call-back contact form instead of the live demo.
+  custom?: boolean
+}
+
+// Prices are the DISCOUNTED monthly price; the original is 10% higher (shown
+// struck-through in the UI, computed as price × 1.1).
+export const PRICING_PLANS: LandingPlan[] = [
+  { key: 'standard', name: 'Standard', price: 300000, highlight: false },
+  { key: 'pro', name: 'Pro', price: 600000, highlight: true },
+  { key: 'vip', name: 'VIP', price: 800000, highlight: false },
+  { key: 'custom', name: 'Custom', price: 0, highlight: false, custom: true },
+]
+
+// Comparison matrix rows: each capability and which plans include it. Tiers are
+// cumulative (Pro ⊇ Standard, VIP ⊇ Pro); Custom can include anything.
+// Order = increasing tier.
+export interface PricingFeatureRow {
+  labelKey: string
+  plans: string[]
+}
+
+export const PRICING_FEATURES: PricingFeatureRow[] = [
+  // Standard: booking platform + service notifications + contracts.
+  { labelKey: 'lpFeatBooking', plans: ['standard', 'pro', 'vip', 'custom'] },
+  { labelKey: 'lpFeatClients', plans: ['standard', 'pro', 'vip', 'custom'] },
+  { labelKey: 'lpFeatServiceNotif', plans: ['standard', 'pro', 'vip', 'custom'] },
+  { labelKey: 'lpFeatContracts', plans: ['standard', 'pro', 'vip', 'custom'] },
+  // Pro: the QR-menu / Telegram-ordering system.
+  { labelKey: 'lpFeatQrMenu', plans: ['pro', 'vip', 'custom'] },
+  { labelKey: 'lpFeatTgOrders', plans: ['pro', 'vip', 'custom'] },
+  // VIP: analytics, scheduled reports, priority support.
+  { labelKey: 'lpFeatStats', plans: ['vip', 'custom'] },
+  { labelKey: 'lpFeatReports', plans: ['vip', 'custom'] },
+  { labelKey: 'lpFeatSupport247', plans: ['vip', 'custom'] },
+  // Custom only.
+  { labelKey: 'lpFeatCustomSetup', plans: ['custom'] },
+]
 
 export const FAQS = [
   { q: 'lpFaq1Q', a: 'lpFaq1A' },

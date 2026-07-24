@@ -3,7 +3,6 @@ import { headers } from "next/headers";
 import { getSession, isCompanyExpired } from "@/lib/session";
 import { connectDB } from "@/lib/mongodb";
 import { Company } from "@/models/Company";
-import { Plan } from "@/models/Plan";
 import type { FeatureKey } from "@/lib/planFeatures";
 import { ToastProvider } from "@/providers/ToastProvider";
 import { DraftProvider } from "@/components/DraftProvider";
@@ -33,15 +32,11 @@ export default async function OwnerDashboardLayout({
 
   await connectDB();
   const company = await Company.findById(session.companyId)
-    .select("expiresAt plan")
-    .lean<{ expiresAt: Date; plan: string }>();
+    .select("expiresAt features")
+    .lean<{ expiresAt: Date; features?: FeatureKey[] }>();
   const readOnly = !!company && isCompanyExpired(company.expiresAt);
-  const planDoc = company
-    ? await Plan.findOne({ key: company.plan })
-        .select("features")
-        .lean<{ features: FeatureKey[] }>()
-    : null;
-  const planFeatures = planDoc?.features;
+  // `undefined` (legacy company with no features field) means "don't gate".
+  const planFeatures = company?.features ?? undefined;
 
   // Detect subdomain → clean basePath for the sidebar.
   const headersList = await headers();

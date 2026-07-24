@@ -721,6 +721,29 @@
   background: transparent !important;
   transform: scale(0.9) !important;
 }
+/* On mobile (below Tailwind's `md`, where the hero uses its portrait layout),
+   stack both hero-swiper arrows in the bottom-left corner instead of centered
+   on the side edges. */
+@media (max-width: 767.98px) {
+  .swiper-button-prev,
+  .swiper-button-next {
+    top: auto !important;
+    bottom: 16px !important;
+    right: auto !important;
+    transform: none !important;
+    margin: 0 !important;
+  }
+  .swiper-button-prev {
+    left: 16px !important;
+  }
+  .swiper-button-next {
+    left: 56px !important;
+  }
+  .swiper-button-prev:hover,
+  .swiper-button-next:hover {
+    transform: scale(0.9) !important;
+  }
+}
 /* Completely hide the default icon font characters */
 .swiper-button-prev::after,
 .swiper-button-next::after,

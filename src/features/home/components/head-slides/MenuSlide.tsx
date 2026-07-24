@@ -37,6 +37,11 @@ export function MenuSlide({ badge, title1, title2, subtitle, ctaLabel, demoUrl }
         <div className="absolute inset-0 bg-linear-to-r from-slate-950/80 via-transparent to-slate-950/80 lg:to-slate-950" />
         {/* Subtle blur on the right side for tablet/desktop */}
         <div className="hidden sm:block absolute inset-y-0 right-0 w-[40%] lg:w-[30%] backdrop-blur-[6px] [mask-image:linear-gradient(to_left,black_20%,transparent_100%)] pointer-events-none" />
+        {/* Mobile: the text is centered over the gradient's transparent middle.
+            Use a plain dark scrim (NO blur/backdrop-filter) for legibility —
+            any runtime filter promotes a compositing layer that resolves a frame
+            late during the slide transition, staggering the content paint. */}
+        <div className="sm:hidden absolute inset-0 bg-slate-950/55 pointer-events-none" />
       </div>
 
       {/* Layered Content on Top */}

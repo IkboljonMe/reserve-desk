@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import mongoose from 'mongoose'
 import { Plan } from '../models/Plan'
-import type { FeatureKey } from '../lib/planFeatures'
+import { DEFAULT_PLAN_FEATURES, type FeatureKey } from '../lib/planFeatures'
 
 function loadEnvLocal() {
   try {
@@ -27,44 +27,14 @@ function loadEnvLocal() {
   }
 }
 
-type SeedPlan = {
-  key: string
-  name: string
-  features: FeatureKey[]
-  price: number
-  description: { en: string; uz: string; ru: string }
-  highlight: boolean
-  sortOrder: number
-}
+// Plans carry a name, price, and the default feature set for the tier. Prices
+// and features mirror the static landing tiers (see features/home constants).
+type SeedPlan = { key: string; name: string; price: number; features: FeatureKey[] }
 
 const DEFAULT_PLANS: SeedPlan[] = [
-  {
-    key: 'standard', name: 'Standard', price: 300000, sortOrder: 0, highlight: false,
-    description: {
-      en: 'Bookings, clients and reminders for a single hotel.',
-      uz: 'Bitta mehmonxona uchun bronlar, mijozlar va eslatmalar.',
-      ru: 'Бронирования, клиенты и напоминания для одного отеля.',
-    },
-    features: ['calendar', 'clients', 'notifications'],
-  },
-  {
-    key: 'pro', name: 'Pro', price: 600000, sortOrder: 1, highlight: true,
-    description: {
-      en: 'Everything in Standard plus contracts and the room-service menu.',
-      uz: 'Standarddagi hamma narsa, ustiga shartnomalar va xona xizmati menyusi.',
-      ru: 'Всё из Standard плюс договоры и меню обслуживания в номерах.',
-    },
-    features: ['calendar', 'clients', 'contracts', 'notifications', 'menu'],
-  },
-  {
-    key: 'vip', name: 'VIP', price: 1000000, sortOrder: 2, highlight: false,
-    description: {
-      en: 'The full suite: guest hub and Telegram bot notifications included.',
-      uz: "To'liq to'plam: mehmon hubi va Telegram bot bildirishnomalari ham bor.",
-      ru: 'Полный набор: гостевой хаб и уведомления Telegram-бота включены.',
-    },
-    features: ['calendar', 'clients', 'contracts', 'notifications', 'menu', 'guestHub', 'telegram'],
-  },
+  { key: 'standard', name: 'Standard', price: 300000, features: DEFAULT_PLAN_FEATURES.standard },
+  { key: 'pro', name: 'Pro', price: 600000, features: DEFAULT_PLAN_FEATURES.pro },
+  { key: 'vip', name: 'VIP', price: 800000, features: DEFAULT_PLAN_FEATURES.vip },
 ]
 
 async function main() {
@@ -76,13 +46,12 @@ async function main() {
   console.log('Connecting to MongoDB…')
   await mongoose.connect(uri)
 
-  // Upsert: create missing plans and refresh the pricing/features of existing
-  // ones to the current defaults (never changes the immutable key). Safe to
-  // re-run — this is how prices/features get applied to already-seeded plans.
+  // Upsert: create missing plans and refresh the name/price of existing ones to
+  // the current defaults (never changes the immutable key). Safe to re-run.
   for (const p of DEFAULT_PLANS) {
     const res = await Plan.updateOne(
       { key: p.key },
-      { $set: { name: p.name, features: p.features, price: p.price, description: p.description, highlight: p.highlight, sortOrder: p.sortOrder } },
+      { $set: { name: p.name, price: p.price, features: p.features } },
       { upsert: true },
     )
     const action = res.upsertedCount ? 'Created' : 'Updated'

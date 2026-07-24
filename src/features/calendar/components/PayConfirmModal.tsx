@@ -6,6 +6,11 @@ import { money, amountCollected, amountDue } from "@/lib/bookingHelpers";
 import { useTranslation } from "@/i18n";
 import type { CalendarPageState } from "../useCalendarPage";
 import Button from "@/components/ui/Button";
+import {
+  PAYMENT_METHODS,
+  PAYMENT_METHOD_LABEL_KEY,
+  type PaymentMethodValue,
+} from "@/lib/paymentMethods";
 
 export function PayConfirmModal({ s }: { s: CalendarPageState }) {
   const { t } = useTranslation();
@@ -16,6 +21,8 @@ export function PayConfirmModal({ s }: { s: CalendarPageState }) {
   const due = payConfirm ? amountDue(payConfirm) : 0;
   // "Amount received now" — defaults to the full remaining balance.
   const [received, setReceived] = useState("");
+  // How this payment was collected (for reporting) — defaults to cash.
+  const [method, setMethod] = useState<PaymentMethodValue>("cash");
   if (!payConfirm) return null;
 
   const receivedNum =
@@ -26,6 +33,7 @@ export function PayConfirmModal({ s }: { s: CalendarPageState }) {
   const close = () => {
     setPayConfirm(null);
     setReceived("");
+    setMethod("cash");
   };
 
   return (
@@ -79,6 +87,23 @@ export function PayConfirmModal({ s }: { s: CalendarPageState }) {
           </p>
         </div>
 
+        <div className="flex flex-col gap-1.5 mb-4">
+          <label className="text-[0.8125rem] font-semibold text-(--gray-700) tracking-tight">
+            {t("paymentMethod")}
+          </label>
+          <select
+            className="form-select"
+            value={method || "cash"}
+            onChange={(e) => setMethod(e.target.value as PaymentMethodValue)}
+          >
+            {PAYMENT_METHODS.map((m) => (
+              <option key={m} value={m}>
+                {t(PAYMENT_METHOD_LABEL_KEY[m])}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <div className="flex gap-2.5">
           <Button variant="secondary" className="flex-1" onClick={close}>
             {t("back")}
@@ -87,7 +112,7 @@ export function PayConfirmModal({ s }: { s: CalendarPageState }) {
             className="flex-1"
             disabled={receivedNum <= 0}
             onClick={async () => {
-              await recordPayment(payConfirm, newTotal);
+              await recordPayment(payConfirm, newTotal, method);
               close();
             }}
           >
