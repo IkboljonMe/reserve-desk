@@ -63,9 +63,9 @@ function readLang(fallback: string): string {
 }
 
 function readTheme(): GuestTheme {
-  if (typeof window === 'undefined') return 'dark'
+  if (typeof window === 'undefined') return 'light'
   const v = localStorage.getItem(THEME_KEY)
-  return v === 'light' ? 'light' : 'dark'
+  return v === 'dark' ? 'dark' : 'light'
 }
 
 // `initialLocale` seeds the language before the persisted choice loads (avoids
@@ -74,7 +74,7 @@ function readTheme(): GuestTheme {
 export function useGuestPrefs(initialLocale: string) {
   const [lang, setLangState] = useState<MenuLang>(() =>
     (MENU_LANGS as readonly string[]).includes(initialLocale) ? (initialLocale as MenuLang) : 'en')
-  const [theme, setThemeState] = useState<GuestTheme>('dark')
+  const [theme, setThemeState] = useState<GuestTheme>('light')
 
   useEffect(() => {
     /* eslint-disable react-hooks/set-state-in-effect -- hydrate persisted prefs after mount */
